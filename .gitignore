@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# journaux du serveur de démo
+dev-server.log
+*.log
+
+# captures d'écran de diagnostic
+*.png

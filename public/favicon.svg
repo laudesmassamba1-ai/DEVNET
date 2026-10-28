@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <linearGradient id="fTop" x1="32" y1="14" x2="32" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFB066"/>
+      <stop offset="100%" stop-color="#D96A2B"/>
+    </linearGradient>
+    <linearGradient id="fMid" x1="18" y1="28" x2="46" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FF9140"/>
+      <stop offset="100%" stop-color="#C85F24"/>
+    </linearGradient>
+    <linearGradient id="fBot" x1="32" y1="36" x2="32" y2="50" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#FFA355"/>
+      <stop offset="100%" stop-color="#B55622"/>
+    </linearGradient>
+    <style>@keyframes fFloat{0%,100%{transform:scale(1)}50%{transform:scale(1.012)}} .cf{animation:fFloat 2.8s ease-in-out infinite;transform-origin:center}</style>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="#0A0907"/>
+  <g class="cf">
+    <path d="M 18 14 H 26 L 30 22 H 34 L 38 14 H 46 V 20 L 44 26 V 38 L 46 44 V 50 H 38 L 34 42 H 30 L 26 50 H 18 V 44 L 20 38 V 26 L 18 20 Z" fill="#15120D"/>
+    <path d="M 18 14 H 26 L 30 22 H 34 L 38 14 H 46 V 20 L 44 26 H 20 L 18 20 Z" fill="url(#fTop)"/>
+    <path d="M 18 50 H 26 L 30 42 H 34 L 38 50 H 46 V 44 L 44 38 H 20 L 18 44 Z" fill="url(#fBot)"/>
+    <path d="M 18 14 V 20 L 20 26 V 38 L 18 44 V 50 M 46 14 V 20 L 44 26 V 38 L 46 44 V 50" stroke="#A64C1F" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M 20 26 H 44 V 38 H 20 Z" fill="url(#fMid)"/>
+    <path d="M 20 26 H 44 M 20 38 H 44 M 30 22 V 42 M 34 22 V 42" stroke="#FFE9C4" stroke-opacity=".28" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <circle cx="32" cy="24" r="2.2" fill="#FFF3D6"/>
+    <circle cx="32" cy="32" r="2.8" fill="#FFF6E0"/>
+    <circle cx="32" cy="40" r="2.2" fill="#FFF3D6"/>
+  </g>
+</svg>

@@ -1,0 +1,990 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { AppShell, IconButton } from "@/components/AppShell";
+import { Avatar, EmptyState, Loading } from "@/components/Avatar";
+import { Sheet } from "@/components/Sheet";
+import { Icon } from "@/components/Icon";
+import { Receipt } from "@/components/Receipt";
+import { TypingLine } from "@/components/TypingDots";
+import { MessageExtras, ReplyQuote } from "@/components/MessageExtras";
+import { DMContext } from "@/components/DMContext";
+import { ChatComposer, ComposerBar } from "@/components/ChatComposer";
+import { useToast } from "@/components/Toast";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
+import { badgeFor, xpOf } from "@/lib/verification";
+import { loadAuthorXp } from "@/lib/author-xp";
+import { supabase } from "@/lib/supabase/client";
+import { useSession } from "@/hooks/useSession";
+import { useTyping } from "@/hooks/useTyping";
+import { clockTime } from "@/lib/utils";
+import { splitContent } from "@/lib/text";
+import {
+  fetchUnreadConversations,
+  markConversationRead,
+} from "@/lib/notifications";
+import {
+  fetchConversationReadMarks,
+  markConversationRead as markRead,
+  receiptFor,
+} from "@/lib/reads";
+import {
+  deleteMessage,
+  fetchMessageReactions,
+  fetchPinnedMessageIds,
+  toggleMessagePin,
+  toggleMessageReaction,
+  type ReactionsByMessage,
+  type ReactionSummary,
+} from "@/lib/messages";
+import type { Conversation, DirectMessage, UserLite } from "@/lib/types";
+
+type Peer = { conv: Conversation; other: (UserLite & { xp?: number }) | null };
+
+/** Clé de conversation stable entre deux participants, triée. */
+function convKey(a: string, b: string): string {
+  return [a, b].sort().join("|");
+}
+
+/** Ajoute un message reçu à la liste affichée, sans doublon. */
+function mergeMessage(list: DirectMessage[], msg: DirectMessage): DirectMessage[] {
+  return list.some((x) => x.id === msg.id) ? list : [...list, msg];
+}
+
+/** Tri ascendant par date — l'ordre de lecture d'une conversation. */
+function sortMessages(list: DirectMessage[]): DirectMessage[] {
+  return [...list].sort((a, b) =>
+    a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0,
+  );
+}
+
+export default function MessagesPage() {
+  const { profile } = useSession();
+  const toast = useToast();
+  const router = useRouter();
+
+  const [convs, setConvs] = useState<Peer[] | null>(null);
+  const [active, setActive] = useState<Peer | null>(null);
+  const [messages, setMessages] = useState<DirectMessage[] | null>(null);
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  const [openNew, setOpenNew] = useState(false);
+  /** Recherche dans la **liste** des conversations : filtre d'affichage. */
+  const [search, setSearch] = useState("");
+  /** Recherche de contacts dans la feuille « nouvelle conversation ». */
+  const [userSearch, setUserSearch] = useState("");
+  /** Recherche **dans** la conversation ouverte : filtre d'affichage. */
+  const [find, setFind] = useState("");
+  /** La recherche est repliée par défaut : un champ permanent au-dessus
+   *  de chaque conversation est du bruit pour un geste rare. */
+  const [findOpen, setFindOpen] = useState(false);
+  /** Messages affichés : toute la conversation, ou ceux qui correspondent. */
+  const findQ = find.trim().toLowerCase();
+  const visible = findQ
+    ? (messages ?? []).filter((m) => m.text.toLowerCase().includes(findQ))
+    : messages;
+  const [users, setUsers] = useState<UserLite[]>([]);
+  /** Messages non lus par conversation, avec leur quantité. */
+  const [unreadConvs, setUnreadConvs] = useState<Record<string, number>>({});
+  /**
+   * Instants de lecture par personne, dans la conversation ouverte.
+   *
+   * Ce n'est pas une notification : c'est l'**état** de lecture, relu à
+   * l'ouverture puis recalculé à chaque message reçu. Un `✓✓` posé au
+   * clic ne survivrait pas au changement d'appareil ; celui-ci, si.
+   */
+  const [readMarks, setReadMarks] = useState<Record<string, string | null>>({});
+  /** Prénoms des pairs dont le signal de frappe est actif. */
+  const [typingNames, setTypingNames] = useState<string[]>([]);
+  /** Réactions agrégées par message, pour la conversation ouverte. */
+  const [reactions, setReactions] = useState<ReactionsByMessage>({});
+  /** Messages épinglés par **moi** — les épingles sont privées. */
+  const [pins, setPins] = useState<Set<string>>(new Set());
+  /** Le message auquel la prochaine envoi répondra. */
+  const [replyTo, setReplyTo] = useState<DirectMessage | null>(null);
+
+  // Message dont la suppression attend confirmation. Une suppression est
+  // irréversible : on ne la déclenche pas sur un clic, surtout que la
+  // poubelle vit à côté de l'épingle et de la réponse.
+  const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const endRef = useRef<HTMLDivElement>(null);
+  /** Conversation dont le chargement est terminé — le canal peut livrer en direct. */
+  const loadStateRef = useRef<{ cid: string; ready: boolean } | null>(null);
+  /** Messages reçus pendant le chargement, rejoués quand il se termine. */
+  const pendingRef = useRef<DirectMessage[]>([]);
+
+  const profileId = profile?.id;
+
+  /*
+   * La frappe (« X écrit… ») passe par un canal `broadcast` **distinct**
+   * de celui des messages : `supabase.channel()` réutilise l'instance
+   * d'un topic déjà existant, et ajouter une liaison à un canal déjà
+   * abonné lève « cannot add `postgres_changes` callbacks after
+   * `subscribe()` ». Deux topics, donc deux canaux — un pour la donnée
+   * (`dm-<conv>`), un pour le signal volatil (`dm-typing-<conv>`).
+   */
+  const { peers: typingPeers, notifyTyping, stopTyping } = useTyping(
+    active ? `dm-typing-${active.conv.id}` : null,
+    profile?.id ?? null,
+  );
+
+  /**
+   * Lecture des conversations — fonction pure.
+   *
+   * Elle était écrite deux fois dans cette page : une version mémorisée pour
+   * l'envoi d'un message, une version recopiée dans l'effet de montage. Les
+   * deux tournaient, donc chaque ouverture de page déclenchait deux fois la
+   * cascade requêtes/conversations + N requêtes/users. Une seule version,
+   * dont l'effet ne fait que lire le résultat.
+   */
+  const fetchConvs = useCallback(async (): Promise<Peer[]> => {
+    if (!profileId) return [];
+
+    const { data } = await supabase
+      .from("conversations")
+      .select("*")
+      .contains("participants", [profileId])
+      .order("last_message_at", { ascending: false });
+
+    const rows = (data as Conversation[]) ?? [];
+    const peers = await Promise.all(rows.map(async (conv) => {
+      const otherId = conv.participants.find((p) => p !== profileId);
+      if (!otherId) return { conv, other: null };
+      const { data: u } = await supabase
+        .from("users")
+        .select("id, prenom, pseudo, avatar_color, account_type, verified")
+        .eq("id", otherId)
+        .single();
+      return { conv, other: (u as UserLite) ?? null };
+    }));
+
+    const xp = await loadAuthorXp(peers.map((p) => p.other?.id));
+    if (xp.size === 0) return peers;
+    return peers.map((p) => {
+      const value = p.other ? xp.get(p.other.id) : undefined;
+      if (!p.other || value === undefined) return p;
+      return { ...p, other: { ...p.other, xp: value } };
+    });
+  }, [profileId]);
+
+  /**
+   * Recharge et remplace l'état — pour les actions utilisateur.
+   *
+   * `isAlive` n'est passé que par l'effet de montage, qui doit ignorer
+   * la réponse si le composant a été démonté entre la requête et son
+   * retour. Les actions utilisateur l'appellent sans argument : elles
+   * sont déclenchées depuis un composant vivant, donc le test serait
+   * toujours vrai et ne coûterait rien.
+   *
+   * Ce chemin est unique : avant, l'effet de montage et ce callback
+   * listaient les conversations chacun de leur côté, et il fallait
+   * maintenir les deux en phase.
+   */
+  const refresh = useCallback(async (isAlive?: () => boolean) => {
+    const [peers, unread] = await Promise.all([
+      fetchConvs(),
+      profileId ? fetchUnreadConversations(profileId) : Promise.resolve<Record<string, number>>({}),
+    ]);
+    if (isAlive && !isAlive()) return;
+    setConvs(peers);
+    setUnreadConvs(unread);
+  }, [fetchConvs, profileId]);
+
+  useEffect(() => {
+    // Le corps du loader est inliné ici plutôt qu'appelé : la règle
+    // `set-state-in-effect` suit l'appel d'un `useCallback` du même
+    // composant, mais accepte la forme IIFE locale avec garde de montage.
+    let alive = true;
+    void (async () => {
+      const [peers, unread] = await Promise.all([
+        fetchConvs(),
+        profileId
+          ? fetchUnreadConversations(profileId)
+          : Promise.resolve<Record<string, number>>({}),
+      ]);
+      if (!alive) return;
+      setConvs(peers);
+      setUnreadConvs(unread);
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [refresh, fetchConvs, profileId]);
+
+  // Temps réel sur la conversation ouverte
+  useEffect(() => {
+    if (!active) return;
+
+    const cid = active.conv.id;
+    let alive = true;
+    // Le chargement repart de zéro : tant qu'il n'est pas fini, les
+    // messages reçus vont dans le buffer au lieu de se perdre dans une
+    // liste encore vide ou déjà parti consulter la précédente
+    // conversation.
+    loadStateRef.current = { cid, ready: false };
+    pendingRef.current = [];
+
+    (async () => {
+      // Du plus récent au plus ancien, puis retourné : on charge les
+      // **derniers** 100 messages, jamais les 100 premiers d'une
+      // conversation qui en a mille.
+      const { data } = await supabase
+        .from("direct_messages").select("*").eq("conversation_id", cid)
+        .order("created_at", { ascending: false }).limit(100);
+      const rows = ((data as DirectMessage[]) ?? []).reverse();
+      // Qui a changé de conversation pendant la lecture ? La réponse
+      // n'a plus sa place — elle parlerait d'un autre fil.
+      if (!alive || active?.conv.id !== cid) return;
+
+      // Les messages qui sont tombés pendant la lecture sont rejoués par
+      //-dessus, dédupliqués, et l'ensemble est trié.
+      const pending = pendingRef.current;
+      pendingRef.current = [];
+      setMessages(sortMessages([...rows, ...pending]));
+      loadStateRef.current = { cid, ready: true };
+      setReplyTo(null);
+
+      // Réactions et épingles en **deux requêtes** pour toute la
+      // conversation : une par bulle rendrait l'ouverture de l'écran
+      // proportionnelle à la longueur de l'historique.
+      if (profileId && rows.length > 0) {
+        const [rx, pinned] = await Promise.all([
+          fetchMessageReactions("direct_message", rows.map((r) => r.id), profileId),
+          fetchPinnedMessageIds("direct_message", profileId),
+        ]);
+        if (!alive || active?.conv.id !== cid) return;
+        setReactions(rx);
+        setPins(pinned);
+      } else {
+        setReactions({});
+        setPins(new Set());
+      }
+
+      // L'état de lecture est relu **à l'ouverture**, puis on marque
+      // lu : l'ordre compte. Marquer avant de lire ferait clignoter un `✓✓`
+      // sur un message qui n'était pas encore affiché — c'est-à-dire
+      // annoncer une lecture qui n'a pas eu lieu.
+      if (profileId) {
+        const marks = await fetchConversationReadMarks(cid);
+        if (!alive || active?.conv.id !== cid) return;
+        setReadMarks(marks);
+
+        const dernier = rows[rows.length - 1] ?? pending[pending.length - 1];
+        if (dernier) {
+          await markRead(cid, profileId);
+          if (!alive || active?.conv.id !== cid) return;
+          setReadMarks((prev) => ({ ...prev, [profileId]: new Date().toISOString() }));
+        }
+      }
+    })();
+
+    const channel = supabase
+      .channel(`dm-${cid}`)
+      .on("postgres_changes",
+        { event: "INSERT", schema: "public", table: "direct_messages",
+          filter: `conversation_id=eq.${cid}` },
+        ({ new: m }: { new: DirectMessage }) => {
+          const msg = m;
+          const st = loadStateRef.current;
+          if (st?.cid !== cid || !st.ready) {
+            if (st?.cid === cid) pendingRef.current.push(msg);
+            return;
+          }
+          setMessages((prev) => (prev === null ? prev : mergeMessage(prev, msg)));
+
+          if (profileId && msg.author_id !== profileId) {
+            void markRead(cid, profileId);
+            void markConversationRead(profileId, cid);
+            setReadMarks((prev) => ({ ...prev, [profileId]: new Date().toISOString() }));
+            void refresh();
+          }
+        })
+      .subscribe();
+
+    return () => {
+      alive = false;
+      // `removeChannel` ferme **et** retire le canal du client : sans le
+      // retrait, rouvrir la même conversation retrouverait l'ancienne
+      // instance, déjà abonnée, et `.on()` lèverait à nouveau.
+      void supabase.removeChannel(channel);
+    };
+  }, [active, profileId, refresh]);
+
+  // Les prénoms des pairs qui tapent : on résout les identifiants
+  // reçus par le canal en noms affichables, sinon la ligne dirait «
+  // u-thabo écrit ».
+  useEffect(() => {
+    if (typingPeers.length === 0) {
+      // La dérivation passe par le rendu, pas par un effet : on filtre
+      // à l'affichage plutôt que de maintenir un second état en
+      // synchronisation — l'effet n'existe plus pour le cas vide.
+      return;
+    }
+
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("users")
+        .select("id, prenom")
+        .in("id", typingPeers.map((p) => p.userId));
+
+      if (!alive) return;
+      const noms = (data as { id: string; prenom: string }[] | null) ?? [];
+      setTypingNames(noms.map((n) => n.prenom));
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [typingPeers]);
+
+  useEffect(() => {
+    // On défile le **conteneur** de messages, jamais la fenêtre. Un
+    // `scrollIntoView` remonte tous les ancêtres défilants : quand la
+    // conversation tenait dans la vue, il faisait glisser toute la page
+    // — la coque remontait sous le bandeau et le composeur se retrouvait
+    // hors écran.
+    const wall = endRef.current?.parentElement;
+    if (wall && messages?.length) {
+      wall.scrollTo({ top: wall.scrollHeight, behavior: "smooth" });
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    if (!openNew || !profileId) return;
+    let alive = true;
+
+    (async () => {
+      const q = userSearch.trim();
+      let query = supabase
+        .from("users")
+        .select("id, prenom, pseudo, avatar_color, account_type, verified")
+        .neq("id", profileId!)
+        .limit(20);
+
+      if (q) query = query.ilike("pseudo", `%${q}%`);
+      const { data } = await query;
+      if (alive) setUsers((data as UserLite[]) ?? []);
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [openNew, userSearch, profileId]);
+
+  /**
+   * Ouvre (ou crée) la conversation avec `other`.
+   *
+   * Une seule fonction pour deux points d'entrée : le sélecteur de
+   * contacts, et le lien `?to=pseudo` envoyé par un profil public. Si
+   * chaque chemin calculait son propre identifiant de conversation, il
+   * y aurait deux endroits où se tromper — et « ça marche quand on
+   * clique dans la liste mais pas quand on arrive depuis un profil »
+   * serait exactement le genre de bug qu'on ne voit qu'en production.
+   */
+  async function startConversation(other: UserLite) {
+    if (!profile) return;
+    const id = convKey(profile.id, other.id);
+
+    const { data } = await supabase
+      .from("conversations").select("*").eq("id", id).maybeSingle();
+
+    let conv = data as Conversation | null;
+
+    if (!conv) {
+      const row = {
+        id,
+        participants: [profile.id, other.id].sort(),
+        last_message: "",
+        last_message_at: new Date().toISOString(),
+      };
+      const { data: ins } = await supabase
+        .from("conversations").insert(row).select().single();
+      conv = (ins as Conversation) ?? row;
+    }
+
+    setActive({ conv, other });
+    setOpenNew(false);
+    setUserSearch("");
+    // Ouvrir une conversation, c'est la lire : on marque ses
+    // notifications comme lues ici aussi, comme dans `openConversation`.
+    // Sans cela, une conversation ouverte par « ?to=pseudo » resterait
+    // « non lue » malgré la lecture, et la pastille de la liste
+    // refuserait de disparaître.
+    await markConversationRead(profile.id, id);
+    setUnreadConvs((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+  }
+
+  /**
+   * Ouvrir une conversation, c'est la lire.
+   *
+   * On marque donc ses notifications comme lues au moment de
+   * l'ouvrir, et pas à un bouton « tout lu » du centre. Sans cela, un
+   * message resterait « non lu » après avoir été lu, et la cloche
+   * compterait des messages que la personne a déjà vus — un
+   * compteur qui ne revient jamais à zéro, donc qu'on finit par
+   * ignorer.
+   *
+   * La lecture vit dans `notifications.read_at` : une seule source de
+   * vérité pour la cloche et pour cette liste, donc pas de table
+   * `conversation_reads` qui finirait par diverger de la première.
+   */
+  async function openConversation(peer: Peer) {
+    setActive(peer);
+    if (!profile) return;
+
+    await markConversationRead(profile.id, peer.conv.id);
+    setUnreadConvs((prev) => {
+      const next = { ...prev };
+      delete next[peer.conv.id];
+      return next;
+    });
+  }
+
+  const openWith = startConversation;
+
+  /**
+   * Arrivée depuis un profil public : `/messages?to=koffi`.
+   *
+   * On lit le pseudo, on résout l'utilisateur, puis on ouvre la même
+   * conversation que si l'on avait cliqué dans la liste. Le paramètre est
+   * retiré de l'URL ensuite : sans cela, revenir en arrière rouvrirait
+   * cette conversation au lieu de revenir à la liste — un effet
+   * secondaire que le visiteur n'a pas demandé.
+   */
+  useEffect(() => {
+    if (!profile) return;
+    const target = new URLSearchParams(window.location.search).get("to");
+    if (!target) return;
+
+    let alive = true;
+    (async () => {
+      const { data } = await supabase
+        .from("users")
+        .select("id, prenom, pseudo, avatar_color, account_type, verified")
+        .ilike("pseudo", target)
+        .neq("id", profile.id)
+        .maybeSingle();
+
+      if (!alive || !data) return;
+      await startConversation(data as UserLite);
+
+      const clean = new URL(window.location.href);
+      clean.searchParams.delete("to");
+      window.history.replaceState({}, "", clean.toString());
+    })();
+
+    return () => {
+      alive = false;
+    };
+    // `startConversation` est recréé à chaque rendu ; on ne veut pas
+    // relancer la résolution du pseudo à chaque frappe.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
+
+  /**
+   * Pose ou retire une réaction, en **optimiste**.
+   *
+   * La pastille change tout de suite ; si l'écriture échoue, on remet
+   * l'état d'avant. Un aller-retour réseau de plusieurs centaines de
+   * millisecondes sur un pouce qui vient d'appuyer donne l'impression
+   * que le clic n'a pas pris — c'est le défaut qu'on corrige ici.
+   */
+  async function toggleReaction(messageId: string, emoji: string) {
+    if (!profile) return;
+    const before = reactions;
+
+    setReactions((prev) => {
+      const list = prev[messageId] ?? [];
+      const existing = list.find((r) => r.emoji === emoji);
+      let next: ReactionSummary[];
+
+      if (existing?.mine) {
+        next =
+          existing.count <= 1
+            ? list.filter((r) => r.emoji !== emoji)
+            : list.map((r) =>
+                r.emoji === emoji ? { ...r, count: r.count - 1, mine: false } : r,
+              );
+      } else if (existing) {
+        next = list.map((r) =>
+          r.emoji === emoji ? { ...r, count: r.count + 1, mine: true } : r,
+        );
+      } else {
+        next = [...list, { emoji, count: 1, mine: true }];
+      }
+
+      return { ...prev, [messageId]: next };
+    });
+
+    const { error } = await toggleMessageReaction(
+      "direct_message",
+      messageId,
+      profile.id,
+      emoji,
+    );
+
+    if (error) {
+      setReactions(before);
+      toast("Réaction impossible", "err");
+    }
+  }
+
+  async function togglePin(messageId: string) {
+    if (!profile) return;
+    const wasPinned = pins.has(messageId);
+
+    setPins((prev) => {
+      const next = new Set(prev);
+      if (wasPinned) next.delete(messageId);
+      else next.add(messageId);
+      return next;
+    });
+
+    const { error } = await toggleMessagePin("direct_message", messageId, profile.id);
+    if (error) {
+      setPins((prev) => {
+        const next = new Set(prev);
+        if (wasPinned) next.add(messageId);
+        else next.delete(messageId);
+        return next;
+      });
+      toast("Épingle impossible", "err");
+    }
+  }
+
+  async function removeMessage(messageId: string) {
+    setPendingDelete(null);
+    const before = messages;
+    // Optimiste : le message disparaît tout de suite. La base reste
+    // l'arbitre — si elle refuse (message d'un autre, politique changée),
+    // on remet la liste telle qu'elle était et on le dit.
+    setMessages((prev) => (prev ? prev.filter((m) => m.id !== messageId) : prev));
+
+    const { error } = await deleteMessage(messageId);
+    if (error) {
+      setMessages(before);
+      toast("Suppression refusée", "err");
+      return;
+    }
+    if (replyTo?.id === messageId) setReplyTo(null);
+    toast("Message supprimé");
+  }
+
+  async function send() {
+    if (!profile || !active) return;
+    const body = text.trim();
+    if (!body) return;
+
+    setSending(true);
+    const { error } = await supabase.from("direct_messages").insert({
+      conversation_id: active.conv.id,
+      author_id: profile.id,
+      author_name: profile.prenom,
+      text: body,
+      reply_to_id: replyTo?.id ?? null,
+    });
+
+    if (!error) {
+      await supabase.from("conversations").update({
+        last_message: body,
+        last_message_at: new Date().toISOString(),
+      }).eq("id", active.conv.id);
+
+      // Le signal de frappe tombe à l'envoi : l'autre côté verrait «
+      // écrit… » pendant six secondes alors que le message est déjà
+      // parti — pour rien.
+      stopTyping();
+      setText("");
+      setReplyTo(null);
+      refresh();
+    } else {
+      toast(`Erreur : ${error.message}`, "err");
+    }
+    setSending(false);
+  }
+
+  const peer = active?.other;
+
+  // Filtre d'affichage de la liste : on cherche dans le prénom, le pseudo
+  // et le dernier message. `null` (chargement) reste `null`.
+  const needle = search.trim().toLowerCase();
+  const visibleConvs = convs
+    ? convs.filter(
+        (p) =>
+          !needle ||
+          (p.other?.prenom ?? "").toLowerCase().includes(needle) ||
+          (p.other?.pseudo ?? "").toLowerCase().includes(needle) ||
+          (p.conv.last_message ?? "").toLowerCase().includes(needle),
+      )
+    : null;
+
+  return (
+    <AppShell
+      title="Messages"
+      path="~/messages"
+      wide
+      immersive={Boolean(active && peer)}
+      action={
+        <IconButton label="Nouvelle conversation" name="edit" dataTour="messages-new" onClick={() => setOpenNew(true)} />
+      }
+    >
+      <div className="shell:grid shell:h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))]
+        shell:grid-cols-[300px_minmax(0,1fr)]" data-tour="messages-list">
+        {/* Volet conversation — plein écran sur mobile, deuxième
+            colonne sur grand écran, où la liste reste visible : c'est
+            la grammaire d'un tchat, pas d'un aller-retour. */}
+        <section className="min-w-0 min-h-0 shell:order-2">
+          {active && peer ? (
+            <div className="fixed inset-0 z-[var(--z-sheet)] flex flex-col
+              overlay-frost shell:static shell:bg-page shell:z-auto shell:h-full">
+              <header className="flex h-[var(--h-topbar)] shrink-0 items-center gap-2.5
+                border-b-[var(--bw-heavy)] border-edge glass-strong px-4 text-chalk">
+                <button type="button" aria-label="Fermer"
+                  onClick={() => { setActive(null); setMessages(null); }}
+                  className="mo-press -ml-1.5 flex size-[var(--h-tap)] items-center justify-center
+                    border-[var(--bw-thin)] border-line-2/40 transition-colors hover:bg-signal
+                    shell:hidden">
+                  <Icon name="chevron-left" size={16} />
+                </button>
+                <Avatar name={peer.prenom} color={peer.avatar_color} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-display text-[13.5px] font-bold tracking-[-0.01em]">
+                    {peer.prenom}
+                    {peer.verified && <VerifiedBadge tier={badgeFor(peer, xpOf(peer))} size="sm" className="ml-1.5 translate-y-[1px]" />}
+                  </div>
+                  <div className="truncate font-mono text-[10.5px] text-chalk-4">
+                    @{peer.pseudo}
+                  </div>
+                </div>
+                <button type="button" aria-label="Chercher dans les échanges"
+                  title="Chercher dans les échanges"
+                  aria-pressed={findOpen}
+                  onClick={() => setFindOpen((v) => {
+                    if (v) setFind("");
+                    return !v;
+                  })}
+                  className={`mo-press flex size-[var(--h-tap)] shrink-0 items-center justify-center
+                    border-[var(--bw-thin)] transition-colors
+                    ${findOpen
+                      ? "border-signal bg-signal text-void"
+                      : "border-line-2/40 text-chalk-4 hover:bg-signal hover:text-void"}`}>
+                  <Icon name="search" size={14} />
+                </button>
+                <Link href={`/u/${encodeURIComponent(peer.pseudo)}`} aria-label="Voir le profil"
+                  title="Voir le profil"
+                  className="mo-press flex size-[var(--h-tap)] shrink-0 items-center justify-center
+                    border-[var(--bw-thin)] border-line-2/40 transition-colors hover:bg-signal">
+                  <Icon name="info" size={14} />
+                </Link>
+              </header>
+
+              {/* Recherche dans la conversation. Repliée par défaut : un
+                  filtre d'affichage, rien de plus — on lit ce qu'on
+                  cherche sans quitter le fil. */}
+              {findOpen && (
+                <div className="mo-fade flex shrink-0 items-center gap-2 border-b border-line-2 glass-flat px-4 py-2">
+                  <Icon name="search" size={14} className="shrink-0 text-chalk-4" />
+                  <input
+                    autoFocus
+                    value={find}
+                    onChange={(e) => setFind(e.target.value)}
+                    placeholder={`Chercher dans les échanges avec ${peer.prenom}…`}
+                    className="h-[30px] w-full border-none bg-transparent text-[12.5px] text-chalk
+                      outline-none placeholder:text-chalk-4"
+                  />
+                  <button
+                    type="button" aria-label="Fermer la recherche"
+                    onClick={() => { setFind(""); setFindOpen(false); }}
+                    className="mo-press flex size-[20px] items-center justify-center
+                      border border-line-2 text-chalk-4 transition-colors hover:border-line-3 hover:text-chalk"
+                  >
+                    <Icon name="close" size={11} strokeWidth={2.4} />
+                  </button>
+                </div>
+              )}
+
+              <div className="chat-wall min-h-0 flex-1 overflow-y-auto px-4 pt-4 pb-4">
+                {/* La bande de contexte précède les messages : c'est la
+                    première chose qu'on voit en ouvrant une conversation — ce
+                    que l'autre fait en ce moment, pour écrire en sachant qui
+                    lit. */}
+                <DMContext key={peer.id} peer={peer} />
+                {messages === null && <Loading />}
+                {messages?.length === 0 && (
+                  <EmptyState title="Aucun message" />
+                )}
+                {messages !== null && messages.length > 0 && visible?.length === 0 && (
+                  <EmptyState title="Aucun résultat" icon={<Icon name="search" size={20} strokeWidth={1.5} />}
+                    hint={`Rien pour « ${find.trim()} ».`} />
+                )}
+                {visible?.map((m, i) => {
+                  const mine = m.author_id === profile?.id;
+                  // Seuls les messages qu'on a écrits portent un accusé :
+                  // on ne peut pas savoir si quelqu'un d'autre a lu, et
+                  // l'afficher quand même serait afficher une information
+                  // qu'on n'a pas.
+                  const receipt = mine
+                    ? receiptFor(m.created_at, readMarks, profile?.id ?? "")
+                    : null;
+                  const isLatest = i === (visible?.length ?? 0) - 1;
+                  // Le message cité est cherché dans la fenêtre chargée. S'il
+                  // est plus ancien, on n'affiche pas de citation plutôt que
+                  // d'inventer un contenu — la réponse reste lisible seule.
+                  const parent = m.reply_to_id
+                    ? (messages ?? []).find((x) => x.id === m.reply_to_id)
+                    : null;
+
+                  return (
+                    <div
+                      key={m.id}
+                      id={`dm-msg-${m.id}`}
+                      className={`${mine ? "mo-msg-in" : "mo-msg-in-alt"} group/message mb-2 flex flex-col
+                        ${mine ? "items-end" : "items-start"}`}
+                    >
+                      {parent && (
+                        <ReplyQuote
+                          author={parent.author_name}
+                          text={parent.text}
+                          align={mine ? "right" : "left"}
+                          onClick={() =>
+                            document
+                              .getElementById(`dm-msg-${parent.id}`)
+                              ?.scrollIntoView({ behavior: "smooth", block: "center" })
+                          }
+                        />
+                      )}
+                      <div className={`max-w-[78%] rounded-[var(--radius-input)] border px-3.5 py-2.5
+                        text-[13.5px] leading-[1.55] break-words whitespace-pre-wrap
+                        ${mine
+                          ? "border-signal/60 glass-flat text-chalk"
+                          : "border-line-2 glass-flat text-chalk-2"}`}
+                      >
+                        {splitContent(m.text).map((segment, j) =>
+                          segment.tag ? (
+                            <button
+                              key={j}
+                              type="button"
+                              onClick={() => router.push(`/search?tag=${encodeURIComponent(segment.tag!)}`)}
+                              title={`Voir les publications #${segment.tag}`}
+                              className="font-medium text-signal"
+                            >
+                              {segment.text}
+                            </button>
+                          ) : segment.mention ? (
+                            <button
+                              key={j}
+                              type="button"
+                              onClick={() => router.push(`/u/${encodeURIComponent(segment.mention!)}`)}
+                              title={`Ouvrir le profil de @${segment.mention}`}
+                              className="font-medium text-chalk hover:text-signal"
+                            >
+                              {segment.text}
+                            </button>
+                          ) : (
+                            <span key={j}>{segment.text}</span>
+                          ),
+                        )}
+                        <div className={`mt-1 text-[10px] ${mine ? "text-chalk/60" : "text-chalk-4"}`}>
+                          {clockTime(m.created_at)}
+                          {receipt && <Receipt state={receipt.state} isLatest={isLatest} />}
+                        </div>
+                      </div>
+                      <MessageExtras
+                        summary={reactions[m.id] ?? []}
+                        pinned={pins.has(m.id)}
+                        align={mine ? "right" : "left"}
+                        onToggleReaction={(emoji) => void toggleReaction(m.id, emoji)}
+                        onReply={() => setReplyTo(m)}
+                        onTogglePin={() => void togglePin(m.id)}
+                        onDelete={mine ? () => setPendingDelete(m.id) : undefined}
+                      />
+                      {pendingDelete === m.id && (
+                        <div
+                          role="alertdialog"
+                          aria-label="Confirmer la suppression du message"
+                          className={`mt-1 flex flex-wrap items-center gap-2 border border-danger
+                            bg-surface px-2.5 py-2 text-[12px] text-chalk shadow-sh-1
+                            ${mine ? "self-end" : "self-start"}`}
+                        >
+                          <Icon name="trash" size={14} className="text-danger" />
+                          <span className="mr-auto">Supprimer ce message ?</span>
+                          <button
+                            type="button"
+                            onClick={() => setPendingDelete(null)}
+                            className="rounded-[var(--radius-chip)] border border-line-3 px-2 py-1
+                              font-mono text-[10.5px] font-bold uppercase tracking-[0.12em]
+                              text-chalk-3 transition-colors hover:text-chalk"
+                          >
+                            annuler
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void removeMessage(m.id)}
+                            className="mo-press rounded-[var(--radius-chip)] border border-danger bg-danger
+                              px-2 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.12em]
+                              text-void"
+                          >
+                            supprimer
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {find.trim() && (
+                  <p className="px-1 pb-1 pt-2 text-[11px] text-chalk-4">
+                    {visible?.length ?? 0} résultat{(visible?.length ?? 0) > 1 ? "s" : ""}{" "}
+                    sur {messages?.length ?? 0} messages
+                  </p>
+                )}
+
+                {/* La ligne de frappe vit **après** les messages, jamais
+                    au-dessus : elle décrit le bas de la conversation, la
+                    où l'œil revient après avoir lu. Au-dessus, elle
+                    pousserait la liste vers le bas à chaque apparition. */}
+                <TypingLine names={typingNames} />
+                <div ref={endRef} />
+
+              </div>
+              <ComposerBar>
+                {replyTo && (
+                  <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
+                    border border-line-2 bg-surface px-2.5 py-1.5 text-[11.5px] text-chalk-3">
+                    <Icon name="comment" size={12} className="shrink-0 text-signal" />
+                    <span className="min-w-0 flex-1 truncate">
+                      Réponse à{" "}
+                      <span className="font-bold text-chalk">{replyTo.author_name}</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setReplyTo(null)}
+                      aria-label="Annuler la réponse"
+                      className="shrink-0 text-chalk-4 transition-colors hover:text-danger"
+                    >
+                      <Icon name="close" size={12} />
+                    </button>
+                  </div>
+                )}
+                <ChatComposer
+                  id="dm-composer"
+                  value={text}
+                  onValueChange={setText}
+                  onSend={send}
+                  onTyping={notifyTyping}
+                  sending={sending}
+                  placeholder="Écris un message…"
+                />
+              </ComposerBar>
+            </div>
+          ) : (
+            <div className="hidden h-full flex-col items-center justify-center gap-3
+              border-l border-line-2 text-chalk-4 shell:flex">
+              <Icon name="messages" size={24} strokeWidth={1.3} />
+              <p className="text-[12.5px]">Choisis une conversation</p>
+            </div>
+          )}
+        </section>
+
+        {/* Colonne liste — première colonne sur grand écran ; sur
+            mobile, c'est toute la page tant qu'aucune conversation
+            n'est ouverte. */}
+        <aside className={`${active ? "hidden" : "block"} shell:block shell:order-1
+          shell:overflow-y-auto`}>
+          <div className="px-(--gutter) pt-3 shell:px-3 shell:pt-2">
+        <input value={search} onChange={(e) => setSearch(e.target.value)}
+          placeholder="Rechercher…"
+            className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+              px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
+              focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]" />
+
+          {visibleConvs === null && <Loading />}
+
+          {visibleConvs?.length === 0 && (
+            <EmptyState
+              title={needle ? "Aucun résultat" : "Aucune conversation"}
+              hint={needle ? undefined : "Démarre une conversation par le crayon"}
+            />
+          )}
+
+{visibleConvs?.map((peer) => {
+            const { conv, other } = peer;
+            const unread = unreadConvs[conv.id] ?? 0;
+
+            return (
+            <button key={conv.id} type="button" onClick={() => void openConversation(peer)}
+              className={`depth-card mb-[9px] flex w-full items-center gap-3.5
+                rounded-[var(--radius-card)] border glass-flat p-3.5 text-left
+                ${unread > 0 ? "border-signal/60" : "border-line-2/60"}`}>
+              <Avatar name={other?.prenom} color={other?.avatar_color} />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[14px] font-bold">
+                    {other?.prenom ?? "Utilisateur"}
+                  </span>
+                  {other?.verified && <VerifiedBadge tier={badgeFor(other, xpOf(other))} size="sm" />}
+                </div>
+                <div className="mt-0.5 overflow-hidden text-[11.5px] text-chalk-3
+                  text-ellipsis whitespace-nowrap">
+                  {conv.last_message || "…"}
+                </div>
+              </div>
+              <div className="flex shrink-0 flex-col items-end gap-1.5">
+                {conv.last_message_at && (
+                  <span className="text-[10.5px] tracking-wide text-chalk-4">
+                    {clockTime(conv.last_message_at)}
+                  </span>
+                )}
+                {unread > 0 && (
+                  <span className="flex size-[18px] items-center justify-center
+                    rounded-full bg-signal font-mono text-[10px] font-bold leading-none text-void">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
+              </div>
+            </button>
+            );
+          })}
+          </div>
+        </aside>
+      </div>
+
+      <Sheet open={openNew} onClose={() => setOpenNew(false)} title="Nouvelle conversation">
+        <input value={userSearch} onChange={(e) => setUserSearch(e.target.value)}
+          placeholder="Rechercher un pseudo…"
+          className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+            px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+
+        {users.length === 0 && (
+          <p className="py-6 text-center text-[12.5px] text-chalk-3">Aucun membre trouvé</p>
+        )}
+
+        {users.map((u) => (
+          <button key={u.id} type="button" onClick={() => openWith(u)}
+            className="mb-[9px] flex w-full items-center gap-3.5 rounded-[var(--radius-card)] border
+              border-line-3 bg-surface p-3 shadow-sh-1 transition-[transform,box-shadow]
+              hover:-translate-x-[2px] hover:-translate-y-[2px] hover:bg-surface-2 hover:shadow-sh-2">
+            <Avatar name={u.prenom} color={u.avatar_color} />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[13.5px] font-bold">{u.prenom}</span>
+                {u.verified && <VerifiedBadge tier={badgeFor(u, xpOf(u))} size="sm" />}
+              </div>
+              <span className="font-mono text-[11px] text-chalk-3">@{u.pseudo}</span>
+            </div>
+            <span className="label-micro text-chalk-4">
+              {u.account_type === "professional" ? "Pro" : "Étu"}
+            </span>
+          </button>
+        ))}
+      </Sheet>
+    </AppShell>
+  );
+}

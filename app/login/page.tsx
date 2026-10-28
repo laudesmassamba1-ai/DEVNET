@@ -1,0 +1,455 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+
+import { Logo } from "@/components/Logo";
+import { Icon } from "@/components/Icon";
+import { Avatar, Spinner } from "@/components/Avatar";
+import { Motion, Tilt } from "@/components/Motion";
+import { rearmSplash } from "@/components/SplashScreen";
+import { supabase } from "@/lib/supabase/client";
+import { authErrorMessage } from "@/lib/utils";
+import { useSession } from "@/hooks/useSession";
+import { useBackend } from "@/hooks/useBackend";
+import { DEMO_ADMINS, DEMO_ME, DEMO_USERS } from "@/lib/demo/data";
+import { accountLabel } from "@/lib/utils";
+import type { User } from "@/lib/types";
+
+export default function Login() {
+  const { session, loading } = useSession();
+  const router = useRouter();
+  const backend = useBackend();
+
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [demoPick, setDemoPick] = useState<User | null>(null);
+
+  const isDemo = backend.state === "offline";
+
+  useEffect(() => {
+    if (!loading && session) router.replace("/feed");
+  }, [loading, session, router]);
+
+  const signIn = useCallback(
+    async (emailToUse: string, password: string, pick?: User) => {
+      setBusy(true);
+      setError("");
+      try {
+        const result = await supabase.auth.signInWithPassword({
+          email: emailToUse,
+          password,
+        });
+        if (result.error) {
+          setError(authErrorMessage(result.error));
+          setBusy(false);
+          return false;
+        }
+        if (pick) {
+          // En démo, forcer la session sur le compte choisi en local
+          // tant que le backend distant est injoignable : l'UI doit
+          // afficher le bon profil dès le rendu suivant.
+          sessionStorage.setItem("devnet.demo.pick", pick.id);
+        }
+        // La session vient de s'ouvrir : l'écran de lancement se rejoue
+        // au prochain chargement complet (voir `rearmSplash`).
+        rearmSplash();
+        router.replace("/feed");
+        return true;
+      } finally {
+        setBusy(false);
+      }
+    },
+    [router],
+  );
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (!email || !pw) {
+      setError("Remplis les deux champs.");
+      return;
+    }
+
+    await signIn(email, pw, demoPick ?? undefined);
+  }
+
+  const enterDemo = useCallback(async () => {
+    const who = demoPick ?? DEMO_ME;
+    await signIn(who.email, "demo", who);
+  }, [signIn, demoPick]);
+
+  useEffect(() => {
+    if (!isDemo || loading || session) return;
+
+    const wanted = new URLSearchParams(window.location.search).has("demo");
+    if (!wanted && !sessionStorage.getItem("devnet.demo.pick")) return;
+
+    const storedPick = sessionStorage.getItem("devnet.demo.pick");
+    const pick = DEMO_USERS.find((u) => u.id === storedPick) ?? DEMO_ME;
+
+    void (async () => {
+      // On rend d'abord la page avec le pick existant — si le pick est
+      // déjà en sessionStorage, `demoPick` est déjà le bon pendant le
+      // rendu — ... puis on lance la connexion asynchrone. Mais si l'état
+      // local diverge (rechargement, nouvel onglet), on le resynchronise
+      // par une mise à jour asynchrone, et non au corps de l'effet :
+      // `setDemoPick(pick)` dans ce corps déclenche un rendu de cascade
+      // signalé par le linter React-compiler.
+      setDemoPick((current) => (current?.id === pick.id ? current : pick));
+      await signIn(pick.email, "demo", pick);
+    })();
+  }, [isDemo, loading, session, signIn]);
+
+  function chooseDemo(pick: User) {
+    setDemoPick((current) => (current?.id === pick.id ? current : pick));
+    sessionStorage.setItem("devnet.demo.pick", pick.id);
+  }
+
+  function clearPick() {
+    setDemoPick(null);
+    sessionStorage.removeItem("devnet.demo.pick");
+  }
+
+  return (
+    <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden p-6">
+      {/* ── Décor ──
+          Un tube cathodique : lignes de balayage qui descendent très
+          lentement, et un prompt en filigrane. Le décor bouge, mais
+          toujours moins vite que le formulaire n'apparaît — sinon il
+          concurrence l'attention au lieu de la poser. */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 select-none overflow-hidden"
+      >
+        <span className="absolute right-[-18px] bottom-[6%] font-mono text-[9rem] leading-none text-chalk opacity-[0.03]">
+          &gt;_
+        </span>
+        <span className="scanlines-live absolute inset-0" />
+      </div>
+
+      {/* ── Scène, en quatre temps ──
+          1. La marque se résout : rotation de 4°, comme une commande que
+             la machine exécute.
+          2. Le titre se tape lettre par lettre, 45 ms d'écart — le geste
+             le plus vieux du terminal.
+          3. Le curseur s'allume une fois le titre posé : une invite se
+             tape, *puis* attend. L'ordre inverse ferait lire l'écran
+             comme une page web qui charge.
+          4. Le panneau s'assemble, et ses champs battent un cran de plus
+             chacun — la cadence de lecture d'un fichier. */}
+      <div className="relative z-1 w-full max-w-[400px]">
+        <div className="mb-4 text-center">
+          <Motion
+            role="rotate"
+            delay={0}
+            className="mx-auto block w-fit"
+          >
+            <Logo size={58} />
+          </Motion>
+        </div>
+
+        <h1
+          className="mb-4 text-center font-mono text-[2.2rem] font-bold
+            uppercase tracking-[0.2em] leading-none"
+        >
+          {"DevNet".split("").map((letter, i) => (
+            <Motion
+              key={`${letter}-${i}`}
+              role="rise"
+              delay={160 + i * 45}
+              as="span"
+              className="inline-block"
+            >
+              {letter}
+            </Motion>
+          ))}
+          <Motion
+            role="pop"
+            delay={160 + 6 * 45}
+            as="span"
+            className="inline-block text-signal"
+          >
+            .
+          </Motion>
+          <Motion
+            role="fade"
+            delay={160 + 6 * 45 + 140}
+            as="span"
+            className="caret !ml-1 !h-[0.58em] !w-[0.34em]"
+            style={{ verticalAlign: "0.02em" }}
+          />
+        </h1>
+
+        {/* ── Panneau — la carte du héros public : une surface unique,
+            seule du projet à s'incliner avec la souris (`Tilt`, 4° au
+            maximum, jamais au doigt, coupé par reduced-motion). ── */}
+        <Tilt max={4}>
+        <Motion
+          role="scale"
+          delay={660}
+          className="rounded-[var(--radius-card)] border border-line-3
+            bg-surface p-[1.6rem] shadow-sh-3"
+        >
+          <h2 className="mb-1 flex items-center gap-2 font-display text-[1.5rem] font-bold tracking-[-0.02em]">
+            <Motion role="rotate" as="span" className="font-mono text-signal">
+              $
+            </Motion>
+            {isDemo ? "Démonstration" : "Connexion"}
+          </h2>
+          {/* ── Choix du compte en démo ──
+              Quand un profil est choisi, on l'affiche et on propose de
+              revenir au choix par défaut. Ce n'est pas un écran à part :
+              c'est le même formulaire, avec un choix explicité. */}
+          {isDemo && demoPick && (
+            <Motion role="rise" className="mb-4">
+              <div className="mb-3 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <Avatar name={demoPick.prenom} color={demoPick.avatar_color} size="md" />
+                  <div>
+                    <p className="font-display text-[14px] font-bold text-chalk">
+                      @{demoPick.pseudo}
+                    </p>
+                    <p className="label-micro text-chalk-4">
+                      {accountLabel(demoPick.account_type)}
+                      {demoPick.verified ? " · vérifié" : ""}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={clearPick}
+                  className="label-micro h-[28px] shrink-0 border border-line-3 px-2 text-chalk-3 transition-colors hover:border-signal hover:text-signal"
+                >
+                  Retour
+                </button>
+              </div>
+            </Motion>
+          )}
+
+          {/* ── Grille des comptes démo ──
+              Ce n'est pas un menu caché : c'est la première chose qu'on
+              voit, parce que dans une démo le choix du compte est le
+              premier geste productif. */}
+          {isDemo && !demoPick && (
+            <Motion role="rise" className="mb-4">
+              <p className="mb-2 label-micro text-chalk-4">Comptes disponibles</p>
+              <div className="grid grid-cols-2 gap-2">
+                {DEMO_USERS.filter((u) => !u.is_admin).slice(0, 6).map((u) => (
+                  <button
+                    key={u.id}
+                    type="button"
+                    onClick={() => chooseDemo(u)}
+                    className="group flex items-start gap-2.5 rounded-[var(--radius-card)] border
+                      border-line-2 bg-surface/60 p-2 text-left transition-colors
+                      hover:border-signal hover:bg-surface"
+                  >
+                    <Avatar name={u.prenom} color={u.avatar_color} size="sm" />
+                    <div className="min-w-0">
+                      <p className="truncate font-display text-[12.5px] font-bold text-chalk">
+                        @{u.pseudo}
+                      </p>
+                      <p className="truncate label-micro text-chalk-4">
+                        {u.followers > 0 ? `${u.followers} abonnés` : "neau"}
+                      </p>
+                      {u.verified && (
+                        <span className="mt-0.5 inline-flex items-center gap-1 label-micro text-[10px] uppercase text-signal">
+                          <Icon name="verified" size={9} />
+                          vérifié
+                        </span>
+                      )}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* ── Les comptes d'administration ──
+                  Un groupe séparé : ce ne sont pas des profils du fil,
+                  et les mêler aux six comptes ferait croire qu'on en est
+                  un. Ils portent le cachet de base — c'est par lui qu'on
+                  reconnaît l'équipe. */}
+              {DEMO_ADMINS.length > 0 && (
+                <div className="mt-4">
+                  <p className="mb-2 label-micro text-chalk-4">Administration</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {DEMO_ADMINS.map((u) => (
+                      <button
+                        key={u.id}
+                        type="button"
+                        onClick={() => chooseDemo(u)}
+                        className="group flex items-start gap-2.5 rounded-[var(--radius-card)] border
+                          border-line-2 bg-surface/60 p-2 text-left transition-colors
+                          hover:border-signal hover:bg-surface"
+                      >
+                        <Avatar name={u.prenom} color={u.avatar_color} size="sm" />
+                        <div className="min-w-0">
+                          <p className="truncate font-display text-[12.5px] font-bold text-chalk">
+                            @{u.pseudo}
+                          </p>
+                          <p className="truncate label-micro text-chalk-4">{u.ville}</p>
+                          <span className="mt-0.5 inline-flex items-center gap-1 label-micro text-[10px] uppercase text-info">
+                            <Icon name="lock" size={9} />
+                            administration
+                          </span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </Motion>
+          )}
+
+          {/* ── Mode démonstration : l'action principale ──
+              Le bouton passe **avant** le formulaire, et non après. En
+              démonstration, le formulaire est un détour : on ne veut pas
+              que le présentateur perde vingt secondes à chercher un mot de
+              passe qui n'existe pas, ni que le jury conclue à une
+              application vide. Le formulaire reste là pour qui préfère
+              changer de compte et voir un autre profil. */}
+          {isDemo && (
+            <Motion role="rise" className="mb-4">
+              <button
+                type="button"
+                onClick={enterDemo}
+                disabled={busy}
+                className="lift-press flex h-[var(--h-tap)] w-full items-center justify-center gap-2
+                  rounded-[var(--radius-input)] border border-signal bg-signal
+                  text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+              >
+                {busy ? <Spinner /> : <>Entrer comme @{(demoPick ?? DEMO_ME).pseudo}</>}
+              </button>
+            </Motion>
+          )}
+
+          {isDemo && (
+            <div className="mb-4 flex items-center gap-3">
+              <span className="h-px flex-1 bg-line-2" />
+              <span className="label-micro text-chalk-4">ou</span>
+              <span className="h-px flex-1 bg-line-2" />
+            </div>
+          )}
+
+          {error && (
+            <Motion role="rise" className="mb-3.5">
+              <div
+                role="alert"
+                className="rounded-[var(--radius-input)] border
+                  border-danger bg-danger/12 px-3.5 py-2.5 text-[12.5px] font-medium text-danger"
+              >
+                {error}
+              </div>
+            </Motion>
+          )}
+
+          <form onSubmit={submit} noValidate>
+          <div className="mb-4">
+            <label htmlFor="email" className="prompt-label mb-1.5 block text-chalk-2">
+              adresse email
+            </label>
+            <Motion role="rise" delay={780} as="div">
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="votre@email.com"
+                className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
+                  text-[14px] shadow-sh-1 outline-none
+                  transition-[transform,box-shadow] duration-[var(--d-base)] ease-[var(--ease-spring)]
+                  placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px
+                  focus:shadow-[3px_3px_0_#FF8A3D]"
+              />
+            </Motion>
+          </div>
+
+          <div className="mb-5">
+            <label htmlFor="pw" className="prompt-label mb-1.5 block text-chalk-2">
+              mot de passe
+            </label>
+            <div className="relative">
+              <Motion role="rise" delay={840} as="div">
+                <input
+                  id="pw"
+                  type={showPw ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={pw}
+                  onChange={(e) => setPw(e.target.value)}
+                  placeholder="••••••••"
+                  className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+                    px-3.5 pr-12 text-[14px] shadow-sh-1 outline-none
+                    transition-[transform,box-shadow] duration-[var(--d-base)] ease-[var(--ease-spring)]
+                    placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px
+                    focus:shadow-[3px_3px_0_#FF8A3D]"
+                />
+              </Motion>
+
+              {/* L'icône ne glisse pas, elle bascule : un déplacement
+                  ajouterait une seconde information à un simple changement
+                  d'état. */}
+              <button
+                type="button"
+                aria-label={showPw ? "Masquer" : "Afficher"}
+                onClick={() => setShowPw((v) => !v)}
+                className="absolute top-[2px] right-[2px] flex h-[42px] w-10 items-center
+                  justify-center text-chalk-3 transition-colors
+                  duration-[var(--d-fast)] hover:text-signal"
+              >
+                <Icon name={showPw ? "eye-off" : "eye"} size={18} strokeWidth={2} />
+              </button>
+            </div>
+          </div>
+
+          <Motion role="rise" delay={880} as="div" className="mb-4 flex justify-end">
+            <Link
+              href="/mot-de-passe-oublie"
+              className="text-[11px] font-bold text-chalk-4 hover:text-chalk"
+            >
+              Mot de passe oublié ?
+            </Link>
+          </Motion>
+
+          <Motion role="rise" delay={900} as="div">
+            <button
+              type="submit"
+              disabled={busy}
+              className={`lift-press flex h-[var(--h-tap)] w-full items-center justify-center gap-2
+                rounded-[var(--radius-input)] border
+                ${isDemo
+                  ? "border-line-3 bg-surface text-chalk hover:border-signal"
+                  : "border-signal bg-signal text-void"}
+                text-[13px] font-bold shadow-sh-2 disabled:opacity-40`}
+            >
+              {busy ? <Spinner /> : "Se connecter"}
+            </button>
+          </Motion>
+          </form>
+        </Motion>
+        </Tilt>
+
+        <Motion role="fade" delay={1000}>
+          <p className="mt-5 text-center text-[12.5px] text-chalk-3">
+            Pas encore de compte ?{" "}
+            <Link href="/register" className="font-bold text-signal underline-sweep">
+              Créer un compte
+            </Link>
+          </p>
+          <p className="mt-3 text-center text-[11px] text-chalk-4">
+            <Link href="/a-propos" className="hover:text-chalk-2">À propos</Link>
+            {" · "}
+            <Link href="/aide" className="hover:text-chalk-2">Aide</Link>
+            {" · "}
+            <Link href="/confidentialite" className="hover:text-chalk-2">Confidentialité</Link>
+            {" · "}
+            <Link href="/cgu" className="hover:text-chalk-2">CGU</Link>
+          </p>
+        </Motion>
+      </div>
+    </div>
+  );
+}

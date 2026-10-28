@@ -1,26 +1,1541 @@
+/* ================================================================
+   DEVNET — Design system « LIQUID BLEU » + Motion
+
+  Un fond ivoire mat porte les plaques translucides. Les barres et
+  surfaces flottantes reçoivent le flou en direct ; les cartes restent
+  légères et transmettent la couleur du fond. Un reflet directionnel,
+  un liseré fin et deux ombres douces donnent au verre son épaisseur
+   sans sacrifier la lisibilité ni les performances.
+
+  L'olive est l'accent d'interaction ; le vert reste réservé aux données
+  vivantes. Les éditeurs gardent leur plan sombre dédié.
+
+   Le mouvement est une propriété de l'élément, jamais un conteneur.
+   Les animations n'interpolent que `transform` et `opacity`.
+================================================================ */
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Les polices viennent de next/font : la variable est résolue à l'usage,
+   donc next/font peut la poser sur <body> sans casser le thème. */
+@theme {
+  /* ── Substrat : ivoire mat, graphite et verre clair ───────── */
+  --color-void:    #24261F;
+  --color-page:    #F1EFE6;
+  --color-surface:   rgba(255, 255, 255, 0.24);
+  --color-surface-2: rgba(255, 255, 255, 0.40);
+  --color-surface-3: rgba(255, 255, 255, 0.62);
+
+  /* ── Encre : graphite, du plus dense au plus clair ────────────────
+     Les deux tons clairs ont été assombris : sur l'ivoire, #62655D et
+     #6B6E65 tombaient sous le seuil de lisibilité du petit texte. La
+     hiérarchie `chalk < chalk-2 < chalk-3 < chalk-4` est conservée. */
+  --color-chalk:    #272A24;
+  --color-chalk-2:  #41443D;
+  --color-chalk-3:  #54574D;
+  --color-chalk-4:  #5E6157;
+
+  /* ── Filets : séparations mates et discrètes ──────────────── */
+  --color-line:   rgba(42, 45, 38, 0.08);
+  --color-line-2: rgba(42, 45, 38, 0.14);
+  --color-line-3: rgba(42, 45, 38, 0.24);
+
+  /* ── Signal : olive pour les actions et les liens ─────────────
+     Assombri depuis #C5D58C : le vert pâle se confondait avec l'ivoire,
+     les boutons pleins ne se voyaient plus. L'olive moyen garde le
+     texte sombre (`--color-void`) lisible par-dessus. */
+  --color-signal:   #8FAF4E;
+  --color-signal-d: #496439;
+
+  /* ── Vivant : la donnée qui bouge ───────────────────────────────
+      Présence, sonde en direct, ticks lus, compteurs actifs. Vert
+      franc — jamais sur un bouton, jamais en fond. */
+  --color-phosphor:   #4F8A5B;
+  --color-phosphor-d: #346B43;
+
+  /* ── Sémantique, rare ── */
+  --color-ok:      #327A4D;  /* succès, série sécurisée */
+  --color-danger:  #B2433D;  /* erreur, like, suppression */
+  --color-warn:    #855B16;  /* badge vérifié uniquement */
+  --color-info:    #386D74;  /* schéma, annotation */
+
+  /* ── Avatars : pastel, ils ressortent sur le bleu nuit ── */
+  --color-av-lime-bg:   #CDE3A4;  --color-av-lime-fg:   #2E4411;
+  --color-av-sage-bg:   #CFE0CF;  --color-av-sage-fg:   #254528;
+  --color-av-pink-bg:   #F0C4C9;  --color-av-pink-fg:   #6D1B20;
+  --color-av-orange-bg: #F6D8AC;  --color-av-orange-fg: #6A430E;
+  --color-av-violet-bg: #DBC4DF;  --color-av-violet-fg: #4D2346;
+
+/* ── Dégradés — touches de couleur rares ──
+   Un dégradé est une affirmation, pas un fond. L'anneau de story est la
+   paire de la marque (vert → lime) ; les tons ambre/or sont conservés
+   pour les **gains** et le badge vérifié seulement. Aucun dégradé
+   « Instagram » (rose, violet, coucher de soleil). */
+  --gradient-amber-fire: linear-gradient(135deg, #C27A42 0%, #AD564E 100%);
+  --gradient-ember:      linear-gradient(135deg, #C99443 0%, #DFC16D 100%);
+  --gradient-phosphor:   linear-gradient(135deg, #4F7B55 0%, #A5B77A 100%);
+  --gradient-aura:       linear-gradient(135deg, rgba(73, 100, 57, 0.10) 0%, rgba(165, 183, 122, 0.08) 100%);
+
+  /* ── Story ring gradient ──
+     L'anneau de story est la « sonde » : l'accent d'interaction qui
+     rejoint la donnée vivante. Vert → lime, la même paire que le reste
+     de l'interface, pas un arc-en-ciel. */
+  --story-ring-gradient: linear-gradient(135deg, #496439, #A5B77A);
+
+  /* ── Typo ──
+     Inter pour tout le texte, titres compris : une seule famille,
+     la hiérarchie se fait au poids et à l'interlettrage.
+     IBM Plex Mono pour la donnée : compteurs, libellés, code. */
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-plex-mono), ui-monospace, monospace;
+
+  /* ── Ombres : contact doux sur le plan ivoire ──────────────── */
+  --shadow-sh-1:  0 1px 2px rgba(35, 37, 29, 0.05),
+                  0 5px 16px -8px rgba(35, 37, 29, 0.10);
+  --shadow-sh-2:  0 2px 6px rgba(35, 37, 29, 0.06),
+                  0 12px 30px -10px rgba(35, 37, 29, 0.12);
+  --shadow-sh-3:  0 3px 8px rgba(35, 37, 29, 0.07),
+                  0 26px 56px -22px rgba(35, 37, 29, 0.16);
+  --shadow-action: 0 8px 24px -12px rgba(35, 37, 29, 0.16);
+  --shadow-inset-signal: inset 0 -3px 0 var(--color-signal);
+
+  /* ── Profondeur ─────────────────────────────────────────────────
+     Une ombre « plate » (`sh-1`) pose la fiche sur la mer bleue. La
+     profondeur demande **deux couches** : une portée longue et diffuse
+     pour l'écart au fond, un contact court pour la pose.
+
+     Un seul palier : `lift-1` existait aussi, mais rien ne
+     l'utilisait — un jeton non employé est une classe morte. */
+  --shadow-lift-2: 0 2px 6px rgba(35, 37, 29, 0.06),
+                   0 18px 40px -16px rgba(35, 37, 29, 0.13);
+  /* Anneau de focus : un filet d'accent, pas une lueur. */
+  --shadow-ring-signal: 0 0 0 3px rgba(73, 100, 57, 0.28);
+  /* Ombre portée vers le haut : pour une feuille qui monte du bas,
+     l'ombre doit être au-dessus, sinon elle se colle au bord. */
+  --shadow-sh-signal-top: 0 -6px 0 var(--color-signal-d);
+
+  /* ── Verre : transparence, reflet directionnel et profondeur ── */
+  --glass-bg:        rgba(255, 255, 255, 0.34);
+  --glass-bg-strong: rgba(255, 255, 255, 0.52);
+  --glass-refract:        blur(10px) saturate(1.04);
+  --glass-refract-strong: blur(16px) saturate(1.08);
+  --glass-lens:           blur(22px) saturate(1.10);
+  --glass-sheen:
+    linear-gradient(155deg,
+      rgba(255, 255, 255, 0.30) 0%,
+      rgba(255, 255, 255, 0.08) 42%,
+      rgba(255, 255, 255, 0) 72%);
+  --glass-rim:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    inset 0 0 0 1px rgba(42, 45, 38, 0.07),
+    inset 0 -1px 0 rgba(42, 45, 38, 0.08);
+  --color-edge:      rgba(42, 45, 38, 0.14);
+  --shadow-drop:     0 2px 5px -1px rgba(35, 37, 29, 0.07),
+                     0 18px 38px -16px rgba(35, 37, 29, 0.12);
+  --shadow-drop-lg:  0 4px 9px -2px rgba(35, 37, 29, 0.09),
+                     0 30px 64px -22px rgba(35, 37, 29, 0.16);
+  /* ── Superposition ──
+     Une couche qui s'affiche **au-dessus** d'une autre est plus
+     importante : ce qu'elle recouvre doit s'effacer pour qu'on lise son
+     contenu. Le fond passe donc derrière un voile — assombri et flou —
+     tandis que la couche du dessus garde un fond fumé et un texte très
+     contrasté. */
+  --overlay-veil-bg:  rgba(35, 37, 29, 0.28);
+  --overlay-blur:     blur(9px) saturate(1.15);
+  --overlay-frost-bg: rgba(245, 243, 235, 0.82);
+  --overlay-panel-bg: rgba(248, 247, 241, 0.96);
+  --shadow-brut:     0 2px 6px rgba(35, 37, 29, 0.06),
+                     0 12px 28px -10px rgba(35, 37, 29, 0.12);
+  --shadow-brut-lg:  0 4px 10px rgba(35, 37, 29, 0.08),
+                     0 28px 60px -24px rgba(35, 37, 29, 0.16);
+
+  /* ================================================================
+     MOUVEMENT — grammaire par intention
+
+     Une seule courbe « ease-out » pour tout est le défaut classique des
+     interfaces génériques : l'apparition d'un panneau, le survol d'un
+     bouton et le clignotement d'un curseur n'ont pas la même physique.
+     On sépare donc cinq intention, chacune avec sa courbe.
+
+     entrance   — un contenu apparaît. Décélération longue, aucun rebond.
+     spring     — une surface est manipulée. Léger dépassement : la
+                  surface « se pose » comme une fiche posée sur un bureau.
+     continuous — mouvement de fond (respiration). Aller-retour symétrique.
+     timing     — rythme machine (curseur). En marches, jamais dégradé :
+                  un curseur qui s'estompe est un curseur de page web.
+     pop        — confirmation (compteur, badge). Dépassement franc.
+     ═══════════════════════════════════════════════════════════════ */
+  --ease-entrance:  cubic-bezier(0.16, 1, 0.30, 1);
+  --ease-spring:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-continuous: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-pop:        cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-gravity:    cubic-bezier(0.34, 1.2, 0.64, 1);
+  --ease-timing:    steps(1, end);
+
+  /* `snap` — réaction à un geste ponctuel : le cœur qui se remplit,
+     l'emoji qui éclate, le compteur qui saute. Départ quasi instantané
+     pour que le geste paraisse immédiatement acquitté, retour long
+     pour qu'il se pose. À l'inverse, un geste semble lent, et
+     l'utilisateur retape. */
+  --ease-snap:      cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Durées : une échelle courte, pas une liste de valeurs arbitraires ── */
+  --d-instant:  90ms;   /* réaction immédiate (press) */
+  --d-fast:    140ms;   /* micro-feedback (survol, toggle) */
+  --d-base:    240ms;   /* changement d'état (onglet, bouton) */
+  --d-slow:    380ms;   /* mouvement de surface (carte, sheet) */
+  --d-enter:   520ms;   /* apparition de contenu */
+  --d-scene:   760ms;   /* durée totale d'une scène chorégraphiée */
+  --d-story:  6000ms;   /* durée d'une story */
+  --d-caret:  1060ms;   /* cadence du clignotement du curseur */
+  --d-orbit:  1100ms;   /* une révolution complète (attente, chargement) */
+  --d-burst:   300ms;   /* éclat d'une réaction posée */
+
+  /* ── Rythme de cascade ──
+     L'écart entre deux éléments d'une cascade. Assez pour que l'œil
+     distingue l'ordre, assez court pour que dix cartes soient là en
+     une seconde. */
+  --stagger-step: 55ms;
+  /* Plafond : au-delà, la cascade ne s'étire plus. Un fil de quarante
+     posts ne doit pas mettre trois secondes à se lire. */
+  --stagger-max: 640ms;
+
+  /* ── Palette de code, variante « éditeur » ────────────────────────
+     Elle dérive des mêmes teintes que l'UI : un utilisateur qui passe
+     d'une card à un bloc de code ne voit pas un autre univers. Le vert
+     des chaînes est le phosphor, l'ambre reste aux mots-clés. */
+  --color-code-bg:     #0A0E1A;
+  --color-code-plain:  #E9EDF8;
+  --color-code-keyword: #FF9E64;
+  --color-code-string:  #8FF25C;
+  --color-code-number:  #FFC46B;
+  --color-code-function:#C9A0E8;
+  --color-code-type:    #FFD166;
+  --color-code-comment: #96A0AB;
+  --color-code-punct:   #A8B1BA;
+
+  /* ── Espacement : base 4 px ── */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  24px;
+  --space-2xl: 32px;
+  --gutter:    1.1rem;
+
+  /* ── Seuils de coque ──────────────────────────────────────────
+     Ce ne sont pas des « tailles d'écran » mais des capacités : à partir
+     de quelle largeur le panneau de gauche tient SANS rogner le contenu.
+
+     `shell` (880 px) = 236 (panneau) + 560 (la colonne que le mobile
+     affiche déjà) + 2 × 40 de gouttière. En dessous, le panneau ne ferait
+     que prendre de la place au contenu : franchir le seuil RÉTRÉCIRAIT la
+     page, ce qui est exactement l'inverse de ce qu'on attend d'un écran
+     plus grand. Le `md:` de Tailwind (768 px) donnait 532 px de contenu
+     collé aux bords — plus étroit que le mobile qu'on venait de quitter.
+
+     `wide` (1440 px) : au-delà, la colonne s'élargit à 720 px. Au-delà de
+     1920, un écran affiche deux voids de 500 px de chaque côté — c'est le
+     comportement normal d'une colonne de lecture centrée, celui de GitHub
+     et de Twitter, et le remplir serait de la décoration.
+   */
+  --breakpoint-shell: 55rem;  /* 880 px */
+  --breakpoint-wide:  90rem;  /* 1440 px */
+
+  /* ── Rayons : capsules et coques continues ──
+     Liquid Glass : les commandes deviennent des gélules (`chip` en
+     pastille pleine), les champs s'arrondissent franchement, les
+     cartes forment une coque. L'arrondi circulaire plein reste
+     réservé aux pastilles (avatars, présence, anneaux de story). */
+  --radius-chip:  999px;
+  --radius-input: 14px;
+  --radius-card:  18px;
+
+  /* ── Épaisseurs de bordure : des filets, pas des cadres ──
+     Le verre ne se délimite pas au trait épais : l'épaisseur est
+     portée par le reflet et l'ombre ambiante. */
+  --bw-hair:   1px;
+  --bw-thin:   1px;
+  --bw-thick:  1px;
+  --bw-heavy:  1.5px;
+  --bw-accent: 3px;
+
+  /* ── Hauteurs fixes ── */
+  --h-topbar:    56px;
+  --h-status:    22px;
+  --h-bottomnav: 60px;
+  --h-input:     44px;
+  --h-tap:       44px;   /* cible tactile minimale, règle dure */
+  /* Action secondaire d'une barre d'outils : pas de la navigation, donc
+     pas 44 px — mais le plancher de 24 px du WCAG 2.2 (critère 2.5.8,
+     niveau AA), sous lequel une cible n'est plus atteignable au pouce. */
+  --h-action:    32px;
+
+  /* ── Icônes : grille 24, trait 1.6, angles coupés ── */
+  --icon-stroke: 1.6;
+
+  /* ── Hiérarchie z-index ── */
+  --z-base:   0;
+  --z-sticky: 80;   /* topbar */
+  --z-nav:    100;  /* bottom nav */
+  --z-composer: 90; /* barre de saisie au-dessus de la nav */
+  --z-sheet:  200;
+  --z-modal:  300;
+  --z-toast:  400;
+
+  /* ── Échelle typographique ── */
+  --text-display-xl: 1.75rem;   --lh-display-xl: 1.05;
+  --text-display-l:  1.375rem;  --lh-display-l:  1.1;
+  --text-display-m:  1.125rem;  --lh-display-m:  1.2;
+  --text-body:       0.938rem;  --lh-body:       1.62;
+  --text-body-s:     0.844rem;
+  --text-caption:    0.75rem;   --lh-caption:    1.45;
+  --text-label:      0.656rem;  --lh-label:      1.3;
+  --text-micro:      0.594rem;  --lh-micro:      1.25;
+  --text-code:       0.938rem;  --lh-code:       1.7;
+
+  /* ── Pas de halo ──
+     Les jetons `--glow-*` ont été retirés : un halo coloré autour
+     d'un bouton ou d'une barre se lit comme un défaut d'affichage,
+     et il coûte une ombre de plus à composer. La hiérarchie tient
+     au filet (`--color-line-*`) et à l'ombre neutre (`--shadow-sh-*`).
+     Le focus garde son anneau : `--shadow-ring-signal`. */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ── Ressorts réels ──────────────────────────────────────────────────
+   Là où le navigateur comprend `linear()`, les courbes d'intention
+   deviennent de **vrais ressorts échantillonnés** — dépassement amorti
+   puis retour au repos, la physique d'iOS. Un contenu ne se contente
+   plus de décélérer : il *se pose*. Ailleurs, les courbes cubiques de
+   `:root` restent en place ; `@supports` isole le remplacement, donc
+   aucun navigateur ne perd une animation.
+
+   `--ease-entrance` n'est **pas** remplacée : elle sert aussi aux
+   sorties, où un dépassement ferait repartir le contenu à l'envers. */
+/* ================================================================
+   THÈME « CLAIRE »
+
+   Le thème par défaut, « Bleu Liquid », pose un fond ivoire mat et
+   chaud. « Claire » en est la variante froide et plus lumineuse :
+   fond blanc cassé légèrement bleuté, verre plus opaque, filets un
+   cran plus francs. On ne redéfinit que les jetons qui changent — le
+   reste (signal, phosphor, ombres, typo, mouvement) est commun, donc
+   aucun composant n'a besoin de connaître le thème.
+
+   Le sélecteur est plus spécifique que `:root` (Tailwind v4 pose les
+   jetons `@theme` sur `:root`), il gagne donc sans `!important`. */
+:root[data-theme="light"] {
+  --color-page: #FAFBFD;
+
+  /* Encre et filets : à garder lisibles sur un fond plus blanc. */
+  --color-line:   rgba(38, 42, 50, 0.09);
+  --color-line-2: rgba(38, 42, 50, 0.15);
+  --color-line-3: rgba(38, 42, 50, 0.25);
+
+  /* Verre : plus opaque que sur l'ivoire, sinon les plaques se
+     confondent avec le fond blanc. */
+  --glass-bg:        rgba(255, 255, 255, 0.62);
+  --glass-bg-strong: rgba(255, 255, 255, 0.78);
+  --color-edge: rgba(38, 42, 50, 0.12);
+
+  --overlay-veil-bg:  rgba(28, 32, 40, 0.26);
+  --overlay-frost-bg: rgba(255, 255, 255, 0.86);
+  --overlay-panel-bg: rgba(255, 255, 255, 0.97);
 }
 
-@media (prefers-color-scheme: dark) {
+/* Le dégradé de page est écrit en dur sur `body` : on le remplace
+   pour le thème clair, sinon le fond ivoire resterait visible. */
+:root[data-theme="light"] body {
+  background-color: #FAFBFD;
+  background-image: linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 55%, #F3F5F9 100%);
+}
+
+@supports (animation-timing-function: linear(0, 1)) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --ease-spring:  linear(0, 0.319 5.6%, 0.716 11.1%, 0.93 16.7%, 1.003 22.2%, 1.015 27.8%, 1.01 33.3%, 1.004 38.9%, 1.001 44.4%, 1 50%, 1);
+    --ease-pop:     linear(0, 0.277 5%, 0.741 10%, 1.059 15%, 1.162 20%, 1.127 25%, 1.051 30%, 0.995 35%, 0.974 40%, 0.978 45%, 0.99 50%, 1 55%, 1.004 60%, 1.004 65%, 1.002 70%, 1 75%, 0.999 80%, 1);
+    --ease-gravity: linear(0, 0.34 5.6%, 0.781 11.1%, 1.004 16.7%, 1.054 22.2%, 1.036 27.8%, 1.012 33.3%, 1 38.9%, 0.997 44.4%, 1 55.6%, 1);
+    --ease-snap:    linear(0, 0.504 6.3%, 0.876 12.5%, 0.983 18.8%, 1.001 25%, 1 37.5%, 1);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Palette de code, variante « terminal » ──────────────────────
+   Contexte d'isolation forte : lecture longue, fond plus profond que
+   la surface, contraste poussé d'un cran.                          */
+[data-code-variant="terminal"] {
+  --color-code-bg:      #04060A;
+  --color-code-plain:   #F2F6FC;
+  --color-code-keyword: #FFB37C;
+  --color-code-string:  #98F36B;
+  --color-code-number:  #FFC46B;
+  --color-code-function:#D8B0F0;
+  --color-code-type:    #FFDD8A;
+  --color-code-comment: #8794A4;
+  --color-code-punct:   #ADB7C2;
+}
+
+/* ================================================================
+   KEYFRAMES
+
+   Deux principes :
+   1. Une entrée part d'un état **légèrement** décalé. Trop loin, le
+      mouvement se voit comme un glissement ; trop peu, il n'y a pas de
+      mouvement. 14 px est la distance où l'œil perçoit une intention
+      sans percevoir un trajet.
+   2. Une entrée finit exactement à l'état repos (0, 1, none) — sinon
+      le contenu laisse un résidu de transformation et les cartes
+      « collent » au curseur quand on passe dessus.
+   ================================================================ */
+
+/* ── Entrées ── */
+@keyframes enterFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes enterSlide {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* `enterRise` porte la géométrie de l'entrée de panneau : le léger
+   `scale(0.985)` donne la impression qu'une surface se rapproche de
+   l'observateur, pas qu'elle glisse. */
+@keyframes enterRise {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes enterScale {
+  from { opacity: 0; transform: scale(0.965) translateY(8px); filter: blur(6px); }
+  62%  { opacity: 1; filter: blur(0); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* `enterSoft` : le fondu « matière » d'iOS. Rien ne glisse, rien ne
+   grandit de façon perceptible — la surface émerge du flou et se
+   dépose. Réservé aux plans rapprochés (héros, en-têtes, cartes uniques)
+   où le coût d'un filtre est payé une fois, jamais par une liste. */
+@keyframes enterSoft {
+  from { opacity: 0; transform: scale(0.992); filter: blur(9px); }
+  60%  { opacity: 1; filter: blur(0); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* Entrée de bulle, directionnelle. Un message écrit par soi entre par la
+   droite, celui de l'autre par la gauche : le mouvement indique l'origine
+   de la parole avant même qu'on lise l'alignement. Une entrée neutre
+   (fondu + translation verticale) ferait popping sur toutes les bulles et
+   ferait perdre ce repère. */
+@keyframes msgInRight {
+  from { opacity: 0; transform: translateX(16px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes msgInLeft {
+  from { opacity: 0; transform: translateX(-16px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Croissance depuis la gauche : réservée aux jauges et aux traits de
+   progression. `scaleX` plutôt qu'une largeur animée — la largeur
+  provoke un reflow, l'échelle non. */
+@keyframes growX {
+  from { opacity: 0.4; transform: scaleX(0); }
+  to   { opacity: 1;   transform: scaleX(1); }
+}
+
+/* Rotation d'entrée : réservée aux marques et aux prompts. Le 4° de
+   départ est exactement ce qu'on voit dans un terminal qui « résout »
+   une commande — un quart de tour suffit à le faire lire comme machine
+   sans tourner en rond. */
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-4deg) scale(0.96); }
+  to   { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+/* Sorties */
+@keyframes exitFade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes exitSlide {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(10px); }
+}
+
+/* Compression d'un bouton pressé. Le mouvement est un *enfoncement* : il
+   suit la direction de l'ombre dure, donc les deux axes. */
+@keyframes pressDown {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(1px, 1px); }
+}
+
+/* ── Interactions ── */
+
+/* Rebond de compteur : dépassement à 1.18 puis retour. Le dépassement
+   est ce qui fait lire le mouvement comme une « réponse » et non comme
+   une interpolation. */
+@keyframes hoverPop {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(1.18); }
+  70%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+/* ── Continus ── */
+@keyframes rotateLoop { to { transform: rotate(360deg); } }
+
+/* Battement de la pastille « en ligne ». L'amplitude est faible et la
+   période longue (2,6 s) : à la fréquence d'un clignement de substitution
+   plutôt que d'un voyant de contrôleur. Une pastille qui bat vite fatigue ;
+   une pastille qui ne bat pas n'est qu'un carré. */
+@keyframes liveBeat {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.82); }
+}
+
+/* Pulsation d'opacité : le battement le plus neutre, pour un état
+   d'attente ou un point d'activité qui ne doit pas attacher l'œil. */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+/* Sonnerie : la cloche oscille brièvement puis se tait. Un balancement
+   court dit « il vient d'arriver quelque chose » sans occuper l'œil
+   comme une pulsation permanente. */
+@keyframes bellRing {
+  0%, 100% { transform: rotate(0); }
+  12%      { transform: rotate(13deg); }
+  28%      { transform: rotate(-11deg); }
+  44%      { transform: rotate(8deg); }
+  60%      { transform: rotate(-5deg); }
+  76%      { transform: rotate(2deg); }
+}
+
+/* Respiration : échelle ET opacité, symétrique. Utilisée là où un
+   clignotement serait une alarme (pastille de mode, badge de présence)
+   mais où l'absence de mouvement serait trompeur (inactif). */
+@keyframes breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.55; }
+  50%      { transform: scale(1.08); opacity: 1; }
+}
+
+/* Balayage : une ligne qui descend lentement, pour les fonds de
+   surfaces qui doivent « travailler » sans attirer l'œil. */
+@keyframes scan {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(400%); }
+}
+
+/* ── Badge vérifié ─────────────────────────────────────────────────
+     Onze cachets : une **silhouette** par palier, et la couleur suit la
+     silhouette. Aucun mot n'est peint dessus — le titre vit dans le
+     `title` et l'`aria-label`, et la page qui l'affiche annonce déjà le
+     palier à côté.
+
+     Pourquoi la forme avant la couleur : en 13 px, deux pastilles de
+     teintes voisines se confondent dans un fil, deux découpes jamais.
+     L'anneau clair intérieur et l'ombre portée détachent la découpe du
+     fond sans l'épaissir. */
+.verify-badge {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: #201105;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38);
+  filter: drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+}
+.verify-badge-sm { width: 13px; height: 13px; }
+.verify-badge-inline { width: 15px; height: 15px; }
+.verify-badge-lg { width: 20px; height: 20px; }
+
+/* Les deux silhouettes arrondies gardent un `border-radius` ; les neuf
+   autres se découpent au `clip-path` (un `clip-path` ne se combine pas
+   avec un `border-radius` : d'où les deux familles). L'encre claire va
+   aux teintes profondes, la sombre aux teintes pâles. */
+.verify-shape-round {
+  border-radius: 9999px;
+  background: var(--gradient-ember);
+}
+.verify-shape-square {
+  border-radius: 30%;
+  background: linear-gradient(135deg, #8FB4CE 0%, #4A7A99 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  background: linear-gradient(135deg, #B7BFC9 0%, #7C8794 100%);
+  color: #141A20;
+}
+.verify-shape-triangle {
+  clip-path: polygon(50% 4%, 100% 96%, 0% 96%);
+  background: linear-gradient(135deg, #CFA98C 0%, #9C6E4E 100%);
+  color: #22130A;
+}
+.verify-shape-pentagon {
+  clip-path: polygon(50% 0%, 100% 39%, 81% 100%, 19% 100%, 0% 39%);
+  background: linear-gradient(135deg, #B6C878 0%, #7C9A45 100%);
+  color: #1B2408;
+}
+.verify-shape-hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: linear-gradient(135deg, #8FCB9E 0%, #4C8B65 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-octagon {
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  background: linear-gradient(135deg, #87C8C2 0%, #3F8C86 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-star4 {
+  clip-path: polygon(50% 0%, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0% 50%, 38% 38%);
+  background: linear-gradient(135deg, #9BA6CE 0%, #5A6699 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-shield {
+  clip-path: polygon(50% 0%, 100% 13%, 100% 58%, 50% 100%, 0% 58%, 0% 13%);
+  background: linear-gradient(135deg, #D59A92 0%, #A64F45 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-star6 {
+  clip-path: polygon(50% 0%, 60% 34%, 93% 25%, 69% 50%, 93% 75%, 60% 66%, 50% 100%, 40% 66%, 7% 75%, 31% 50%, 7% 25%, 40% 34%);
+  background: linear-gradient(135deg, #5FB07F 0%, #2A6B4A 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-seal {
+  clip-path: polygon(50% 0%, 70% 14%, 93% 25%, 91% 50%, 93% 75%, 70% 86%, 50% 100%, 30% 86%, 7% 75%, 9% 50%, 7% 25%, 30% 14%);
+  background: linear-gradient(135deg, #E7CE84 0%, #C99443 52%, #A6752F 100%);
+  color: #1E1405;
+  /* Le seul cachet qui déborde de sa découpe : la Légende se voit de
+     loin, et c'est le seul or franc de la série. */
+  filter:
+    drop-shadow(0 0 0.75px rgba(201, 148, 67, 0.85))
+    drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+}
+
+/* L'anneau de l'équipe — la marque d'un compte d'administration.
+   Posé *par-dessus* la silhouette : le palier reste lisible, l'anneau
+   s'ajoute. `filter` et non `box-shadow`, parce qu'une découpe au
+   `clip-path` rogne tout ce qui dépasse : l'anneau doit épouser la
+   forme. Deux ombres nettes empilées font un liseré d'un peu plus d'un
+   pixel, quelle que soit la découpe. */
+.verify-badge-admin {
+  filter:
+    drop-shadow(0 0 0.6px rgba(201, 148, 67, 0.95))
+    drop-shadow(0 0 0.6px rgba(201, 148, 67, 0.95))
+    drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+}
+
+
+/* Un gain marqué (quête achevée, badge obtenu) : le dégradé et le halo
+   remplacent le contour vert — l'obtention se voit, elle ne s'annonce
+   pas comme un simple encadré. */
+.earn-box {
+  color: var(--color-void);
+  background: var(--gradient-amber-fire);
+  box-shadow: var(--shadow-sh-1);
+}
+
+/* Texture discrète de conversation, presque imperceptible. */
+.chat-wall {
+  background-color: transparent;
+  background-image:
+   radial-gradient(rgba(73, 100, 57, 0.045) 1px, transparent 1px),
+   radial-gradient(rgba(42, 45, 38, 0.025) 1px, transparent 1px);
+  background-size: 22px 22px, 22px 22px;
+  background-position: 0 0, 11px 11px;
+}
+
+/* Le curseur bloc : en marches, jamais en dégradé. Un curseur de
+   terminal ne s'estompe pas — il est allumé ou éteint. */
+@keyframes caretBlink {
+  0%, 48%   { opacity: 1; }
+  50%, 98%  { opacity: 0; }
+  100%      { opacity: 1; }
+}
+
+/* Barre de progression d'une story : avance linéaire, se met en pause
+   quand l'élément perd la classe (survol / lecture clavier). */
+@keyframes storyBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ── Réactions aux gestes ── */
+
+/* L'éclat d'une réaction posée.
+   Le dépassement est franc (1,32) et accompagné d'une légère
+   rotation : c'est ce qui distingue un **éclat** d'un simple
+   agrandissement. Un emoji qui grossit et revient se lit comme un zoom
+   ; un emoji qui grossit, pivote et retombe se lit comme un tampon
+   qu'on appose. La rotation est minuscule — 8° — parce qu'au-delà,
+   l'emoji semble tomber. */
+@keyframes burstPop {
+  0%   { opacity: 0;   transform: scale(0.4) rotate(-14deg); }
+  38%  { opacity: 1;   transform: scale(1.32) rotate(5deg); }
+  70%  { opacity: 1;   transform: scale(0.94) rotate(-2deg); }
+  100% { opacity: 1;   transform: scale(1) rotate(0deg); }
+}
+
+/* La « secousse » d'un refus.
+   Deux oscillations très courtes, jamais plus : au-delà, un mouvement
+   qui refuse devient une punition visuelle. La destination est nulle
+   — le bouton ne bouge pas, il **résiste**. */
+@keyframes shakeDeny {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-3px); }
+  75%      { transform: translateX(3px); }
+}
+
+/* Montée d'une feuille depuis le bas du plan de travail. */
+@keyframes sheetRise {
+  from { opacity: 0; transform: translateY(24px) scale(0.985); filter: blur(10px); }
+  70%  { opacity: 1; filter: blur(0); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* Le voile qui assombrit derrière une feuille. */
+@keyframes veilIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Le balayage d'un « lien copié » (`sheenPass`) a été retiré : aucune
+   surface ne l'utilisait. Une confirmation qui balaie n'ajoute rien
+   quand le bouton ne fait, de toute façon, que changer de couleur — et
+   une animation qui n'est attachée à aucune interaction n'est qu'une
+   grammaire de plus à maintenir. On ne garde pas de mouvement orphelin. */
+
+/* ── Animations décoratives retirées ──
+
+   Une vague d'animations « After Effects » (entrée élastique, flip 3D,
+   glitch, flottement organique, pulsation magnétique, squish au survol,
+   skeleton, toast, reveal au défilement, heartbeat, count pop, flou
+   directionnel) a été supprimée : aucune n'était attachée à un écran.
+
+   Deux raisons, pas une. D'abord la direction artistique : `DESIGN.md` dit
+   que « le mouvement vient des transitions de surface et de l'élévation,
+   pas d'une animation lumineuse permanente » — un glitch et une pulsation
+   infinie la contredisaient. Ensuite `prefers-reduced-motion` : ces classes
+   portaient des durées écrites en dur (`3s`, `2s`, `4s`, `0.6s`, `1.5s`)
+   au lieu des jetons `--d-*`, donc le réglage d'accessibilité ne pouvait
+   pas les atteindre.
+
+   Le vocabulaire de mouvement reste celui des utilitaires `mo-*`
+   documentés plus haut — chacun attaché à une interaction réelle.
+   `scripts/test-motion.ts` empêche la réintroduction d'une classe
+   définie sans être employée. */
+
+/* ── Base ── */
+@layer base {
+  html {
+    /* Hauteur du bandeau de démonstration, publiée par `BackendBanner`.
+       La coque retranche cette valeur de ses `100dvh` : sans elle, la
+       bande du bandeau s'ajoutait au document et le faisait déborder de
+       sa propre hauteur. Vaut 0 en production, où le bandeau n'existe
+       pas. */
+    --h-banner: 0px;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    color-scheme: light;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-page);
+    background-image: linear-gradient(180deg, #F7F5ED 0%, #F1EFE6 52%, #ECEAE0 100%);
+    color: var(--color-chalk);
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection { background: var(--color-signal); color: var(--color-void); }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--color-page); }
+  ::-webkit-scrollbar-thumb { background: var(--color-line-3); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-signal); }
+  * { scrollbar-width: thin; scrollbar-color: var(--color-line-3) var(--color-page); }
+
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ── Micro-interactions par défaut ──
+     Tout ce qui s'actionne répond au doigt : une transition courte sur les
+     propriétés de surface, et un enfoncement franc au clic. C'est la
+     grammaire tactile d'iOS — la surface *cède* sous le doigt — et elle
+     s'applique sans qu'aucun composant ait à l'écrire. Les utilitaires
+     Tailwind (`transition-*`, `active:*`, `translate-*`) vivent dans une
+     couche supérieure : un composant qui veut autre chose garde la main. */
+  :where(a, button, summary, [role="button"], [role="tab"]) {
+    transition:
+      color            var(--d-fast) var(--ease-continuous),
+      background-color var(--d-fast) var(--ease-continuous),
+      border-color     var(--d-fast) var(--ease-continuous),
+      box-shadow       var(--d-base) var(--ease-spring),
+      opacity          var(--d-fast) var(--ease-continuous),
+      transform        var(--d-fast) var(--ease-spring);
+  }
+
+  :where(button, [role="button"], [role="tab"]):active:not(:disabled),
+  :where(summary):active { transform: scale(0.97); }
+
+  :where(a):active { transform: scale(0.985); }
+
+  /* Aucun angle droit. Tout contrôle de formulaire, tout glyphe clavier,
+     toute image naît arrondi — les utilitaires (`rounded-full`,
+     `rounded-[var(--radius-chip)]`) vivent dans la couche `utilities`,
+     qui bat `base` : une exception reste toujours possible. */
+  button, input, textarea, select, kbd, code { border-radius: var(--radius-input); }
+  img, video, canvas { border-radius: var(--radius-card); }
+  svg { display: block; }
+
+/* Une seule définition du focus sur toute l'application : le focus est
+   une sélection de texte, donc un filet d'accent, pas un halo bleu
+   système. */
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+  }
+
+  /* Verrou de défilement quand un dialogue est ouvert : le fond ne doit
+     pas bouger sous la modale. `:has` évite un second état à propager
+     depuis chaque composant qui ouvre une sheet. */
+  html:has([aria-modal="true"]) { overflow: hidden; }
+}
+
+/* ── Écritures d'accent : l'olive reste lisible sur le verre ── */
+.text-signal,
+.hover\:text-signal:hover,
+.group:hover .group-hover\:text-signal,
+[class~="text-signal/70"] { color: var(--color-signal-d); }
+.text-danger, .hover\:text-danger:hover { color: var(--color-danger); }
+.text-ok     { color: var(--color-ok); }
+.text-warn   { color: var(--color-warn); }
+.text-info   { color: var(--color-info); }
+.text-phosphor { color: var(--color-phosphor-d); }
+
+/* Le prompt `❯` est une écriture, pas un fond. */
+.prompt-label::before { color: var(--color-signal-d); }
+
+/* ── Utilitaires ── */
+
+/* Le motif « label mono » : signature de l'interface. Tout ce qui est
+   donnée — un compteur, un pseudo, une unité — passe en mono uppercase. */
+@utility label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: var(--lh-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+@utility label-micro {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 600;
+  line-height: var(--lh-micro);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Les compteurs ne doivent pas sauter quand le nombre change. */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Un libellé précédé du prompt shell : `❯ LIBELLÉ`. */
+@utility prompt-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-label);
+  font-weight: 600;
+  line-height: var(--lh-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  &::before {
+    content: "❯";
+    color: var(--color-signal);
+    margin-right: 0.5em;
+    font-weight: 700;
+  }
+}
+
+/* Le prompt se « résout » : au survol, le chevron se décale d'un cran
+   comme un curseur qui avance d'une colonne. L reminding est discret
+   mais c'est le genre de détail qu'on remarque quand on le cherche. */
+@utility prompt-hover {
+  transition: transform var(--d-fast) var(--ease-spring);
+  &::before { display: inline-block; }
+  &:hover::before { transform: translateX(3px); }
+}
+
+/* Curseur bloc clignotant, à poser après un texte. */
+@utility caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 0.35em;
+  vertical-align: -0.14em;
+  background: var(--color-signal);
+  animation: caretBlink var(--d-caret) steps(1, end) infinite;
+}
+
+/* Panneau : le verre posé — fond (token), bord, liseré, ombre ambiante. */
+@utility panel {
+  border: var(--bw-thick) solid var(--color-edge);
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim), var(--shadow-brut);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VERRE — PLAQUES DE CRISTAL
+
+   Une plaque de verre est un blanc buée : assez opaque pour que le texte
+   posé dessus reste net, assez flou pour qu'on sente la matière quand
+   elle recouvre du contenu. Ce qui la dessine, c'est la lumière retenue
+   sur son bord — le liseré (`--glass-rim`) et le filet de contour
+   (`--color-edge`) — soutenu par une buée (`--glass-refract`).
+   Toutes les surfaces ci-dessous puisent aux mêmes tokens, réglés dans
+   `:root`. Ce sont ces tokens qui font foi : on adoucit ou on renforce
+   tout le verre d'un seul endroit, jamais ici.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Notes :
+   - Aucune règle ici ne pose `position` : forcer `position: relative` sur
+     `.glass-strong` écraserait le `sticky`/`fixed` des barres (en-tête,
+     nav basse, composer) — elles quitteraient l'écran au défilement.
+   - Un `backdrop-filter` crée un bloc conteneur pour les descendants
+     `fixed`/`absolute`. On ne l'applique donc jamais en masse : chaque
+     surface qui veut du verre le demande par sa classe. */
+
+/* ── Superposition ──
+   Le voile : ce qui passe **dessous** s'assombrit et se floute, pour que
+   la couche du dessus soit lisible. Le panneau : un verre bleu fumé,
+   suffisamment opaque pour que le texte clair garde un contraste franc. */
+@utility overlay-veil {
+  background-color: var(--overlay-veil-bg);
+  backdrop-filter: var(--overlay-blur);
+  animation: veilIn var(--d-fast) var(--ease-entrance) both;
+}
+
+@utility overlay-frost {
+  background-color: var(--overlay-frost-bg);
+  backdrop-filter: var(--overlay-blur);
+}
+
+@utility overlay-panel {
+  background-color: var(--overlay-panel-bg);
+  backdrop-filter: var(--overlay-blur);
+}
+
+/* Verre simple — transparent ; ne reste que le liseré de bord. */
+@utility glass {
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim);
+}
+
+/* La surface d'une barre fixe : plus de voile appuyé, seulement le
+   liseré. La barre se lit à son bord quand le contenu défile dessous. */
+@utility glass-strong {
+  background-color: var(--glass-bg-strong);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract-strong);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+}
+
+/* Le verre des **rangées** : bulles, lignes de navigation, entrées de
+   liste. Même dalle de cristal que les cartes, le liseré en moins lourd. */
+@utility glass-flat {
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+}
+
+/* La carte : dalle de cristal posée sur le fond bleu, qui se soulève au
+   survol et dont le bord s'éclaircit. */
+@utility glass-card {
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  border: var(--bw-thick) solid var(--color-edge);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+  transition:
+    transform     var(--d-base) var(--ease-spring),
+    box-shadow    var(--d-base) var(--ease-spring),
+    border-color  var(--d-fast) var(--ease-continuous),
+    background-color var(--d-fast) var(--ease-continuous);
+
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--glass-rim), var(--shadow-drop-lg);
+    border-color: var(--color-line-3);
+  }
+}
+
+/* La surface fixe : filet + liseré, jamais de déplacement (une barre ne
+   bouge pas au survol). */
+@utility glass-edge {
+  background-color: var(--glass-bg-strong);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract-strong);
+  border: var(--bw-thick) solid var(--color-edge);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+}
+
+/* Le verre flottant reçoit le flou et un filet plus marqué que les cartes. */
+@utility glass-lens {
+  background-color: var(--glass-bg-strong);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-lens);
+  border: var(--bw-thick) solid var(--color-edge);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.34),
+      rgba(191, 225, 255, 0.14) 28%,
+      transparent 56%,
+      rgba(111, 189, 255, 0.20)
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+
+/* Gouttière de lignes : la colonne de numéros à gauche d'un bloc de
+   code, comme dans un vrai éditeur. */
+@utility line-gutter {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--color-chalk-4);
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scanlines : très faible opacité, à poser sur une surface pleine. */
+@utility scanlines {
+  background-image: repeating-linear-gradient(
+    0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px
+  );
+}
+
+/* Scanlines animées : une barre qui descend très lentement, comme le
+   balayage d'un tube cathodique. À poser sur un fond, jamais sur du texte. */
+@utility scanlines-live {
+  position: relative;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(
+    0deg, rgba(0, 0, 0, 0.20) 0 1px, transparent 1px 3px
+  );
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 22%;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(231, 235, 243, 0.035),
+      transparent
+    );
+    animation: scan 9s linear infinite;
+    pointer-events: none;
+  }
+}
+
+/* Trame diagonale : le « hachurage » des plans techniques. */
+@utility hatch {
+  background-image: repeating-linear-gradient(
+    115deg, var(--color-surface-3) 0 6px, var(--color-surface-2) 6px 12px
+  );
+}
+
+/* Motif Adinkra « Nkran » : le lien entre la marque et le terminal.
+   Tracé en clair, il habille le fond sans jamais slapoter le texte. */
+@utility adinkra-motif {
+  background-image:
+    repeating-linear-gradient(45deg, transparent 0 11px, rgba(231, 235, 243, 0.05) 11px 13px),
+    repeating-linear-gradient(-45deg, transparent 0 11px, rgba(231, 235, 243, 0.05) 11px 13px);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MOUVEMENT — classes par intention
+
+   Aucune de ces classes n'ajoute d'élément. Elles s'appliquent sur
+   l'élément rendu par `<Motion as="…">`, et les retards viennent
+   d'un `animation-delay` inline. Deuxkeyframes ne touchent que
+   `transform` et `opacity` : le mouvement ne provoque aucun reflow.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Pré-entrée : invisible, mais sa place est réservée. Utilisé par
+   `useInView` pour qu'un contenu animé au scroll ne « saute » pas. */
+@utility mo-pre { opacity: 0; }
+
+/* Entrées */
+/* Fill-mode **`backwards`**, jamais `both`.
+
+   Une animation d'entrée se termine à l'état de repos de l'élément
+   (`transform: none`). Avec `both`, elle **conserve** sa valeur finale
+   une fois finie — et Chrome la matérialise en `matrix(1,0,0,1,0,0)`.
+   Or un ancêtre porteur d'un `transform`, même identité, devient le
+   **bloc conteneur de ses descendants `position: fixed`** : une coque de
+   tchat en `fixed inset-0` se retrouvait alors encastrée dans la colonne
+   et réduite à la hauteur de son contenu — le composeur remontait au
+   milieu de l'écran. `backwards` n'applique l'état de départ que pendant
+   le retard, puis rend la main : après l'animation, il n'y a plus de
+   `transform`, donc plus de piège. Même raison que `mo-sheet`. */
+@utility mo-fade   { animation: enterFade  var(--d-enter) var(--ease-entrance) backwards; }
+@utility mo-slide  { animation: enterSlide var(--d-enter) var(--ease-entrance) backwards; }
+@utility mo-rise   { animation: enterRise  var(--d-enter) var(--ease-spring)   backwards; }
+@utility mo-scale  { animation: enterScale var(--d-enter) var(--ease-spring)   backwards; }
+@utility mo-rotate { animation: rotateIn   var(--d-enter) var(--ease-spring)   backwards; }
+@utility mo-grow   { animation: growX      var(--d-enter) var(--ease-entrance) backwards; }
+
+/* Le fondu-matière : la surface émerge du flou au lieu de glisser. Pour
+   les plans rapprochés, pas les listes. */
+@utility mo-soft   { animation: enterSoft  var(--d-enter) var(--ease-entrance) backwards; }
+
+/* La cloche des défis oscille une fois. Pas de `fill`, donc aucun
+   `transform` ne subsiste après : le `position: fixed` du bouton reste
+   intact (voir le piège du bloc conteneur expliqué plus haut). */
+@utility mo-bell { animation: bellRing 1.15s var(--ease-spring) 1; transform-origin: 50% 0; }
+
+/* Bulles : l'origine du mouvement est le côté de l'auteur. */
+@utility mo-msg-in     { animation: msgInRight var(--d-enter) var(--ease-spring) backwards; }
+@utility mo-msg-in-alt { animation: msgInLeft  var(--d-enter) var(--ease-spring) backwards; }
+
+/* Sortie */
+@utility mo-exit { animation: exitSlide var(--d-fast) var(--ease-entrance) both; }
+
+/* Interactions — en transition, pas en keyframe : une réponse au survol
+   doit pouvoir être interrompue sans état intermédiaire figé. */
+@utility mo-pop {
+  animation: hoverPop var(--d-slow) var(--ease-pop) backwards;
+}
+
+/* L'éclat d'une réaction. Utilise la clé `react` du composant : changer
+   la clé rejoue l'animation, c'est le mécanisme le plus simple pour un
+   « rejouer une animation une seule fois » — il n'y a pas de
+   Web Animations API à ranger, ni de minuterie à nettoyer. */
+@utility mo-burst {
+  animation: burstPop var(--d-burst) var(--ease-snap) backwards;
+}
+
+/* Le refus : deux secousses, destination nulle. */
+@utility mo-deny {
+  animation: shakeDeny var(--d-base) var(--ease-gravity) backwards;
+}
+
+/* Le voile et la feuille qui monte. */
+@utility mo-veil  { animation: veilIn   var(--d-fast)   var(--ease-entrance) both; }
+
+/* `sheetRise` en `backwards`, **jamais** en `both`.
+   Une animation d'entrée avec `fill-mode: both` conserve sa valeur
+   finale après avoir fini — et une règle d'animation l'emporte
+   toujours sur un `transform` écrit en ligne. La feuille est
+   précisément l'élément dont le `transform` est piloté en JavaScript
+   (le glissement vers le bas) : avec `both`, le doigt tirerait dans le
+   vide, sans aucune erreur pour l'expliquer. `backwards` n'applique
+   l'état de départ que pendant le retard, puis rend la main à la
+   ligne. */
+@utility mo-sheet { animation: sheetRise var(--d-slow)   var(--ease-spring)   backwards; }
+
+/* ── Profondeur ──
+   Deux couches d'ombre, pas une : l'ombre longue donne l'écart au plan
+   de travail, l'ombre courte donne le contact. Une seule des deux fait
+   flotter la carte au lieu de la soulever — c'est la différence entre
+   du verre posé et du verre collé, et ça se voit immédiatement.
+
+   Le déplacement au survol est minuscule (-2 px) et l'ombre change
+   **beaucoup** : c'est l'ombre qui porte la profondeur, le mouvement ne
+   fait que l'accompagner. Un grand déplacement avec une petite ombre
+   donne une carte qui glisse. */
+@utility depth-card {
+   /* Dalle de cristal : transparente au centre, la profondeur vient du
+      liseré de bord et de l'ombre ambiante, jamais d'un voile peint. */
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  /* Les cartes peuvent être nombreuses : on garde le verre par reflet
+     et transmission et réserve le flou live aux surfaces fixes. */
+  border-color: var(--color-edge);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+  transition:
+    transform      var(--d-base)   var(--ease-spring),
+    box-shadow     var(--d-base)   var(--ease-spring),
+    border-color   var(--d-fast)   var(--ease-continuous),
+    background-color var(--d-fast) var(--ease-continuous);
+
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--glass-rim), var(--shadow-drop-lg);
+    border-color: var(--color-line-3);
+  }
+}
+
+/* La profondeur d'un panneau **fixe** (feuille, dialogue).
+   Le voile fait aussi partie de la profondeur : sans lui, la feuille
+   semble posée sur le même plan que le fond — et le fond n'est pas un
+   fond, il est derrière. */
+@utility depth-panel {
+  box-shadow: var(--glass-rim), var(--shadow-drop-lg);
+}
+
+@utility mo-lift {
+  transition:
+    transform var(--d-base) var(--ease-spring),
+    box-shadow var(--d-base) var(--ease-spring);
+  &:hover { transform: translate(-2px, -2px); }
+}
+
+/*
+  Inclinaison 3D pilotée par le pointeur (composant `Tilt`).
+
+  La profondeur n'est pas un décor : elle donne à une carte plate un
+  volume qu'on sent **au mouvement de la souris**, sans dégradé ni verre
+  dépoli — ce que la DA refuse. Les angles vivent dans les variables
+  `--tilt-x` / `--tilt-y`, posées par le JavaScript ; le CSS ne fait que
+  les interpoler, donc `prefers-reduced-motion` peut tout arrêter d'un
+  seul endroit. La transition porte **uniquement** `transform` : l'élément
+  est dédié, il n'a donc aucune autre transition à voler.
+
+  La durée de poursuite vit dans `--tilt-d`, posée par le même
+  JavaScript à partir de la **vitesse lissée du pointeur** : un geste
+  lent suit de près (`--d-fast`), un geste rapide traîne (`--d-slow`)
+  — c'est l'inertie de la carte, et elle reste dans les jetons. Le
+  repli est `--d-base` : tant que le JavaScript n'a rien posé, la
+  carte se comporte comme avant.
+*/
+@utility tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform var(--tilt-d, var(--d-base)) var(--ease-spring);
+  will-change: transform;
+}
+
+@utility mo-press {
+  /* En **animation**, pas en transition.
+
+     Une transition s'écrit nécessairement avec `transition: …` ou avec
+     `transition-property`, et les deux réinitialisent la liste de
+     propriétés de l'élément. Or les boutons du projet déclarent déjà leur
+     propre liste (`transition-[background-color,color,border-color]`) :
+     l'utilitaire leur volait leurs transitions de couleur — vérifié dans
+     un navigateur, un bouton sur quatre les perdait, et l'ordre de la
+     cascade de Tailwind décide lequel gagne, donc c'était imprévisible.
+
+     Une animation ne touche à aucune propriété `transition-*` : elle ne
+     peut donc rien voler, quelle que soit la liste déclarée à côté. Le
+     prix est un retour instantané au relâchement, ce qui sur 90 ms ne se
+     voit pas. */
+  &:active { animation: pressDown var(--d-instant) var(--ease-gravity) both; }
+}
+
+/* Continus */
+/* `mo-spin` est une révolution, pas une transition : elle a sa propre
+   durée. Réutiliser `--d-slow` donnerait un tour en 380 ms, qui se lit
+   comme une agitation et non comme une attente. */
+@utility mo-spin    { animation: rotateLoop var(--d-orbit) linear infinite; }
+@utility mo-pulse   { animation: pulse      var(--d-slow) var(--ease-continuous) infinite; }
+@utility mo-breathe { animation: breathe    var(--d-slow) var(--ease-continuous) infinite; }
+@utility mo-scan    { animation: scan       var(--d-slow) var(--ease-continuous) infinite; }
+
+/* La pastille d'état. `currentColor` permet de la poser dans n'importe
+   quelle couleur de statut sans redéfinir la couleur dans l'utilitaire —
+   l'utilitaire décrit le *mouvement*, pas l'*information*. */
+@utility mode-live {
+  animation: liveBeat 2.6s var(--ease-continuous) infinite;
+}
+
+/* ── Mouvement surfacique ──
+   La carte du fil, la ligne de groupe, la conversation : toutes se
+   soulèvent de 2 px au survol, le filet s'éclaircit, l'ombre grandit.
+   Déplacement (-2, -2) et non (-2, +2) : sur fond encre, l'ombre est
+   déjà en bas à droite — soulever vers le haut-gauche est ce qui donne
+   l'impression que la fiche quitte la surface.
+   ─────────────────────────────────────────────────────────────────── */
+@utility lift-card {
+  transition:
+    transform  var(--d-base) var(--ease-spring),
+    box-shadow var(--d-base) var(--ease-spring),
+    border-color var(--d-fast) var(--ease-continuous),
+    background-color var(--d-fast) var(--ease-continuous);
+
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-sh-2);
+    border-color: var(--color-line-3);
+  }
+}
+
+/* Variante pressable : enfoncé au clic. */
+@utility lift-press {
+  transition:
+    transform  var(--d-instant) var(--ease-gravity),
+    box-shadow var(--d-fast) var(--ease-spring),
+    border-color var(--d-fast) var(--ease-continuous);
+
+  &:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: var(--shadow-sh-1);
+    border-color: var(--color-line-3);
+  }
+  &:active {
+    transform: translate(1px, 1px);
+    box-shadow: none;
+  }
+}
+
+/* ── Outil d'onglet ──
+   Le filet d'accent grandit depuis le centre plutôt que depuis la
+   gauche : c'est ce que fait un soulignement qu'on « trace ». Sur
+   mobile l'onglet est un onglet d'éditeur ; sur grand écran c'est un
+   bouton — même géométrie, deux échelles.
+   ─────────────────────────────────────────────────────────────────── */
+@utility tab-underline {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 4px;
+    background: var(--color-signal);
+    border-radius: 999px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--d-base) var(--ease-spring);
+  }
+
+  &[aria-selected="true"]::after,
+  &[data-active="true"]::after {
+    transform: scaleX(1);
+  }
+}
+
+/* ── Puce de mode ──
+   En mode démonstration, la pastille respire : le mode est temporaire
+   mais stable. Un clignotement serait une alarme ; une respiration dit
+   « ça fonctionne, pas encore en ligne ».
+   ─────────────────────────────────────────────────────────────────── */
+@utility mode-live {
+  animation: breathe 2.6s var(--ease-continuous) infinite;
+}
+
+/* ── Pavé de code : apparition ligne à ligne ──
+   Utilisé par `<CodeBlock>`. Le delay est calculé par indice, plafonné
+   pour qu'un fichier de 80 lignes ne prenne pas quatre secondes : au-delà
+   de 18 lignes, tout le reste arrive ensemble.
+   ─────────────────────────────────────────────────────────────────── */
+@utility code-line {
+  animation: enterRise var(--d-enter) var(--ease-entrance) backwards;
+}
+
+/* ── Accessibilité ──
+   On ne se contente pas d'accélérer : les mouvements continus sont
+   coupés. Une pastille qui respire en boucle reste une animation pour
+   quelqu'un qui a demandé l'arrêt du mouvement.
+   ─────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mo-spin, .mo-pulse, .mo-breathe, .mo-scan, .mode-live,
+  .caret, .scanlines-live::after {
+    animation: none !important;
+  }
+
+  .mo-pre { opacity: 1; }
+  .lift-card:hover, .lift-press:hover, .lift-press:active { transform: none; }
+}
+
+/* ── Coloration syntaxique ──
+   Les couleurs sont résolues par variable CSS : un bloc passe de la
+   variante éditeur à la variante terminal en changeant un attribut,
+   sans recalculer la coloration.                                   */
+@layer components {
+  .tok-keyword  { color: var(--color-code-keyword); }
+  .tok-string   { color: var(--color-code-string); }
+  .tok-number   { color: var(--color-code-number); }
+  .tok-function { color: var(--color-code-function); }
+  .tok-type     { color: var(--color-code-type); font-weight: 700; }
+  .tok-comment  { color: var(--color-code-comment); font-style: italic; }
+  .tok-punct    { color: var(--color-code-punct); }
+
+  /* Numéros de ligne : jamais sélectionnés, ils ne sont pas du texte */
+  .code-line-no {
+    color: var(--color-chalk-4);
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Soulignement au survol d'un lien ──
+     Le trait se dessine de gauche à droite (`clip-path`), pas en
+     apparaissant d'un coup : c'est le geste d'un surligneur, et il
+     rejoue le vocabulaire du terminal plutôt que du web.
+     ─────────────────────────────────────────────────────────────── */
+  .underline-sweep {
+    position: relative;
+    text-decoration: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background: currentColor;
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path var(--d-base) var(--ease-spring);
+    }
+
+    &:hover::after,
+    &:focus-visible::after { clip-path: inset(0 0 0 0); }
+  }
+}
+
+/* ── Filet de bord général ──
+   Toute surface arrondie peinte sur un jeton `surface` prend le fin filet
+   noir de `--color-edge`, pour que les cartes flottent au lieu de baver.
+   On ne pose **que** la couleur : aucune largeur de bord n'est inventée
+   (un élément sans bord reste sans bord) et, surtout, aucun
+   `backdrop-filter` n'est appliqué en masse — il créerait un bloc
+   conteneur qui casserait les barres `sticky`/`fixed` et laperait le
+   contenu. Le verre se demande classe par classe. */
+:where(
+  [class~="bg-surface"],
+  [class~="bg-surface-2"],
+  [class~="bg-surface-3"]
+):not([class*="glass"])[class*="rounded"] {
+  border-color: var(--color-edge);
+}
+/* ── Badge premium : relief, halo, brillance ─────────────────────────── */
+.verify-badge {
+  isolation: isolate;
+  overflow: visible;
+}
+
+.verify-badge::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  clip-path: inherit;
+  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,0.22) 0%, transparent 55%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.verify-badge::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  clip-path: inherit;
+  background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16) 0%, transparent 50%);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.verify-badge > svg,
+.verify-badge > i,
+.verify-badge > * {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0.5px 0.5px rgba(255,255,255,0.25));
+}
+
+.verify-badge-lg {
+  filter:
+    drop-shadow(0 0 6px rgba(201,148,67,0.18))
+    drop-shadow(0 2px 4px rgba(35,42,29,0.32));
+}
+
+.verify-badge-inline {
+  filter:
+    drop-shadow(0 0 4px rgba(201,148,67,0.12))
+    drop-shadow(0 1px 2px rgba(35,42,29,0.28));
+}
+
+.verify-badge-sm {
+  filter: drop-shadow(0 1px 1.5px rgba(35,42,29,0.26));
+}
+
+.verify-shape-seal {
+  box-shadow:
+    0 0 0 1px rgba(255,220,140,0.4),
+    inset 0 0 0 1px rgba(255,240,200,0.28);
+}
+
+.verify-shape-star6 {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.32),
+    0 0 6px rgba(95,176,127,0.16);
+}
+
+.verify-shape-star4 {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.3),
+    0 0 5px rgba(155,166,206,0.14);
+}
+
+.verify-shape-shield {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.28),
+    0 0 4px rgba(213,154,146,0.12);
+}
+
+.verify-shape-octagon {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26);
+}
+
+.verify-shape-hexagon {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26);
+}
+
+.verify-shape-pentagon {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22);
+}
+
+.verify-shape-square {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26);
+}
+
+.verify-shape-diamond,
+.verify-shape-triangle {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.24);
+}
+
+.verify-shape-round {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.42),
+    0 0 4px rgba(224,162,90,0.14);
 }
