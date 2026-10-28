@@ -110,12 +110,12 @@ function Hero({ data }: { data: Discover | null }) {
         <Sonar signals={data?.signalsWeek ?? 0} />
       </div>
 
-      <p className="label-micro text-chalk-4">Le vivier · captation continue</p>
+      <p className="label-micro text-chalk-4">Le Vivier · captation continue</p>
       <h1 className="mt-3 max-w-[20ch] font-display text-[clamp(1.75rem,4.2vw,2.7rem)] font-bold leading-[1.03] tracking-[-0.035em] text-chalk">
         Ce qui monte <span className="text-signal">se prouve</span>.
       </h1>
       <p className="mt-3 max-w-[48ch] text-[13.5px] leading-relaxed text-chalk-3">
-        Le vivier ne classe pas des images. Il écoute les publications de code, les
+        Le Vivier ne classe pas des images. Il écoute les publications de code, les
         ateliers qui recrutent et les cercles qui s&apos;ouvrent — puis il montre ce
         qui mérite une visite.
       </p>

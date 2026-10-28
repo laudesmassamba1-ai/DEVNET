@@ -9,7 +9,7 @@ import { useStatus } from "./StatusBar";
 
 const LINKS: { href: string; label: string; icon: IconName; key: string }[] = [
   { href: "/feed", label: "Fil", icon: "feed", key: "fil" },
-  { href: "/decouvrir", label: "Vivier", icon: "spark", key: "vivier" },
+  { href: "/decouvrir", label: "Découvrir", icon: "spark", key: "decouvrir" },
   { href: "/search", label: "Recherche", icon: "search", key: "recherche" },
   { href: "/groups", label: "Groupes", icon: "groups", key: "groupes" },
   { href: "/messages", label: "Messages", icon: "messages", key: "messages" },
