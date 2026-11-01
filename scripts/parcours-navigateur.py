@@ -1238,168 +1238,221 @@ def run_wiki() -> None:
 
 
 def run_ecrans() -> None:
-    """Les quatre écrans retouchés par la passe lint (set-state-in-effect).
+    """Les écrans retouchés par la passe lint (`set-state-in-effect`).
 
-    Chaque écran a été modifié soit dans la mécanique de chargement (IIFE
-    async dans les effets, inline du corps d'un `useCallback`), soit dans
-    un `setState` sync couvert par un `disable-next-line` justifié. Les
-    tests de logique passent, mais ils n'exécutent pas React : seul un vrai
-    navigateur prouve que les pages se chargent, remplissent leurs listes,
-    envoient un message après la refonte des effets, et que la visite se
-    présente puis se ferme sans cascade ni erreur de console.
+    Les tests unitaires exécutent la logique hors React ; un navigateur
+    seul prouve que ces pages se chargent, remplissent leurs listes,
+    envoient un message et ferment la visite sans cascade ni erreur de
+    console. Le mode démonstration fournit les données : Koffi a une
+    conversation avec Aminata et les projets `p-1` / `g-1` existent.
     """
 
-    def connecter(page, erreur: list[str]) -> None:
-        page.goto(f"{BASE}/login", wait_until="networkidle")
-        page.wait_for_timeout(1200)
-        page.get_by_role("button", name="Entrer comme").click()
+    with sync_playwright() as p:
+        browser = p.chromium.launch(
+            executable_path="/usr/bin/google-chrome",
+            args=["--no-sandbox"],
+        )
+
+        def page_sans_visite():
+            """L'équivalent d'un utilisateur qui revient (visite déjà vue)."""
+            page = browser.new_page(viewport={"width": 1280, "height": 900})
+            page.add_init_script(DONE_TOUR)
+            return page
+
+        def page_visiteur():
+            """Sans le drapeau : la prise en main doit se présenter seule."""
+            page = browser.new_page(viewport={"width": 1280, "height": 900})
+            erreurs: list[str] = []
+            page.on(
+                "console",
+                lambda msg: erreurs.append(msg.text) if msg.type == "error" else None,
+            )
+            page.on("pageerror", lambda exc: erreurs.append(str(exc)))
+            return page, erreurs
+
+        def se_connecter(page) -> None:
+            page.goto(f"{BASE}/login", wait_until="networkidle")
+            page.wait_for_timeout(1200)
+            page.get_by_role("button", name="Entrer comme").click()
+            page.wait_for_timeout(3000)
+
+        # ── L'IDE ──────────────────────────────────────────────────────
+        # Le contenu est reposé par un effet de re-synchronisation quand
+        # `current` change — un des `setState` sync couverts par un
+        # `disable-next-line` justifié. On vérifie que changer de fichier
+        # pose bien le nouveau contenu, sans texte mêlé ni écran vide.
+        page, erreurs = page_visiteur()
+        page.add_init_script(DONE_TOUR)
+        se_connecter(page)
+        page.goto(f"{BASE}/ide/p-1", wait_until="networkidle", timeout=90_000)
         page.wait_for_timeout(3000)
 
-    def sur_ecran(nom: str):
-        """Ouvre une page « utilisateur qui revient » avec écoute d'erreurs."""
-        retour = {}
+        moteur = wait_editor(page)
+        check("l'IDE ouvre l'éditeur", moteur != "aucun", moteur)
+        initial = code_text(page)
+        check("le contenu du fichier ouvert est posé",
+              len(initial.strip()) > 0, f"{len(initial)} caractères")
 
-        def ouvrir() -> "page":  # noqa: F821
-            pass
+        def attendre_autre_contenu(avant: str, deadline: float = 25.0) -> str:
+            """Attend que le contenu posé soit non vide et différent.
 
-        with sync_playwright() as p:
-            browser = p.chromium.launch(
-                executable_path="/usr/bin/google-chrome",
-                args=["--no-sandbox"],
-            )
-        return browser
+            Monaco arrive tantôt en 3 s tantôt plusieurs secondes plus
+            tard ; un délai fixe lirait l'ancien contenu comme le nouveau.
+            """
+            borne = time.time() + deadline
+            lu = ""
+            while time.time() < borne:
+                if wait_editor(page) != "aucun":
+                    lu = code_text(page)
+                    if lu.strip() and lu != avant:
+                        return lu
+                page.wait_for_timeout(700)
+            return lu
 
-    browser = _lancer_chrome()
-    # ── 1) L'IDE ────────────────────────────────────────────────────
-    # Le contenu de l'éditeur est reposé par un effet re-synchronisé au
-    # changement de fichier — exactement ce que la passe lint a retouché.
-    page = _page_sans_visite(browser)
-    erreurs_ide: list[str] = []
-    page.on("console", lambda m: erreurs_ide.append(m.text) if m.type == "error" else None)
-    page.on("pageerror", lambda e: erreurs_ide.append(str(e)))
-    page.goto(f"{BASE}/login", wait_until="networkidle")
-    page.wait_for_timeout(1200)
-    page.get_by_role("button", name="Entrer comme").click()
-    page.wait_for_timeout(3000)
-    page.goto(f"{BASE}/ide/p-1", wait_until="networkidle", timeout=90_000)
-    page.wait_for_timeout(2500)
+        # Le fichier affiché à l'ouverture est le premier de l'arbre :
+        # cliquer celui-là ne change rien, ce qui passerait pour un écran
+        # cassé. On cherche donc une entrée qui pose **réellement** un
+        # autre contenu, et le clic vise l'**entrée d'arborescence**, pas
+        # l'onglet du même nom.
+        entrees = page.locator("aside ul button")
+        if entrees.count() >= 2 and initial.strip():
+            pose = None
+            for i in range(entrees.count()):
+                nom = entrees.nth(i).inner_text().strip()
+                if not nom:
+                    continue
+                entrees.nth(i).click()
+                lu = attendre_autre_contenu(initial)
+                if lu.strip() and lu != initial:
+                    pose = nom
+                    break
+            check("un clic dans l'arborescence pose le contenu du fichier",
+                  pose is not None, "contenu inchangé après chaque clic")
+            # Retour sur « registre.py » : la sous-chaîne « registre.py »
+            # se trouve aussi dans « test_registre.py » — le filtre exige
+            # donc le nom exact, sinon c'est le même fichier revisité.
+            origine = page.locator("aside ul button").filter(
+                has_text=re.compile(r"^registre\.py$"))
+            if origine.count() and pose is not None:
+                origine.first.click()
+                retour = attendre_autre_contenu(lu)
+                check("revisiter un autre fichier repose son texte",
+                      len(retour.strip()) > 0 and retour != lu,
+                      "contenu inchangé")
+        check("aucune erreur de console dans l'IDE", not erreurs, erreurs[:3])
+        page.close()
 
-    moteur = wait_editor(page)
-    check("l'IDE ouvre l'éditeur", moteur != "aucun", moteur)
-    texte = code_text(page)
-    check("le contenu du fichier initial est posé", len(texte.strip()) > 0, "vide")
-    # Changer de fichier repose le contenu de celui-ci (changement d'état
-    # dérivé, corrigé pendant la passe lint) : ne doit plus aboutir à un
-    # contenu vide ni mélangé.
-    tree = page.locator("button:has-text('.py')")
-    if tree.count() > 1:
-        tree.last.click()
-        page.wait_for_timeout(1500)
-        check("changer de fichier repose son contenu", len(code_text(page).strip()) > 0, "vide")
-        tree.first.click()
-        page.wait_for_timeout(1500)
-        check("revenir sur le fichier d'origine rend son texte",
-              len(code_text(page).strip()) > 0, "vide")
-    check("aucune erreur de console dans l'IDE", not erreurs_ide, erreurs_ide[:3])
-    page.close()
+        # ── Groupe et son canal ────────────────────────────────────────
+        # Les prénoms des pairs en train de taper vivent dans un effet
+        # converti en IIFE async : rejoindre un canal et y écrire doit
+        # rester exactement pareil à l'écran, y compris l'envoi.
+        page, erreurs = page_visiteur()
+        page.add_init_script(DONE_TOUR)
+        se_connecter(page)
+        page.goto(f"{BASE}/groups/g-1", wait_until="networkidle", timeout=90_000)
+        page.wait_for_timeout(3000)
 
-    # ── 2) Un groupe, son fil de canaux et son composeur ───────────
-    # Les préénoms des pairs qui tapent vivent dans un effet converti en
-    # IIFE async : la page doit toujours rejoindre le canal et envoyer.
-    page = _page_sans_visite(browser)
-    erreurs_groupe: list[str] = []
-    page.on("console", lambda m: erreurs_groupe.append(m.text) if m.type == "error" else None)
-    page.on("pageerror", lambda e: erreurs_groupe.append(str(e)))
-    page.goto(f"{BASE}/login", wait_until="networkidle")
-    page.wait_for_timeout(1200)
-    page.get_by_role("button", name="Entrer comme").click()
-    page.wait_for_timeout(3000)
-    page.goto(f"{BASE}/groups/g-1", wait_until="networkidle", timeout=90_000)
-    page.wait_for_timeout(3000)
-
-    canaux = page.locator('nav[aria-label="Canaux"] button')
-    check("le groupe liste ses canaux", canaux.count() >= 1, str(canaux.count()))
-    compo = page.locator("#composer-channel")
-    check("le composeur du canal est prêt",
-          compo.count() == 1 and compo.first.is_enabled(), "absent ou désactivé")
-    compo.first.click()
-    page.keyboard.type("Vérification du bulle temps réel : envoyé par le parcours.")
-    page.keyboard.press("Enter")
-    page.wait_for_timeout(2000)
-    fil = page.inner_text("body")
-    check("le message envoyé apparaît dans le fil",
-          "envoyé par le parcours" in fil, fil[-300:])
-    check("aucune erreur de console dans le groupe", not erreurs_groupe, erreurs_groupe[:3])
-    page.close()
-
-    # ── 3) La messagerie privée ────────────────────────────────────
-    # Charger une conversation s'appuie sur le corps du `useCallback`
-    # `refresh` inliné (motif c) : les conversations doivent toujours
-    # s'ouvrir, leurs historiques s'afficher et l'envoi répondre.
-    page = _page_sans_visite(browser)
-    erreurs_dm: list[str] = []
-    page.on("console", lambda m: erreurs_dm.append(m.text) if m.type == "error" else None)
-    page.on("pageerror", lambda e: erreurs_dm.append(str(e)))
-    page.goto(f"{BASE}/login", wait_until="networkidle")
-    page.wait_for_timeout(1200)
-    page.get_by_role("button", name="Entrer comme").click()
-    page.wait_for_timeout(3000)
-    page.goto(f"{BASE}/messages", wait_until="networkidle", timeout=90_000)
-    page.wait_for_timeout(3000)
-
-    convos = page.locator('section[aria-label="Conversations"] button')
-    check("la liste des conversations est là", convos.count() >= 1, str(convos.count()))
-    if convos.count() >= 1:
-        convos.first.click()
-        page.wait_for_timeout(2000)
-        fil = page.inner_text("body")
-        check("l'historique de la conversation s'affiche",
-              "normalisation" in fil.lower(), fil[-300:])
-        compo_dm = page.locator("#dm-composer")
-        check("le composeur privé est prêt",
-              compo_dm.count() == 1 and compo_dm.first.is_enabled(), "absent ou désactivé")
-        compo_dm.first.click()
-        page.keyboard.type("Message de vérification du parcours.")
+        canaux = page.locator('nav[aria-label="Canaux"] button')
+        check("le groupe liste ses canaux", canaux.count() >= 1, str(canaux.count()))
+        compo = page.locator("#composer-channel")
+        check("le composeur du canal est prêt",
+              compo.count() == 1 and compo.first.is_enabled(),
+              str(compo.count()))
+        compo.first.click()
+        marque_groupe = "parcours: vérif canal du groupe"
+        page.keyboard.type(marque_groupe)
         page.keyboard.press("Enter")
         page.wait_for_timeout(2000)
-        check("l'envoi apparaît dans l'historique",
-              "Message de vérification du parcours" in page.inner_text("body"), "absent du fil")
-    check("aucune erreur de console dans les messages", not erreurs_dm, erreurs_dm[:3])
-    page.close()
+        corps = page.inner_text("body")
+        check("le message envoyé apparaît dans le fil",
+              marque_groupe in corps, f"fil : {corps[-200:]!r}")
+        # L'effet retouché résout les prénoms des pairs qui tapent : sans
+        # pair, l'écran ne doit pas montrer d'indicateur fantôme « tape… »
+        check("aucun indicateur de frappe fantôme",
+              not re.search(r"\btape\b", corps), "indicateur visible sans pair")
+        check("aucune erreur de console dans le groupe", not erreurs, erreurs[:3])
+        page.close()
 
-    # ── 4) La visite guidée ────────────────────────────────────────
-    # Le `setState` de survie au montage de `TourOverlay` est couvert par un
-    # `disable-next-line` justifié. Un visiteur jamais passé doit voir la
-    # bulle d'intro se poser, avancer, puis se fermer sans erreur.
-    page = _page_avec_visite(browser)
-    erreurs_tour: list[str] = []
-    page.on("console", lambda m: erreurs_tour.append(m.text) if m.type == "error" else None)
-    page.on("pageerror", lambda e: erreurs_tour.append(str(e)))
-    page.goto(f"{BASE}/login", wait_until="networkidle")
-    page.wait_for_timeout(1200)
-    page.get_by_role("button", name="Entrer comme").click()
-    page.wait_for_timeout(4000)
-    dialogue = page.locator('[role="dialog"][aria-label="Prise en main de DevNet"]')
-    check("la prise en main se présente au premier passage",
-          dialogue.count() == 1, str(dialogue.count()))
-    if dialogue.count() == 1:
-        suivant = page.get_by_role("button", name="Suivant")
-        check("le bouton suivant avance la prise en main",
-              suivant.count() == 1 and suivant.first.is_enabled())
-        suivant.first.click()
-        page.wait_for_timeout(1200)
-        check("la diapositive avance", dialogue.count() == 1 and suivant.count() == 1)
-        passer = page.get_by_role("button", name="Passer")
-        check("on peut passer l'intro pour ouvrir la visite",
-              passer.count() == 1 and passer.first.is_enabled())
-        passer.first.click()
-        page.wait_for_timeout(1500)
-        visite = page.locator('[role="dialog"][aria-label="Visite guidée de DevNet"]')
-        check("la visite guidée s'ouvre après l'intro", visite.count() == 1, str(visite.count()))
-    check("aucune erreur de console pendant la tour", not erreurs_tour, erreurs_tour[:3])
-    page.close()
+        # ── Messagerie privée ──────────────────────────────────────────
+        # Le corps du `useCallback` `refresh` a été inliné dans l'effet :
+        # la liste, l'ouverture de conversation et l'envoi doivent tenir.
+        page, erreurs = page_visiteur()
+        page.add_init_script(DONE_TOUR)
+        se_connecter(page)
+        page.goto(f"{BASE}/messages", wait_until="networkidle", timeout=90_000)
+        page.wait_for_timeout(3000)
 
-    browser.close()
+        listes = page.locator("aside button.depth-card")
+        check("la liste des conversations s'emplit",
+              listes.count() >= 1, f"{listes.count()} conversation(s)")
+        if listes.count():
+            listes.first.click()
+            page.wait_for_timeout(2000)
+            compo_dm = page.locator("#dm-composer")
+            check("la conversation s'ouvre sur son composeur",
+                  compo_dm.count() == 1 and compo_dm.first.is_enabled(),
+                  str(compo_dm.count()))
+            fil_avant = page.inner_text("body")
+            marque_dm = "parcours: vérif message privé"
+            compo_dm.first.click()
+            page.keyboard.type(marque_dm)
+            page.keyboard.press("Enter")
+            page.wait_for_timeout(2000)
+            corps = page.inner_text("body")
+            check("l'envoi privé apparaît dans l'historique",
+                  marque_dm in corps and corps != fil_avant, "absent du fil")
+        check("aucune erreur de console dans les messages", not erreurs, erreurs[:3])
+        page.close()
+
+        # ── Visite guidée ──────────────────────────────────────────────
+        # Le `setMonte(true)` post-paint est couvert par un
+        # `disable-next-line` : un visiteur jamais passé doit voir l'intro
+        # se poser, avancer, puis ouvrir la visite — sans blocage.
+        page, erreurs = page_visiteur()
+        se_connecter(page)
+        page.wait_for_timeout(4000)
+        intro = page.locator('[role="dialog"][aria-label="Prise en main de DevNet"]')
+        check("la prise en main se présente au premier passage",
+              intro.count() == 1, str(intro.count()))
+        if intro.count() == 1:
+            # On traverse l'intro diapo par diapo jusqu'au bouton final :
+            # compter les « Suivant » advance d'un pas à chaque clic.
+            for _ in range(12):
+                nom = page.get_by_role("button", name=re.compile(
+                    "^(Suivant|Commencer la visite)$"))
+                if not nom.count():
+                    break
+                et_terminé = nom.first.inner_text().strip() == "Commencer la visite"
+                nom.first.click()
+                page.wait_for_timeout(1000)
+                if et_terminé:
+                    break
+            visite = page.locator('[role="dialog"][aria-label="Visite guidée de DevNet"]')
+            check("l'intro s'achève sur la visite guidée",
+                  visite.count() == 1, str(visite.count()))
+            if visite.count() == 1:
+                progres = page.locator('[role="progressbar"]')
+                check("la visite montre sa progression", progres.count() >= 1,
+                      str(progres.count()))
+                # La visite compte 19 arrêts : la boucle doit couvrir
+                # ce total, sinon elle quitte avant « Terminer » et un
+                # écran correct passerait pour bloqué.
+                for _ in range(24):
+                    suivant = page.get_by_role("button", name=re.compile(
+                        "^(Suivant|Terminer)$"))
+                    if not suivant.count():
+                        break
+                    dernier = suivant.first.inner_text().strip() == "Terminer"
+                    suivant.first.click()
+                    page.wait_for_timeout(1200)
+                    if dernier:
+                        break
+                check("la visite se referme à la fin",
+                      page.locator('[role="dialog"]').count() == 0, "toujours ouverte")
+        check("aucune erreur de console pendant la visite", not erreurs, erreurs[:3])
+        page.close()
+
+        browser.close()
 
 
 def main() -> int:
@@ -1410,6 +1463,7 @@ def main() -> int:
     run_branches()
     run_pull_requests()
     run_wiki()
+    run_ecrans()
 
     # Une erreur de console n'est pas toujours fatale, mais elle mérite
     # d'être rapportée : c'est souvent le seul signe d'un effet qui lève.

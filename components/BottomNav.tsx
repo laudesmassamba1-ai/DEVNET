@@ -63,15 +63,16 @@ const WORKSPACE: { href: string; label: string; icon: IconName }[] = [
  * deux chiffres pour la même valeur finissent par diverger.
  */
 const ACTIVITY: { href: string; label: string; icon: IconName }[] = [
-  // Les signets quittent la barre basse pour le Vivier : on les garde ici,
+  // Les signets quittent la barre basse vers Découvrir : on les garde ici,
   // sur grand écran, et sous la touche `b`. Six onglets au pouce, pas sept.
   { href: "/signets", label: "Signets", icon: "bookmark" },
   { href: "/notifications", label: "Notifications", icon: "notifications" },
   // La modération rejoint l'activité, pas l'explorateur : on ne va pas y
   // chercher du contenu, on y va traiter ce qui a été signalé sur le
-  // sien. Elle n'apparaît pas dans la barre basse du téléphone, qui est
-  // déjà à cinq entrées — c'est un écran de gestion, pas une destination.
+  // sien.
   { href: "/moderation", label: "Modération", icon: "flag" },
+  // Accès direct au panneau d'administration réservé au rôle de compte.
+  { href: "/admin", label: "Admin", icon: "lock" },
 ];
 
 export function BottomNav() {

@@ -851,14 +851,24 @@ export default function ProfilePage() {
                   </div>
 
                   {profile.is_admin && (
-                    <Link
-                      href="/admin"
-                      className="mt-3 flex items-center gap-1.5 font-mono text-[11px]
-                        font-bold text-signal hover:underline"
-                    >
-                      <Icon name="lock" size={11} strokeWidth={2.4} />
-                      demandes et comptes → /admin
-                    </Link>
+                    <div className="mt-3 flex flex-wrap items-center gap-3">
+                      <Link
+                        href="/admin"
+                        className="inline-flex items-center gap-1.5 font-mono text-[11px]
+                          font-bold text-signal hover:underline"
+                      >
+                        <Icon name="lock" size={11} strokeWidth={2.4} />
+                        Panneau d'administration
+                      </Link>
+                      <Link
+                        href="/moderation"
+                        className="inline-flex items-center gap-1.5 font-mono text-[11px]
+                          font-bold text-chalk-2 hover:underline"
+                      >
+                        <Icon name="flag" size={11} strokeWidth={2.4} />
+                        Modération
+                      </Link>
+                    </div>
                   )}
 
                   {/* L'échelle des cachets : sans elle, on ne voit jamais

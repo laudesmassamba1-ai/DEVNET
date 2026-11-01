@@ -7,6 +7,7 @@ import type { Position, editor as MonacoEditor } from "monaco-editor";
 
 import { CodeEditor } from "@/components/CodeEditor";
 import { LoadingLogo } from "./LoadingLogo";
+import { useToast } from "@/components/Toast";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
 import type { ExtensionSnippet } from "@/lib/types";
 import {
@@ -159,6 +160,41 @@ export function MonacoCodeEditor({
 }: MonacoCodeEditorProps) {
   const [engine, setEngine] = useState<"pending" | "monaco" | "fallback">("pending");
   const desktop = useIsDesktop();
+  const toast = useToast();
+
+  // L'instance Monaco, conservée pour les boutons Copier/Coller : sur
+  // téléphone, Monaco n'offre ni clavier ni menu fiable pour copier ou
+  // coller — ces actions passent donc par l'API du presse-papiers, et
+  // l'insertion par `executeEdits` garde l'historique d'annulation.
+  const editorRef = useRef<Parameters<NonNullable<EditorProps["onMount"]>>[0] | null>(null);
+
+  const copier = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      toast("Code copié", "ok");
+    } catch {
+      toast("Le presse-papiers est indisponible : copiez-le par la sélection", "err");
+    }
+  }, [toast, value]);
+
+  const coller = useCallback(async () => {
+    const editor = editorRef.current;
+    try {
+      const text = await navigator.clipboard.readText();
+      if (!text) return;
+      if (editor) {
+        const selection = editor.getSelection();
+        if (selection) {
+          editor.executeEdits("devnet-clipboard", [
+            { range: selection, text, forceMoveMarkers: true },
+          ]);
+          editor.focus();
+        }
+      }
+    } catch {
+      toast("Le presse-papiers ne peut pas être lu ici — utilisez Ctrl+V", "err");
+    }
+  }, [toast]);
 
   // Les rappels changent à chaque rendu du parent : on les lit par une
   // référence, sinon la commande clavier ajoutée à `onMount` figerait la
@@ -215,6 +251,7 @@ export function MonacoCodeEditor({
   }, []);
 
   const onMount = useCallback<OnMount>((editor, monaco) => {
+    editorRef.current = editor;
     // Les deux raccourcis annoncés par l'interface. Monaco a déjà `Ctrl+F`,
     // `Ctrl+/`, `F1`, etc. ; on n'ajoute que ce qui est propre à DevNet.
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
@@ -434,6 +471,33 @@ export function MonacoCodeEditor({
         {hasIntelliSense(path) && (
           <span className="sr-only">Analyse du langage activée</span>
         )}
+        {/* Copier/Coller explicitement, pour le téléphone : Monaco y n'a ni
+            menu fiable ni raccourci clavier, la seule façon de coller y est
+            un bouton qui passe par l'API du presse-papiers. */}
+        <div className="ml-auto flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => void copier()}
+            aria-label="Copier le code"
+            className="rounded-[var(--radius-input)] border border-line-3 px-2 py-0.5
+              text-[11px] font-bold text-chalk-3 transition-colors
+              hover:border-signal hover:text-signal"
+          >
+            Copier
+          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => void coller()}
+              aria-label="Coller depuis le presse-papiers"
+              className="rounded-[var(--radius-input)] border border-line-3 px-2 py-0.5
+                text-[11px] font-bold text-chalk-3 transition-colors
+                hover:border-signal hover:text-signal"
+            >
+              Coller
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

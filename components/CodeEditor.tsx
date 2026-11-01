@@ -423,6 +423,21 @@ export function CodeEditor({
             aria-controls="code-suggest"
             aria-autocomplete="list"
             aria-expanded={suggest !== null}
+            // Coller/couper/copier ne doivent jamais être bloqués par
+            // l'autocomplétion ni par les paires d'accents.
+            onPaste={() => {
+              setSuggest(null);
+            }}
+            onCut={() => {
+              setSuggest(null);
+            }}
+            onCopy={() => {
+              setSuggest(null);
+            }}
+            onDrop={() => {
+              // Permettre le dépôt de texte brut depuis ailleurs.
+              setSuggest(null);
+            }}
             className={`${LAYER} [grid-area:1/1] block w-full resize-none overflow-hidden
               border-0 bg-transparent text-transparent caret-signal outline-none
               placeholder:text-[var(--color-code-comment)]`}
