@@ -858,8 +858,7 @@ export default function ProfilePage() {
                           font-bold text-signal hover:underline"
                       >
                         <Icon name="lock" size={11} strokeWidth={2.4} />
-                        Panneau d'administration
-                      </Link>
+                        Panneau d&apos;administration                      </Link>
                       <Link
                         href="/moderation"
                         className="inline-flex items-center gap-1.5 font-mono text-[11px]
