@@ -253,6 +253,11 @@ export function CodeEditor({
         return;
       }
 
+      // Coller/couper/copier : laisser le navigateur agir.
+      if ((event.metaKey || event.ctrlKey) && ['v','c','x','a','z','y'].includes(event.key.toLowerCase())) {
+        return;
+      }
+
       // Un caractère ouvrant referme sa paire (ou encadre la sélection).
       if (
         event.key.length === 1 &&

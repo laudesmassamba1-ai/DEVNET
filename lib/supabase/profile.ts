@@ -15,16 +15,28 @@ export interface ProfilePatch {
   links?: ProfileLink[];
 }
 
-/** Récupère le profil, ou null. */
+/**
+ * Colonnes publiques du profil.
+ *
+ * `email` en est volontairement absente : la migration 040 révoque la
+ * lecture de cette colonne aux rôles `anon` et `authenticated`. L'email
+ * du compte courant vient de la session `auth`.
+ */
+const PROFILE_COLUMNS =
+  "id, prenom, pseudo, filiere, niveau, langages, avatar_color, bio, " +
+  "followers, following, created_at, account_type, verified, ville, pays, " +
+  "links, theme, is_admin, verification_status, verification_note";
+
+/** Récupère le profil, ou null. L'email n'est pas lu depuis la table. */
 export async function getProfile(userId: string): Promise<User | null> {
   const { data, error } = await supabase
     .from("users")
-    .select("*")
+    .select(PROFILE_COLUMNS)
     .eq("id", userId)
     .single();
 
   if (error) return null;
-  return data as User;
+  return { ...(data as User), email: "" };
 }
 
 /**
@@ -101,7 +113,12 @@ export async function getOrCreateProfile(
   authUser: { id: string; email?: string; user_metadata?: Record<string, unknown> },
 ): Promise<{ profile: User | null; error: Error | null }> {
   const existing = await getProfile(authUser.id);
-  if (existing) return { profile: existing, error: null };
+  if (existing) {
+    return {
+      profile: { ...existing, email: authUser.email ?? "" },
+      error: null,
+    };
+  }
 
   const meta = authUser.user_metadata ?? {};
   const str = (k: string) => (typeof meta[k] === "string" ? (meta[k] as string).trim() : "");
@@ -130,8 +147,13 @@ export async function getOrCreateProfile(
   const { data, error } = await supabase
     .from("users")
     .upsert(row, { onConflict: "id" })
-    .select()
+    .select(PROFILE_COLUMNS)
     .single();
 
-  return { profile: (data as User) ?? null, error: error ?? null };
+  return {
+    profile: data
+      ? { ...(data as User), email: authUser.email ?? "" }
+      : null,
+    error: error ?? null,
+  };
 }

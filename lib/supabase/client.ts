@@ -27,8 +27,12 @@
  */
 import { createBrowserClient } from "@supabase/ssr";
 import { demoClient } from "@/lib/demo/client";
-import { getBackend, getSupabaseUrl, isDemoMode } from "@/lib/backend";
-import { getServerClient } from "@/lib/supabase/server-registry";
+import {
+  getBackend,
+  getSupabaseUrl,
+  isDemoAllowed,
+  isDemoMode,
+} from "@/lib/backend";
 import { beginPending, endPending } from "@/lib/pending";
 
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -76,56 +80,33 @@ function getLiveClient() {
   return clientInstance;
 }
 
-/**
- * Client utilisé par toute l'application.
- *
- * C'est un proxy qui route chaque appel vers Supabase ou vers le backend
- * local de démonstration, selon l'état de la sonde. Les pages n'ont donc
- * aucune idée du mode dans lequel elles tournent : une démo hors-ligne et
- * la production partagent exactement le même code.
- *
- * ## Contexte serveur vs client
- *
- * Côté client, le proxy utilise le client navigateur (`createBrowserClient`,
- * session dans `document.cookie`). Côté serveur, il utilise le client
- * serveur résolu par `SupabaseSessionProvider` (`getServerClient()`),
- * qui lit la session dans les cookies HTTP. Les deux lisent le même cookie
- * `sb-<ref>-auth-token`, donc `auth.uid()` est le même des deux côtés.
- */
-export const supabase = new Proxy(
-  {} as ReturnType<typeof createBrowserClient>,
-  {
-    get(_target, prop) {
-      // Côté client : on utilise le client navigateur.
-      if (typeof window !== "undefined") {
+  /**
+   * Client utilisé par toute l'application dans le navigateur.
+   *
+   * C'est un proxy qui route chaque appel vers Supabase ou vers le backend
+   * local de démonstration, selon l'état de la sonde. Les pages n'ont donc
+   * aucune idée du mode dans lequel elles tournent : une démo hors-ligne et
+   * la production partagent exactement le même code.
+   *
+   * Côté serveur, les route handlers créent leur client avec
+   * `getOrCreateServerClient()` (voir `app/api/admin/accounts/route.ts`) :
+   * un client par requête, jamais partagé.
+   */
+  export const supabase = new Proxy(
+    {} as ReturnType<typeof createBrowserClient>,
+    {
+      get(_target, prop) {
         const live = getLiveClient();
-        const active = (live && !isDemoMode() ? live : demoClient) as unknown as Record<
-          string,
-          unknown
-        >;
+        const active = (
+          isDemoMode() || !live ? demoClient : live
+        ) as unknown as Record<string, unknown>;
         const value = active[prop as string];
         return typeof value === "function" ? value.bind(active) : value;
-      }
-
-      // Côté serveur : on utilise le client serveur déjà résolu par
-      // `SupabaseSessionProvider` (monté dans le layout racine). S'il
-      // n'est pas encore résolu (premier rendu), on tombe sur le client
-      // de démonstration : l'écran affiche son état de chargement, et le
-      // client sera résolu au prochain rendu.
-      const server = getServerClient();
-      if (server && !isDemoMode()) {
-        const value = (server as Record<string, unknown>)[prop as string];
-        return typeof value === "function" ? value.bind(server) : value;
-      }
-
-      const active = demoClient as unknown as Record<string, unknown>;
-      const value = active[prop as string];
-      return typeof value === "function" ? value.bind(active) : value;
+      },
     },
-  },
-) as ReturnType<typeof createBrowserClient>;
+  ) as ReturnType<typeof createBrowserClient>;
 
-/** Vrai si les données affichées proviennent du backend local de démonstration. */
-export function usingDemoData(): boolean {
-  return isDemoMode() || getBackend().url === null;
-}
+  /** Vrai si les données affichées proviennent du backend local de démonstration. */
+  export function usingDemoData(): boolean {
+    return isDemoMode() || (isDemoAllowed() && getBackend().url === null);
+  }

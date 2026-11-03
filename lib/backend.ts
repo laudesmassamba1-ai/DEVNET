@@ -145,7 +145,21 @@ export async function probeBackend(force = false): Promise<BackendProbe> {
   }
 }
 
+/**
+ * Vrai si le repli sur les données de démonstration est autorisé.
+ *
+ * En production, un backend injoignable doit être signalé comme une panne,
+ * pas masqué par des données fictives. Le mode démo reste disponible en
+ * développement, ou en production sur opt-in explicite.
+ */
+export function isDemoAllowed(): boolean {
+  return (
+    process.env.NODE_ENV !== "production" ||
+    process.env.NEXT_PUBLIC_FORCE_DEMO === "true"
+  );
+}
+
 /** Vrai si l'application doit afficher les données de démonstration. */
 export function isDemoMode(): boolean {
-  return state.state === "offline";
+  return state.state === "offline" && isDemoAllowed();
 }

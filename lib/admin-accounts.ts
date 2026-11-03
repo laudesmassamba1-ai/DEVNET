@@ -96,16 +96,26 @@ function searchTerm(raw: string): string {
  * d'écart qu'on ne remarque qu'une fois devant la démo.
  */
 export async function fetchAccounts(search = ""): Promise<AccountPage> {
-  let query = supabase.from("users").select(ACCOUNT_FIELDS).limit(LIST_LIMIT);
-
   const term = searchTerm(search);
-  if (term) {
-    query = query.or(
-      `pseudo.ilike.%${term}%,prenom.ilike.%${term}%,email.ilike.%${term}%`,
-    );
-  }
 
-  const { data, error } = await query;
+  // En mode réel, `users.email` n'est plus lisible directement : la
+  // fonction `admin_search_accounts` (security definer) rend l'annuaire
+  // complet après avoir vérifié `is_admin()`.
+  const { data, error } = usingDemoData()
+    ? await (() => {
+        let query = supabase
+          .from("users")
+          .select(ACCOUNT_FIELDS)
+          .limit(LIST_LIMIT);
+        if (term) {
+          query = query.or(
+            `pseudo.ilike.%${term}%,prenom.ilike.%${term}%,email.ilike.%${term}%`,
+          );
+        }
+        return query;
+      })()
+    : await supabase.rpc("admin_search_accounts", { term });
+
   if (error) throw error;
 
   const raw = (data ?? []) as Record<string, unknown>[];

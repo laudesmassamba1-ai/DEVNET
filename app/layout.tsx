@@ -4,7 +4,6 @@ import Script from "next/script";
 import { BackendGate } from "@/components/BackendGate";
 import { ChallengeNotification } from "@/components/ChallengeNotification";
 import { SplashScreen } from "@/components/SplashScreen";
-import SupabaseSessionProvider from "@/components/SupabaseSessionProvider";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { ToastProvider } from "@/components/Toast";
 import { TourProvider } from "@/components/TourProvider";
@@ -102,15 +101,6 @@ export default function RootLayout({
         */}
         <SplashScreen />
         <ToastProvider>
-          {/*
-            `SupabaseSessionProvider` résout le client serveur Supabase une
-            fois, au montage, et le met en cache dans le module
-            `lib/supabase/server.ts`. Sans lui, chaque `supabase.from(...)`
-            côté serveur voyait `auth.uid() = null`, et toute écriture —
-            créer un projet, poster un message — échouait avec
-            `new row violates row-level security policy`.
-          */}
-          <SupabaseSessionProvider />
           {/*
             `ThemeApplier` applique `users.theme` à `<html>` dès que le
             profil est résolu. Le script `beforeInteractive` ci-dessus a

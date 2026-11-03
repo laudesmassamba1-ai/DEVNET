@@ -46,3 +46,14 @@ dev-server.log
 
 # captures d'écran de diagnostic
 *.png
+
+# état local de Supabase (secrets, cache CLI, dump de la base locale)
+/supabase/.temp/
+/supabase/seed.sql
+
+# artefacts de diagnostic locaux
+/.tmp-logo/
+*.pid
+tunnel-url.txt
+__pycache__/
+*.pyc
