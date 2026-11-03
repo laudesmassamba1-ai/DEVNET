@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { IBM_Plex_Mono, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import Script from "next/script";
 import { BackendGate } from "@/components/BackendGate";
 import { ChallengeNotification } from "@/components/ChallengeNotification";
@@ -24,17 +24,22 @@ import "./globals.css";
  *   fait qu'un compteur ne saute pas et qu'une colonne s'aligne.
  */
 
-const inter = Inter({
-  subsets: ["latin"],
+const inter = localFont({
+  src: "./fonts/Inter[opsz,wght].ttf",
   display: "swap",
   variable: "--font-inter",
+  weight: "100 900",
 });
 
-const plexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
+const plexMono = localFont({
+  src: [
+    { path: "./fonts/IBMPlexMono-Regular.ttf", weight: "400" },
+    { path: "./fonts/IBMPlexMono-Medium.ttf", weight: "500" },
+    { path: "./fonts/IBMPlexMono-SemiBold.ttf", weight: "600" },
+    { path: "./fonts/IBMPlexMono-Bold.ttf", weight: "700" },
+  ],
   display: "swap",
   variable: "--font-plex-mono",
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
