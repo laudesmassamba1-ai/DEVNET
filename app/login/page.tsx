@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Icon } from "@/components/Icon";
 import { Avatar, Spinner } from "@/components/Avatar";
-import { Motion, Tilt } from "@/components/Motion";
+import { Motion } from "@/components/Motion";
 import { rearmSplash } from "@/components/SplashScreen";
 import { supabase } from "@/lib/supabase/client";
 import { authErrorMessage } from "@/lib/utils";
@@ -116,91 +116,34 @@ export default function Login() {
   }
 
   return (
-    <div className="relative flex min-h-dvh flex-col items-center justify-center overflow-hidden p-6">
-      {/* ── Décor ──
-          Un tube cathodique : lignes de balayage qui descendent très
-          lentement, et un prompt en filigrane. Le décor bouge, mais
-          toujours moins vite que le formulaire n'apparaît — sinon il
-          concurrence l'attention au lieu de la poser. */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 select-none overflow-hidden"
-      >
-        <span className="absolute right-[-18px] bottom-[6%] font-mono text-[9rem] leading-none text-chalk opacity-[0.03]">
-          &gt;_
-        </span>
-        <span className="scanlines-live absolute inset-0" />
-      </div>
+    <main className="relative isolate flex min-h-dvh flex-col items-center justify-center
+      overflow-hidden px-5 py-10">
+      <div className="relative z-1 w-full max-w-[440px]">
+        <Motion role="fade" className="mb-6 flex items-center justify-center gap-3">
+          <Logo size={48} className="shrink-0" />
+          <div>
+            <h1 className="font-display text-[1.65rem] font-bold leading-none
+              tracking-[-0.05em] text-chalk">
+              DevNet<span className="text-signal">.</span>
+            </h1>
+            <p className="mt-1.5 text-[13px] text-chalk-3">
+              Fil, projets et échanges de développeurs.
+            </p>
+          </div>
+        </Motion>
 
-      {/* ── Scène, en quatre temps ──
-          1. La marque se résout : rotation de 4°, comme une commande que
-             la machine exécute.
-          2. Le titre se tape lettre par lettre, 45 ms d'écart — le geste
-             le plus vieux du terminal.
-          3. Le curseur s'allume une fois le titre posé : une invite se
-             tape, *puis* attend. L'ordre inverse ferait lire l'écran
-             comme une page web qui charge.
-          4. Le panneau s'assemble, et ses champs battent un cran de plus
-             chacun — la cadence de lecture d'un fichier. */}
-      <div className="relative z-1 w-full max-w-[400px]">
-        <div className="mb-4 text-center">
-          <Motion
-            role="rotate"
-            delay={0}
-            className="mx-auto block w-fit"
-          >
-            <Logo size={58} />
-          </Motion>
-        </div>
-
-        <h1
-          className="mb-4 text-center font-mono text-[2.2rem] font-bold
-            uppercase tracking-[0.2em] leading-none"
-        >
-          {"DevNet".split("").map((letter, i) => (
-            <Motion
-              key={`${letter}-${i}`}
-              role="rise"
-              delay={160 + i * 45}
-              as="span"
-              className="inline-block"
-            >
-              {letter}
-            </Motion>
-          ))}
-          <Motion
-            role="pop"
-            delay={160 + 6 * 45}
-            as="span"
-            className="inline-block text-signal"
-          >
-            .
-          </Motion>
-          <Motion
-            role="fade"
-            delay={160 + 6 * 45 + 140}
-            as="span"
-            className="caret !ml-1 !h-[0.58em] !w-[0.34em]"
-            style={{ verticalAlign: "0.02em" }}
-          />
-        </h1>
-
-        {/* ── Panneau — la carte du héros public : une surface unique,
-            seule du projet à s'incliner avec la souris (`Tilt`, 4° au
-            maximum, jamais au doigt, coupé par reduced-motion). ── */}
-        <Tilt max={4}>
         <Motion
-          role="scale"
-          delay={660}
-          className="rounded-[var(--radius-card)] border border-line-3
-            bg-surface p-[1.6rem] shadow-sh-3"
+          role="rise"
+          delay={80}
+          className="rounded-[var(--radius-card)] border border-edge bg-surface
+            p-6 sm:p-8"
         >
-          <h2 className="mb-1 flex items-center gap-2 font-display text-[1.5rem] font-bold tracking-[-0.02em]">
-            <Motion role="rotate" as="span" className="font-mono text-signal">
-              $
-            </Motion>
+          <h2 className="font-display text-[1.5rem] font-bold tracking-[-0.035em] text-chalk">
             {isDemo ? "Démonstration" : "Connexion"}
           </h2>
+          <p className="mt-1 mb-5 text-[13px] text-chalk-3">
+            Accède à ton fil, tes projets et tes messages.
+          </p>
           {/* ── Choix du compte en démo ──
               Quand un profil est choisi, on l'affiche et on propose de
               revenir au choix par défaut. Ce n'est pas un écran à part :
@@ -360,10 +303,10 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="votre@email.com"
                 className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-                  text-[14px] shadow-sh-1 outline-none
+                  text-[14px] outline-none
                   transition-[transform,box-shadow] duration-[var(--d-base)] ease-[var(--ease-spring)]
-                  placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px
-                  focus:shadow-[3px_3px_0_#FF8A3D]"
+                  placeholder:text-chalk-4 focus-visible:ring-2 focus-visible:ring-signal/70
+                  focus-visible:ring-offset-2 focus-visible:ring-offset-page"
               />
             </Motion>
           </div>
@@ -382,10 +325,10 @@ export default function Login() {
                   onChange={(e) => setPw(e.target.value)}
                   placeholder="••••••••"
                   className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-                    px-3.5 pr-12 text-[14px] shadow-sh-1 outline-none
+                    px-3.5 pr-12 text-[14px] outline-none
                     transition-[transform,box-shadow] duration-[var(--d-base)] ease-[var(--ease-spring)]
-                    placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px
-                    focus:shadow-[3px_3px_0_#FF8A3D]"
+                    placeholder:text-chalk-4 focus-visible:ring-2 focus-visible:ring-signal/70
+                    focus-visible:ring-offset-2 focus-visible:ring-offset-page"
                 />
               </Motion>
 
@@ -423,14 +366,13 @@ export default function Login() {
                 ${isDemo
                   ? "border-line-3 bg-surface text-chalk hover:border-signal"
                   : "border-signal bg-signal text-void"}
-                text-[13px] font-bold shadow-sh-2 disabled:opacity-40`}
+                text-[13px] font-semibold shadow-sh-2 disabled:opacity-40`}
             >
               {busy ? <Spinner /> : "Se connecter"}
             </button>
           </Motion>
           </form>
         </Motion>
-        </Tilt>
 
         <Motion role="fade" delay={1000}>
           <p className="mt-5 text-center text-[12.5px] text-chalk-3">
@@ -449,7 +391,7 @@ export default function Login() {
             <Link href="/cgu" className="hover:text-chalk-2">CGU</Link>
           </p>
         </Motion>
-      </div>
     </div>
+    </main>
   );
 }

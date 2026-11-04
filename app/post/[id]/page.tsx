@@ -201,7 +201,6 @@ export default function PostPage() {
               <PostCard
                 post={post}
                 meId={profile?.id ?? null}
-                index={0}
                 liked={liked}
                 reaction={reaction}
                 onReact={onReact}

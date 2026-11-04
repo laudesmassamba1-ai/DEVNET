@@ -12,9 +12,9 @@ import type { UnreadSummary } from "@/lib/notifications";
  * La cloche — l'unique point d'entrée du centre de notifications.
  *
  * Elle est dans la barre de titre plutôt que dans la barre basse pour
- * deux raisons : la barre basse a déjà cinq onglets sur un écran de
- * téléphone, et une sixième cible de 60 px ne rend pas le service ; et
- * la cloche doit être visible **partout**, y compris dans les écrans
+ * deux raisons : la barre basse garde une action de création et un accès
+ * « Plus » pour les autres sections ; et la cloche doit être visible
+ * **partout**, y compris dans les écrans
  * où elle n'a rien à faire d'autre que compter. Une icône dans un
  * onglet ne se voit que quand on est déjà sur l'onglet d'à côté.
  *

@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { AdminConsoleNav } from "@/components/AdminConsoleNav";
+import { AdminOverview } from "@/components/AdminOverview";
 import { AdminAccounts } from "@/components/AdminAccounts";
 import { Avatar, EmptyState, Loading } from "@/components/Avatar";
 import { Icon } from "@/components/Icon";
@@ -43,8 +45,9 @@ export default function AdminPage() {
   const { profile } = useSession();
   const toast = useToast();
 
-  const [tab, setTab] = useState<"files" | "comptes">("files");
+  const [tab, setTab] = useState<"overview" | "files" | "comptes">("overview");
   const [rows, setRows] = useState<VerificationRequest[] | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   /**
@@ -55,23 +58,36 @@ export default function AdminPage() {
    * exactement le genre d'écart qui se voit seulement en production.
    */
   const load = useCallback(async () => {
-    if (profile?.is_admin !== true) return;
-    setRows(await fetchVerificationQueue().catch(() => [] as VerificationRequest[]));
+    if (profile?.is_admin !== true) return false;
+    try {
+      setRows(await fetchVerificationQueue());
+      setLoadError(null);
+      return true;
+    } catch (error) {
+      setRows(null);
+      setLoadError(verificationErrorMessage(error));
+      return false;
+    }
   }, [profile]);
 
   useEffect(() => {
+    if (tab !== "files") return;
     void (async () => {
       await load();
     })();
-  }, [load]);
+  }, [load, tab]);
 
   async function decide(row: VerificationRequest, accept: boolean) {
     if (busyId) return;
     setBusyId(row.id);
     try {
       await decideVerification(row.id, accept);
-      await load();
-      toast(accept ? `${row.prenom} est vérifié` : "Demande refusée", "ok");
+      const refreshed = await load();
+      const successMessage = accept ? `${row.prenom} est vérifié` : "Demande refusée";
+      toast(
+        refreshed ? successMessage : "Décision enregistrée, mais la file ne peut pas être actualisée.",
+        refreshed ? "ok" : "err",
+      );
     } catch (err) {
       toast(verificationErrorMessage(err), "err");
     } finally {
@@ -84,8 +100,12 @@ export default function AdminPage() {
     setBusyId(row.id);
     try {
       await revokeVerification(row.id);
-      await load();
-      toast(`Cachet retiré à ${row.prenom}`, "ok");
+      const refreshed = await load();
+      const successMessage = `Cachet retiré à ${row.prenom}`;
+      toast(
+        refreshed ? successMessage : "Retrait enregistré, mais la file ne peut pas être actualisée.",
+        refreshed ? "ok" : "err",
+      );
     } catch (err) {
       toast(verificationErrorMessage(err), "err");
     } finally {
@@ -97,6 +117,8 @@ export default function AdminPage() {
 
   return (
     <AppShell title="Administration" path="~/admin">
+      <AdminConsoleNav active="accounts" />
+      {tab === "overview" && <AdminOverview />}
       <Motion
         role="slide"
         className="border-b-[var(--bw-heavy)] border-line-2 px-(--gutter) py-4"
@@ -113,6 +135,7 @@ export default function AdminPage() {
             geste à apprendre. */}
         <div role="tablist" className="mt-3 flex gap-5">
           {([
+            ["overview", "Vue d’ensemble"],
             ["files", "Vérifications"],
             ["comptes", "Comptes"],
           ] as const).map(([key, label]) => (
@@ -133,9 +156,11 @@ export default function AdminPage() {
         </div>
 
         <p className="mt-2 font-mono text-[11.5px] leading-relaxed text-chalk-4">
-          {tab === "files"
-            ? "Demandes en attente. Un refus ne retire rien ; un retrait de cachet est une sanction et se fait séparément."
-            : "Nommer un administrateur, retirer le rôle, ouvrir un compte. Chaque écriture est tranchée par la base, puis relue ici."}
+          {tab === "overview"
+            ? "Indicateurs agrégés du backend. Les modules non instrumentés restent signalés comme indisponibles."
+            : tab === "files"
+              ? "Demandes en attente. Un refus ne retire rien ; un retrait de cachet est une sanction et se fait séparément."
+              : "Nommer un administrateur, retirer le rôle, ouvrir un compte. Chaque écriture est tranchée par la base, puis relue ici."}
         </p>
       </Motion>
 
@@ -155,7 +180,23 @@ export default function AdminPage() {
 
         {admin && tab === "comptes" && <AdminAccounts selfId={profile?.id ?? ""} />}
 
-        {admin && tab === "files" && rows === null && <Loading label="Lecture des demandes" />}
+        {admin && tab === "files" && rows === null && !loadError && (
+          <Loading label="Lecture des demandes" />
+        )}
+
+        {admin && tab === "files" && loadError && (
+          <div role="alert" className="my-5 border-l-2 border-danger bg-danger/8 p-4">
+            <p className="text-[13px] text-danger">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="mt-3 min-h-[var(--h-tap)] rounded-[var(--radius-input)]
+                border border-danger px-3 text-[13px] text-danger"
+            >
+              Réessayer
+            </button>
+          </div>
+        )}
 
         {admin && tab === "files" && rows !== null && rows.length === 0 && (
           <div className="py-8">
@@ -214,7 +255,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => void decide(r, true)}
                   disabled={busyId === r.id}
-                  className="mo-press inline-flex h-8 flex-1 items-center justify-center
+                  className="mo-press inline-flex min-h-[var(--h-tap)] flex-1 items-center justify-center
                     gap-1.5 rounded-[var(--radius-chip)] border border-ok bg-ok/10
                     font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                     text-ok disabled:opacity-40"
@@ -227,7 +268,7 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => void decide(r, false)}
                   disabled={busyId === r.id}
-                  className="mo-press inline-flex h-8 flex-1 items-center justify-center
+                  className="mo-press inline-flex min-h-[var(--h-tap)] flex-1 items-center justify-center
                     gap-1.5 rounded-[var(--radius-chip)] border border-line-3
                     font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                     text-chalk-3 disabled:opacity-40"
@@ -246,7 +287,7 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => void revoke(r)}
                     disabled={busyId === r.id}
-                    className="mo-press inline-flex h-8 items-center justify-center
+                    className="mo-press inline-flex min-h-[var(--h-tap)] items-center justify-center
                       gap-1.5 rounded-[var(--radius-chip)] border border-danger bg-danger/8
                       font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                       text-danger disabled:opacity-40"

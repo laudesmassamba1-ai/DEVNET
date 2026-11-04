@@ -9,7 +9,8 @@
 | Framework | **Next.js 16** (App Router, Turbopack) |
 | Langage | **TypeScript** strict |
 | Styles | **Tailwind CSS v4** (tokens CSS-first via `@theme`) |
-| Base de données | **Supabase** (PostgreSQL) |
+| Base actuelle | **Supabase** (compatibilité en transition) |
+| Cible envisagée | PostgreSQL 17 chez Systalink, capacité annoncée de 5 Go (non achetée ni vérifiée) |
 | Auth | Supabase Auth (email + mot de passe) |
 | Temps réel | Supabase Realtime (`postgres_changes`) |
 | Polices | `next/font` — Fraunces, Space Grotesk, JetBrains Mono |
@@ -42,6 +43,12 @@ Un bandeau l'affiche explicitement : afficher de fausses données sans le dire s
 Limite assumée : le temps réel local est un bus en mémoire, donc **un seul onglet**. Le multi-onglets exige un vrai backend.
 
 ## Base de données
+
+La connexion applicative actuelle utilise encore la compatibilité Supabase.
+La cible annoncée est PostgreSQL 17 avec 5 Go chez Systalink, mais elle n'est
+pas encore achetée. Aucun accès distant, droit, SSL ni extension n'a donc été
+vérifié ; ne lancez pas de migration distante. La configuration locale
+PostgreSQL 17 et les scripts de migration sont conservés pour les essais.
 
 Dans Supabase → SQL Editor, exécuter dans l'ordre :
 

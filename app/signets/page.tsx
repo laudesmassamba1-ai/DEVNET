@@ -115,12 +115,11 @@ export default function BookmarksPage() {
           </Motion>
         )}
 
-        {rows?.map((p, i) => (
+        {rows?.map((p) => (
           <PostCard
             key={p.id}
             post={p}
             meId={profile?.id ?? null}
-            index={i}
             liked={false}
             bookmarked
             onBookmark={onBookmark}

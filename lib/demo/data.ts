@@ -883,7 +883,10 @@ export const DEMO_DIRECT_MESSAGES: DirectMessage[] = [
     conversation_id: "conv-thabo-koffi",
     author_id: "u-koffi",
     author_name: "Koffi",
-    text: "Oui carrément. Je te réponds dans la journée.",
+    text: "Oui carrément, je bloque deux heures samedi. Tu as le dépôt du challenge ?",
+    // Une correction assumée : l'écran doit dire « modifié » au lieu de
+    // faire passer la dernière version pour le texte d'origine.
+    edited_at: ago(3.1 * HOUR),
     created_at: ago(3.2 * HOUR),
   },
   {
@@ -891,7 +894,8 @@ export const DEMO_DIRECT_MESSAGES: DirectMessage[] = [
     conversation_id: "conv-thabo-koffi",
     author_id: "u-thabo",
     author_name: "Thabo",
-    text: "Je t'envoie le script du challenge dans 10 minutes.",
+    text: "Voilà le script du challenge :\n\nimport hashlib\n\ndef proof(seed: str) -> str:\n    return hashlib.sha256(seed.encode()).hexdigest()[:8]\n\nprint(proof('devnet'))",
+    is_code: true,
     created_at: ago(3 * HOUR),
   },
   {
@@ -991,15 +995,23 @@ export const DEMO_EXTENSIONS: Extension[] = [
   {
     id: "e-4",
     slug: "assistant-explications",
-    name: "Assistant Explications",
-    description: "Un agent qui explique le fichier ouvert : rôle des fonctions, points de vigilance, pistes de tests.",
+    name: "Invites de revue",
+    description: "Des invites de revue prêtes à insérer dans le fichier pour l'assistant de votre choix : explication, tests, cas limites.",
     version: "0.4.0",
     icon: "bolt",
     category: "ai",
     manifest: {
       commands: [
-        { id: "explain-file", title: "Expliquer le fichier ouvert" },
-        { id: "suggest-tests", title: "Suggérer des tests" },
+        {
+          id: "explain-file",
+          title: "Insérer une demande d'explication",
+          body: "// Explique ce fichier : rôle des fonctions, points de vigilance, cas limites.\n",
+        },
+        {
+          id: "suggest-tests",
+          title: "Insérer une demande de tests",
+          body: "// Propose des tests pour ce fichier, cas limites et erreurs compris.\n",
+        },
       ],
       settings: [
         { key: "tone", label: "Ton des réponses", type: "string", default: "concis" },
@@ -1011,14 +1023,20 @@ export const DEMO_EXTENSIONS: Extension[] = [
   },
   {
     id: "e-5",
-    slug: "python-linter",
-    name: "Python Linter",
-    description: "Analyse statique légère et suggestions de style (PEP 8) sur le fichier courant.",
+    slug: "conventions-python",
+    name: "Conventions Python",
+    description: "L'en-tête de module et le garde-fou PEP 8, insérés en une commande depuis la palette.",
     version: "1.2.1",
     icon: "terminal",
     category: "tool",
     manifest: {
-      commands: [{ id: "lint-file", title: "Analyser le fichier (PEP 8)" }],
+      commands: [
+        {
+          id: "module-header",
+          title: "Insérer l'en-tête de module",
+          body: "\"\"\"Module.\n\nDécris ici ce que fait ce fichier.\n\"\"\"\n",
+        },
+      ],
       settings: [
         { key: "maxLineLength", label: "Longueur de ligne maximale", type: "number", default: 88 },
       ],
@@ -1032,9 +1050,11 @@ export const DEMO_EXTENSIONS: Extension[] = [
 /**
  * Les installations de démonstration.
  *
- * Le compte courant (`u-koffi`) a installé deux extensions : le thème, qu'il
- * garde actif, et l'assistant IA, qu'il a **désactivé** sans le désinstaller.
- * C'est le cas qui illustre la distinction `enabled` / installé.
+ * Le compte courant (`u-koffi`) a installé trois extensions : le thème et
+ * les conventions Python, qu'il garde actifs, et les invites de revue, qu'il
+ * a **désactivées** sans les désinstaller. C'est le cas qui illustre la
+ * distinction `enabled` / installé — et la commande Python est là pour
+ * qu'une démonstration montre la palette `F1` sans passer par la boutique.
  */
 export const DEMO_EXTENSION_INSTALLS: ExtensionInstall[] = [
   {
@@ -1050,6 +1070,13 @@ export const DEMO_EXTENSION_INSTALLS: ExtensionInstall[] = [
     enabled: false,
     settings: { tone: "concis" },
     installed_at: ago(10 * 24 * HOUR),
+  },
+  {
+    extension_id: "e-5",
+    user_id: "u-koffi",
+    enabled: true,
+    settings: { maxLineLength: 99 },
+    installed_at: ago(7 * 24 * HOUR),
   },
   {
     extension_id: "e-2",

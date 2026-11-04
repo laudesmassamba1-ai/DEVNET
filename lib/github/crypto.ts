@@ -30,25 +30,65 @@
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();
+const ENVELOPE_VERSION = "v2.";
+const HKDF_INFO = enc.encode("devnet/github-cookie/aes-gcm/v2");
+const LEGACY_DECRYPTION_DEFAULT_UNTIL = "2026-12-04T00:00:00.000Z";
 
 /**
- * Clé AES-GCM dérivée de la phrase secrète.
- *
- * La phrase n'est pas la clé : on la hache d'abord (SHA-256),
- * parce qu'une phrase trop courte ou mal formée donnerait une
- * clé de taille invalide — et parce qu'AES-GCM exige exactement
- * 128, 192 ou 256 bits. Le hachage normalise n'importe quelle
- * phrase en 256 bits.
+ * Dérive une clé dédiée à cette version et à cet usage. Le sel public
+ * est enregistré dans l'enveloppe; HKDF évite d'utiliser directement
+ * une empreinte simple du secret comme clé de chiffrement.
  */
-async function deriveKey(secret: string): Promise<CryptoKey> {
+async function deriveKey(secret: string, salt: Uint8Array): Promise<CryptoKey> {
+  const material = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    "HKDF",
+    false,
+    ["deriveKey"],
+  );
+  return crypto.subtle.deriveKey(
+    {
+      name: "HKDF",
+      hash: "SHA-256",
+      salt: new Uint8Array(salt).buffer,
+      info: HKDF_INFO,
+    },
+    material,
+    { name: "AES-GCM", length: 256 },
+    false,
+    ["encrypt", "decrypt"],
+  );
+}
+
+/** Déchiffre le format historique v1, limité à la période de migration. */
+async function decryptLegacyValue(
+  secret: string,
+  envelope: string,
+): Promise<string | null> {
+  const cutoffValue =
+    (typeof process === "undefined" ? "" : process.env.GITHUB_CRYPT_LEGACY_UNTIL) ||
+    LEGACY_DECRYPTION_DEFAULT_UNTIL;
+  const cutoff = Date.parse(cutoffValue);
+  if (!Number.isFinite(cutoff) || Date.now() >= cutoff) return null;
+
+  const blob = fromBase64Url(envelope);
+  if (blob.length < 12 + 16) return null;
+
   const digest = await crypto.subtle.digest("SHA-256", enc.encode(secret));
-  return crypto.subtle.importKey(
+  const key = await crypto.subtle.importKey(
     "raw",
     digest,
     { name: "AES-GCM" },
     false,
-    ["encrypt", "decrypt"],
+    ["decrypt"],
   );
+  const plain = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: blob.slice(0, 12) },
+    key,
+    blob.slice(12),
+  );
+  return dec.decode(plain);
 }
 
 /** La phrase secrète est-elle présente et d'une longueur utile ? */
@@ -61,26 +101,26 @@ export function hasVaultKey(): boolean {
 /**
  * Chiffre une valeur dans une enveloppe autonome.
  *
- * La forme est `base64url(iv(12 octets) || texte chiffré || tag)`.
- * Le vecteur est **neuf à chaque appel** : chiffrer deux fois le
- * même jeton donne deux enveloppes différentes, donc on ne peut
- * pas reconnaître un jeton en comparant des enveloppes.
+ * La forme est `v2.base64url(sel HKDF(16) || iv(12) || texte chiffré || tag)`.
+ * Le sel et le vecteur sont neufs à chaque appel.
  */
 export async function encryptValue(
   secret: string,
   plaintext: string,
 ): Promise<string> {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv = crypto.getRandomValues(new Uint8Array(12));
   const cipher = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv },
-    await deriveKey(secret),
+    await deriveKey(secret, salt),
     enc.encode(plaintext),
   );
 
-  const blob = new Uint8Array(iv.length + cipher.byteLength);
-  blob.set(iv, 0);
-  blob.set(new Uint8Array(cipher), iv.length);
-  return toBase64Url(blob);
+  const blob = new Uint8Array(salt.length + iv.length + cipher.byteLength);
+  blob.set(salt, 0);
+  blob.set(iv, salt.length);
+  blob.set(new Uint8Array(cipher), salt.length + iv.length);
+  return `${ENVELOPE_VERSION}${toBase64Url(blob)}`;
 }
 
 /**
@@ -96,14 +136,20 @@ export async function decryptValue(
   envelope: string,
 ): Promise<string | null> {
   try {
-    const blob = fromBase64Url(envelope);
-    if (blob.length <= 12) return null;
+    if (!envelope.startsWith(ENVELOPE_VERSION)) {
+      if (envelope.includes(".")) return null;
+      return await decryptLegacyValue(secret, envelope);
+    }
 
-    const iv = blob.slice(0, 12);
-    const cipher = blob.slice(12);
+    const blob = fromBase64Url(envelope.slice(ENVELOPE_VERSION.length));
+    if (blob.length < 16 + 12 + 16) return null;
+
+    const salt = blob.slice(0, 16);
+    const iv = blob.slice(16, 28);
+    const cipher = blob.slice(28);
     const plain = await crypto.subtle.decrypt(
       { name: "AES-GCM", iv },
-      await deriveKey(secret),
+      await deriveKey(secret, salt),
       cipher,
     );
     return dec.decode(plain);
@@ -123,6 +169,9 @@ function toBase64Url(bytes: Uint8Array): string {
 }
 
 function fromBase64Url(value: string): Uint8Array {
+  if (!/^[A-Za-z0-9_-]+$/.test(value) || value.length % 4 === 1) {
+    throw new Error("Invalid base64url envelope");
+  }
   const b64 = value.replace(/-/g, "+").replace(/_/g, "/");
   const bin = atob(b64);
   const bytes = new Uint8Array(bin.length);

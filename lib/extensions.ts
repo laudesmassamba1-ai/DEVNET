@@ -2,8 +2,8 @@ import { supabase } from "@/lib/supabase/client";
 import { AUTHOR_COLUMNS } from "@/lib/social";
 import { slugify, uniqueSlug } from "@/lib/groups/channels";
 import type {
-  Extension, ExtensionCategory, ExtensionInstall, ExtensionManifest,
-  ExtensionSnippet, ExtensionWithAuthor,
+  Extension, ExtensionCategory, ExtensionCommand, ExtensionInstall,
+  ExtensionManifest, ExtensionSnippet, ExtensionWithAuthor,
 } from "@/lib/types";
 
 /**
@@ -74,14 +74,21 @@ export function normalizeManifest(raw: unknown): ExtensionManifest {
 
   if (Array.isArray(m.commands)) {
     out.commands = m.commands
-      .filter((c): c is { id: string; title: string } =>
+      .filter((c): c is { id: string; title: string; body?: unknown } =>
         !!c && typeof c === "object"
         && typeof (c as { id?: unknown }).id === "string"
         && (c as { id: string }).id.trim() !== ""
         && typeof (c as { title?: unknown }).title === "string"
         && (c as { title: string }).title.trim() !== "",
       )
-      .map((c) => ({ id: c.id, title: c.title }));
+      .map((c) => ({
+        id: c.id,
+        title: c.title,
+        // Le corps est ce que la commande insère. Une commande qui n'en a
+        // pas reste lisible — elle vient d'un manifeste antérieur — mais
+        // `executableCommands` ne la proposera pas dans l'éditeur.
+        body: typeof c.body === "string" ? c.body : undefined,
+      }));
   }
 
   if (Array.isArray(m.settings)) {
@@ -153,25 +160,53 @@ export async function fetchMyInstalls(
 }
 
 /**
- * Les snippets des extensions **activées** par l'utilisateur, à plat.
+ * Les commandes qui **font** quelque chose : celles qui portent un corps.
+ *
+ * Le manifeste accepte une commande sans corps pour ne pas invisibiliser
+ * un vieux manifeste auquel il manque ce champ ; l'éditeur, lui, ne
+ * propose que ce qui produit un effet. Une entrée de palette qui ne fait
+ * rien est un clic perdu — le défaut exact qu'on corrige ici.
+ */
+export function executableCommands(
+  commands: ExtensionCommand[] | undefined,
+): ExtensionCommand[] {
+  return (commands ?? []).filter(
+    (c) => typeof c.body === "string" && c.body.trim() !== "",
+  );
+}
+
+/** Ce qu'une extension active apporte à l'IDE, en une seule lecture. */
+export interface ActiveContributions {
+  snippets: ExtensionSnippet[];
+  commands: ExtensionCommand[];
+}
+
+/**
+ * Les contributions des extensions **activées** par l'utilisateur, à plat.
  *
  * C'est ce que l'IDE charge dans Monaco : on ne veut pas de la liste des
- * extensions mais le flux de gabarits à enregistrer. Une extension
- * désactivée ne contribue rien, même si elle reste installée.
+ * extensions mais les deux flux qu'elles alimentent — les gabarits de
+ * complétion et les commandes de la palette. Une extension désactivée ne
+ * contribue rien, même si elle reste installée.
+ *
+ * Une seule lecture pour les deux : deux appels séparés referaient deux
+ * fois la même cascade installations → extensions, et pourraient lire deux
+ * états différents si l'on désinstalle entre les deux.
  */
-export async function fetchActiveSnippets(
+export async function fetchActiveContributions(
   userId: string,
-): Promise<ExtensionSnippet[]> {
+): Promise<ActiveContributions> {
   const installs = await fetchMyInstalls(userId);
   const active = new Set(
     [...installs.values()].filter((i) => i.enabled).map((i) => i.extension_id),
   );
-  if (active.size === 0) return [];
+  if (active.size === 0) return { snippets: [], commands: [] };
 
-  const all = await fetchExtensions();
-  return all
-    .filter((e) => active.has(e.id))
-    .flatMap((e) => e.manifest.snippets ?? []);
+  const chosen = (await fetchExtensions()).filter((e) => active.has(e.id));
+  return {
+    snippets: chosen.flatMap((e) => e.manifest.snippets ?? []),
+    commands: executableCommands(chosen.flatMap((e) => e.manifest.commands ?? [])),
+  };
 }
 
 /**

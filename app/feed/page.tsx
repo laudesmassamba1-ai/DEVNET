@@ -15,7 +15,6 @@ import { groupStoriesByAuthor, StoryRail, StoryViewer } from "@/components/Story
 import { useToast } from "@/components/Toast";
 import { supabase } from "@/lib/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { createPortal } from "react-dom";
 import { postPoints } from "@/lib/gamification";
 import {
   deleteStory,
@@ -39,6 +38,9 @@ import {
 import { removeSamplePosts, seedSamplePosts, SAMPLE_MARK } from "@/lib/seed";
 import { fetchCommunityFeed } from "@/lib/communities";
 import type { PostWithAuthor, StoryWithAuthor, UserLite } from "@/lib/types";
+import { OPEN_POST_COMPOSER_EVENT } from "@/lib/ui-events";
+import { FEED_DENSITY_KEY, type FeedDensity } from "@/lib/ui-preferences";
+import { FeedRepositoryError } from "@/modules/feed";
 
 const LANG_OPTIONS = [
   "", "Python", "JavaScript", "TypeScript", "Java", "C / C++",
@@ -54,7 +56,6 @@ const LANG_OPTIONS = [
  * post envoyé est un post parti.
  */
 const DRAFT_KEY = "devnet:compose";
-
 type ComposerDraft = { text: string; code: string; lang: string; isCode: boolean };
 
 const EMPTY_DRAFT: ComposerDraft = { text: "", code: "", lang: "", isCode: false };
@@ -108,17 +109,15 @@ export default function FeedPage() {
   const router = useRouter();
 
   const [posts, setPosts] = useState<PostWithAuthor[] | null>(null);
+  const [feedError, setFeedError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState<string>(() => readDraft().text);
   const [code, setCode] = useState<string>(() => readDraft().code);
   const [lang, setLang] = useState<string>(() => readDraft().lang);
   const [isCode, setIsCode] = useState<boolean>(() => readDraft().isCode);
+  const [density, setDensity] = useState<FeedDensity>("comfortable");
+  const [densityReady, setDensityReady] = useState(false);
   const [busy, setBusy] = useState(false);
-  /** La bulle de rédaction est portée dans `document.body` : elle doit
-      échapper aux `transform`/`backdrop-filter` des ancêtres, qui créent
-      un bloc conteneur et casseraient son `position: fixed`. On ne la
-      monte qu'après hydratation, sinon le portail n'a pas de cible. */
-  const [fabReady, setFabReady] = useState(false);
   /** Auteur dont on regarde la série de stories. */
   const [storyOpen, setStoryOpen] = useState<string | null>(null);
   /** Les stories vivantes, lues dans la table — pas déduites du fil. */
@@ -143,7 +142,31 @@ export default function FeedPage() {
   /** Post dont on ouvre le fil de commentaires. */
   const [commentsFor, setCommentsFor] = useState<string | null>(null);
 
-  useEffect(() => setFabReady(true), []); // eslint-disable-line react-hooks/set-state-in-effect -- posé après le premier paint, c'est le signal d'animation
+  useEffect(() => {
+    const openComposer = () => setOpen(true);
+    window.addEventListener(OPEN_POST_COMPOSER_EVENT, openComposer);
+
+    if (new URLSearchParams(window.location.search).get("compose") === "1") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- action lancée depuis la navigation mobile
+      setOpen(true);
+      router.replace("/feed");
+    }
+
+    return () => window.removeEventListener(OPEN_POST_COMPOSER_EVENT, openComposer);
+  }, [router]);
+
+  useEffect(() => {
+    const savedDensity = window.localStorage.getItem(FEED_DENSITY_KEY);
+    if (savedDensity === "compact" || savedDensity === "comfortable") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- préférence locale lue après hydratation
+      setDensity(savedDensity);
+    }
+    setDensityReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (densityReady) window.localStorage.setItem(FEED_DENSITY_KEY, density);
+  }, [density, densityReady]);
 
   /** Portée du fil : tout le monde, les abonnements, ou les communautés. */
   const [scope, setScope] = useState<FeedScope | "communities">("all");
@@ -182,19 +205,25 @@ export default function FeedPage() {
    */
   const refresh = useCallback(async () => {
     invalidatePostCache();
+    setFeedError(null);
+    try {
     // L'onglet Communautés a sa propre lecture : il ne lit que les posts
     // rattachés à une communauté publique ou restreinte, sans pagination.
-    if (scope === "communities") {
-      const rows = await fetchCommunityFeed();
-      setEmptyScope(false);
-      setPosts(rows);
-      setHasMore(false);
-      return;
+      if (scope === "communities") {
+        const rows = await fetchCommunityFeed();
+        setEmptyScope(false);
+        setPosts(rows);
+        setHasMore(false);
+        return;
+      }
+      const page = await fetchFeedPage({ scope, me: profile?.id });
+      setEmptyScope(page.emptyScope);
+      setPosts((prev) => mergePosts(prev, page.rows));
+      setHasMore(page.more);
+    } catch (error) {
+      if (!(error instanceof FeedRepositoryError)) throw error;
+      setFeedError(error.message);
     }
-    const page = await fetchFeedPage({ scope, me: profile?.id });
-    setEmptyScope(page.emptyScope);
-    setPosts((prev) => mergePosts(prev, page.rows));
-    setHasMore(page.more);
   }, [scope, profile]);
 
   /**
@@ -210,8 +239,17 @@ export default function FeedPage() {
     const gen = genRef.current;
 
     setLoadingMore(true);
-    const page = await fetchFeedPage({ scope, me: profile?.id, before: cursor });
-    setLoadingMore(false);
+    setFeedError(null);
+    let page;
+    try {
+      page = await fetchFeedPage({ scope, me: profile?.id, before: cursor });
+    } catch (error) {
+      if (!(error instanceof FeedRepositoryError)) throw error;
+      setFeedError(error.message);
+      return;
+    } finally {
+      setLoadingMore(false);
+    }
     if (genRef.current !== gen) return;
 
     setPosts((prev) => (prev === null ? prev : [...prev, ...page.rows]));
@@ -393,6 +431,10 @@ export default function FeedPage() {
           ]),
         ),
       );
+    }).catch((error: unknown) => {
+      if (!alive || genRef.current !== gen) return;
+      if (!(error instanceof FeedRepositoryError)) throw error;
+      setFeedError(error.message);
     });
     return () => {
       alive = false;
@@ -750,12 +792,53 @@ export default function FeedPage() {
         <IconButton label="Mon profil" name="profile" onClick={() => router.push("/profile")} />
       }
     >
-      {/* ── Scène du fil : quatre plans, quatre retards. ──
-          Le rail de contributions, la zone de rédaction, le bandeau
-          d'exemple puis les cartes. L'ordre suit l'ordre de lecture :
-          on voit QUI est actif, puis ce qu'on peut écrire, puis ce qui
-          a été écrit. Le fil lui-même est produit par la cascade du PostCard. */}
-      <div className="px-(--gutter) pt-3">
+      <div className="px-(--gutter) pt-3" data-feed-density={density}>
+        <div className="mb-3 flex min-h-11 items-center justify-between gap-3">
+          <h1 className="font-display text-[22px] font-semibold tracking-[-0.03em]">
+            Fil
+          </h1>
+          <div className="flex items-center gap-2">
+            <div
+              role="group"
+              aria-label="Densité des publications"
+              className="flex items-center rounded-[var(--radius-input)] border border-line-2 p-0.5"
+            >
+              {([
+                ["comfortable", "Confortable"],
+                ["compact", "Compacte"],
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={density === value}
+                  onClick={() => setDensity(value)}
+                  className={`min-h-[var(--h-tap)] rounded-[var(--radius-chip)] px-2.5 text-[12px]
+                    transition-colors duration-[var(--d-fast)]
+                    ${density === value
+                      ? "bg-surface-3 text-chalk"
+                      : "text-chalk-3 hover:text-chalk"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label="Écrire une publication"
+              data-tour="composer"
+              className="inline-flex min-h-[var(--h-tap)] min-w-[var(--h-tap)]
+                items-center justify-center gap-2 rounded-[var(--radius-input)]
+                border border-signal bg-signal px-3 text-void hover:opacity-90"
+            >
+              <Icon name="edit" size={16} />
+              <span className="hidden text-[12px] font-semibold sm:inline">
+                Publier
+              </span>
+            </button>
+          </div>
+        </div>
+
         <Motion role="slide" delay={60} attrs={{ "data-tour": "feed-stories" }}>
           <StoryRail
             stories={stories ?? []}
@@ -765,11 +848,7 @@ export default function FeedPage() {
           />
         </Motion>
 
-        {/* ── Zone de rédaction ──
-            Le composeur ne vit plus dans le flux du fil : il est devenu
-            une **bulle de verre flottante** (`BulleRédaction`, plus bas),
-            toujours visible pendant le défilement. La feuille « Nouveau
-            post » reste le lieu où l'on écrit — texte, code et projet. */}
+        {/* La publication s'ouvre dans la feuille depuis l'action en tête du fil. */}
 
         {posts !== null && hasSamples && (
           <Motion
@@ -828,7 +907,25 @@ export default function FeedPage() {
           </div>
         </Motion>
 
-        {posts === null && <Loading label="Chargement du fil" />}
+        {posts === null && !feedError && <Loading label="Chargement du fil" />}
+        {feedError && (
+          <div
+            role="alert"
+            className="my-3 flex flex-wrap items-center justify-between gap-3
+              border border-line-2 px-4 py-3 text-[13px] text-chalk-2"
+          >
+            <span>{feedError}</span>
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              className="min-h-[var(--h-tap)] px-3 font-bold text-signal
+                hover:underline focus-visible:outline-2
+                focus-visible:outline-offset-2 focus-visible:outline-signal"
+            >
+              Réessayer
+            </button>
+          </div>
+        )}
 
         {/* Filtre actif mais personne suivi : ce n'est pas un fil vide,
             c'est un fil qu'on ne peut pas encore remplir. L'écran doit
@@ -907,15 +1004,12 @@ export default function FeedPage() {
           </Motion>
         )}
 
-        {/* Le fil : cascade plafonnée. Chaque carte porte son rang, et le
-            retard est calculé dans PostCard pour que la logique reste avec
-            l'élément qu'elle anime. */}
-        {posts?.map((p, i) => (
+        {/* Chaque publication est séparée par un filet, sans défilement infini. */}
+        {posts?.map((p) => (
           <PostCard
             key={p.id}
             post={p}
             meId={profile?.id ?? null}
-            index={i}
             liked={likedIds.includes(p.id)}
             reaction={reactions[p.id] ?? null}
             onReact={onReact}
@@ -950,11 +1044,11 @@ export default function FeedPage() {
       <Sheet open={open} onClose={resetSheet} title="Nouveau post">
         <textarea
           value={text} onChange={(e) => setText(e.target.value)}
-          rows={4} placeholder="Rédigez votre publication"
+          rows={Math.min(12, Math.max(4, text.split("\n").length))}
+          aria-label="Texte de la publication"
+          placeholder="Partage une question, un extrait ou une avancée."
           className="mb-3 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] leading-[1.6] shadow-sh-1 outline-none
-            transition-[transform,box-shadow] placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            text-[14px] leading-[1.6] outline-none placeholder:text-chalk-4"
         />
 
         <label className="mb-3 flex cursor-pointer items-center gap-2 text-[12.5px] text-chalk-3">
@@ -1162,31 +1256,6 @@ export default function FeedPage() {
         />
       )}
 
-      {/* ── Bulle de rédaction ──
-          Un bouton flottant en verre, **toujours visible** pendant le
-          défilement. Il ouvre la feuille de composition : on écrit dans
-          un espace dédié, pas dans une barre écrasée entre deux posts.
-          Porté dans `document.body` pour échapper aux `transform` et
-          `backdrop-filter` des ancêtres (qui créeraient un bloc conteneur
-          et figeraient le `position: fixed`). */}
-      {fabReady &&
-        createPortal(
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Écrire une publication"
-            data-tour="composer"
-            className="glass-lens fixed right-4 bottom-[calc(var(--h-bottomnav)+var(--h-status)+1.1rem)]
-              z-[var(--z-composer)] flex size-14 items-center justify-center rounded-full
-              text-signal
-              transition-transform duration-[var(--d-base)] ease-[var(--ease-spring)]
-              hover:scale-105 active:scale-95
-              shell:right-6 shell:bottom-6"
-          >
-            <Icon name="edit" size={20} strokeWidth={2} />
-          </button>,
-          document.body,
-        )}
     </AppShell>
   );
 }

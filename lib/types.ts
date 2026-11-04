@@ -436,10 +436,19 @@ export interface ExtensionSnippet {
   description?: string;
 }
 
-/** Une commande exposée par l'extension, affichable dans la palette. */
+/**
+ * Une commande exposée par l'extension, dans la palette de l'éditeur.
+ *
+ * `body` est ce que la commande **fait** : le texte inséré au curseur.
+ * Une commande sans corps n'est pas une action, c'est une entrée de
+ * menu qui ne produit rien — l'IDE ne l'enregistre donc pas. Le champ
+ * reste optionnel pour que les manifestes publiés avant cette
+ * précision restent lisibles, pas pour encourager des commandes vides.
+ */
 export interface ExtensionCommand {
   id: string;
   title: string;
+  body?: string;
 }
 
 /** Un réglage proposé par l'extension, avec sa valeur par défaut. */
@@ -947,6 +956,10 @@ export interface DirectMessage {
   author_id: string;
   author_name: string;
   text: string;
+  /** Bloc de code isolé, jamais interprété (migration 041). */
+  is_code?: boolean;
+  /** Dernière correction ; absent pour un message d'origine (041). */
+  edited_at?: string | null;
   created_at: string;
 }
 

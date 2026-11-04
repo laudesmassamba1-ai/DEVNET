@@ -458,7 +458,7 @@ export function CommentsPanel({
               border border-line-3 bg-surface px-3 py-2 text-[13.5px]
               leading-[1.55] text-chalk shadow-sh-1 outline-none
               transition-[transform,box-shadow] placeholder:text-chalk-4
-              focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]
+              focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]
               disabled:opacity-50"
           />
           <button

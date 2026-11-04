@@ -588,7 +588,7 @@ afficherait une promesse permanente pour une action momentanée. */}
                   outline-none transition-[transform,box-shadow]
                   duration-[var(--d-base)] ease-[var(--ease-spring)]
                   placeholder:text-chalk-4 focus:-translate-x-px
-                  focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                  focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
               />
 
               <button

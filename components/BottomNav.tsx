@@ -1,19 +1,50 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
 import { Icon, type IconName } from "./Icon";
 import { Logo } from "./Logo";
 import { PendingStatus, usePendingVisible } from "./Pending";
+import { Sheet } from "./Sheet";
 import { useStatus } from "./StatusBar";
+import { OPEN_POST_COMPOSER_EVENT } from "@/lib/ui-events";
 
 const LINKS: { href: string; label: string; icon: IconName; key: string }[] = [
   { href: "/feed", label: "Fil", icon: "feed", key: "fil" },
-  { href: "/decouvrir", label: "Découvrir", icon: "spark", key: "decouvrir" },
+  { href: "/decouvrir", label: "Découvrir", icon: "compass", key: "decouvrir" },
   { href: "/search", label: "Recherche", icon: "search", key: "recherche" },
   { href: "/groups", label: "Groupes", icon: "groups", key: "groupes" },
   { href: "/messages", label: "Messages", icon: "messages", key: "messages" },
   { href: "/profile", label: "Profil", icon: "profile", key: "profil" },
+];
+
+const MOBILE_LINKS: { href: string; label: string; icon: IconName }[] = [
+  { href: "/feed", label: "Fil", icon: "feed" },
+  { href: "/decouvrir", label: "Explorer", icon: "compass" },
+  { href: "/messages", label: "Messages", icon: "messages" },
+  { href: "/profile", label: "Profil", icon: "profile" },
+];
+
+const MOBILE_MORE_LINKS: { href: string; label: string; icon: IconName }[] = [
+  { href: "/search", label: "Recherche", icon: "search" },
+  { href: "/groups", label: "Groupes", icon: "groups" },
+  { href: "/communities", label: "Communautés", icon: "globe" },
+  { href: "/projects", label: "Projets", icon: "package" },
+  { href: "/github", label: "GitHub", icon: "code" },
+  { href: "/extensions", label: "Extensions", icon: "grid" },
+  { href: "/signets", label: "Signets", icon: "bookmark" },
+  { href: "/notifications", label: "Notifications", icon: "notifications" },
+  { href: "/moderation", label: "Modération", icon: "flag" },
+  { href: "/settings", label: "Paramètres", icon: "settings" },
+];
+
+const MOBILE_INFO_LINKS: { href: string; label: string }[] = [
+  { href: "/aide", label: "Aide" },
+  { href: "/a-propos", label: "À propos" },
+  { href: "/confidentialite", label: "Confidentialité" },
+  { href: "/cgu", label: "Conditions d'utilisation" },
+  { href: "/setup", label: "Diagnostic" },
 ];
 
 /**
@@ -31,11 +62,8 @@ const LINKS: { href: string; label: string; icon: IconName; key: string }[] = [
  * Liens de la barre latérale qui n'allaient pas dans la barre basse.
  *
  * Le dépôt est un espace de travail, pas un onglet de navigation
- * quotidienne : on ne le visite pas en scrollant entre le fil et les
- * messages. Six onglets en bas d'un écran de téléphone deviennent six
- * cibles de 60 px, et la moitié ne sert jamais. Il reste donc dans la
- * barre latérale, sous les liens principaux, et accessible depuis le
- * profil — où il est à sa place, puisqu'un dépôt appartient à quelqu'un.
+ * quotidienne. Il reste dans la barre latérale sur bureau et dans la
+ * feuille « Plus » sur mobile.
  */
 const WORKSPACE: { href: string; label: string; icon: IconName }[] = [
   { href: "/communities", label: "Communautés", icon: "globe" },
@@ -54,17 +82,15 @@ const WORKSPACE: { href: string; label: string; icon: IconName }[] = [
  * voir.
  *
  * Le lien du panneau n'est donc pas un second point d'entrée : c'est le
- * même endroit, nommé. Sur un grand écran, on lit une liste de liens
- * avant de promener le curseur dans la barre de titre ; sur un écran de
- * téléphone, il n'y a pas de panneau du tout, et la barre basse garde
- * ses cinq onglets.
+ * même endroit, nommé. Sur un grand écran, les liens restent dans la
+ * barre latérale ; sur mobile, la feuille « Plus » rend accessibles les
+ * sections qui ne tiennent pas dans la barre basse.
  *
  * Pas de compteur ici : il serait identique à celui de la cloche, et
  * deux chiffres pour la même valeur finissent par diverger.
  */
 const ACTIVITY: { href: string; label: string; icon: IconName }[] = [
-  // Les signets quittent la barre basse vers Découvrir : on les garde ici,
-  // sur grand écran, et sous la touche `b`. Six onglets au pouce, pas sept.
+  // Les signets restent dans le panneau d'activité et la feuille « Plus ».
   { href: "/signets", label: "Signets", icon: "bookmark" },
   { href: "/notifications", label: "Notifications", icon: "notifications" },
   // La modération rejoint l'activité, pas l'explorateur : on ne va pas y
@@ -75,26 +101,41 @@ const ACTIVITY: { href: string; label: string; icon: IconName }[] = [
   { href: "/admin", label: "Admin", icon: "lock" },
 ];
 
-export function BottomNav() {
+export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreActive =
+    MOBILE_MORE_LINKS.some((link) => pathname.startsWith(link.href)) ||
+    (isAdmin && pathname.startsWith("/admin"));
+
+  function openComposer() {
+    if (pathname === "/feed") {
+      window.dispatchEvent(new Event(OPEN_POST_COMPOSER_EVENT));
+      return;
+    }
+    router.push("/feed?compose=1");
+  }
 
   return (
     <nav
       data-tour="nav-main"
-      className="fixed inset-x-0 bottom-0 z-[var(--z-nav)] flex
+      aria-label="Navigation principale"
+      className="fixed inset-x-0 bottom-0 z-[var(--z-nav)] grid grid-cols-6
         h-[var(--h-bottomnav)] items-stretch border-t-[var(--bw-heavy)]
         border-edge glass-strong pb-[env(safe-area-inset-bottom)]
         rounded-[var(--radius-card)] shell:hidden"
     >
-      {LINKS.map((l) => {
+      {MOBILE_LINKS.slice(0, 2).map((l) => {
         const active = pathname.startsWith(l.href);
         return (
           <Link
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`relative mx-1 my-1.5 flex flex-1 flex-col items-center
-              justify-center gap-[5px] rounded-[var(--radius-chip)] label-micro
+            className={`relative mx-1 my-1.5 flex min-w-0 flex-col items-center
+              justify-center gap-[5px] rounded-[var(--radius-chip)]
+              text-[10px] font-medium tracking-[-0.01em] normal-case
               transition-[color,background-color] duration-[var(--d-fast)]
               ease-[var(--ease-continuous)] active:translate-y-px
               ${active
@@ -115,13 +156,128 @@ export function BottomNav() {
                 transform: active ? "translateY(-1px)" : "none",
               }}
             >
-              <Icon name={l.icon} size={20} strokeWidth={active ? 2 : 1.6} />
+              <Icon name={l.icon} size={20} strokeWidth={active ? 2 : 1.8} />
             </span>
 
             {l.label}
           </Link>
         );
       })}
+      <button
+        type="button"
+        onClick={openComposer}
+        aria-label="Créer une publication"
+        aria-haspopup="dialog"
+        className="mo-press mx-1 my-1.5 flex min-w-0 flex-col items-center
+          justify-center gap-[5px] rounded-[var(--radius-chip)] bg-signal
+          text-[10px] font-semibold text-void transition-opacity
+          duration-[var(--d-fast)] hover:opacity-90"
+      >
+        <Icon name="plus" size={20} strokeWidth={2} />
+        Créer
+      </button>
+      {MOBILE_LINKS.slice(2).map((l) => {
+        const active = pathname.startsWith(l.href);
+        return (
+          <Link
+            key={l.href}
+            href={l.href}
+            aria-current={active ? "page" : undefined}
+            className={`relative mx-1 my-1.5 flex min-w-0 flex-col items-center
+              justify-center gap-[5px] rounded-[var(--radius-chip)]
+              text-[10px] font-medium tracking-[-0.01em] normal-case
+              transition-[color,background-color] duration-[var(--d-fast)]
+              ease-[var(--ease-continuous)] active:translate-y-px
+              ${active
+                ? "bg-surface-2 text-signal shadow-[var(--glass-rim)]"
+                : "text-chalk-4 hover:bg-surface-2/60 hover:text-chalk-2"}`}
+          >
+            <Icon name={l.icon} size={20} strokeWidth={active ? 2 : 1.8} />
+            {l.label}
+          </Link>
+        );
+      })}
+      <button
+        type="button"
+        onClick={() => setMoreOpen(true)}
+        aria-label="Ouvrir les autres sections"
+        aria-expanded={moreOpen}
+        aria-haspopup="dialog"
+        className={`mo-press mx-1 my-1.5 flex min-w-0 flex-col items-center
+          justify-center gap-[5px] rounded-[var(--radius-chip)]
+          text-[10px] font-medium tracking-[-0.01em] normal-case
+          transition-[color,background-color] duration-[var(--d-fast)]
+          ${moreActive || moreOpen
+            ? "bg-surface-2 text-signal shadow-[var(--glass-rim)]"
+            : "text-chalk-4 hover:bg-surface-2/60 hover:text-chalk-2"}`}
+      >
+        <Icon name="menu" size={20} strokeWidth={1.8} />
+        Plus
+      </button>
+      <Sheet
+        open={moreOpen}
+        onClose={() => setMoreOpen(false)}
+        title="Toutes les sections"
+      >
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <p className="text-[12px] text-chalk-4">Navigation</p>
+          <button
+            type="button"
+            onClick={() => setMoreOpen(false)}
+            className="min-h-[var(--h-tap)] rounded-[var(--radius-input)]
+              px-3 text-[13px] text-chalk-3 hover:bg-surface-2"
+          >
+            Fermer
+          </button>
+        </div>
+        <nav aria-label="Autres sections" className="grid gap-1">
+          {MOBILE_MORE_LINKS.map((link) => {
+            const active = pathname.startsWith(link.href);
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setMoreOpen(false)}
+                aria-current={active ? "page" : undefined}
+                className={`flex min-h-[var(--h-tap)] items-center gap-3
+                  rounded-[var(--radius-input)] px-3 text-[14px]
+                  ${active ? "bg-surface-2 text-signal" : "text-chalk-2 hover:bg-surface-2"}`}
+              >
+                <Icon name={link.icon} size={18} />
+                {link.label}
+              </Link>
+            );
+          })}
+          {isAdmin && (
+            <Link
+              href="/admin"
+              onClick={() => setMoreOpen(false)}
+              aria-current={pathname.startsWith("/admin") ? "page" : undefined}
+              className={`flex min-h-[var(--h-tap)] items-center gap-3
+                rounded-[var(--radius-input)] px-3 text-[14px]
+                ${pathname.startsWith("/admin")
+                  ? "bg-surface-2 text-signal"
+                  : "text-chalk-2 hover:bg-surface-2"}`}
+            >
+              <Icon name="lock" size={18} />
+              Administration
+            </Link>
+          )}
+          <div className="my-2 border-t border-line-2" />
+          {MOBILE_INFO_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              onClick={() => setMoreOpen(false)}
+              className="flex min-h-[var(--h-tap)] items-center gap-3
+                rounded-[var(--radius-input)] px-3 text-[14px] text-chalk-3
+                hover:bg-surface-2"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      </Sheet>
     </nav>
   );
 }
@@ -140,9 +296,11 @@ export function BottomNav() {
  */
 export function Sidebar({
   path,
+  isAdmin,
   onCollapse,
 }: {
   path?: string;
+  isAdmin: boolean;
   /** Replier le panneau. Absent, aucun bouton n'est montré. */
   onCollapse?: () => void;
 }) {
@@ -209,7 +367,7 @@ export function Sidebar({
 
         <p className="label-micro px-4 pt-4 pb-2 text-chalk-4">Activité</p>
         <ul>
-          {ACTIVITY.map((l) => {
+          {ACTIVITY.filter((l) => l.href !== "/admin" || isAdmin).map((l) => {
             const active = pathname.startsWith(l.href);
             return (
               <li key={l.href}>

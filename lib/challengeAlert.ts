@@ -74,8 +74,7 @@ export function isChallengeAlertSeen(me: string): boolean {
  * Acquitte l'alerte du jour.
  *
  * C'est l'équivalent d'un `read_at` : on l'appelle quand la personne a vu
- * les défis — en ouvrant la ligne du centre, en la retirant, ou en
- * cliquant « Voir mes défis » sur la notification horaire.
+ * les défis — en ouvrant la ligne du centre ou en la retirant.
  */
 export function markChallengeAlertSeen(me: string): void {
   if (!me) return;

@@ -14,9 +14,9 @@ import type { Challenge } from "@/lib/challenges";
  * mêmes lignes que les badges, pour la même promesse visuelle.
  *
  * Ce panneau vit sur l'onglet **Progrès** du profil, à côté des succès et
- * de la collection. Dans le fil, il n'apparaît plus : les défis y
- * arrivent en **notification** (`ChallengeNotification`), une fois par
- * heure, sans être ancrés à la page.
+ * de la collection. Dans le fil, il n'apparaît pas : l'alerte du jour
+ * reste accessible dans le centre de notifications, sans interrompre la
+ * lecture.
  *
  * `mo-grow` anime la barre à l'entrée : c'est une jauge, et la classe
  * documentée dans `globals.css` dit « réservée aux jauges et aux traits

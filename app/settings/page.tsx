@@ -3,20 +3,27 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase, usingDemoData } from "@/lib/supabase/client";
+import { supabase } from "@/lib/supabase/client";
+import { AppShell } from "@/components/AppShell";
 import { useSession } from "@/hooks/useSession";
 import { Icon } from "@/components/Icon";
 import { Loading } from "@/components/Avatar";
-import { PublicFooter } from "@/components/PublicFooter";
 import { accountLabel } from "@/lib/utils";
 import { asVerificationStatus, VERIFY_STATUS_LABEL } from "@/lib/verification";
+import { broadcastTheme, DEFAULT_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
+import {
+  applyReducedMotion,
+  FEED_DENSITY_KEY,
+  REDUCED_MOTION_KEY,
+  type FeedDensity,
+} from "@/lib/ui-preferences";
 
 const inputCls =
   "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
-  "shadow-sh-1 outline-none transition-[transform,box-shadow] placeholder:text-chalk-4 " +
-  "focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]";
+  "shadow-sh-1 outline-none transition-[box-shadow,border-color] placeholder:text-chalk-4 " +
+  "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
-type Theme = "liquid-bleu" | "light";
+type Theme = typeof DEFAULT_THEME | typeof LIGHT_THEME;
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -26,20 +33,29 @@ export default function SettingsPage() {
   const [pwBusy, setPwBusy] = useState(false);
   const [pwMsg, setPwMsg] = useState("");
   const [pwErr, setPwErr] = useState("");
-  const [theme, setTheme] = useState<Theme>("liquid-bleu");
-  const [showDelete, setShowDelete] = useState(false);
-  const [deleteBusy, setDeleteBusy] = useState(false);
-  const [notifEmail, setNotifEmail] = useState(true);
-  const [notifPush, setNotifPush] = useState(false);
+  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
+  const [themeBusy, setThemeBusy] = useState(false);
+  const [appearanceMessage, setAppearanceMessage] = useState("");
+  const [appearanceError, setAppearanceError] = useState("");
+  const [feedDensity, setFeedDensity] = useState<FeedDensity>("comfortable");
+  const [reduceMotion, setReduceMotion] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
 
   useEffect(() => {
     try {
-      const t = localStorage.getItem("devnet:theme");
-      if (t === "light")
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-        setTheme("light");
-      else setTheme("liquid-bleu");
-    } catch {}
+      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+      const savedDensity = localStorage.getItem(FEED_DENSITY_KEY);
+      const savedMotion = localStorage.getItem(REDUCED_MOTION_KEY) === "true";
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- preferences are read after hydration
+      setTheme(savedTheme === LIGHT_THEME ? LIGHT_THEME : DEFAULT_THEME);
+      setFeedDensity(savedDensity === "compact" ? "compact" : "comfortable");
+      setReduceMotion(savedMotion);
+      applyReducedMotion(savedMotion);
+    } catch (error) {
+      setAppearanceError(
+        error instanceof Error ? `Préférences locales indisponibles : ${error.message}` : "Préférences locales indisponibles.",
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -48,12 +64,58 @@ export default function SettingsPage() {
     }
   }, [loading, session, router]);
 
-  function applyTheme(next: Theme) {
+  async function saveTheme(next: Theme) {
     setTheme(next);
+    broadcastTheme(next);
+    setAppearanceMessage("");
+    setAppearanceError("");
+    if (!profile?.id) {
+      setAppearanceError("Le thème est appliqué sur cet appareil, mais le profil n'est pas encore chargé.");
+      return;
+    }
+
+    setThemeBusy(true);
     try {
-      localStorage.setItem("devnet:theme", next);
-      document.documentElement.dataset.theme = next;
-    } catch {}
+      const { error } = await supabase
+        .from("users")
+        .update({ theme: next })
+        .eq("id", profile.id);
+      if (error) {
+        setAppearanceError(`Thème non enregistré sur le compte : ${error.message}`);
+        return;
+      }
+      setAppearanceMessage("Thème enregistré sur ton compte et cet appareil.");
+    } catch (error) {
+      setAppearanceError(
+        error instanceof Error ? `Thème non enregistré : ${error.message}` : "Thème non enregistré.",
+      );
+    } finally {
+      setThemeBusy(false);
+    }
+  }
+
+  function saveDensity(next: FeedDensity) {
+    setFeedDensity(next);
+    try {
+      localStorage.setItem(FEED_DENSITY_KEY, next);
+      setAppearanceMessage("Densité enregistrée sur cet appareil.");
+      setAppearanceError("");
+    } catch (error) {
+      setAppearanceError(
+        error instanceof Error ? `Densité non enregistrée : ${error.message}` : "Densité non enregistrée.",
+      );
+    }
+  }
+
+  function saveMotionPreference(enabled: boolean) {
+    setReduceMotion(enabled);
+    const saved = applyReducedMotion(enabled);
+    setAppearanceMessage(
+      saved
+        ? "Préférence de mouvement enregistrée sur cet appareil."
+        : "Préférence active pour cette session ; le stockage local est bloqué.",
+    );
+    setAppearanceError("");
   }
 
   async function changePassword(e: React.FormEvent) {
@@ -86,27 +148,18 @@ export default function SettingsPage() {
   }
 
   async function signOut() {
-    await supabase.auth.signOut();
-    router.replace("/login");
-  }
-
-  async function deleteAccount() {
-    setDeleteBusy(true);
+    setSignOutError("");
     try {
-      if (usingDemoData()) {
-        await supabase.auth.signOut();
-        try {
-          localStorage.removeItem("devnet:demo.store");
-          localStorage.removeItem("devnet:demo.session");
-          sessionStorage.removeItem("devnet.demo.pick");
-        } catch {}
-        router.replace("/login");
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        setSignOutError(`Déconnexion impossible : ${error.message}`);
         return;
       }
-      await supabase.auth.signOut();
       router.replace("/login");
-    } finally {
-      setDeleteBusy(false);
+    } catch (error) {
+      setSignOutError(
+        error instanceof Error ? `Déconnexion impossible : ${error.message}` : "Déconnexion impossible.",
+      );
     }
   }
 
@@ -123,22 +176,12 @@ export default function SettingsPage() {
   if (!session) return null;
 
   return (
-    <main className="mo-rise min-h-dvh px-5">
-      <header className="mx-auto flex h-[var(--h-topbar)] max-w-[900px] items-center border-b border-line-2">
-        <Link href="/" className="font-display text-lg font-bold text-chalk">
-          DevNet<span className="text-signal">.</span>
-        </Link>
-        <div className="ml-auto flex items-center gap-3 text-[13px] font-bold text-chalk-3">
-          <Link href="/profile" className="hover:text-chalk">Mon profil</Link>
-          <Link href="/feed" className="hover:text-chalk">Fil</Link>
-        </div>
-      </header>
-
-      <div className="mx-auto max-w-[760px] py-10 sm:py-14">
+    <AppShell title="Paramètres" path="~/settings">
+      <div className="mo-rise mx-auto w-full max-w-[760px] px-5 py-8 sm:py-10">
         <p className="label prompt-label text-signal">Compte</p>
-        <h1 className="mt-3 font-display text-3xl font-bold tracking-tight text-chalk sm:text-4xl">
+        <h2 className="mt-3 font-display text-3xl font-bold tracking-tight text-chalk sm:text-4xl">
           Paramètres
-        </h1>
+        </h2>
         <p className="mt-2 text-sm leading-relaxed text-chalk-3">
           Gère ton compte, ta sécurité et tes préférences.
         </p>
@@ -230,30 +273,88 @@ export default function SettingsPage() {
               <Icon name="sun" size={18} strokeWidth={2} />
               Apparence
             </h2>
-            <div className="mt-3 flex flex-wrap gap-2">
+            <p className="mt-1 text-[13px] text-chalk-3">
+              Le thème suit ton compte ; les options de lecture restent sur cet appareil.
+            </p>
+            <div className="mt-4 grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => applyTheme("liquid-bleu")}
-                className={`lift-press flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border px-4 text-[13px] font-bold ${
-                  theme === "liquid-bleu"
+                onClick={() => void saveTheme(DEFAULT_THEME)}
+                disabled={themeBusy}
+                aria-pressed={theme === DEFAULT_THEME}
+                className={`lift-press flex h-[var(--h-tap)] items-center justify-center gap-2 rounded-[var(--radius-input)] border px-3 text-[12px] font-bold ${
+                  theme === DEFAULT_THEME
                     ? "border-signal bg-signal text-void"
                     : "border-line-3 bg-surface text-chalk hover:border-signal"
-                }`}
+                } disabled:opacity-60`}
               >
-                Thème sombre
+                <Icon name="moon" size={16} />
+                Sombre
               </button>
               <button
                 type="button"
-                onClick={() => applyTheme("light")}
-                className={`lift-press flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border px-4 text-[13px] font-bold ${
+                onClick={() => void saveTheme(LIGHT_THEME)}
+                disabled={themeBusy}
+                aria-pressed={theme === "light"}
+                className={`lift-press flex h-[var(--h-tap)] items-center justify-center gap-2 rounded-[var(--radius-input)] border px-3 text-[12px] font-bold ${
                   theme === "light"
                     ? "border-signal bg-signal text-void"
                     : "border-line-3 bg-surface text-chalk hover:border-signal"
-                }`}
+                } disabled:opacity-60`}
               >
-                Thème clair
+                <Icon name="sun" size={16} />
+                Clair
               </button>
             </div>
+            <fieldset className="mt-6">
+              <legend className="label text-chalk-3">Densité du fil</legend>
+              <p className="mt-1 text-[12px] text-chalk-4">
+                Le choix est appliqué au prochain affichage du fil.
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-2">
+                {([
+                  ["comfortable", "Confortable"],
+                  ["compact", "Compacte"],
+                ] as const).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => saveDensity(value)}
+                    aria-pressed={feedDensity === value}
+                    className={`min-h-[var(--h-tap)] rounded-[var(--radius-input)] border px-3
+                      text-[12px] font-semibold ${
+                        feedDensity === value
+                          ? "border-signal bg-signal text-void"
+                          : "border-line-3 bg-surface text-chalk hover:border-signal"
+                      }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+            <label className="mt-5 flex min-h-[var(--h-tap)] items-center justify-between gap-4 border-t border-line-2 pt-4">
+              <span>
+                <span className="block text-[13px] font-semibold text-chalk">Réduire les animations</span>
+                <span className="mt-1 block text-[12px] text-chalk-4">
+                  Désactive les mouvements de l’interface sur cet appareil.
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                checked={reduceMotion}
+                onChange={(event) => saveMotionPreference(event.target.checked)}
+                className="size-5 shrink-0 accent-[var(--color-signal)]"
+              />
+            </label>
+            {(appearanceMessage || appearanceError) && (
+              <p
+                role={appearanceError ? "alert" : "status"}
+                className={`mt-3 text-[12px] ${appearanceError ? "text-warn" : "text-ok"}`}
+              >
+                {appearanceError || appearanceMessage}
+              </p>
+            )}
           </section>
 
           <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
@@ -261,48 +362,18 @@ export default function SettingsPage() {
               <Icon name="notifications" size={18} strokeWidth={2} />
               Notifications
             </h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <label className="flex items-center justify-between rounded-[var(--radius-input)] border border-line-2 bg-surface-2 p-3">
-                <div>
-                  <p className="font-bold text-chalk">Email</p>
-                  <p className="text-xs text-chalk-4">Alertes sur mentions, réponses et messages</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setNotifEmail((v) => !v)}
-                  className={`relative h-6 w-11 rounded-full border transition ${
-                    notifEmail ? "border-signal bg-signal" : "border-line-3 bg-surface"
-                  }`}
-                  aria-pressed={notifEmail}
-                >
-                  <span
-                    className={`absolute top-[2px] size-5 rounded-full bg-chalk shadow transition ${
-                      notifEmail ? "right-[2px]" : "left-[2px]"
-                    }`}
-                  />
-                </button>
-              </label>
-              <label className="flex items-center justify-between rounded-[var(--radius-input)] border border-line-2 bg-surface-2 p-3">
-                <div>
-                  <p className="font-bold text-chalk">Push (navigateur)</p>
-                  <p className="text-xs text-chalk-4">Notifications dans cet onglet</p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setNotifPush((v) => !v)}
-                  className={`relative h-6 w-11 rounded-full border transition ${
-                    notifPush ? "border-signal bg-signal" : "border-line-3 bg-surface"
-                  }`}
-                  aria-pressed={notifPush}
-                >
-                  <span
-                    className={`absolute top-[2px] size-5 rounded-full bg-chalk shadow transition ${
-                      notifPush ? "right-[2px]" : "left-[2px]"
-                    }`}
-                  />
-                </button>
-              </label>
-            </div>
+            <p className="mt-2 text-[13px] leading-relaxed text-chalk-3">
+              Les alertes disponibles apparaissent dans le centre intégré. Les envois par email
+              et les notifications push ne sont pas configurés.
+            </p>
+            <Link
+              href="/notifications"
+              className="mt-3 inline-flex min-h-[var(--h-tap)] items-center gap-2
+                font-semibold text-signal hover:underline"
+            >
+              Ouvrir le centre de notifications
+              <Icon name="chevron-right" size={14} />
+            </Link>
           </section>
 
           <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
@@ -322,46 +393,19 @@ export default function SettingsPage() {
           <section className="rounded-[var(--radius-card)] border border-warn/40 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="flag" size={18} strokeWidth={2} />
-              Zone de danger
+              Suppression du compte
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-chalk-3">
-              Supprimer ton compte est irréversible. Tes contenus resteront visibles selon les règles
-              existantes, mais ton accès sera définitivement retiré.
+              La suppression automatisée n&apos;est pas disponible. Aucun bouton de cette page
+              ne supprimera tes données ni ne désactivera ton compte.
             </p>
-            {!showDelete ? (
-              <button
-                type="button"
-                onClick={() => setShowDelete(true)}
-                className="lift-press mt-4 flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border border-warn bg-warn px-5 text-[13px] font-bold text-void shadow-sh-2"
-              >
-                Supprimer mon compte
-              </button>
-            ) : (
-              <div className="mt-4 rounded-[var(--radius-card)] border border-warn/60 bg-surface-2 p-4">
-                <p className="text-sm font-bold text-chalk">Es-tu sûr de vouloir supprimer ton compte ?</p>
-                <p className="mt-1 text-xs text-chalk-4">Cette action ne peut pas être annulée.</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    onClick={deleteAccount}
-                    disabled={deleteBusy}
-                    className="lift-press flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border border-warn bg-warn px-5 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
-                  >
-                    {deleteBusy ? "Suppression…" : "Oui, supprimer définitivement"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowDelete(false)}
-                    className="lift-press flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border border-line-3 bg-surface px-5 text-[13px] font-bold text-chalk hover:border-signal"
-                  >
-                    Annuler
-                  </button>
-                </div>
-              </div>
-            )}
+            <Link href="/aide" className="mt-3 inline-flex min-h-[var(--h-tap)] items-center font-semibold text-signal hover:underline">
+              Consulter l&apos;aide
+            </Link>
           </section>
 
           <div className="flex justify-end">
+            {signOutError && <p role="alert" className="mr-auto self-center text-[12px] text-warn">{signOutError}</p>}
             <button
               type="button"
               onClick={signOut}
@@ -373,7 +417,6 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <PublicFooter />
-    </main>
+    </AppShell>
   );
 }

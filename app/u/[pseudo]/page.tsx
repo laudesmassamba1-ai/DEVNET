@@ -593,12 +593,11 @@ export default function PublicProfilePage({
           <EmptyState title="Aucune publication" />
         )}
 
-        {posts?.map((p, i) => (
+        {posts?.map((p) => (
           <PostCard
             key={p.id}
             post={p}
             meId={profile?.id ?? null}
-            index={i}
             liked={likedIds.includes(p.id)}
             onToggleLike={async (id) => {
               if (!profile) return;

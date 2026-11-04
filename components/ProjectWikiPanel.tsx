@@ -462,7 +462,6 @@ function Document({ body }: { body: string }) {
                 code={block.code}
                 lang={block.lang || null}
                 variant="terminal"
-                instant
               />
             );
         }

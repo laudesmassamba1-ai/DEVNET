@@ -103,35 +103,32 @@ export function Sheet({
       role="presentation"
     >
       <div
-        role="dialog"
-        aria-modal="true"
-        aria-label={title}
-        onClick={(e) => e.stopPropagation()}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        style={{
-          transform: `translateY(${dragY}px)`,
-          // Pendant le glissement, aucune transition : le doigt commande,
-          // une transition le retarderait et donnerait l'impression d'un
-          // élément qui résiste. Au relâchement, la feuille revient à sa
-          // position de repos — d'où `--d-slow`, le jeton des mouvements de
-          // surface, et `--ease-spring`, qui laisse un léger dépassement
-          // avant de se poser. C'est ce qui donne à une feuille son poids :
-          // un retour sans rebond se lit comme une diapositive.
-          transition: swiping
-            ? "none"
-            : "transform var(--d-slow) var(--ease-spring)",
-        }}
-        className="mo-sheet depth-panel overlay-panel max-h-[92vh] w-full max-w-[520px]
-          overflow-y-auto rounded-t-[calc(var(--radius-card)+8px)] border border-b-0 border-edge
-          px-[1.3rem] pb-10 shadow-[0_-18px_44px_-16px_rgba(3,5,12,0.7)]"
+        className="mo-sheet w-full max-w-[520px]"
       >
-        <div className="mx-auto my-[13px] h-[5px] w-11 rounded-full bg-chalk-2 opacity-40" />
-        <h2 className="mb-[1.15rem] font-display text-[1.3rem] font-bold tracking-[-0.02em]">
-          {title}
-        </h2>
-        {children}
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={title}
+          onClick={(e) => e.stopPropagation()}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{
+            transform: `translateY(${dragY}px)`,
+            transition: swiping
+              ? "none"
+              : "transform var(--d-slow) var(--ease-spring)",
+          }}
+          className="sheet-glass depth-panel max-h-[92vh] w-full overflow-y-auto
+            rounded-t-[calc(var(--radius-card)+8px)] border border-b-0 border-edge
+            px-[1.3rem] pb-10 shadow-[var(--shadow-sh-1)]"
+        >
+          <div className="mx-auto my-[13px] h-[5px] w-11 rounded-full bg-chalk-2 opacity-40" />
+          <h2 className="mb-[1.15rem] font-display text-[1.3rem] font-bold tracking-[-0.02em]">
+            {title}
+          </h2>
+          {children}
+        </div>
       </div>
     </div>,
     document.body,

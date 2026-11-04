@@ -239,7 +239,7 @@ function SearchScreen() {
                 border-line-3 bg-surface pr-10 pl-8 text-[14px] shadow-sh-1 outline-none
                 transition-[transform,box-shadow] duration-[var(--d-base)]
                 ease-[var(--ease-spring)] placeholder:text-chalk-4
-                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
             {(query || tag) && (
               <button
@@ -393,12 +393,11 @@ function SearchScreen() {
           />
         )}
 
-        {tab === "posts" && !postsError && posts.map((p, i) => (
+        {tab === "posts" && !postsError && posts.map((p) => (
             <PostCard
               key={p.id}
               post={p}
               meId={profile?.id ?? null}
-              index={i}
               liked={likedIds.includes(p.id)}
               onOpenComments={setCommentsFor}
               onOpenProfile={(pseudo) => router.push(`/u/${pseudo}`)}

@@ -18,14 +18,16 @@
  *     connexion sécurisée » apparaît ;
  *   · le cookie `secure` est refusé, l'état disparaît.
  *
- * Les headers `x-forwarded-proto` / `x-forwarded-host` sont posés par
- * cloudflared (et tout reverse proxy standard) ; on les préfère à
- * `request.url`.
+ * En production, ces headers peuvent aussi être fournis par le client :
+ * seule l'origine configurée est prioritaire. Le repli sur les headers
+ * est réservé au développement local derrière un tunnel.
  */
 import { publicOrigin } from "@/lib/github/oauth";
 
+const development = { nodeEnv: "development", configuredOrigin: "" };
+
 function check(label: string, request: Request, expected: string) {
-  const actual = publicOrigin(request);
+  const actual = publicOrigin(request, development);
   const ok = actual === expected;
   console.log(`${ok ? "ok  " : "FAIL"} ${label}: ${actual} (attendu ${expected})`);
   if (!ok) process.exitCode = 1;
@@ -60,8 +62,7 @@ check(
   "https://app.example.com",
 );
 
-// 4. Proxy mal configuré : `x-forwarded-host` en liste, on prend le
-//    premier élément, comme un reverse proxy standard le ferait.
+// 4. Proxy de développement multi-valeurs : on prend le premier élément.
 check(
   "proxy multi-valeurs",
   new Request("http://localhost:3000/api/github/authorize?u=a&next=/p", {
@@ -73,8 +74,8 @@ check(
   "http://a.example.com",
 );
 
-// 5. `x-forwarded-proto` absent mais `x-forwarded-host` présent : on
-//    suppose HTTPS par défaut, comme le ferait un proxy inversé.
+// 5. `x-forwarded-proto` absent sur un tunnel de développement : HTTPS
+//    par défaut.
 check(
   "host sans proto",
   new Request("http://localhost:3000/api/github/authorize?u=a&next=/p", {
@@ -82,3 +83,43 @@ check(
   }),
   "https://app.example.com",
 );
+
+const productionRequest = new Request("https://app.example.com/api/github/authorize", {
+  headers: {
+    "x-forwarded-proto": "https",
+    "x-forwarded-host": "attacker.example",
+  },
+});
+let rejectedMissingOrigin = false;
+try {
+  publicOrigin(productionRequest, { nodeEnv: "production" });
+} catch {
+  rejectedMissingOrigin = true;
+}
+console.log(`${rejectedMissingOrigin ? "ok  " : "FAIL"} production requires an explicit public origin`);
+if (!rejectedMissingOrigin) process.exitCode = 1;
+
+let configuredOriginWins = false;
+try {
+  configuredOriginWins =
+    publicOrigin(productionRequest, {
+      nodeEnv: "production",
+      configuredOrigin: "https://devnet.example.com",
+    }) === "https://devnet.example.com";
+} catch {
+  configuredOriginWins = false;
+}
+console.log(`${configuredOriginWins ? "ok  " : "FAIL"} configured origin overrides forwarded headers`);
+if (!configuredOriginWins) process.exitCode = 1;
+
+let rejectedInvalidOrigin = false;
+try {
+  publicOrigin(productionRequest, {
+    nodeEnv: "production",
+    configuredOrigin: "javascript:alert(1)",
+  });
+} catch {
+  rejectedInvalidOrigin = true;
+}
+console.log(`${rejectedInvalidOrigin ? "ok  " : "FAIL"} invalid configured origins are rejected`);
+if (!rejectedInvalidOrigin) process.exitCode = 1;

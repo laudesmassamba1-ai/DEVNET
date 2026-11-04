@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { AppShell, IconButton } from "@/components/AppShell";
 import { Avatar, EmptyState, Loading } from "@/components/Avatar";
 import { CodeBlock } from "@/components/CodeBlock";
-import { Icon, asIconName } from "@/components/Icon";
+import { Icon, asIconName, isIconName } from "@/components/Icon";
 import { Motion } from "@/components/Motion";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useSession } from "@/hooks/useSession";
@@ -297,7 +297,6 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
           <CodeBlock
             code={proof.code}
             lang={proof.lang}
-            instant
             copyable={false}
             maxHeight={128}
           />
@@ -339,7 +338,13 @@ function Ateliers({ ateliers }: { ateliers: Project[] }) {
             className="group flex items-start gap-3 rounded-[var(--radius-input)] border border-line px-3 py-2.5 transition-colors hover:border-line-3 hover:bg-surface-2/50"
           >
             <span className="grid size-9 shrink-0 place-items-center rounded-[var(--radius-input)] border border-line bg-surface-2 text-[16px]">
-              {p.emoji || "⌘"}
+              {isIconName(p.emoji) ? (
+                <Icon name={p.emoji} size={16} />
+              ) : /\p{Extended_Pictographic}/u.test(p.emoji) ? (
+                p.emoji
+              ) : (
+                <Icon name="package" size={16} />
+              )}
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2">

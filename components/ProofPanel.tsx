@@ -87,7 +87,6 @@ export function ProofPanel({
       {/* ── Le total ── */}
       <section className="relative overflow-hidden rounded-[var(--radius-card)]
         border border-signal/35 bg-surface-2 p-4">
-        <div className="adinkra-motif pointer-events-none absolute inset-0 opacity-[0.10]" />
         <div className="relative flex items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="prompt-label mb-2 text-chalk-4">réputation prouvée</div>

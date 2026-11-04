@@ -45,7 +45,11 @@ export function ChatComposer({
   placeholder: string;
   disabled?: boolean;
   sending?: boolean;
-  /** Présent seulement là où coller du code a un sens (canaux de groupe). */
+  /**
+   * Présent là où coller du code a un sens : canaux de groupe et messages
+   * privés (migration 041). Le drapeau ne change que le rendu — le texte
+   * reste du texte, jamais interprété.
+   */
   code?: boolean;
   onToggleCode?: () => void;
 }) {

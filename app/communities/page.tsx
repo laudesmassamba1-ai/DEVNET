@@ -129,7 +129,7 @@ export default function CommunitiesPage() {
           placeholder="Rechercher une communauté…"
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
             px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         {communities === null && <Loading />}

@@ -346,7 +346,7 @@ export function GithubPanel({
                   className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                     border border-line-3 bg-surface px-3 font-mono text-[13px]
                     shadow-sh-1 outline-none placeholder:text-chalk-4
-                    focus:shadow-[3px_3px_0_#FF8A3D]"
+                    focus:shadow-[3px_3px_0_var(--color-signal)]"
                 />
               </label>
               <button
@@ -418,7 +418,7 @@ export function GithubPanel({
                   className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                     border border-line-3 bg-surface px-3 font-mono text-[13px]
                     shadow-sh-1 outline-none placeholder:text-chalk-4
-                    focus:shadow-[3px_3px_0_#FF8A3D]"
+                    focus:shadow-[3px_3px_0_var(--color-signal)]"
                 />
                 {parsed && !parsed.ok && (
                   <p className="text-[11.5px] text-danger">{LINK_ERROR_TEXT[parsed.reason]}</p>
@@ -632,7 +632,7 @@ function ConnectionsSection({ me }: { me: string }) {
                     className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                       border border-line-3 bg-surface px-3 font-mono text-[13px]
                       shadow-sh-1 outline-none placeholder:text-chalk-4
-                      focus:shadow-[3px_3px_0_#FF8A3D]"
+                      focus:shadow-[3px_3px_0_var(--color-signal)]"
                   />
                   {p.needsEndpoint && (
                     <input
@@ -644,7 +644,7 @@ function ConnectionsSection({ me }: { me: string }) {
                       className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                         border border-line-3 bg-surface px-3 font-mono text-[13px]
                         shadow-sh-1 outline-none placeholder:text-chalk-4
-                        focus:shadow-[3px_3px_0_#FF8A3D]"
+                        focus:shadow-[3px_3px_0_var(--color-signal)]"
                     />
                   )}
                   <div className="flex items-center justify-between gap-2">
@@ -998,7 +998,7 @@ function RepoPicker({
           placeholder="Filtrer…"
           className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
             border-line-3 bg-surface px-3 font-mono text-[13px] shadow-sh-1
-            outline-none placeholder:text-chalk-4 focus:shadow-[3px_3px_0_#FF8A3D]"
+            outline-none placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
       </label>
       <ul className="max-h-60 overflow-auto p-1">

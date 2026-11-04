@@ -14,12 +14,12 @@ import { CursorLayer } from "@/components/collab/CursorLayer";
 import { TeamChat } from "@/components/collab/TeamChat";
 import { useSession } from "@/hooks/useSession";
 import { useCollab } from "@/lib/collab/useCollab";
-import { fetchActiveSnippets } from "@/lib/extensions";
+import { fetchActiveContributions } from "@/lib/extensions";
 import { IDLE, runFile, type RunOutcome } from "@/lib/execution/runner";
 import { DEFAULT_BRANCH, branchErrorText, validateBranchName } from "@/lib/git/refs";
 import { buildTree, looksBinary, type FileNode } from "@/lib/git/paths";
 import { DEFAULT_EXTENSIONS, devcontainerJson, recommendedExtensions } from "@/lib/vscode/bridge";
-import type { ExtensionSnippet, GitRef, Project } from "@/lib/types";
+import type { ExtensionCommand, ExtensionSnippet, GitRef, Project } from "@/lib/types";
 import {
   commitRepo,
   createBranch,
@@ -189,19 +189,23 @@ export default function IdePage() {
   const [outcome, setOutcome] = useState<RunOutcome>(IDLE);
   const abortRef = useRef<(() => void) | null>(null);
 
-  // Les extraits des extensions **activées** : on les charge une fois par
-  // session et on les remet à Monaco, qui les propose en complétion. Une
-  // extension désactivée ne contribue rien.
+  // Les contributions des extensions **activées** : extraits pour la
+  // complétion, commandes pour la palette (`F1`). Une seule lecture, une
+  // fois par session ; une extension désactivée ne contribue rien.
   const [snippets, setSnippets] = useState<ExtensionSnippet[]>([]);
+  const [commands, setCommands] = useState<ExtensionCommand[]>([]);
   useEffect(() => {
     if (!profile?.id) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
       setSnippets([]);
+      setCommands([]);
       return;
     }
     let alive = true;
-    fetchActiveSnippets(profile.id).then((rows) => {
-      if (alive) setSnippets(rows);
+    fetchActiveContributions(profile.id).then((active) => {
+      if (!alive) return;
+      setSnippets(active.snippets);
+      setCommands(active.commands);
     });
     return () => {
       alive = false;
@@ -749,6 +753,7 @@ export default function IdePage() {
                   onSelectionChange={(sel) => sendCursor(sel.anchor, sel.head)}
                   onScrollChange={setScrollTop}
                   snippets={snippets}
+                  commands={commands}
                   fill
                 />
               ) : (

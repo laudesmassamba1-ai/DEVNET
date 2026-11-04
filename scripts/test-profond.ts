@@ -175,6 +175,38 @@ async function main() {
   check("on retire sa propre épingle",
     (unPin.data as unknown[] | null)?.length === 1, unPin);
 
+  /* ── Correction d'un message privé (041) ───────────────────────── */
+
+  // `dm-1` est écrit par Koffi, `dm-2` par Aminata : la même politique
+  // `dm_update` (005) doit accepter le premier et ignorer la seconde.
+  const editDm = await demoFrom("direct_messages")
+    .update({
+      text: "Version corrigée",
+      is_code: true,
+      edited_at: "2026-10-03T12:00:00.000Z",
+    })
+    .eq("id", "dm-1")
+    .select("text, is_code, edited_at");
+  const editedRow = (editDm.data as { text?: string; is_code?: boolean; edited_at?: string }[] | null)?.[0];
+  check("l'auteur corrige son message privé",
+    editDm.error === null && editedRow?.text === "Version corrigée", editDm);
+  check("la correction porte sa marque",
+    editedRow?.is_code === true && editedRow?.edited_at === "2026-10-03T12:00:00.000Z", editedRow);
+
+  // Le `revoke update (…)` de la 041 ferme le fil et l'auteur : une
+  // correction ne déplace pas un message dans une autre conversation.
+  const moveDm = await demoFrom("direct_messages")
+    .update({ conversation_id: "conv-thabo-koffi" })
+    .eq("id", "dm-1");
+  check("un message privé ne change pas de fil", moveDm.error !== null, moveDm);
+
+  const foreignDm = await demoFrom("direct_messages")
+    .update({ text: "Usurpé" })
+    .eq("id", "dm-2")
+    .select("id");
+  check("on ne corrige pas le message d'un autre",
+    (foreignDm.data as unknown[] | null)?.length === 0, foreignDm);
+
   /* ── Réponses de commentaires ──────────────────────────────────── */
 
   const post = "p-2";

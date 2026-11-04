@@ -4,8 +4,24 @@ import { invalidateCache } from "@/lib/queryCache";
 import { fetchBookmarkedPostIds } from "@/lib/signets";
 import { fetchProjectsForPosts } from "@/lib/repo";
 import { withAuthorXp } from "@/lib/author-xp";
+import {
+  AUTHOR_COLUMNS,
+  POST_AUTHOR_COLUMNS,
+  PROFILE_COLUMNS,
+} from "@/lib/post-projections";
+import {
+  fetchFeedPage as fetchFeedPageFromContainer,
+  toggleFeedLike,
+} from "@/platform/container";
+import {
+  DEFAULT_FEED_PAGE_SIZE,
+  type FeedPage,
+  type FetchFeedPageOptions,
+} from "@/modules/feed";
 
 export type { PublicProfile };
+export { AUTHOR_COLUMNS, PROFILE_COLUMNS } from "@/lib/post-projections";
+export type { FeedPage, FeedScope } from "@/modules/feed";
 
 /**
  * Actions du graphe social.
@@ -31,9 +47,6 @@ export type { PublicProfile };
  * post les affiche — les lire sur une colonne recopiée dans le post les
  * figerait au moment de la publication.
  */
-export const AUTHOR_COLUMNS =
-  "id, prenom, pseudo, avatar_color, account_type, verified, is_admin, filiere, niveau";
-
 /**
  * Colonnes d'un profil public, en plus de celles d'une carte de post.
  *
@@ -42,8 +55,6 @@ export const AUTHOR_COLUMNS =
  * un post n'a pas à transporter la biographie de son auteur, et le fil
  * charge une trentaine de jointures.
  */
-export const PROFILE_COLUMNS = `${AUTHOR_COLUMNS}, bio, langages, ville, pays, links, followers, following`;
-
 const COMMENT_AUTHOR_COLUMNS = AUTHOR_COLUMNS;
 
 /**
@@ -61,8 +72,6 @@ const COMMENT_AUTHOR_COLUMNS = AUTHOR_COLUMNS;
  * présentait comme un fil vide, c'est-à-dire comme une absence de
  * données.
  */
-const POST_AUTHOR_COLUMNS = `users!posts_author_id_fkey(${AUTHOR_COLUMNS})`;
-
 /* ── Modification et suppression ────────────────────────────────────── */
 
 /**
@@ -117,26 +126,7 @@ export async function toggleLike(
   postId: string,
   me: string,
 ): Promise<{ liked: boolean; error: string | null }> {
-  const { error: insertError } = await supabase
-    .from("post_likes")
-    .insert({ post_id: postId, user_id: me });
-
-  if (!insertError) return { liked: true, error: null };
-
-  // `23505` = unique_violation. Toute autre erreur est une vraie panne
-  // réseau ou RLS : retirer le like sur cette base-là pourrait effacer
-  // un like qui n'a jamais été posé.
-  const isDuplicate = /duplicate key|23505/i.test(insertError.message);
-  if (!isDuplicate) return { liked: false, error: insertError.message };
-
-  const { error: deleteError } = await supabase
-    .from("post_likes")
-    .delete()
-    .eq("post_id", postId)
-    .eq("user_id", me);
-
-  if (deleteError) return { liked: true, error: deleteError.message };
-  return { liked: false, error: null };
+  return toggleFeedLike(postId, me);
 }
 
 /* ── Réactions ────────────────────────────────────────────────────── */
@@ -469,35 +459,7 @@ export async function deleteComment(commentId: string): Promise<{ error: string 
  * présent dans une démonstration au lieu d'être un code mort qu'on ne
  * voit jamais.
  */
-export const PAGE_SIZE = 12;
-
-/** Les identifiants des comptes suivis par `me`. */
-export async function fetchFollowedIds(me: string): Promise<string[]> {
-  if (!me) return [];
-
-  const { data } = await supabase
-    .from("follows")
-    .select("followee_id")
-    .eq("follower_id", me);
-
-  return ((data as { followee_id: string }[]) ?? []).map((r) => String(r.followee_id));
-}
-
-/** Portée du fil : tout le monde, ou seulement les abonnements. */
-export type FeedScope = "all" | "followed";
-
-export interface FeedPage {
-  rows: PostWithAuthor[];
-  /** Y a-t-il une page suivante ? */
-  more: boolean;
-  /**
-   * Le filtre « Abonnements » est actif mais ne rapporte rien — parce
-   * que le lecteur ne suit personne. L'écran a besoin de le dire
-   * autrement qu'en montrant une liste vide : « rien ici » et « tu ne
-   * suis personne » ne demandent pas la même action.
-   */
-  emptyScope: boolean;
-}
+export const PAGE_SIZE = DEFAULT_FEED_PAGE_SIZE;
 
 /**
  * Une page du fil, du plus récent au plus ancien.
@@ -513,43 +475,8 @@ export interface FeedPage {
  * lecture s'arrête sur deux publications partageant leur horodatage —
  * et cela reste plus rare qu'une publication pendant qu'on lit.
  */
-export async function fetchFeedPage(options: {
-  scope?: "all" | "followed";
-  me?: string | null;
-  before?: string | null;
-  pageSize?: number;
-}): Promise<FeedPage> {
-  const pageSize = options.pageSize ?? PAGE_SIZE;
-  const scope = options.scope ?? "all";
-
-  // On demande une ligne de plus que la page : c'est elle qui dit s'il
-  // reste des publications, sans requête supplémentaire.
-  let query = supabase
-    .from("posts")
-    .select(`*, author:${POST_AUTHOR_COLUMNS}`)
-    .order("created_at", { ascending: false })
-    .limit(pageSize + 1);
-
-  if (options.before) query = query.lt("created_at", options.before);
-
-  if (scope === "followed") {
-    const ids = await fetchFollowedIds(options.me ?? "");
-    // Un `in ()` est une erreur de syntaxe dans PostgREST, pas un
-    // résultat vide : il faut donc court-circuiter.
-    if (ids.length === 0) {
-      return { rows: [], more: false, emptyScope: true };
-    }
-    query = query.in("author_id", ids);
-  }
-
-  const { data } = await query;
-  const rows = await withAuthorXp((data as PostWithAuthor[]) ?? []);
-
-  return {
-    rows: rows.slice(0, pageSize),
-    more: rows.length > pageSize,
-    emptyScope: false,
-  };
+export function fetchFeedPage(options: FetchFeedPageOptions = {}): Promise<FeedPage> {
+  return fetchFeedPageFromContainer(options);
 }
 
 /**

@@ -67,8 +67,18 @@ code, mais **non commités** — à relire puis commiter avant la Phase 8.
   propriétaire (base non achetée). Aucune hypothèse n'est faite sur le SGBD,
   la version ou les droits.
 - **Phase 2 (environnement local reproductible) : faisable et vérifiable
-  maintenant** — Docker 29.1.3 et PostgreSQL 16.15 sont présents sur la
-  machine, et elle ne dépend pas de Systalink.
+  sans Systalink** — l'environnement Compose cible PostgreSQL 17.
+
+## 5.1 Cible Systalink annoncée
+
+- La base **n'est pas encore achetée**.
+- La cible envisagée est **PostgreSQL 17, capacité annoncée de 5 Go**. Cette
+  information vient du propriétaire ; elle n'a pas été vérifiée auprès de
+  Systalink et ne confirme ni le moteur réellement fourni, ni les droits, ni
+  l'accès réseau, ni le SSL, ni les extensions.
+- Aucun pilote PostgreSQL applicatif et aucune migration distante ne sont
+  activés. La configuration locale est conservée ; la stratégie de production
+  reste suspendue jusqu'à l'achat et aux vérifications.
 
 ## 6. Risques identifiés pour la suite (pré-mortem Phase 2)
 

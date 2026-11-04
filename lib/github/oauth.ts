@@ -102,6 +102,14 @@ export function validUserId(value: string): boolean {
   return /^[a-z0-9][a-z0-9-]{0,63}$/i.test(value);
 }
 
+/** Refuse de démarrer un lien GitHub sans une session pour le même compte. */
+export function authenticatedUserMatchesRequest(
+  requestedUserId: string,
+  authenticatedUserId: string | null,
+): boolean {
+  return Boolean(requestedUserId && authenticatedUserId === requestedUserId);
+}
+
 /**
  * La page de retour doit rester **dans** l'application.
  *
@@ -163,18 +171,65 @@ export function readCookie(
  * la page GitHub (HTTPS) — mélange de protocoles refusé, et l'erreur
  * « Ce site ne peut pas fournir de connexion sécurisée » apparaît.
  *
- * Les headers `x-forwarded-proto` / `x-forwarded-host` sont posés par
- * cloudflared (et par tout reverse proxy standard) ; on les préfère à
- * `request.url`, qui est toujours l'origine locale.
+ * En production, `APP_PUBLIC_ORIGIN` est la source de vérité : les
+ * en-têtes forwarded peuvent être contrôlés par un client si le proxy
+ * ne les remplace pas. Les tunnels forwarded ne sont acceptés qu'en
+ * développement. L'absence de configuration en production est une erreur.
  */
-export function publicOrigin(request: Request): string {
+export function publicOrigin(
+  request: Request,
+  environment: { nodeEnv?: string; configuredOrigin?: string } = {
+    nodeEnv: process.env.NODE_ENV,
+    configuredOrigin: process.env.APP_PUBLIC_ORIGIN,
+  },
+): string {
+  const configured = environment.configuredOrigin?.trim();
+  if (configured) {
+    let url: URL;
+    try {
+      url = new URL(configured);
+    } catch {
+      throw new Error("APP_PUBLIC_ORIGIN doit être une origine HTTP(S) absolue.");
+    }
+    if (
+      !["http:", "https:"].includes(url.protocol) ||
+      url.username ||
+      url.password ||
+      url.pathname !== "/" ||
+      url.search ||
+      url.hash
+    ) {
+      throw new Error("APP_PUBLIC_ORIGIN doit contenir uniquement une origine HTTP(S).");
+    }
+    return url.origin;
+  }
+
+  if (environment.nodeEnv === "production") {
+    throw new Error("APP_PUBLIC_ORIGIN doit être configurée en production.");
+  }
+
   const headers = request.headers;
   const proto = (headers.get("x-forwarded-proto") ?? "").split(",")[0].trim();
   const host = (headers.get("x-forwarded-host") ?? "").split(",")[0].trim();
 
   if (host) {
     const scheme = proto || "https";
-    return `${scheme}://${host}`;
+    if (scheme !== "http" && scheme !== "https") return "";
+    try {
+      const forwarded = new URL(`${scheme}://${host}`);
+      if (
+        forwarded.username ||
+        forwarded.password ||
+        forwarded.pathname !== "/" ||
+        forwarded.search ||
+        forwarded.hash
+      ) {
+        return "";
+      }
+      return forwarded.origin;
+    } catch {
+      return "";
+    }
   }
 
   try {

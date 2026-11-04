@@ -838,7 +838,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             placeholder="développement"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
               border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
-              placeholder:text-chalk-4 focus:shadow-[3px_3px_0_#FF8A3D]"
+              placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
           {/* Aperçu du slug : le nom affiché et le nom tapé diffèrent, et
               c'est le second qui finit dans l'URL. Better vaut le montrer
@@ -862,7 +862,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             placeholder="À quoi sert ce canal ?"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
               border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
-              placeholder:text-chalk-4 focus:shadow-[3px_3px_0_#FF8A3D]"
+              placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
         </div>
 

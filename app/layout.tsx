@@ -2,33 +2,29 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import { BackendGate } from "@/components/BackendGate";
-import { ChallengeNotification } from "@/components/ChallengeNotification";
 import { SplashScreen } from "@/components/SplashScreen";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { ToastProvider } from "@/components/Toast";
 import { TourProvider } from "@/components/TourProvider";
 import { DEFAULT_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
+import { REDUCED_MOTION_KEY } from "@/lib/ui-preferences";
 import "./globals.css";
 
 /**
  * Typographie DevNet — deux familles, deux rôles.
  *
- * - **Inter** — tout le texte, titres compris. Grotesque neutre, dessinée
- *   pour l'écran : c'est la police que lisent les interfaces les plus
- *   soignées (Notion et ses équivalents), et sa graisse variable couvre
- *   aussi bien un libellé de 11 px qu'un titre de 28 px sans changer de
- *   dessin. Les titres se distinguent du corps par le **poids** et
- *   l'interlettrage, pas par une seconde famille.
+ * - **Instrument Sans** — interface et lecture, avec une graisse variable
+ *   pour garder une hiérarchie nette sans ajouter une troisième famille.
  * - **IBM Plex Mono** — la donnée : compteurs, pseudos, libellés de
  *   colonne, code. Le mono n'est pas un effet « technique », c'est ce qui
  *   fait qu'un compteur ne saute pas et qu'une colonne s'aligne.
  */
 
-const inter = localFont({
-  src: "./fonts/Inter[opsz,wght].ttf",
+const instrumentSans = localFont({
+  src: "./fonts/InstrumentSansVariable.ttf",
   display: "swap",
-  variable: "--font-inter",
-  weight: "100 900",
+  variable: "--font-instrument",
+  weight: "400 700",
 });
 
 const plexMono = localFont({
@@ -39,6 +35,7 @@ const plexMono = localFont({
     { path: "./fonts/IBMPlexMono-Bold.ttf", weight: "700" },
   ],
   display: "swap",
+  preload: false,
   variable: "--font-plex-mono",
 });
 
@@ -50,7 +47,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F1EFE6",
+  themeColor: "#11110E",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -70,7 +67,7 @@ export default function RootLayout({
       // dit à Next de ne pas l'appliquer pendant une navigation de route,
       // sinon la page défile visiblement vers le haut à chaque clic.
       data-scroll-behavior="smooth"
-      className={`${inter.variable} ${plexMono.variable}`}
+      className={`${instrumentSans.variable} ${plexMono.variable}`}
       // Le thème est posé sur `<html>` avant l'hydratation (script plus
       // bas) : le serveur ne peut pas le connaître, on autorise l'écart.
       suppressHydrationWarning
@@ -83,7 +80,7 @@ export default function RootLayout({
           `ThemeApplier` resynchronise ensuite avec la valeur en base.
         */}
         <Script id="devnet-theme" strategy="beforeInteractive">
-          {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});document.documentElement.dataset.theme=t===${JSON.stringify(LIGHT_THEME)}?${JSON.stringify(LIGHT_THEME)}:${JSON.stringify(DEFAULT_THEME)};}catch(e){}`}
+          {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});document.documentElement.dataset.theme=t===${JSON.stringify(LIGHT_THEME)}?${JSON.stringify(LIGHT_THEME)}:${JSON.stringify(DEFAULT_THEME)};document.documentElement.dataset.reduceMotion=localStorage.getItem(${JSON.stringify(REDUCED_MOTION_KEY)})==="true"?"true":"false";}catch(e){}`}
         </Script>
         {/*
           `ToastProvider` était écrit, exporté… et monté nulle part.
@@ -123,15 +120,6 @@ export default function RootLayout({
           <TourProvider>
             <BackendGate>{children}</BackendGate>
           </TourProvider>
-          {/*
-            Les défis du jour ne sont plus ancrés dans le fil : ils
-            arrivent en **notification**, une fois par heure, au-dessus de
-            l'interface. Monté ici, dans le layout, le pop up vit sur tous
-            les écrans protégés sans qu'aucune page ait à le citer — donc
-            il ne peut pas être oublié en ajoutant une route. Il ne
-            s'affiche que lorsque la session porte un profil.
-          */}
-          <ChallengeNotification />
         </ToastProvider>
       </body>
     </html>

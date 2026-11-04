@@ -274,7 +274,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
               rows={2} placeholder={`Publier dans ${community.name}…`}
               className="mb-2 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
                 text-[14px] leading-[1.6] shadow-sh-1 outline-none placeholder:text-chalk-4
-                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
             <div className="flex justify-end">
               <button type="button" onClick={publish} disabled={busy}
@@ -297,12 +297,11 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
           />
         )}
 
-        {posts?.map((p, i) => (
+        {posts?.map((p) => (
           <PostCard
             key={p.id}
             post={p}
             meId={profile?.id ?? null}
-            index={i}
             liked={likedIds.includes(p.id)}
             onToggleLike={onToggleLike}
             onOpenComments={setCommentsFor}

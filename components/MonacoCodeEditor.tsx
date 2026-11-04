@@ -9,7 +9,8 @@ import { CodeEditor } from "@/components/CodeEditor";
 import { LoadingLogo } from "./LoadingLogo";
 import { useToast } from "@/components/Toast";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
-import type { ExtensionSnippet } from "@/lib/types";
+import type { ExtensionCommand, ExtensionSnippet } from "@/lib/types";
+import { executableCommands } from "@/lib/extensions";
 import {
   DEVNET_THEME,
   DEVNET_THEME_NAME,
@@ -118,6 +119,15 @@ export interface MonacoCodeEditorProps {
    * référence `snippetsRef` absorbe sans réabonner Monaco.
    */
   snippets?: ExtensionSnippet[];
+  /**
+   * Les commandes des extensions activées (029).
+   *
+   * Elles rejoignent la palette de commandes de Monaco (`F1`) et insèrent
+   * leur corps au curseur, avec l'historique d'annulation normal. C'est le
+   * second apport d'une extension après la complétion — et le premier qui
+   * soit **déclenché par l'utilisateur** plutôt que deviné par l'éditeur.
+   */
+  commands?: ExtensionCommand[];
   readOnly?: boolean;
   /** Hauteur du cadre, en pixels. Monaco ne suit pas le contenu tout seul. */
   height?: number;
@@ -153,6 +163,7 @@ export function MonacoCodeEditor({
   onSelectionChange,
   onScrollChange,
   snippets,
+  commands,
   readOnly = false,
   height = 460,
   fill = false,
@@ -205,13 +216,24 @@ export function MonacoCodeEditor({
   const selectionRef = useRef(onSelectionChange);
   const scrollRef = useRef(onScrollChange);
   const snippetsRef = useRef(snippets);
+  const commandsRef = useRef(commands);
+  /**
+   * Les actions Monaco déjà enregistrées pour les commandes d'extension.
+   *
+   * Elles sont remplacées à chaque nouveau manifeste : garder l'ancienne
+   * liste après une désinstallation laisserait dans `F1` une commande
+   * dont le code n'existe plus. `addAction` renvoie un `IDisposable`, et
+   * c'est lui qu'on jette — pas l'éditeur.
+   */
+  const actionsRef = useRef<{ dispose(): void }[]>([]);
   useEffect(() => {
     saveRef.current = onSave;
     runRef.current = onRun;
     selectionRef.current = onSelectionChange;
     scrollRef.current = onScrollChange;
     snippetsRef.current = snippets;
-  }, [onSave, onRun, onSelectionChange, onScrollChange, snippets]);
+    commandsRef.current = commands;
+  }, [onSave, onRun, onSelectionChange, onScrollChange, snippets, commands]);
 
   // On interroge le chargeur pour **savoir** si Monaco arrivera. Le
   // composant seul ne dit rien en cas d'échec réseau : il reste sur son
@@ -246,12 +268,52 @@ export function MonacoCodeEditor({
     };
   }, []);
 
+  const registerCommands = useCallback(() => {
+    for (const action of actionsRef.current) action.dispose();
+    actionsRef.current = [];
+
+    const editor = editorRef.current;
+    if (!editor) return;
+
+    executableCommands(commandsRef.current).forEach((command, index) => {
+      const body = command.body ?? "";
+      const action = editor.addAction({
+        // Deux extensions peuvent déclarer le même `id` : l'identifiant
+        // Monaco doit être unique, sinon la seconde action écrase la
+        // première. L'index départage, pas le nom affiché.
+        id: `devnet.extension.${command.id}.${index}`,
+        label: command.title,
+        run: (ed) => {
+          const selection = ed.getSelection();
+          if (!selection) return;
+          ed.executeEdits("devnet-extension-command", [
+            { range: selection, text: body, forceMoveMarkers: true },
+          ]);
+          ed.focus();
+        },
+      });
+      actionsRef.current.push(action);
+    });
+  }, []);
+
+  // Les commandes arrivent **après** le montage (lecture réseau) : on les
+  // enregistre donc sur changement, et pas seulement dans `onMount`.
+  useEffect(() => {
+    registerCommands();
+  }, [commands, registerCommands]);
+
+  useEffect(() => () => {
+    for (const action of actionsRef.current) action.dispose();
+    actionsRef.current = [];
+  }, []);
+
   const beforeMount = useCallback((monaco: Parameters<NonNullable<EditorProps["beforeMount"]>>[0]) => {
     monaco.editor.defineTheme(DEVNET_THEME_NAME, DEVNET_THEME);
   }, []);
 
   const onMount = useCallback<OnMount>((editor, monaco) => {
     editorRef.current = editor;
+    registerCommands();
     // Les deux raccourcis annoncés par l'interface. Monaco a déjà `Ctrl+F`,
     // `Ctrl+/`, `F1`, etc. ; on n'ajoute que ce qui est propre à DevNet.
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
@@ -354,7 +416,7 @@ export function MonacoCodeEditor({
       });
     }
     
-  }, []);
+  }, [registerCommands]);
 
   if (engine === "pending") {
     return (
@@ -386,6 +448,7 @@ export function MonacoCodeEditor({
   }
 
   const language = monacoLanguage(path);
+  const commandCount = executableCommands(commands).length;
 
   return (
     <div
@@ -468,6 +531,14 @@ export function MonacoCodeEditor({
 
       <div className="flex shrink-0 items-center gap-2 border-t border-line-3/70 bg-surface-3/40 px-2.5 py-1">
         <span className="label-micro text-chalk-4 tnum">{language}</span>
+        {commandCount > 0 && (
+          <span
+            className="font-mono text-[10px] text-chalk-4 tnum"
+            title="Les commandes des extensions activées sont dans la palette (F1)"
+          >
+            F1 · {commandCount} commande{commandCount > 1 ? "s" : ""}
+          </span>
+        )}
         {hasIntelliSense(path) && (
           <span className="sr-only">Analyse du langage activée</span>
         )}

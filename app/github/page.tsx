@@ -187,7 +187,7 @@ export default function GithubPage() {
                 className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                   border border-line-3 bg-surface pr-3 pl-9 font-mono text-[13px]
                   shadow-sh-1 outline-none placeholder:text-chalk-4
-                  focus:shadow-[3px_3px_0_#FF8A3D]"
+                  focus:shadow-[3px_3px_0_var(--color-signal)]"
               />
             </label>
 

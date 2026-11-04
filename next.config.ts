@@ -1,6 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ["iconoir-react"],
+  },
   allowedDevOrigins: [
     "*.trycloudflare.com",
     "**.trycloudflare.com",

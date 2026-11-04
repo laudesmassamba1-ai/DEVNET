@@ -154,7 +154,6 @@ function ScoreHeader({ repo }: { repo: RepoScore }) {
   return (
     <section className="relative overflow-hidden rounded-[var(--radius-card)] border
       border-line-2 bg-surface-2 p-4 shadow-sh-2">
-      <div className="adinkra-motif pointer-events-none absolute inset-0 opacity-[0.08]" />
 
       <div className="relative grid gap-4 sm:grid-cols-2">
         <BigScore

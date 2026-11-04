@@ -45,6 +45,8 @@ export default function ExtensionsPage() {
   const [icon, setIcon] = useState<(typeof ICONS)[number]>(ICONS[0]);
   const [snippets, setSnippets] = useState<ExtensionSnippet[]>([{ ...BLANK_SNIPPET }]);
   const [settingRows, setSettingRows] = useState<ExtensionSetting[]>([]);
+  /** Les commandes : un titre lisible et le texte inséré dans l'éditeur. */
+  const [commandRows, setCommandRows] = useState<{ title: string; body: string }[]>([]);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -134,12 +136,22 @@ export default function ExtensionsPage() {
 
     const cleanSnippets = snippets.filter((s) => s.prefix.trim() && s.body.trim());
     const cleanSettings = settingRows.filter((s) => s.key.trim() && s.label.trim());
+    // Une commande sans titre ou sans corps ne fait rien : on ne la publie
+    // pas. L'`id` est stable dans le manifeste et n'est pas destiné à
+    // l'écran — le titre est ce que la palette affiche.
+    const cleanCommands = commandRows
+      .filter((c) => c.title.trim() && c.body.trim())
+      .map((c, i) => ({ id: `cmd-${i + 1}`, title: c.title.trim(), body: c.body }));
 
     setBusy(true);
     const { error } = await createExtension(
       {
         name, description: desc, version, icon, category,
-        manifest: { snippets: cleanSnippets, settings: cleanSettings },
+        manifest: {
+          snippets: cleanSnippets,
+          commands: cleanCommands,
+          settings: cleanSettings,
+        },
       },
       profile.id,
     );
@@ -155,6 +167,7 @@ export default function ExtensionsPage() {
   function resetDraft() {
     setName(""); setDesc(""); setVersion("0.1.0"); setCategory("snippets");
     setIcon(ICONS[0]); setSnippets([{ ...BLANK_SNIPPET }]); setSettingRows([]);
+    setCommandRows([]);
   }
 
   async function remove(e: ExtensionWithAuthor) {
@@ -194,7 +207,7 @@ export default function ExtensionsPage() {
           placeholder="Rechercher une extension…"
           className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
             px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         <div className="mb-4 flex flex-wrap gap-2">
@@ -376,6 +389,39 @@ export default function ExtensionsPage() {
           <button type="button" onClick={() => setSnippets((prev) => [...prev, { ...BLANK_SNIPPET }])}
             className="text-[12px] font-bold text-signal">
             + Ajouter un extrait
+          </button>
+        </Field>
+
+        <Field label="Commandes de l'éditeur">
+          <p className="mb-2 text-[11.5px] leading-relaxed text-chalk-4">
+            Chaque commande apparaît dans la palette de l&apos;IDE (F1) et insère
+            son corps au curseur.
+          </p>
+          {commandRows.map((c, i) => (
+            <div key={i} className="mb-2 rounded-[var(--radius-input)] border border-line-3 bg-surface-2 p-2.5">
+              <div className="mb-2 flex gap-2">
+                <input value={c.title}
+                  onChange={(e) => setCommandRows((prev) => prev.map((x, j) => j === i ? { ...x, title: e.target.value } : x))}
+                  placeholder="Titre de la commande"
+                  className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
+                <button type="button"
+                  onClick={() => setCommandRows((prev) => prev.filter((_, j) => j !== i))}
+                  aria-label="Retirer la commande"
+                  className="flex size-9 items-center justify-center rounded-[var(--radius-chip)] text-chalk-4 hover:text-signal">
+                  <Icon name="close" size={14} />
+                </button>
+              </div>
+              <textarea value={c.body} rows={2}
+                onChange={(e) => setCommandRows((prev) => prev.map((x, j) => j === i ? { ...x, body: e.target.value } : x))}
+                placeholder="Texte inséré au curseur"
+                className="w-full rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 py-2
+                  font-mono text-[12px] outline-none" />
+            </div>
+          ))}
+          <button type="button"
+            onClick={() => setCommandRows((prev) => [...prev, { title: "", body: "" }])}
+            className="text-[12px] font-bold text-signal">
+            + Ajouter une commande
           </button>
         </Field>
 
