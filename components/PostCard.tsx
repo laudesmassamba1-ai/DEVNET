@@ -10,7 +10,7 @@ import { ReportButton } from "./ReportButton";
 import { PostShareButton } from "./PostShareButton";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { badgeFor } from "@/lib/verification";
-import { profileMeta, timeAgo } from "@/lib/utils";
+import { clockTime, profileMeta, timeAgo } from "@/lib/utils";
 import { splitContent } from "@/lib/text";
 import type { PostWithAuthor } from "@/lib/types";
 
@@ -26,29 +26,12 @@ import type { PostWithAuthor } from "@/lib/types";
  * de repères stable. Le contenu est un flux, mais la structure doit être
  * stable — c'est ce qui permet à l'œil de parcourir le fil sans lire.
  *
- * Chorégraphie d'entrée. La carte ne « apparaît » pas : elle se
- * **assemble**, dans l'ordre de lecture d'un fichier. La gouttière se
- * pose, l'en-tête arrive, le corps se déroule, le bloc de code s'insère
- * et la barre d'actions se déploie en dernier. Chaque étage est retardé
- * de 55 ms — l'écart de `--stagger-step`, choisi pour que l'œil suive
- * l'ordre sans le lire comme une attente.
- *
- *   0 ms   gouttière
- *  55 ms   en-tête (avatar, nom, horodatage)
- * 110 ms   corps
- * 165 ms   bloc de code, s'il y en a un
- * 220 ms   barre d'actions
- * 440 ms   carte complète à l'arrêt
- *
- * Le compteur de likes, lui, ne s'anime pas au chargement : il compte
- * de 0 à sa valeur. Un chiffre qui apparaît d'un coup est un chiffre ;
- * un chiffre qui monte est une progression — et c'est la progression qui
- * est l'information, ici.
+ * La gouttière rappelle la marge d'un éditeur. Les séparateurs du fil
+ * gardent les publications dans une seule colonne, sans empilement de cartes.
  */
 export function PostCard({
   post,
   liked,
-  index = 0,
   onToggleLike,
   onOpenComments,
   onOpenProfile,
@@ -67,8 +50,6 @@ export function PostCard({
 }: {
   post: PostWithAuthor;
   liked: boolean;
-  /** Rang dans le fil — pilote le retard de la cascade. */
-  index?: number;
   onToggleLike?: (id: string) => void;
   /** Ouvre le fil de commentaires du post. */
   onOpenComments?: (id: string) => void;
@@ -137,55 +118,62 @@ export function PostCard({
   const likes = useCount(post.likes ?? 0);
   const comments = useCount(post.comments ?? 0);
 
-  // La cascade est plafonnée : au-delà de douze cartes, tout le reste
-  // arrive ensemble. Un fil de quarante posts ne doit pas demander une
-  // seconde et demie de lecture avant d'être lisible.
-  const step = (n: number) => Math.min(index * 55 + n * 55, 640);
+  // L'heure absolue vit dans la marge, l'heure relative reste dans
+  // l'en-tête. Les deux ne disent pas la même chose : « il y a 8 min »
+  // situe la lecture, « 08:42 » date le contenu. La marge porte le
+  // repère fixe, l'en-tête le repère mouvant.
+  const posted = clockTime(post.created_at);
 
   return (
     <article
-      className="depth-card mb-3 flex overflow-hidden rounded-[var(--radius-card)]
-        border border-line-2 bg-surface"
+      className="feed-post flex overflow-hidden border-b border-line-2"
     >
-      {/* ── Gouttière : l'ascenseur de l'éditeur, en un seul cran. ── */}
+      {/* Gouttière de lecture, distincte du texte et du code intégré. */}
       <div
-        className="flex w-[26px] shrink-0 flex-col items-center rounded-[var(--radius-input)] border-r
-          border-line bg-surface-2/60 py-3"
+        className="feed-post__gutter flex w-8 shrink-0 flex-col items-center
+          border-r border-line-2 py-4"
       >
-        <Motion as="span" role="rotate" delay={step(0)}>
+        <Motion as="span" role="rotate">
           <Icon name="file" size={12} className="text-chalk-4" />
         </Motion>
 
-        <Motion
-          as="span"
-          role="slide"
-          delay={step(0) + 20}
-          className="line-gutter mt-2 block"
-        >
-          1
+        {/* Cadran : deux lignes de deux chiffres tiennent dans les 32 px
+            de la gouttière et alignent la colonne de repères d'un post à
+            l'autre, sans élargir la marge de lecture. */}
+        <Motion as="span" role="slide" className="mt-2 block">
+          <time
+            dateTime={post.created_at}
+            title={`Publié à ${posted}`}
+            className="line-gutter tnum block text-center leading-[1.5]"
+          >
+            <span aria-hidden="true">
+              {posted.slice(0, 2)}
+              <br />
+              {posted.slice(3, 5)}
+            </span>
+            <span className="sr-only">Publié à {posted}</span>
+          </time>
         </Motion>
 
         {/* Le filet vertical ne s'étire qu'entre deux éléments : c'est
             une liaison, pas un séparateur. */}
         <Motion
           role="slide"
-          delay={step(0) + 40}
           className="mt-6 w-px flex-1"
           style={{ transformOrigin: "top" }}
         >
           <span className="block h-full w-px bg-line" />
         </Motion>
 
-        <Motion as="span" role="fade" delay={step(4)}>
+        <Motion as="span" role="fade">
           <Icon name="comment" size={11} className="text-chalk-4" />
         </Motion>
       </div>
 
-      <div className="min-w-0 flex-1 px-4 py-3.5">
+      <div className="feed-post__content min-w-0 flex-1 px-4 py-4">
         {/* ── En-tête ── */}
         <Motion
           role="rise"
-          delay={step(1)}
           className="mb-2.5 flex items-center gap-2.5"
         >
           <Avatar
@@ -242,8 +230,7 @@ export function PostCard({
             à recopier le pseudo. */}
         <Motion
           role="slide"
-          delay={step(2)}
-          className="mb-3.5 text-[14.5px] leading-[1.66] break-words
+          className="feed-post__text mb-3.5 text-[14.5px] leading-[1.66] break-words
             whitespace-pre-wrap text-chalk-2"
         >
           {splitContent(post.text).map((segment, i) =>
@@ -281,8 +268,8 @@ export function PostCard({
 
         {/* ── Code : s'insère après le texte, à sa place dans la lecture. ── */}
         {post.has_code && (
-          <Motion role="scale" delay={step(3)}>
-            <CodeBlock code={post.code} lang={post.lang} variant="paper" />
+          <Motion role="scale">
+            <CodeBlock code={post.code} lang={post.lang} variant="paper" lineNumbers />
           </Motion>
         )}
 
@@ -292,7 +279,7 @@ export function PostCard({
             quelque chose d'intéressant » et « voici le code ». Sans ce
             lien, le lien post↔projet n'existerait que dans la base. */}
         {project && (
-          <Motion role="fade" delay={step(3)}>
+          <Motion role="fade">
             <button
               type="button"
               onClick={() => onOpenProject?.(project.id)}
@@ -319,7 +306,6 @@ export function PostCard({
         {/* ── Actions ── */}
         <Motion
           role="slide"
-          delay={step(4)}
           className="flex flex-wrap items-center gap-1.5"
         >
           <button
@@ -331,7 +317,7 @@ export function PostCard({
               border-[var(--bw-thin)] px-2.5 py-2 min-h-[var(--h-action)] max-sm:min-h-[var(--h-tap)] inline-flex items-center font-mono text-[12px] font-medium
               transition-[color,border-color,background-color,transform] duration-[var(--d-fast)]
               ${liked
-                ? "border-danger text-danger"
+                ? "border-signal text-signal"
                 : "border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"}
               active:translate-y-px`}
           >
