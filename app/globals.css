@@ -135,13 +135,10 @@
   --d-burst:   300ms;   /* éclat d'une réaction posée */
 
   /* ── Rythme de cascade ──
-     L'écart entre deux éléments d'une cascade. Assez pour que l'œil
-     distingue l'ordre, assez court pour que dix cartes soient là en
-     une seconde. */
-  --stagger-step: 0ms;
-  /* Plafond : au-delà, la cascade ne s'étire plus. Un fil de quarante
-     posts ne doit pas mettre trois secondes à se lire. */
-  --stagger-max: 0ms;
+     La cascade est calculée en JavaScript (`Stagger`), pas en CSS : les
+     tokens `--stagger-step` / `--stagger-max` qui vivaient ici ne lisaient
+     rien et valaient `0ms` — deux valeurs mortes qui laissaient croire
+     que le rythme était réglable par la feuille de style. */
 
   /* ── Palette de code, variante « éditeur » ────────────────────────
      Elle dérive des mêmes teintes que l'UI : un utilisateur qui passe
@@ -177,10 +174,16 @@
      plus grand. Le `md:` de Tailwind (768 px) donnait 532 px de contenu
      collé aux bords — plus étroit que le mobile qu'on venait de quitter.
 
-     `wide` (1440 px) : au-delà, la colonne s'élargit à 720 px. Au-delà de
-     1920, un écran affiche deux voids de 500 px de chaque côté — c'est le
-     comportement normal d'une colonne de lecture centrée, celui de GitHub
-     et de Twitter, et le remplir serait de la décoration.
+     `wide` (1440 px) : la colonne **ne s'élargit plus**. Elle reste à
+     720 px de contenu, soit ~80 caractères par ligne — la mesure d'un texte
+     suivi. Un palier à 960 px existait ici ; il produisait des lignes de
+     ~110 caractères dans le fil, et le seuil franchi RÉTRÉCISSAIT la page
+     quand on revenait en dessous. Une colonne de lecture ne s'élargit pas
+     parce que l'écran est plus grand : au-delà de 1920, l'écran affiche
+     deux marges de respiration de chaque côté — c'est le comportement
+     normal d'une colonne centrée, celui de GitHub et de Twitter, et le
+     remplir serait de la décoration. Les surfaces qui ont besoin de largeur
+     (IDE, messagerie) passent `wide`/`immersive` dans `AppShell`.
    */
   --breakpoint-shell: 55rem;  /* 880 px */
   --breakpoint-wide:  90rem;  /* 1440 px */

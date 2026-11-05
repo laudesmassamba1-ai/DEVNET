@@ -118,7 +118,7 @@ profils et les posts partagés.
 | Progression | `ProgressPanel`, `AchievementsPanel`, `ChallengePanel`, `ContributionMap` | Score, série, quêtes, badges, heatmap, classement local au profil. |
 | Admin | `AdminAccounts`, `AdminOverview`, `AdminRadar`, `AdminSettingsPanel` | Comptes et vérifications réels ; le reste est une coquille documentée. |
 | Partagés | `Avatar` (+ `Loading`, `EmptyState`, `PrimaryButton`, `Spinner`), `Icon`, `Sheet`, `ShareSheet`, `Toast`, `Pending`, `BackendGate` | Une seule implémentation par contrôle. |
-| **Inutilisés** | `AfricaMap`, `AnonymousRunner`, `OpenInVSCode` | Aucun import. À supprimer ou à brancher, jamais laisser en vitrine. |
+| **Supprimés** | `AfricaMap`, `AnonymousRunner`, `OpenInVSCode` | Aucun import constaté : supprimés plutôt que laissés en vitrine. Une carte géographique reviendra le jour où une page ville/pays existera. |
 
 ## 5. Système de design
 
@@ -145,8 +145,8 @@ Constats :
   n'a que trois niveaux réels, malgré quatre jetons.
 - Les commentaires de `globals.css` parlent encore de « verre » et de « mer
   bleue » ; les jetons `--glass-*`, `--gradient-*` et `--shadow-brut*` sont
-  des alias morts. Le nom `DEFAULT_THEME = "liquid-bleu"` ne correspond à
-  aucun rendu.
+  des alias morts. Le nom `DEFAULT_THEME = "liquid-bleu"` ne correspondait à
+  aucun rendu : corrigé, il vaut désormais `"dark"`.
 - Pas de thème contraste élevé, pas de `forced-colors`, pas de variante
   « auto » (système).
 
@@ -216,10 +216,11 @@ Constats :
    les messages ni dans les groupes.
 3. `/setup` est public et expose l'URL du backend ; ses instructions ne
    mentionnent que `001`/`002` alors que le dépôt est à `041`.
-4. Trois composants ne sont importés nulle part : `AfricaMap`,
-   `AnonymousRunner`, `OpenInVSCode`.
-5. `DEFAULT_THEME = "liquid-bleu"` et les commentaires « verre / mer bleue »
-   décrivent une direction qui n'est plus celle du CSS.
+4. ~~Trois composants ne sont importés nulle part~~ : `AfricaMap`,
+   `AnonymousRunner`, `OpenInVSCode` ont été **supprimés**.
+5. ~~`DEFAULT_THEME = "liquid-bleu"`~~ : corrigé en `"dark"`, et l'option
+   « Bleu Liquid » du profil a disparu. Les commentaires « verre / mer bleue »
+   restent à nettoyer dans `globals.css`.
 
 ## 8. Architecture UI ↔ données
 

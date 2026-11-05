@@ -977,33 +977,6 @@ export default function FeedPage() {
           </Motion>
         )}
 
-        {/* Charger la suite. Un bouton explicite plutôt qu'un défilement
-            infini : ici, le fil est un **dossier** qu'on parcourt, pas un
-            mur qu'on défile. Un défilement automatique continuerait de
-            consummer du réseau sans que le lecteur l'ait demandé, et
-            sur ce plan de travail le contexte compte plus que la fluidité. */}
-        {posts && posts.length > 0 && hasMore && (
-          <Motion role="fade">
-            <div className="mt-2 flex justify-center">
-              <button
-                type="button"
-                onClick={loadMore}
-                disabled={loadingMore}                  className="inline-flex h-[var(--h-tap)] items-center gap-2
-                    rounded-[var(--radius-input)] border border-line-2
-                    px-4 font-mono text-[11.5px] font-bold uppercase
-                    tracking-[0.12em] text-chalk-3 transition-colors
-                    duration-[var(--d-fast)]
-                    hover:border-signal hover:text-signal disabled:opacity-40"
-              >
-                <span aria-hidden={loadingMore || undefined}>
-                  {loadingMore ? <Spinner /> : null}
-                </span>
-                {loadingMore ? null : "Charger plus"}
-              </button>
-            </div>
-          </Motion>
-        )}
-
         {/* Chaque publication est séparée par un filet, sans défilement infini. */}
         {posts?.map((p) => (
           <PostCard
@@ -1026,6 +999,36 @@ export default function FeedPage() {
             {...postActions.cardProps}
           />
         ))}
+
+        {/* Charger la suite, **après** les publications déjà lues.
+
+            Il était rendu au-dessus du fil : l'écran proposait donc d'ajouter
+            des posts avant d'avoir montré les premiers, et le bouton séparait
+            les onglets de la première publication. Un bouton explicite plutôt
+            qu'un défilement infini : ici, le fil est un dossier qu'on
+            parcourt, pas un mur qu'on défile. */}
+        {posts && posts.length > 0 && hasMore && (
+          <Motion role="fade">
+            <div className="mt-6 flex justify-center">
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="inline-flex h-[var(--h-tap)] items-center gap-2
+                  rounded-[var(--radius-input)] border border-line-2
+                  px-4 font-mono text-[11.5px] font-bold uppercase
+                  tracking-[0.12em] text-chalk-3 transition-colors
+                  duration-[var(--d-fast)]
+                  hover:border-signal hover:text-signal disabled:opacity-40"
+              >
+                <span aria-hidden={loadingMore || undefined}>
+                  {loadingMore ? <Spinner /> : null}
+                </span>
+                {loadingMore ? null : "Charger plus"}
+              </button>
+            </div>
+          </Motion>
+        )}
 
       <PostOwnerTools actions={postActions} />
 

@@ -61,7 +61,7 @@ function admin(a: {
     followers: 51,
     following: 42,
     created_at: ago(700 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   };
 }
 
@@ -88,7 +88,7 @@ export const DEMO_USERS: User[] = [
     followers: 128,
     following: 94,
     created_at: ago(90 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-aminata",
@@ -108,7 +108,7 @@ export const DEMO_USERS: User[] = [
     followers: 842,
     following: 213,
     created_at: ago(400 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-thabo",
@@ -131,7 +131,7 @@ export const DEMO_USERS: User[] = [
     followers: 341,
     following: 176,
     created_at: ago(150 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-chioma",
@@ -151,7 +151,7 @@ export const DEMO_USERS: User[] = [
     followers: 1204,
     following: 388,
     created_at: ago(620 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-youssef",
@@ -171,7 +171,7 @@ export const DEMO_USERS: User[] = [
     followers: 567,
     following: 141,
     created_at: ago(300 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-zainab",
@@ -190,7 +190,7 @@ export const DEMO_USERS: User[] = [
     followers: 89,
     following: 233,
     created_at: ago(70 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-marcus",
@@ -209,7 +209,7 @@ export const DEMO_USERS: User[] = [
     followers: 204,
     following: 158,
     created_at: ago(110 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
 
   /* ── Administration ──────────────────────────────────────────────

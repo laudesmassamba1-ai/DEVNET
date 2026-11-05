@@ -5,6 +5,12 @@ const nextConfig: NextConfig = {
     optimizePackageImports: ["iconoir-react"],
   },
   allowedDevOrigins: [
+    // Ouvrir la page par `127.0.0.1` au lieu de `localhost` suffisait à
+    // bloquer `/_next/hmr` : la page ne s'hydratait plus et restait sur le
+    // logo du chargement. Les deux écritures de l'adresse locale sont donc
+    // autorisées explicitement.
+    "localhost",
+    "127.0.0.1",
     "*.trycloudflare.com",
     "**.trycloudflare.com",
     "trycloudflare.com",

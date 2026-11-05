@@ -28,7 +28,7 @@ import { fetchConnection } from "@/lib/github/connect";
 import { fetchProjectsByUser, summarizeRepoScores } from "@/lib/repo";
 import { supabase } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/supabase/profile";
-import { applyTheme, broadcastTheme } from "@/lib/theme";
+import { applyTheme, broadcastTheme, DEFAULT_THEME, LIGHT_THEME } from "@/lib/theme";
 import { useSession } from "@/hooks/useSession";
 import { useProgress } from "@/hooks/useProgress";
 import { loadLeaderboard, type LeaderEntry } from "@/lib/progress";
@@ -39,10 +39,10 @@ import {
   type AccountType, type AvatarColor, type Post, type ProfileLink, type User,
 } from "@/lib/types";
 
-/** Thèmes disponibles — pour l'instant un thème de base, extensible pour dark mode. */
+/** Thèmes disponibles : le sombre est le défaut, le clair le second. */
 const THEMES = [
-  { id: "liquid-bleu", label: "Bleu Liquid", icon: "droplet" },
-  { id: "light", label: "Claire", icon: "sun" },
+  { id: DEFAULT_THEME, label: "Sombre", icon: "moon" },
+  { id: LIGHT_THEME, label: "Clair", icon: "sun" },
 ] as const;
 
 type Tab = "posts" | "work" | "progress" | "infos" | "settings";
@@ -928,7 +928,7 @@ function EditForm({
   const [pays, setPays] = useState(profile.pays ?? "");
   const [langages, setLangages] = useState<string[]>(profile.langages ?? []);
   const [color, setColor] = useState<AvatarColor>(profile.avatar_color);
-  const [theme, setTheme] = useState(profile.theme ?? "liquid-bleu");
+  const [theme, setTheme] = useState(profile.theme ?? DEFAULT_THEME);
   const [links, setLinks] = useState<ProfileLink[]>(profile.links ?? []);
   const [saving, setSaving] = useState(false);
 

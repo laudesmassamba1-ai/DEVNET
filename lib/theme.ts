@@ -11,7 +11,15 @@
  * que le profil est résolu.
  */
 
-export const DEFAULT_THEME = "liquid-bleu";
+/**
+ * Le thème par défaut est le sombre, **pas** un nom historique.
+ *
+ * `DEFAULT_THEME` valait `"liquid-bleu"` : un nom qui ne correspondait à
+ * aucun sélecteur CSS. Il ne cassait rien parce que tout thème inconnu
+ * retombe sur les tokens sombres de `:root` — donc le défaut marchait par
+ * accident, et la valeur écrite en base ne décrivait pas ce qui s'affichait.
+ */
+export const DEFAULT_THEME = "dark";
 export const LIGHT_THEME = "light";
 
 /** Copie locale du thème — lue avant l'hydratation, pour éviter le flash. */
@@ -22,6 +30,9 @@ export const THEME_EVENT = "devnet:theme";
 
 /** Ramène toute valeur inconnue au thème par défaut. */
 export function normalizeTheme(theme: string | null | undefined): string {
+  // Toute valeur inconnue (dont l'ancien `liquid-bleu`) devient le défaut :
+  // un profil qui porte encore l'ancien nom affiche le thème sombre, qui
+  // est bien ce qu'il voyait déjà.
   return theme === LIGHT_THEME ? LIGHT_THEME : DEFAULT_THEME;
 }
 
