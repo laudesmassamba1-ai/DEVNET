@@ -91,6 +91,11 @@ taille : c'est la fonte qui sépare, pas la couleur.
 - Une élévation neutre est réservée aux feuilles et aux menus.
 - Gouttière de repères : 32 px de large, filet vertical de 1 px à droite.
 - Cibles tactiles de 44 px minimum ; focus clavier visible.
+- Colonne de lecture : **560 px** sous 880 px, **720 px** au-delà — et elle
+  ne s'élargit plus ensuite, même sur un écran de 1920 px. Une ligne de
+  texte suivi tient autour de 80 caractères ; élargir pour remplir l'écran
+  casse la lecture. Les surfaces qui ont besoin de largeur (éditeur,
+  messagerie à deux volets) sortent volontairement de cette mesure.
 
 ## Composants
 

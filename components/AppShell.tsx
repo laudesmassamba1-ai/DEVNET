@@ -282,7 +282,16 @@ export function AppShell({
 
           {/* La colonne entre par une ascension de 8 px seulement : assez
               pour qu'on perçoive un changement de page, pas assez pour
-              qu'on ait l'impression que la page « saute ». */}
+              qu'on ait l'impression que la page « saute ».
+
+              **Largeur : 560 px sur mobile, 720 px au-delà du seuil coque,
+              et plus d'élargissement ensuite.** Le palier de 960 px qui
+              existait au-delà de 1440 donnait des lignes de ~110 caractères
+              dans le fil : lisible pour un tableau, épuisant pour un texte
+              suivi. Une colonne de lecture ne s'élargit pas parce qu'un
+              écran est plus grand ; les surfaces qui ont besoin de largeur
+              (IDE, messagerie à deux volets) passent `wide` ou `immersive`
+              et ne sont pas concernées. */}
           <Motion
             key={path}
             role={immersive ? "none" : "slide"}
@@ -294,7 +303,7 @@ export function AppShell({
                 : desktop
                   ? wide
                     ? "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] max-w-none"
-                    : "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] w-full max-w-[820px] wide:max-w-[960px]"
+                    : "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] w-full max-w-[720px]"
                   : "max-w-[560px] min-h-0"}
               ${immersive
                 ? "pb-0"
