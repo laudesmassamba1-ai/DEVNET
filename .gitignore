@@ -58,3 +58,13 @@ dev-server.log
 tunnel-url.txt
 __pycache__/
 *.pyc
+
+# Exploitation locale : ne remonte jamais au dépôt
+/goose-*
+/alphacode/
+/*.log
+/*.pid
+/tunnel-url.txt
+/docs-technique.pdf
+/Capture*.png
+/parcours-*.png
