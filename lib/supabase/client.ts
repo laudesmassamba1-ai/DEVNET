@@ -34,6 +34,7 @@ import {
   isDemoMode,
 } from "@/lib/backend";
 import { beginPending, endPending } from "@/lib/pending";
+import { AUTH_COOKIE_NAME } from "./auth-cookie";
 
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -67,6 +68,9 @@ function getLiveClient() {
   // pas dans `localStorage` : c'est la seule façon pour que la session
   // soit visible du serveur via `getOrCreateServerClient`.
   clientInstance = createBrowserClient(currentUrl, anonKey, {
+    // Nom fixe : sans lui, le nom du cookie dépend de l'hôte et le serveur
+    // ne retrouve plus la session (voir `auth-cookie.ts`).
+    cookieOptions: { name: AUTH_COOKIE_NAME },
     auth: {
       autoRefreshToken: true,
       persistSession: true,

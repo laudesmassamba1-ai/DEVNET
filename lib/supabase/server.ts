@@ -4,6 +4,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseUrl } from "@/lib/backend";
+import { AUTH_COOKIE_NAME } from "./auth-cookie";
 
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -19,6 +20,7 @@ export async function getOrCreateServerClient() {
   const cookieStore = await cookies();
 
   const client = createServerClient(url, anonKey, {
+    cookieOptions: { name: AUTH_COOKIE_NAME },
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value;

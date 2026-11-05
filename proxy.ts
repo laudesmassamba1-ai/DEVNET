@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseUrl } from "@/lib/backend";
 import { serverCannotCheckAdmin } from "@/lib/admin-access";
+import { AUTH_COOKIE_NAME } from "@/lib/supabase/auth-cookie";
 
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -35,6 +36,7 @@ export async function proxy(request: NextRequest) {
 
   let response = NextResponse.next({ request });
   const client = createServerClient(url, anonKey, {
+    cookieOptions: { name: AUTH_COOKIE_NAME },
     cookies: {
       getAll() {
         return request.cookies.getAll();
