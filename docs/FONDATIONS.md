@@ -34,7 +34,9 @@ lib/                    67 fichiers : services, modèles, règles pures
   supabase/             client navigateur, client serveur, résolution de profil
   github/               OAuth, chiffrement des jetons, plan de synchronisation
   execution/            choix du moteur d'exécution et garde-fous
-modules/feed/           premier domaine découpé : domain, application, ports, infra
+modules/feed/           domaine du fil : application, ports, adaptateurs mémoire/Supabase
+modules/moderation/     domaine des signalements : service, port, adaptateur Supabase
+modules/messages/       domaine messages : réactions, épingles, suppression
 platform/container.ts   composition des adaptateurs et choix mémoire/Supabase
 supabase/               41 migrations SQL (001 → 041) + seed + migrations/ dupliquées
 db/compat/              couche de compatibilité PostgreSQL pour un serveur vierge
@@ -215,8 +217,11 @@ une preuve.
 
 ## 11. Dette mesurée et limites
 
-- **Un seul domaine** en ports/adaptateurs (`feed`) ; la page du fil importe
-  encore `lib/social.ts` pour ses lectures restantes.
+- **Trois domaines** en ports/adaptateurs (`feed`, `moderation`, `messages`) ;
+  le fil et les autres services passent encore massivement par `lib/social.ts`
+  et le client maison. Les façades `lib/reports.ts` et `lib/messages.ts` ne
+  contiennent plus de requête : elles gardent les libellés et les types, et
+  délèguent aux services des domaines.
 - **53 fichiers** passent par le client maison et **310** appels `.from(` :
   la façade est le vrai chantier de migration, pas les imports SDK.
 - **Pas d'i18n** : tout est en français dans le code, `<html lang="fr">`.
