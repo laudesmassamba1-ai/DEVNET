@@ -118,7 +118,6 @@ export default function AdminPage() {
   return (
     <AppShell title="Administration" path="~/admin">
       <AdminConsoleNav active="accounts" />
-      {tab === "overview" && <AdminOverview />}
       <Motion
         role="slide"
         className="border-b-[var(--bw-heavy)] border-line-2 px-(--gutter) py-4"
@@ -142,6 +141,8 @@ export default function AdminPage() {
             <button
               key={key}
               role="tab"
+              id={`admin-tab-${key}`}
+              aria-controls="admin-tabpanel"
               aria-selected={tab === key}
               onClick={() => setTab(key)}
               className={`tab-underline pb-1.5 font-mono text-[11.5px] font-bold
@@ -164,7 +165,13 @@ export default function AdminPage() {
         </p>
       </Motion>
 
-      <div className="px-(--gutter)">
+      {/* Le panneau vient **sous** les onglets, jamais au-dessus : rendu
+          avant eux, le tableau de bord donnait deux navigations empilées
+          et un onglet actif qui ne correspondait à rien de visible. */}
+      <div role="tabpanel" id="admin-tabpanel" aria-labelledby={`admin-tab-${tab}`}>
+        {tab === "overview" && <AdminOverview />}
+
+        <div className="px-(--gutter)">
         {!admin && (
           <div className="py-8">
             <EmptyState title="Réservé à l'administration" />
@@ -299,6 +306,7 @@ export default function AdminPage() {
               )}
             </Stagger>
           ))}
+        </div>
       </div>
     </AppShell>
   );

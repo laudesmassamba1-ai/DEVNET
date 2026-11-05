@@ -7,6 +7,7 @@ export type AdminModuleSurface =
   | "data"
   | "dashboard"
   | "progression"
+  | "team"
   | "unavailable";
 
 export type AdminModuleStatus = "indisponible" | "partiel";
@@ -158,9 +159,9 @@ export const ADMIN_MODULES = [
     label: "Équipe",
     icon: "groups",
     priority: "P1",
-    status: "indisponible",
-    surface: "unavailable",
-    reason: "Le modèle actuel ne connaît que le rôle is_admin.",
+    status: "partiel",
+    surface: "team",
+    reason: "Liste réelle des comptes portant is_admin ; les rôles granulaires et l'approbation à deux ne sont pas modélisés.",
   },
 ] as const satisfies readonly {
   key: string;

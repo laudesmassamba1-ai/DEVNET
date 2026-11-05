@@ -5,6 +5,7 @@ import { AdminConsoleNav } from "@/components/AdminConsoleNav";
 import { AdminOverview } from "@/components/AdminOverview";
 import { AdminRadar } from "@/components/AdminRadar";
 import { AdminSettingsPanel } from "@/components/AdminSettingsPanel";
+import { AdminTeam } from "@/components/AdminTeam";
 import { ADMIN_MODULES } from "@/lib/admin-modules";
 
 export default async function AdminSectionPage({
@@ -48,6 +49,8 @@ export default async function AdminSectionPage({
         </>
       ) : moduleInfo.surface === "progression" ? (
         <AdminSettingsPanel />
+      ) : moduleInfo.surface === "team" ? (
+        <AdminTeam />
       ) : moduleInfo.surface === "content" ? (
         <section
           role="status"

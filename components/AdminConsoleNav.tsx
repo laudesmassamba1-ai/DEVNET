@@ -13,7 +13,7 @@ export function AdminConsoleNav({ active }: { active: AdminModuleKey }) {
     <div className="border-b border-line-2 px-(--gutter) py-3">
       <nav
         aria-label="Modules d'administration"
-        className="hidden gap-1 overflow-x-auto shell:flex"
+        className="hidden flex-wrap gap-1 shell:flex"
       >
         {ADMIN_MODULES.map((module) => (
           <Link

@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { getSupabaseUrl } from "@/lib/backend";
+import { serverCannotCheckAdmin } from "@/lib/admin-access";
 
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -15,6 +16,17 @@ function denyAdminRequest() {
 }
 
 export async function proxy(request: NextRequest) {
+  // Démonstration ou backend absent : aucune session serveur ne peut
+  // exister, donc aucun rôle serveur à vérifier. Refuser ici rendrait
+  // `/admin` inaccessible même à un compte administrateur ; on laisse
+  // `AdminGate` décider sur le profil client, et l'en-tête `noindex` reste
+  // posé pour ne pas exposer la route.
+  if (serverCannotCheckAdmin()) {
+    const response = NextResponse.next({ request });
+    response.headers.set("X-Robots-Tag", "noindex, nofollow");
+    return response;
+  }
+
   const url = getSupabaseUrl();
   if (!url || !anonKey) {
     console.error("Admin access check failed: Supabase configuration unavailable");
