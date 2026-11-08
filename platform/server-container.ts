@@ -14,6 +14,9 @@ import { PostgresFeedRepository } from "@/modules/feed/infrastructure/postgres/p
 import { PostgresFeedHydrationRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-hydration-repository";
 import { PostgresStoriesRepository } from "@/modules/stories/infrastructure/postgres/postgres-stories-repository";
 import type { StoriesRepository } from "@/modules/stories/ports/stories-repository";
+import { PostgresStickersRepository } from "@/modules/stickers/infrastructure/postgres/postgres-stickers-repository";
+import type { StickersRepository } from "@/modules/stickers/ports/stickers-repository";
+import { reencodeSticker } from "@/modules/stickers/infrastructure/image/reencode";
 import type { FeedRepository } from "@/modules/feed/ports/feed-repository";
 import type { FeedHydrationRepository } from "@/modules/feed/ports/feed-hydration-repository";
 import { withUser } from "./infrastructure/postgres/with-user";
@@ -90,6 +93,20 @@ export function getServerFeedHydrationRepository(): FeedHydrationRepository {
 export function getServerStoriesRepository(): StoriesRepository {
   return new PostgresStoriesRepository({
     asUser: (userId, run) => withUser(userId, run),
+  });
+}
+
+/**
+ * Stickers personnels — catalogue, création, octets.
+ *
+ * Le re-encodage d'image est injecté ici : c'est la seule chose que
+ * l'adaptateur ne sait pas faire seul, et c'est ce qui garantit qu'un
+ * fichier client n'est jamais publié tel quel.
+ */
+export function getServerStickersRepository(): StickersRepository {
+  return new PostgresStickersRepository({
+    asUser: (userId, run) => withUser(userId, run),
+    reencode: reencodeSticker,
   });
 }
 

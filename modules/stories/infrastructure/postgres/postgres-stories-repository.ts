@@ -57,8 +57,11 @@ interface StickerRow extends Record<string, unknown> {
   id: string;
   story_id: string;
   sticker_id: string;
+  kind?: string;
   glyph: string;
   name: string;
+  fg?: string;
+  bg?: string;
   x: number | string;
   y: number | string;
   scale: number | string;
@@ -129,7 +132,10 @@ export class PostgresStoriesRepository implements StoriesRepository {
       stickers = await this.dependencies.asUser(readerId, (query) =>
         query<StickerRow>(
           `select ss.id, ss.story_id::text as story_id, ss.sticker_id,
-                  st.glyph, st.name, ss.x, ss.y, ss.scale, ss.rotation, ss.z
+                  st.kind, st.glyph, st.name,
+                  case when st.owner_id is null then '' else st.fg end as fg,
+                  case when st.owner_id is null then '' else st.bg end as bg,
+                  ss.x, ss.y, ss.scale, ss.rotation, ss.z
              from public.story_stickers ss
              join public.stickers st on st.id = ss.sticker_id
             where ss.story_id = any($1::uuid[])
@@ -147,8 +153,11 @@ export class PostgresStoriesRepository implements StoriesRepository {
       list.push({
         id: String(sticker.id),
         stickerId: String(sticker.sticker_id),
+        kind: (sticker.kind ?? "texte") as PlacedSticker["kind"],
         glyph: String(sticker.glyph),
         name: String(sticker.name),
+        fg: String(sticker.fg ?? ""),
+        bg: String(sticker.bg ?? ""),
         x: num(sticker.x),
         y: num(sticker.y),
         scale: num(sticker.scale, 1),
@@ -337,8 +346,11 @@ export class PostgresStoriesRepository implements StoriesRepository {
            returning id::text as id,
                      story_id::text as story_id,
                      sticker_id,
+                     (select kind from public.stickers where id = sticker_id) as kind,
                      (select glyph from public.stickers where id = sticker_id) as glyph,
                      (select name from public.stickers where id = sticker_id) as name,
+                     (select fg from public.stickers where id = sticker_id) as fg,
+                     (select bg from public.stickers where id = sticker_id) as bg,
                      x, y, scale, rotation, z`,
           [
             storyId,
@@ -357,8 +369,11 @@ export class PostgresStoriesRepository implements StoriesRepository {
       return {
         id: String(row.id),
         stickerId: String(row.sticker_id),
+        kind: (row.kind ?? "texte") as PlacedSticker["kind"],
         glyph: String(row.glyph ?? ""),
         name: String(row.name ?? ""),
+        fg: String(row.fg ?? ""),
+        bg: String(row.bg ?? ""),
         x: num(row.x),
         y: num(row.y),
         scale: num(row.scale, 1),
@@ -376,7 +391,12 @@ export class PostgresStoriesRepository implements StoriesRepository {
     const rows = await this.dependencies
       .asUser("00000000-0000-0000-0000-000000000000", (query) =>
         query<StickerCatalogEntry & Record<string, unknown>>(
-          "select id, pack, kind, glyph, name from public.stickers order by pack, name",
+          `select id, pack, kind, glyph, name,
+                  case when owner_id is null then '' else fg end as fg,
+                  case when owner_id is null then '' else bg end as bg
+             from public.stickers
+            where status = 'actif'
+            order by pack, name`,
         ),
       )
       .catch(() => [] as (StickerCatalogEntry & Record<string, unknown>)[]);
@@ -387,6 +407,8 @@ export class PostgresStoriesRepository implements StoriesRepository {
       kind: row.kind as StickerCatalogEntry["kind"],
       glyph: String(row.glyph ?? ""),
       name: String(row.name),
+      fg: String(row.fg ?? ""),
+      bg: String(row.bg ?? ""),
     }));
   }
 }

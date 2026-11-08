@@ -18,13 +18,19 @@ export interface StickerCatalogEntry {
   kind: "texte" | "image" | "animé";
   glyph: string;
   name: string;
+  /** Jetons de couleur ; vides pour le catalogue de la maison. */
+  fg: string;
+  bg: string;
 }
 
 export interface PlacedSticker {
   id: string;
   stickerId: string;
+  kind: "texte" | "image" | "animé";
   glyph: string;
   name: string;
+  fg: string;
+  bg: string;
   /** Centre du sticker, en fraction de la surface (0–1). */
   x: number;
   y: number;

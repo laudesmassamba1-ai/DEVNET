@@ -55,6 +55,55 @@ interface Feedback {
   text: string;
 }
 
+/**
+ * Un sticker, quelle que soit sa matière. Un glyphe du catalogue de la maison
+ * garde ses jetons de couleur vides : il s'affiche comme avant, sans pastille.
+ */
+function StickerFace({
+  kind,
+  glyph,
+  fg,
+  bg,
+  assetId,
+  size,
+}: {
+  kind: "texte" | "image" | "animé";
+  glyph: string;
+  fg: string;
+  bg: string;
+  assetId: string;
+  size: number;
+}) {
+  if (kind === "image") {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={`/api/stickers/${encodeURIComponent(assetId)}/asset`}
+        alt=""
+        width={size}
+        height={size}
+        loading="lazy"
+        className="rounded-[26%] object-cover"
+      />
+    );
+  }
+  return (
+    <span
+      aria-hidden
+      className="inline-flex items-center justify-center rounded-[26%]"
+      style={{
+        width: fg && bg ? size : undefined,
+        height: fg && bg ? size : undefined,
+        backgroundColor: fg && bg ? `var(--color-${bg})` : "transparent",
+        color: fg ? `var(--color-${fg})` : "inherit",
+        fontSize: size * 0.66,
+      }}
+    >
+      {glyph}
+    </span>
+  );
+}
+
 export function StoryViewer({
   stories,
   me,
@@ -426,7 +475,14 @@ export function StoryViewer({
                     lineHeight: 1,
                   }}
                 >
-                  {sticker.glyph}
+                  <StickerFace
+                    kind={sticker.kind}
+                    glyph={sticker.glyph}
+                    fg={sticker.fg}
+                    bg={sticker.bg}
+                    assetId={sticker.stickerId}
+                    size={46}
+                  />
                 </span>
               ))}
 
@@ -547,7 +603,14 @@ export function StoryViewer({
                     className="flex h-11 items-center justify-center rounded-[var(--radius-chip)]
                       text-[22px] hover:bg-surface-2"
                   >
-                    {sticker.glyph}
+                    <StickerFace
+                      kind={sticker.kind}
+                      glyph={sticker.glyph}
+                      fg={sticker.fg}
+                      bg={sticker.bg}
+                      assetId={sticker.id}
+                      size={30}
+                    />
                   </button>
                 ))}
               </div>
