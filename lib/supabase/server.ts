@@ -44,3 +44,17 @@ export async function getOrCreateServerClient() {
 
   return client;
 }
+
+/**
+ * Identité de la session en cours, ou `null` sans session.
+ *
+ * Pont temporaire : la session vit encore dans Supabase, alors que le fil lit
+ * PostgreSQL direct. Quand l'authentification passera sur PostgreSQL, seule
+ * cette fonction changera.
+ */
+export async function currentUserId(): Promise<string | null> {
+  const client = await getOrCreateServerClient();
+  if (!client) return null;
+  const { data } = await client.auth.getUser();
+  return data.user?.id ?? null;
+}

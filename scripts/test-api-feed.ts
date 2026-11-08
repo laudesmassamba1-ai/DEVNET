@@ -9,7 +9,7 @@
  * lancé : `npm run dev` puis `curl localhost:3000/api/feed`.
  */
 import assert from "node:assert/strict";
-import { readFeedQuery } from "../modules/feed";
+import { MAX_HYDRATION_POSTS, readFeedQuery, readHydrationQuery } from "../modules/feed";
 import { HttpFeedRepository } from "../modules/feed/infrastructure/http/http-feed-repository";
 import { FeedRepositoryError } from "../modules/feed/ports/feed-repository";
 
@@ -30,6 +30,28 @@ function verifyQueryParsing(): void {
     "2026-11-08T10:00:00Z",
   );
   assert.equal(readFeedQuery(new URLSearchParams("before=%20")).before, null);
+}
+
+/**
+ * L'hydratation accepte ce que l'écran affiche, et rien d'autre : un
+ * identifiant valide une fois, un plafond, aucune valeur inventée.
+ */
+function verifyHydrationQueryParsing(): void {
+  const id = (n: number) => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
+
+  assert.deepEqual(readHydrationQuery(new URLSearchParams()), []);
+  assert.deepEqual(readHydrationQuery(new URLSearchParams(`ids=${id(1)},${id(1)}`)), [id(1)]);
+  assert.deepEqual(
+    readHydrationQuery(new URLSearchParams(`ids=pas-un-identifiant,${id(2)}`)),
+    [id(2)],
+  );
+  assert.deepEqual(readHydrationQuery(new URLSearchParams(`ids=${id(3).toUpperCase()}`)), [id(3)]);
+
+  const many = Array.from({ length: 100 }, (_, index) => id(index + 10)).join(",");
+  assert.equal(
+    readHydrationQuery(new URLSearchParams(`ids=${many}`)).length,
+    MAX_HYDRATION_POSTS,
+  );
 }
 
 async function verifyHttpAdapter(): Promise<void> {
@@ -105,8 +127,9 @@ async function verifyHttpAdapter(): Promise<void> {
 
 async function main(): Promise<void> {
   verifyQueryParsing();
+  verifyHydrationQueryParsing();
   await verifyHttpAdapter();
-  console.log("Route /api/feed : 20 vérifications réussies.");
+  console.log("Route /api/feed : paramètres, adaptateur HTTP et hydratation vérifiés.");
 }
 
 main().catch((error: unknown) => {

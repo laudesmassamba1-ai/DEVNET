@@ -15,6 +15,7 @@ import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { PostgresFeedRepository } from "../modules/feed/infrastructure/postgres/postgres-feed-repository";
+import { PostgresFeedHydrationRepository } from "../modules/feed/infrastructure/postgres/postgres-feed-hydration-repository";
 import {
   closePostgresPool,
   getPostgresPool,
@@ -105,6 +106,9 @@ async function main(): Promise<void> {
   await client.connect();
 
   const repository = new PostgresFeedRepository({
+    asUser: (userId, run) => withUser(userId, run, getPostgresPool()),
+  });
+  const hydrationRepository = new PostgresFeedHydrationRepository({
     asUser: (userId, run) => withUser(userId, run, getPostgresPool()),
   });
 
@@ -211,7 +215,52 @@ async function main(): Promise<void> {
     );
     check("like : retiré", afterRemoval.rows[0]?.n === "0", afterRemoval.rows[0]?.n);
 
-    // 7. La RLS refuse un like au nom d'un autre : la clé est `auth.uid()`.
+    // 7. Hydratation du lecteur : quatre états, une requête.
+    await repository.addLike(newest, users.reader);
+    await client.query("insert into public.reposts (post_id, user_id) values ($1, $2)", [
+      newest,
+      users.reader,
+    ]);
+    await client.query(
+      "insert into public.reactions (post_id, user_id, emoji) values ($1, $2, $3)",
+      [newest, users.reader, "🔥"],
+    );
+    await client.query("insert into public.bookmarks (post_id, user_id) values ($1, $2)", [
+      newest,
+      users.reader,
+    ]);
+
+    const hydration = await hydrationRepository.fetchHydration(users.reader, [newest]);
+    check("hydratation : like lu", hydration.likedPostIds.includes(newest), hydration.likedPostIds);
+    check("hydratation : repost lu", hydration.repostedPostIds.includes(newest));
+    check("hydratation : signet lu", hydration.bookmarkedPostIds.includes(newest));
+    check("hydratation : réaction lue", hydration.reactions[newest] === "🔥", hydration.reactions);
+    check(
+      "hydratation : aucune ligne hors demande",
+      hydration.likedPostIds.length === 1 && hydration.repostedPostIds.length === 1,
+      hydration,
+    );
+
+    const otherReader = await hydrationRepository.fetchHydration(users.solo, [newest]);
+    check(
+      "hydratation : l'état d'un autre lecteur reste vide",
+      otherReader.likedPostIds.length === 0 &&
+        otherReader.bookmarkedPostIds.length === 0 &&
+        Object.keys(otherReader.reactions).length === 0,
+      otherReader,
+    );
+
+    const anonymousHydration = await hydrationRepository.fetchHydration(null, [newest]);
+    check(
+      "hydratation : sans identité, état neutre",
+      anonymousHydration.likedPostIds.length === 0 &&
+        anonymousHydration.bookmarkedPostIds.length === 0,
+    );
+
+    const noIds = await hydrationRepository.fetchHydration(users.reader, []);
+    check("hydratation : sans identifiant, état neutre", noIds.repostedPostIds.length === 0);
+
+    // 8. La RLS refuse un like au nom d'un autre : la clé est `auth.uid()`.
     await assert.rejects(
       () => repository.addLike(newest, users.solo).then(async () => {
         const forged = await client.query<{ n: string }>(

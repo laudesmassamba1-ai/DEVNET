@@ -12,21 +12,13 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { FeedRepositoryError, readFeedQuery } from "@/modules/feed";
-import { getOrCreateServerClient } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/supabase/server";
 import { getServerFeedRepository } from "@/platform/server-container";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const NO_STORE = { "Cache-Control": "no-store" };
-
-/** Pont d'identité : la session vient encore de Supabase. */
-async function currentUserId(): Promise<string | null> {
-  const client = await getOrCreateServerClient();
-  if (!client) return null;
-  const { data } = await client.auth.getUser();
-  return data.user?.id ?? null;
-}
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const query = readFeedQuery(request.nextUrl.searchParams);

@@ -15,6 +15,8 @@ import {
 } from "@/platform/container";
 import {
   DEFAULT_FEED_PAGE_SIZE,
+  emptyHydration,
+  type FeedHydration,
   type FeedPage,
   type FetchFeedPageOptions,
 } from "@/modules/feed";
@@ -339,6 +341,33 @@ export async function fetchRepostIds(me: string, postIds: string[]): Promise<str
   return ((data as { post_id: string }[]) ?? []).map((r) => String(r.post_id));
 }
 
+/**
+ * État d'interaction du lecteur pour une page du fil.
+ *
+ * Quatre lectures dans une seule requête serveur : likes, reposts, réactions
+ * et signets. Le navigateur ne filtre plus sur l'identifiant qu'il croit
+ * être le sien — la route lit la session et la RLS décide.
+ *
+ * Un échec rend `null` : l'écran garde l'état qu'il avait au lieu de croire
+ * que plus rien n'est aimé.
+ */
+export async function fetchFeedHydration(postIds: string[]): Promise<FeedHydration | null> {
+  if (postIds.length === 0) return emptyHydration();
+
+  const parameters = new URLSearchParams({ ids: postIds.join(",") });
+  try {
+    const response = await fetch(`/api/feed/hydration?${parameters.toString()}`, {
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: { accept: "application/json" },
+    });
+    if (!response.ok) return null;
+    return (await response.json()) as FeedHydration;
+  } catch {
+    return null;
+  }
+}
+
 /* ── Suivi ───────────────────────────────────────────────────────── */
 
 /** Vrai si `me` suit `target`. Un seul `.maybeSingle()` : la clé primaire le garantit. */
@@ -607,6 +636,14 @@ export async function fetchFeedPageCached(options: {
   return cachedQuery("feedPage", [options], () => fetchFeedPage(options));
 }
 
+/** Version en cache de `fetchFeedHydration` (TTL 30s). */
+export function fetchFeedHydrationCached(
+  postIds: string[],
+): Promise<FeedHydration | null> {
+  if (postIds.length === 0) return Promise.resolve(emptyHydration());
+  return cachedQuery("feedHydration", [[...postIds].sort()], () => fetchFeedHydration(postIds));
+}
+
 /** Version en cache de `fetchLikedPostIds` (TTL 30s). */
 export async function fetchLikedPostIdsCached(
   me: string,
@@ -682,6 +719,7 @@ export async function fetchFollowListCached(
 
 /** Invalide le cache lié aux posts (likes, reactions, etc.). */
 export function invalidatePostCache() {
+  invalidateCache("feedHydration");
   invalidateCache("likedPostIds");
   invalidateCache("repostIds");
   invalidateCache("myReactions");

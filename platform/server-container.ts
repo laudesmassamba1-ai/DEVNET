@@ -11,7 +11,9 @@ import { PostgresEventOutboxRepository } from "@/modules/events/infrastructure/p
 import { PostgresAuthRepository } from "@/modules/auth/infrastructure/postgres/postgres-auth-repository";
 import type { AuthRepository } from "@/modules/auth/ports/auth-repository";
 import { PostgresFeedRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-repository";
+import { PostgresFeedHydrationRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-hydration-repository";
 import type { FeedRepository } from "@/modules/feed/ports/feed-repository";
+import type { FeedHydrationRepository } from "@/modules/feed/ports/feed-hydration-repository";
 import { withUser } from "./infrastructure/postgres/with-user";
 import {
   getPostgresPool,
@@ -60,6 +62,18 @@ export function getPluginRuntime(): PluginRuntime {
  */
 export function getServerFeedRepository(): FeedRepository {
   return new PostgresFeedRepository({
+    asUser: (userId, run) => withUser(userId, run),
+  });
+}
+
+/**
+ * Hydratation du fil (likes, reposts, réactions, signets du lecteur).
+ *
+ * Même composition que le fil : l'identité vient de `withUser`, donc la RLS
+ * décide, et non la requête, de ce que le lecteur voit de lui-même.
+ */
+export function getServerFeedHydrationRepository(): FeedHydrationRepository {
+  return new PostgresFeedHydrationRepository({
     asUser: (userId, run) => withUser(userId, run),
   });
 }
