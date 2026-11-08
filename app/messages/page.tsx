@@ -622,6 +622,41 @@ export default function MessagesPage() {
     toast("Message supprimé");
   }
 
+  /**
+   * Cartes de story attachées aux messages privés.
+   *
+   * `null` = story introuvable ou expirée : le message a été écrit, la story
+   * a vécu 24 h. On le dit au lieu de laisser un cadre vide.
+   */
+  const [storyCards, setStoryCards] = useState<Record<string, { caption: string } | null>>({});
+
+  useEffect(() => {
+    const ids = [
+      ...new Set(
+        (messages ?? [])
+          .map((message) => message.story_id)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ].filter((id) => !(id in storyCards));
+    if (ids.length === 0) return;
+
+    let alive = true;
+    void (async () => {
+      const { data } = await supabase.from("stories").select("id, caption").in("id", ids);
+      if (!alive) return;
+      const rows = (data as { id: string; caption: string }[] | null) ?? [];
+      setStoryCards((previous) => {
+        const next = { ...previous };
+        for (const id of ids) next[id] = rows.find((row) => row.id === id) ?? null;
+        return next;
+      });
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [messages, storyCards]);
+
   async function persistMessage(message: MessageRow) {
     let confirmed: DirectMessage | null = null;
     try {
@@ -981,6 +1016,22 @@ export default function MessagesPage() {
                             ? "border-signal/60 glass-flat text-chalk"
                             : "border-line-2 glass-flat text-chalk-2"}`}
                       >
+                        {/* Carte de la story d'origine — le contexte du message. */}
+                        {m.story_id && (
+                          <div
+                            className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-chip)]
+                              border border-line-2 bg-surface-2/60 px-2.5 py-1.5"
+                          >
+                            <Icon name="spark" size={11} strokeWidth={2.2} className="shrink-0 text-signal-d" />
+                            <span className="label-micro shrink-0 text-chalk-3">Story</span>
+                            <span className="min-w-0 truncate text-[11.5px] text-chalk-2">
+                              {storyCards[m.story_id] === null
+                                ? "Story expirée"
+                                : storyCards[m.story_id]?.caption?.trim() || "Story"}
+                            </span>
+                          </div>
+                        )}
+
                         {m.is_code && (
                           <button
                             type="button"
