@@ -716,10 +716,9 @@
    skeleton, toast, reveal au défilement, heartbeat, count pop, flou
    directionnel) a été supprimée : aucune n'était attachée à un écran.
 
-   Deux raisons, pas une. D'abord la direction artistique : `DESIGN.md` dit
-   que « le mouvement vient des transitions de surface et de l'élévation,
-   pas d'une animation lumineuse permanente » — un glitch et une pulsation
-   infinie la contredisaient. Ensuite `prefers-reduced-motion` : ces classes
+   Deux raisons, pas une. D'abord la direction artistique : « le mouvement vient des transitions
+   de surface et de l'élévation, pas d'une animation lumineuse permanente »
+   — un glitch et une pulsation infinie la contredisaient. Ensuite `prefers-reduced-motion` : ces classes
    portaient des durées écrites en dur (`3s`, `2s`, `4s`, `0.6s`, `1.5s`)
    au lieu des jetons `--d-*`, donc le réglage d'accessibilité ne pouvait
    pas les atteindre.
