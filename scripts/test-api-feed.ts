@@ -1,17 +1,19 @@
 /**
- * Route `/api/feed` — validation des paramètres.
+ * Route `/api/feed` — validation des paramètres et adaptateur HTTP.
  *
  * Ce qui est vérifié ici est la partie où les bugs arrivent vraiment : les
- * bornes. Un `pageSize` absurde venu d'un client ne doit jamais atteindre la
- * base, et un curseur vide ne doit pas être transmis comme une date.
+ * bornes, l'encodage du curseur, et le refus d'un adaptateur de lecture qui
+ * prétendrait enregistrer un « J'aime ».
  *
  * La route elle-même (identité, RLS, statut 503) se vérifie sur un serveur
  * lancé : `npm run dev` puis `curl localhost:3000/api/feed`.
  */
 import assert from "node:assert/strict";
 import { readFeedQuery } from "../modules/feed";
+import { HttpFeedRepository } from "../modules/feed/infrastructure/http/http-feed-repository";
+import { FeedRepositoryError } from "../modules/feed/ports/feed-repository";
 
-function main(): void {
+function verifyQueryParsing(): void {
   assert.deepEqual(readFeedQuery(new URLSearchParams()), {
     scope: "all",
     pageSize: 12,
@@ -28,8 +30,86 @@ function main(): void {
     "2026-11-08T10:00:00Z",
   );
   assert.equal(readFeedQuery(new URLSearchParams("before=%20")).before, null);
-
-  console.log("Route /api/feed : 9 vérifications réussies.");
 }
 
-main();
+async function verifyHttpAdapter(): Promise<void> {
+  const calls: { url: string; init?: RequestInit }[] = [];
+  const page = { rows: [], more: false, emptyScope: false };
+
+  const repository = new HttpFeedRepository({
+    baseUrl: "https://devnet.test",
+    fetchImpl: (async (input: RequestInfo | URL, init?: RequestInit) => {
+      calls.push({ url: String(input), init });
+      return new Response(JSON.stringify(page), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch,
+  });
+
+  const read = await repository.fetchPage({
+    scope: "followed",
+    readerId: "u-1",
+    before: "2026-11-08T10:00:00Z",
+    pageSize: 5,
+  });
+
+  assert.deepEqual(read, page);
+  assert.equal(calls.length, 1);
+  const url = new URL(calls[0].url);
+  assert.equal(url.pathname, "/api/feed");
+  assert.equal(url.searchParams.get("scope"), "followed");
+  assert.equal(url.searchParams.get("pageSize"), "5");
+  assert.equal(url.searchParams.get("before"), "2026-11-08T10:00:00Z");
+  assert.equal(calls[0].init?.cache, "no-store");
+  // Le cookie de session doit partir : sans lui, la route ne connaît personne.
+  assert.equal(calls[0].init?.credentials, "same-origin");
+
+  // Sans curseur, aucun `before` n'est envoyé.
+  await repository.fetchPage({ scope: "all", readerId: null, before: null, pageSize: 12 });
+  assert.equal(new URL(calls[1].url).searchParams.has("before"), false);
+
+  // Un refus serveur devient une erreur de port, pas une page vide.
+  const failing = new HttpFeedRepository({
+    fetchImpl: (async () => new Response("{}", { status: 503 })) as typeof fetch,
+  });
+  await assert.rejects(
+    () => failing.fetchPage({ scope: "all", readerId: null, before: null, pageSize: 12 }),
+    (error: unknown) =>
+      error instanceof FeedRepositoryError && error.code === "http-503",
+  );
+
+  // Panne réseau : même contrat, code distinct.
+  const offline = new HttpFeedRepository({
+    fetchImpl: (async () => {
+      throw new Error("offline");
+    }) as typeof fetch,
+  });
+  await assert.rejects(
+    () => offline.fetchPage({ scope: "all", readerId: null, before: null, pageSize: 12 }),
+    (error: unknown) => error instanceof FeedRepositoryError && error.code === "network",
+  );
+
+  // Lecture seule : l'écriture est refusée explicitement, jamais simulée.
+  await assert.rejects(
+    () => repository.addLike("p-1", "u-1"),
+    (error: unknown) =>
+      error instanceof FeedRepositoryError && error.code === "read-only-adapter",
+  );
+  await assert.rejects(
+    () => repository.removeLike("p-1", "u-1"),
+    (error: unknown) =>
+      error instanceof FeedRepositoryError && error.code === "read-only-adapter",
+  );
+}
+
+async function main(): Promise<void> {
+  verifyQueryParsing();
+  await verifyHttpAdapter();
+  console.log("Route /api/feed : 20 vérifications réussies.");
+}
+
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exitCode = 1;
+});
