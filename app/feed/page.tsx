@@ -37,7 +37,7 @@ import {
 } from "@/lib/repo";
 import { removeSamplePosts, seedSamplePosts, SAMPLE_MARK } from "@/lib/seed";
 import { fetchCommunityFeed } from "@/lib/communities";
-import type { PostWithAuthor, StoryWithAuthor, UserLite } from "@/lib/types";
+import type { PostWithAuthor, StoryWithAuthor } from "@/lib/types";
 import { OPEN_POST_COMPOSER_EVENT } from "@/lib/ui-events";
 import { FEED_DENSITY_KEY, type FeedDensity } from "@/lib/ui-preferences";
 import { FeedRepositoryError } from "@/modules/feed";
@@ -76,13 +76,6 @@ function readDraft(): ComposerDraft {
     return EMPTY_DRAFT;
   }
 }
-
-// `filiere` et `niveau` font partie de la jointure, et non des colonnes
-// copiées du post : ces dernières sont figées à l'insertion, donc changer
-// sa filière laisserait l'ancienne affichée sur tous ses anciens posts.
-// Le fil lit l'auteur, il ne lit jamais une copie de l'auteur.
-const AUTHOR_COLUMNS =
-  "id, prenom, pseudo, avatar_color, account_type, verified, filiere, niveau";
 
 /**
  * Fusionne une page relue avec la liste affichée, sans casser le défilement.
@@ -447,22 +440,17 @@ export default function FeedPage() {
       .channel("feed")
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "posts" },
-        async ({ new: p }: { new: PostWithAuthor }) => {
+        () => {
           // Le temps réel n'annonce un post que s'il appartient à la
           // portée active : sous « Abonnements », un post d'un inconnu
           // n'a rien à faire dans le fil — l'afficher contredirait le
           // filtre que le lecteur vient de poser.
           if (scope !== "all") return;
-          const { data: author } = await supabase
-            .from("users")
-            .select(AUTHOR_COLUMNS)
-            .eq("id", p.author_id)
-            .single();
-
-          setPosts((prev) =>
-            prev === null ? prev : [{ ...(p as PostWithAuthor), author: author as UserLite },
-              ...prev.filter((x: PostWithAuthor) => x.id !== p.id)],
-          );
+          // La charge temps réel ne porte pas l'auteur, et le navigateur ne
+          // va plus le chercher dans `users` : on relit la première page par
+          // `/api/feed`, qui arrive complète. Le canal ne sert plus qu'à
+          // signaler « quelque chose a changé ».
+          void refresh();
         })
       .on("postgres_changes",
         { event: "UPDATE", schema: "public", table: "posts" },
@@ -480,7 +468,7 @@ export default function FeedPage() {
       // l'instance déjà abonnée — `.on()` lèverait alors.
       void supabase.removeChannel(channel);
     };
-  }, [scope]);
+  }, [scope, refresh]);
 
   /**
    * Les stories.
