@@ -1,5 +1,19 @@
 import { supabase } from "@/lib/supabase/client";
 import type { StoryWithAuthor } from "@/lib/types";
+import { STORY_REPLY_MAX } from "@/modules/stories";
+import type {
+  PlacedSticker,
+  PlaceStickerInput,
+  StickerCatalogEntry,
+  StoryEntry,
+} from "@/modules/stories";
+
+export type {
+  PlacedSticker,
+  PlaceStickerInput,
+  StickerCatalogEntry,
+  StoryEntry,
+};
 
 /**
  * Les stories — « ce que le réseau a publié dans les dernières 24 h ».
@@ -97,4 +111,100 @@ export async function publishStory(
 export async function deleteStory(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.from("stories").delete().eq("id", id);
   return { error: error?.message ?? null };
+}
+
+/* ── Interactions : likes, vues, réponses, stickers ──────────────────
+
+   Tout passe par `/api/stories`. Le lecteur ne filtre plus sur
+   l'identifiant qu'il croit être le sien : la route lit la session, et la
+   RLS décide. Deux conséquences voulues : le compteur de likes n'arrive
+   que chez l'auteur, et une réponse est écrite au nom de la session, pas
+   au nom d'un identifiant envoyé par le client.                              */
+
+export interface StoryFeedResponse {
+  stories: StoryEntry[];
+  catalog: StickerCatalogEntry[];
+}
+
+const STORIES_API = "/api/stories";
+
+async function failure(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as { error?: string };
+    return body.error ?? `Erreur ${response.status}`;
+  } catch {
+    return `Erreur ${response.status}`;
+  }
+}
+
+/**
+ * Le fil des stories vivantes, l'état du lecteur et le catalogue.
+ *
+ * `null` signifie « indisponible » — mode démonstration sans base, ou
+ * panne. Le lecteur garde alors ce qu'il affiche au lieu de croire que
+ * plus rien n'existe.
+ */
+export async function fetchStoryFeed(): Promise<StoryFeedResponse | null> {
+  try {
+    const response = await fetch(STORIES_API, {
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: { accept: "application/json" },
+    });
+    if (!response.ok) return null;
+    return (await response.json()) as StoryFeedResponse;
+  } catch {
+    return null;
+  }
+}
+
+export type StoryActionResult<T> = ({ ok: true } & T) | { ok: false; error: string };
+
+async function postStory<T>(payload: Record<string, unknown>): Promise<StoryActionResult<T>> {
+  try {
+    const response = await fetch(STORIES_API, {
+      method: "POST",
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) return { ok: false, error: await failure(response) };
+    return { ok: true, ...((await response.json()) as T) };
+  } catch {
+    return { ok: false, error: "Réseau indisponible" };
+  }
+}
+
+/** Aime ou retire le like. Le compteur n'est renseigné que pour l'auteur. */
+export function toggleStoryLike(
+  storyId: string,
+): Promise<StoryActionResult<{ liked: boolean; likes: number }>> {
+  return postStory<{ liked: boolean; likes: number }>({ action: "like", storyId });
+}
+
+/** Marque la story comme vue — silencieux : une vue n'est pas une action. */
+export async function markStorySeen(storyId: string): Promise<void> {
+  await postStory<Record<string, never>>({ action: "view", storyId }).catch(() => undefined);
+}
+
+/** Réponse privée à l'auteur de la story. */
+export function replyToStory(
+  storyId: string,
+  body: string,
+): Promise<StoryActionResult<{ id: string }>> {
+  const clean = body.trim();
+  if (!clean) return Promise.resolve({ ok: false, error: "réponse vide" });
+  if (clean.length > STORY_REPLY_MAX) {
+    return Promise.resolve({ ok: false, error: `${STORY_REPLY_MAX} caractères maximum` });
+  }
+  return postStory<{ id: string }>({ action: "reply", storyId, body: clean });
+}
+
+/** Pose un sticker aux coordonnées normalisées (0–1). */
+export function placeStorySticker(
+  storyId: string,
+  input: PlaceStickerInput,
+): Promise<StoryActionResult<{ sticker: PlacedSticker }>> {
+  return postStory<{ sticker: PlacedSticker }>({ action: "sticker", storyId, ...input });
 }

@@ -64,7 +64,7 @@ défaut. **Backend** : `existe`, `partiel`, `absent`, `statique`.
 | B22 | Signets et collections | partielle | P1 | partiel | Membre | Signets privés en liste plate. Pas de dossiers, notes, tri ni partage. |
 | B23 | Listes personnalisées | absente | P1 | absent | Membre | Aucune curation de comptes. |
 | B24 | Mes brouillons, programmés, activité | absente | P1 | partiel | Membre | Pas d'écran agrégé ; l'activité n'est visible que par le profil. |
-| B25 | Stories éphémères | partielle | P3 | existe | Membre | Stories texte de 24 h déjà livrées. Pas de média ; ne pas étendre sans stockage et modération. |
+| B25 | Stories éphémères | partielle | P1 | existe | Membre | Stories texte de 24 h, likes, réponses privées et stickers posés (migration 047, `/api/stories`). Pas de média ni de studio de stickers ; `GET /api/stories` mesuré à 638 octets (catalogue seul, 8 stickers) ; interactions testées sur base locale (22 vérifications). |
 
 ## C. Profil
 

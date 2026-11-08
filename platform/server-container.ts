@@ -12,6 +12,8 @@ import { PostgresAuthRepository } from "@/modules/auth/infrastructure/postgres/p
 import type { AuthRepository } from "@/modules/auth/ports/auth-repository";
 import { PostgresFeedRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-repository";
 import { PostgresFeedHydrationRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-hydration-repository";
+import { PostgresStoriesRepository } from "@/modules/stories/infrastructure/postgres/postgres-stories-repository";
+import type { StoriesRepository } from "@/modules/stories/ports/stories-repository";
 import type { FeedRepository } from "@/modules/feed/ports/feed-repository";
 import type { FeedHydrationRepository } from "@/modules/feed/ports/feed-hydration-repository";
 import { withUser } from "./infrastructure/postgres/with-user";
@@ -74,6 +76,19 @@ export function getServerFeedRepository(): FeedRepository {
  */
 export function getServerFeedHydrationRepository(): FeedHydrationRepository {
   return new PostgresFeedHydrationRepository({
+    asUser: (userId, run) => withUser(userId, run),
+  });
+}
+
+/**
+ * Stories et interactions (likes, vues, réponses, stickers).
+ *
+ * Même composition que le fil : l'exécution passe par `withUser`, donc la
+ * RLS décide de ce que le lecteur voit, et les compteurs ne remontent à
+ * l'écran que pour l'auteur.
+ */
+export function getServerStoriesRepository(): StoriesRepository {
+  return new PostgresStoriesRepository({
     asUser: (userId, run) => withUser(userId, run),
   });
 }
