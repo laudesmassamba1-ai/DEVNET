@@ -14,6 +14,7 @@ set -euo pipefail
 TARGETS=(
   .agents
   .claude
+  .github/skills
   AGENTS.md
   CLAUDE.md
   MEMO.md
@@ -22,7 +23,15 @@ TARGETS=(
   skills-lock.json
   alphacode
   goose-x86_64-unknown-linux-gnu.tar.bz2
+  'kimi-debug-session_*'
 )
+
+# Liste citée une fois pour toutes : un nom d'archive ou un dossier de
+# session ne doit pas être réinterprété par le shell de git filter-branch.
+quoted_targets=""
+for target in "${TARGETS[@]}"; do
+  quoted_targets+=" $(printf '%q' "$target")"
+done
 
 if ! git rev-parse --git-dir >/dev/null 2>&1; then
   echo "Ce script doit être lancé depuis le dépôt." >&2
@@ -60,7 +69,7 @@ git branch "$backup"
 echo "Sauvegarde locale : $backup"
 
 FILTER_BRANCH_SQUELCH_WARNING=1 git filter-branch --force --index-filter \
-  "git rm -r --cached --ignore-unmatch ${TARGETS[*]}" \
+  "git rm -r --cached --ignore-unmatch --${quoted_targets}" \
   --prune-empty -- --all
 
 git for-each-ref --format='%(refname)' refs/original | while read -r ref; do
