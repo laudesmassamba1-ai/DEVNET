@@ -19,7 +19,7 @@ import { DEMO_POSTS, DEMO_USERS } from "./data";
  * Les cibles sont résolues **par recherche** dans les posts et
  * commentaires de démonstration, jamais par un identifiant recopié : un
  * `p-3` écrit deux fois dans deux fichiers est exactement le genre de
- * double vérité que ce projet refuse (cf. `MEMO.md`, bug B4).
+ * double vérité que ce projet refuse (cf. bug B4).
  */
 
 const POST = DEMO_POSTS;

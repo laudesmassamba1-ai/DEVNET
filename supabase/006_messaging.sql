@@ -28,7 +28,7 @@
 --     client — c'est-à-dire à personne.
 --
 --  On ne touche pas à `can_message()` : la restriction qui en découle
---  a été levée (voir `MEMO.md`, décisions fermées). Le principe qu'elle
+--  a été levée (décision fermée). Le principe qu'elle
 --  exprimait — un étudiant ne peut pas inonder un professionnel — reste
 --  vrai, mais il est porté par la réputation et la signalature, pas par
 --  une porte d'entrée que le produit lui-même refuse d'emprunter.

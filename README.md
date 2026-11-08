@@ -143,8 +143,6 @@ prolonge sans les renier.
 Aucun angle droit — contrôles, glyphes et images arrondis par la couche de base.
 - **Symboles Adinkra** conservés en filigrane à 10 % d'opacité — jamais sur du texte.
 
-Voir `DESIGN.md` pour le système complet (tokens, typo, mise en page, icônes).
-
 ## Structure
 
 ```
@@ -186,8 +184,7 @@ supabase/             migrations SQL
 scripts/              suites de tests
 ```
 
-Deux documents de référence : `DESIGN.md` (système de design) et `ROADMAP.md`
-(diagnostic produit + plan de fonctionnalités).
+Un document de référence : `ROADMAP.md` (état du produit et plan de fonctionnalités).
 
 ## Scripts
 
@@ -227,8 +224,6 @@ change que des variables CSS, la coloration est calculée une seule fois.
 code. Jamais un bouton.
 
 - `/preview-code` — banc d'essai, montre les deux variantes et le jeu d'icônes
-
-Voir `DESIGN.md` pour le système complet (tokens, typo, mise en page, icônes).
 
 ## Progression : score, séries, paliers
 

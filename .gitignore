@@ -46,3 +46,10 @@ dev-server.log
 
 # captures d'écran de diagnostic
 *.png
+
+# Outils de développement locaux : recréés par les éditeurs, jamais versionnés
+AGENTS.md
+CLAUDE.md
+.agents/
+.claude/
+.freebuff/
