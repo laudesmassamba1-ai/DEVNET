@@ -1545,6 +1545,118 @@
   border-radius: 2px;
 }
 
+/* ============================================================
+   Le lecteur de statuts — direction propre : **la projection**.
+
+   Le reste de l'application est une table de travail : coins doux,
+   surfaces pleines, ombres. Un statut est autre chose — une image
+   qu'on projette, le temps d'un plan. D'où :
+
+   · un fond de salle (dégradé sombre, grain, vignette) qui isole
+     complètement du fil ;
+   · des angles vifs, une ouverture fine autour du contenu ;
+   · des contrôles sans fond, qui n'apparaissent qu'au survol ;
+   · une pellicule de stickers, pas une grille de boutons.
+
+   Rien ici ne fuit hors du lecteur : tout est porté par
+   `.story-stage`.
+   ============================================================ */
+
+.story-stage {
+  --story-stage-bg: #07080a;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(255, 92, 53, 0.10), transparent 60%),
+    radial-gradient(90% 60% at 50% 100%, rgba(23, 233, 165, 0.06), transparent 70%),
+    var(--story-stage-bg);
+}
+
+.story-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+.story-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(70% 55% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.story-stage > * {
+  position: relative;
+  z-index: 1;
+}
+
+.story-aperture {
+  border-radius: 2px;
+  filter: drop-shadow(0 0 26px rgba(255, 92, 53, 0.18));
+}
+
+.story-frame {
+  border-radius: 0;
+  border: 1px solid rgba(236, 233, 223, 0.09);
+}
+
+.story-credit {
+  padding-bottom: 0.5rem;
+  background: linear-gradient(to bottom, rgba(7, 8, 10, 0.88), transparent);
+}
+
+.story-control {
+  border: 1px solid rgba(236, 233, 223, 0.16);
+  border-radius: 2px;
+  background: rgba(7, 8, 10, 0.45);
+  backdrop-filter: blur(6px);
+  transition: border-color var(--d-fast), color var(--d-fast), background-color var(--d-fast);
+}
+
+.story-control:hover {
+  border-color: rgba(236, 233, 223, 0.38);
+}
+
+.story-film span[class*="bg-signal"] {
+  box-shadow: 0 0 8px rgba(255, 92, 53, 0.55);
+}
+
+.story-ticks {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--color-signal);
+  border-radius: 1px;
+  background: var(--color-signal);
+  box-shadow: 0 0 10px rgba(255, 92, 53, 0.5);
+}
+
+.story-caption {
+  background: linear-gradient(to top, rgba(7, 8, 10, 0.55), transparent 70%);
+  font-size: clamp(16px, 2.4vw, 19px) !important;
+  line-height: 1.5 !important;
+  letter-spacing: -0.01em;
+}
+
+.story-tray {
+  border: 1px solid rgba(236, 233, 223, 0.14);
+  border-radius: 2px;
+  background: rgba(7, 8, 10, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.story-tray button[aria-label^="Poser"] {
+  border-radius: 2px;
+  border: 1px solid transparent;
+}
+
+.story-tray button[aria-label^="Poser"]:hover {
+  border-color: var(--color-signal);
+  background: rgba(255, 92, 53, 0.08);
+}
+
 :where(input, textarea, select):focus {
   border-color: var(--color-signal) !important;
   box-shadow: none !important;

@@ -7,9 +7,10 @@ import {
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
+import Link from "next/link";
 import { createPortal } from "react-dom";
 import { Avatar } from "./Avatar";
-import { Icon } from "./Icon";
+import { SectionIcon } from "./SectionIcon";
 import { usePrefersReducedMotion } from "./Motion";
 import type { StoryWithAuthor } from "@/lib/types";
 import { timeAgo } from "@/lib/utils";
@@ -543,7 +544,7 @@ export function StoryViewer({
       role="dialog"
       aria-modal="true"
       aria-label={`Story de ${author?.prenom ?? "quelqu'un"}`}
-      className="overlay-frost fixed inset-0 z-[var(--z-modal)] flex flex-col"
+      className="story-stage fixed inset-0 z-[var(--z-modal)] flex flex-col"
       onPointerDown={(event) => {
         // Un appui sur la story met en pause le temps de la lecture.
         if (event.target === event.currentTarget) setPaused(true);
@@ -551,7 +552,7 @@ export function StoryViewer({
       onPointerUp={() => setPaused(false)}
     >
       {/* Barres de progression : un segment par story de la série. */}
-      <div className="absolute inset-x-0 top-0 z-10 flex gap-1 p-3">
+      <div className="story-film absolute inset-x-0 top-0 z-10 flex gap-1 p-3">
         {stories.map((story, i) => (
           <span key={story.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-void/25">
             <span
@@ -576,7 +577,7 @@ export function StoryViewer({
         ))}
       </div>
 
-      <header className="absolute inset-x-0 top-0 z-10 flex items-center gap-2.5 px-3 pt-4">
+      <header className="story-credit absolute inset-x-0 top-0 z-10 flex items-center gap-2.5 px-3 pt-4">
         <Avatar
           name={author?.prenom}
           color={author?.avatar_color}
@@ -594,7 +595,7 @@ export function StoryViewer({
 
         {isMine && (
           <span className="label-micro mr-1 flex items-center gap-1 text-chalk/70">
-            <Icon name="eye" size={12} />
+            <SectionIcon name="eye" size={13} />
             {count > 0 ? `${count} j’aime` : ""}
           </span>
         )}
@@ -604,10 +605,10 @@ export function StoryViewer({
             type="button"
             onClick={() => onDelete(current.id)}
             aria-label="Supprimer cette story"
-            className="flex size-11 items-center justify-center border
-              border-line-2/30 text-chalk/70 transition-colors hover:border-danger hover:text-danger"
+            className="story-control flex size-11 items-center justify-center
+              text-chalk/70 hover:text-danger"
           >
-            <Icon name="trash" size={14} />
+            <SectionIcon name="trash" size={15} />
           </button>
         )}
 
@@ -616,10 +617,10 @@ export function StoryViewer({
           type="button"
           onClick={onClose}
           aria-label="Fermer"
-          className="flex size-11 items-center justify-center border
-            border-line-2/30 text-chalk transition-colors hover:border-signal hover:bg-signal hover:text-void"
+          className="story-control flex size-11 items-center justify-center
+            text-chalk hover:bg-signal hover:text-void"
         >
-          <Icon name="close" size={16} />
+          <SectionIcon name="close" size={16} strokeWidth={1.9} />
         </button>
       </header>
 
@@ -627,7 +628,7 @@ export function StoryViewer({
         <div className="w-full max-w-[420px]">
           <div
             ref={surfaceRef}
-            className="relative rounded-[calc(var(--radius-card)+4px)] p-[2px]"
+            className="story-aperture relative p-[2px]"
             style={{ background: "var(--story-ring-gradient)" }}
             onDoubleClick={() => void like()}
             onClick={(event) => {
@@ -639,10 +640,10 @@ export function StoryViewer({
               void place(placing, x, y);
             }}
           >
-            <div className="relative flex max-h-[64vh] min-h-[240px] flex-col overflow-hidden rounded-[var(--radius-card)] bg-[var(--overlay-panel-bg)] shadow-sh-3">
+            <div className="story-frame relative flex max-h-[64vh] min-h-[240px] flex-col overflow-hidden bg-[var(--overlay-panel-bg)] shadow-sh-3">
               <div className="flex items-center gap-2 border-b border-line-2 px-4 py-2.5">
-                <Icon name="spark" size={11} strokeWidth={2.4} className="text-signal-d" />
-                <span className="label-micro text-chalk-3">Story</span>
+                <span className="story-ticks" aria-hidden />
+                <span className="label-micro text-chalk-3">Statut</span>
                 <span className="label-micro ml-auto text-chalk-4">
                   {index + 1} / {stories.length}
                 </span>
@@ -657,7 +658,7 @@ export function StoryViewer({
                 />
               ) : null}
 
-              <p className="min-h-[72px] overflow-y-auto whitespace-pre-wrap px-4 py-4
+              <p className="story-caption min-h-[72px] overflow-y-auto whitespace-pre-wrap px-4 py-4
                 text-[16.5px] leading-[1.6] text-chalk">
                 {current.caption}
               </p>
@@ -727,12 +728,11 @@ export function StoryViewer({
                             event.stopPropagation();
                             void removePlaced(sticker);
                           }}
-                          className="absolute flex size-11 items-center justify-center
-                            rounded-full border border-line-2 bg-void/85 text-chalk
-                            hover:border-danger hover:text-danger"
+                          className="story-control absolute flex size-11 items-center justify-center
+                            bg-void/85 text-chalk hover:text-danger"
                           style={{ transform: "translate(-50%, -165%)" }}
                         >
-                          <Icon name="close" size={14} />
+                          <SectionIcon name="close" size={14} />
                         </button>
                       ) : null}
                     </>
@@ -840,22 +840,29 @@ export function StoryViewer({
               type="button"
               onClick={() => setReplyOpen(false)}
               aria-label="Fermer la réponse"
-              className="flex size-11 items-center justify-center text-chalk/70"
+              className="story-control flex size-11 items-center justify-center text-chalk/70"
             >
-              <Icon name="close" size={14} />
+              <SectionIcon name="close" size={14} />
             </button>
           </form>
         ) : trayOpen ? (
-          <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-2">
+          <div className="story-tray p-2">
             <div className="mb-1 flex items-center justify-between px-1">
-              <span className="label-micro text-chalk-3">Choisir un sticker</span>
+              <span className="label-micro text-chalk-3">Pellicule de stickers</span>
+              <Link
+                href="/stickers"
+                className="ml-auto min-h-9 rounded-[var(--radius-chip)] px-2
+                  label-micro text-signal hover:bg-surface-2"
+              >
+                Créer les miens
+              </Link>
               <button
                 type="button"
                 onClick={() => setTrayOpen(false)}
                 aria-label="Fermer les stickers"
-                className="flex size-9 items-center justify-center text-chalk/70"
+                className="flex size-11 items-center justify-center text-chalk/70"
               >
-                <Icon name="close" size={14} />
+                <SectionIcon name="close" size={14} />
               </button>
             </div>
             {state === "loading" ? (
@@ -894,10 +901,10 @@ export function StoryViewer({
               type="button"
               onClick={() => setReplyOpen(true)}
               disabled={isMine || !me}
-              className="flex h-11 flex-1 items-center gap-2 rounded-full border border-line-2/70
-                bg-void/40 px-3 text-[13px] text-chalk/70 disabled:opacity-40"
+              className="story-control flex h-11 flex-1 items-center gap-2 px-3
+                text-[13px] text-chalk/70 disabled:opacity-40"
             >
-              <Icon name="messages" size={14} />
+              <SectionIcon name="reply" size={15} />
               Répondre en privé…
             </button>
 
@@ -907,16 +914,17 @@ export function StoryViewer({
               disabled={isMine || !me}
               aria-pressed={currentLiked}
               aria-label={currentLiked ? "Retirer le j’aime" : "Aimer cette story"}
-              className={`flex size-11 items-center justify-center rounded-full border
+              className={`story-control flex size-11 items-center justify-center
                 transition-colors disabled:opacity-40 ${
-                  currentLiked
-                    ? "border-signal bg-signal text-void"
-                    : "border-line-2/70 bg-void/40 text-chalk"
+                  currentLiked ? "bg-signal text-void" : "text-chalk"
                 }`}
             >
-              <span aria-hidden="true" className="text-[17px] leading-none">
-                {currentLiked ? "♥" : "♡"}
-              </span>
+              <SectionIcon
+                name="heart"
+                size={18}
+                strokeWidth={currentLiked ? 2.4 : 1.7}
+                style={currentLiked ? { fill: "currentColor" } : undefined}
+              />
             </button>
 
             {isMine && (
@@ -924,10 +932,9 @@ export function StoryViewer({
                 type="button"
                 onClick={() => setTrayOpen(true)}
                 aria-label="Poser un sticker"
-                className="flex size-11 items-center justify-center rounded-full border
-                  border-line-2/70 bg-void/40 text-chalk"
+                className="story-control flex size-11 items-center justify-center text-chalk"
               >
-                <Icon name="spark" size={16} />
+                <SectionIcon name="sticker" size={17} />
               </button>
             )}
           </div>

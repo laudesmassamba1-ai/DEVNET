@@ -47,7 +47,14 @@ export type SectionIconName =
   | "lock"
   | "studio"
   | "execute"
-  | "search";
+  | "search"
+  | "close"
+  | "trash"
+  | "reply"
+  | "send"
+  | "sticker"
+  | "heart"
+  | "eye";
 
 const DRAWINGS: Record<SectionIconName, React.ReactNode> = {
   feed: (
@@ -174,6 +181,45 @@ const DRAWINGS: Record<SectionIconName, React.ReactNode> = {
       <circle cx="10.6" cy="10.6" r="6.2" />
       <path d="m15.2 15.2 4.6 4.6" />
       <path d="M8.2 12.8a3.4 3.4 0 0 0 4.8-4.8" />
+    </>
+  ),
+  close: (
+    <path d="M6 6l12 12M18 6 6 18" />
+  ),
+  trash: (
+    <>
+      <path d="M4.8 7.2h14.4" />
+      <path d="M9.2 7.2V5.4a1.4 1.4 0 0 1 1.4-1.4h2.8a1.4 1.4 0 0 1 1.4 1.4v1.8" />
+      <path d="M6.4 7.2 7 19a1.4 1.4 0 0 0 1.4 1.3h7.2A1.4 1.4 0 0 0 17 19l.6-11.8" />
+      <path d="M10.4 11v5.6M13.6 11v5.6" />
+    </>
+  ),
+  reply: (
+    <>
+      <path d="M9.4 6.2 3.6 11l5.8 4.8" />
+      <path d="M3.6 11h9.2a7.2 7.2 0 0 1 7.2 7.2v1" />
+    </>
+  ),
+  send: (
+    <>
+      <path d="M3.8 11.2 20.2 4l-6.4 16-2.6-7z" />
+      <path d="M11.2 13 20.2 4" />
+    </>
+  ),
+  sticker: (
+    <>
+      <path d="M4.4 6.6A2.2 2.2 0 0 1 6.6 4.4h10.8a2.2 2.2 0 0 1 2.2 2.2v6.6l-6.2 6.4H6.6a2.2 2.2 0 0 1-2.2-2.2z" />
+      <path d="M13.4 19.6v-4a2.2 2.2 0 0 1 2.2-2.2h4" />
+      <path d="M8 9.2h.01M12 8.4h.01M15.6 10.4h.01" />
+    </>
+  ),
+  heart: (
+    <path d="M12 20.2s-7.4-4.6-7.4-9.4A4.2 4.2 0 0 1 12 8a4.2 4.2 0 0 1 7.4 2.8c0 4.8-7.4 9.4-7.4 9.4z" />
+  ),
+  eye: (
+    <>
+      <path d="M2.8 12S6.4 6.2 12 6.2 21.2 12 21.2 12 17.6 17.8 12 17.8 2.8 12 2.8 12z" />
+      <circle cx="12" cy="12" r="2.6" />
     </>
   ),
 };
