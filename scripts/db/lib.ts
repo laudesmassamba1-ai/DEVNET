@@ -16,9 +16,14 @@ import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { Client } from "pg";
+import { resolvePostgresConnection } from "../../platform/infrastructure/postgres/tls";
 
 /** Verrou consultatif arbitraire, propre à DevNet. */
 const LOCK_ID = 7_270_707;
+
+/** Bornes de sûreté : une migration ne doit pas bloquer la base indéfiniment. */
+const LOCK_TIMEOUT = "5s";
+const STATEMENT_TIMEOUT = "120s";
 
 /** `001_schema.sql` oui ; `seed.sql` et `20261013…_my_schema.sql` non. */
 const MIGRATION_PATTERN = /^\d{3}_[a-z0-9_]+\.sql$/i;
@@ -50,11 +55,14 @@ export interface MigrateOptions {
   databaseUrl: string;
   migrationsDir: string;
   compatDir: string;
+  apply?: boolean;
   log?: (line: string) => void;
 }
 
 export interface MigrateReport {
+  mode: "simulate" | "apply";
   applied: string[];
+  pending: string[];
   skipped: number;
   orphaned: string[];
 }
@@ -92,6 +100,11 @@ async function ensureLedger(client: Client): Promise<void> {
 }
 
 async function loadApplied(client: Client): Promise<Map<string, string>> {
+  const { rows: ledger } = await client.query<{ present: string | null }>(
+    "select to_regclass('public.schema_migrations')::text as present",
+  );
+  if (!ledger[0]?.present) return new Map();
+
   const { rows } = await client.query<{ name: string; checksum: string }>(
     "select name, checksum from public.schema_migrations",
   );
@@ -119,6 +132,8 @@ async function applyOne(client: Client, migration: Migration, log: (line: string
   const started = Date.now();
   await client.query("begin");
   try {
+    await client.query(`set local lock_timeout = '${LOCK_TIMEOUT}'`);
+    await client.query(`set local statement_timeout = '${STATEMENT_TIMEOUT}'`);
     await client.query(migration.sql);
     await client.query(
       `insert into public.schema_migrations (name, checksum, duration_ms)
@@ -134,25 +149,36 @@ async function applyOne(client: Client, migration: Migration, log: (line: string
   log(`  ✅ ${migration.name} (${Date.now() - started} ms)`);
 }
 
-async function applyPending(
-  client: Client,
+function planReport(
   all: Migration[],
   applied: Map<string, string>,
   log: (line: string) => void,
-): Promise<MigrateReport> {
-  const report: MigrateReport = { applied: [], skipped: 0, orphaned: [] };
+): MigrateReport {
   const known = new Set(all.map((migration) => migration.name));
-  report.orphaned = [...applied.keys()].filter((name) => !known.has(name)).sort();
-
-  for (const name of report.orphaned) {
+  const orphaned = [...applied.keys()].filter((name) => !known.has(name)).sort();
+  for (const name of orphaned) {
     log(`  ⚠️  ${name} est appliquée mais absente du dépôt`);
   }
 
-  for (const migration of all) {
-    if (applied.has(migration.name)) {
-      report.skipped += 1;
-      continue;
-    }
+  const pending = all.filter((migration) => !applied.has(migration.name)).map((migration) => migration.name);
+  return {
+    mode: "simulate",
+    applied: [],
+    pending,
+    skipped: all.length - pending.length,
+    orphaned,
+  };
+}
+
+async function applyPending(
+  client: Client,
+  all: Migration[],
+  report: MigrateReport,
+  log: (line: string) => void,
+): Promise<MigrateReport> {
+  for (const name of report.pending) {
+    const migration = all.find((candidate) => candidate.name === name);
+    if (!migration) continue;
     await applyOne(client, migration, log);
     report.applied.push(migration.name);
   }
@@ -161,19 +187,28 @@ async function applyPending(
 
 export async function runMigrations(options: MigrateOptions): Promise<MigrateReport> {
   const log = options.log ?? ((line: string) => console.log(line));
+  const apply = options.apply ?? false;
   const compat = await listMigrations(options.compatDir);
   const migrations = await listMigrations(options.migrationsDir);
   const all = [...compat, ...migrations];
 
-  const client = new Client({ connectionString: options.databaseUrl });
+  const connection = resolvePostgresConnection(options.databaseUrl);
+  const client = new Client({
+    connectionString: connection.connectionString,
+    ssl: connection.ssl,
+    application_name: "devnet-migrate",
+  });
   await client.connect();
   try {
-    await ensureLedger(client);
     await client.query("select pg_advisory_lock($1)", [LOCK_ID]);
     try {
+      if (apply) await ensureLedger(client);
       const applied = await loadApplied(client);
       assertNoDrift(applied, all);
-      return await applyPending(client, all, applied, log);
+      const report = planReport(all, applied, log);
+      if (!apply) return report;
+      report.mode = "apply";
+      return await applyPending(client, all, report, log);
     } finally {
       await client.query("select pg_advisory_unlock($1)", [LOCK_ID]);
     }
@@ -187,6 +222,20 @@ export function loadEnvFiles(): void {
   for (const file of [".env.local", ".env"]) {
     if (existsSync(file)) process.loadEnvFile(file);
   }
+}
+
+/**
+ * Charge un fichier d'environnement nommé : `--env=remote` lit `.env.remote`.
+ * Évite de faire lire un fichier de secrets par le shell — `zsh` ne cherche
+ * pas le répertoire courant pour `. fichier` sans barre oblique.
+ */
+export function loadEnvFileFor(target?: string): void {
+  if (!target) return;
+  const file = `.env.${target}`;
+  if (!existsSync(file)) {
+    throw new MigrationError(`Fichier ${file} introuvable à la racine du projet.`);
+  }
+  process.loadEnvFile(file);
 }
 
 export function resolveDatabaseUrl(flagValue?: string): string {
