@@ -305,11 +305,15 @@ export class PostgresStoriesRepository implements StoriesRepository {
           [readerId],
         );
 
+        // `story_id` garde le lien vers la story d'origine : l'écran des
+        // messages peut alors afficher une carte, même si le texte a été
+        // corrigé depuis.
         const message = await query<{ id: string }>(
-          `insert into public.direct_messages (conversation_id, author_id, author_name, text)
-           values ($1, $2, $3, $4)
+          `insert into public.direct_messages
+             (conversation_id, author_id, author_name, text, story_id)
+           values ($1, $2, $3, $4, $5)
            returning id::text as id`,
-          [conversationId, readerId, pseudo[0]?.pseudo ?? "", text],
+          [conversationId, readerId, pseudo[0]?.pseudo ?? "", text, storyId],
         );
 
         await query(
@@ -459,12 +463,14 @@ export class PostgresStoriesRepository implements StoriesRepository {
     const rows = await this.dependencies
       .asUser("00000000-0000-0000-0000-000000000000", (query) =>
         query<StickerCatalogEntry & Record<string, unknown>>(
-          `select id, pack, kind, glyph, name,
-                  case when owner_id is null then '' else fg end as fg,
-                  case when owner_id is null then '' else bg end as bg
+          // Un sticker est un média : le catalogue de la maison, fait de
+          // glyphes, ne propose plus rien dans la pellicule. Seuls les
+          // stickers d'image créés par des personnes y entrent.
+          `select id, pack, kind, glyph, name, fg, bg
              from public.stickers
-            where status = 'actif'
-            order by pack, name`,
+            where status = 'actif' and kind = 'image' and owner_id is not null
+            order by created_at desc, name
+            limit 60`,
         ),
       )
       .catch(() => [] as (StickerCatalogEntry & Record<string, unknown>)[]);
