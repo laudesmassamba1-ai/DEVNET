@@ -61,7 +61,17 @@ export interface StoriesRepository {
   /** Bascule le like : `liked` est l'état **après** l'appel. */
   toggleLike(readerId: string, storyId: string): Promise<{ liked: boolean; likes: number }>;
   markSeen(readerId: string, storyId: string): Promise<void>;
-  reply(readerId: string, storyId: string, body: string): Promise<{ id: string }>;
+  /**
+   * Réponse privée. Elle est enregistrée deux fois, volontairement : comme
+   * réponse de story (contexte) et comme message dans la conversation
+   * privée entre les deux personnes, pour qu'elle apparaisse là où l'on
+   * parle vraiment.
+   */
+  reply(
+    readerId: string,
+    storyId: string,
+    body: string,
+  ): Promise<{ id: string; conversationId: string; messageId: string }>;
   placeSticker(
     readerId: string,
     storyId: string,

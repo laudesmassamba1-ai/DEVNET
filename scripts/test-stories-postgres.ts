@@ -156,6 +156,58 @@ async function main(): Promise<void> {
       [story.live, users.reader],
     );
     check("réponse : destinataire = auteur", stored.rows[0]?.to_id === users.author);
+
+    // La réponse doit arriver dans le fil privé, pas seulement dans la table.
+    const conversationId = [users.reader, users.author].sort().join("|");
+    const delivered = await client.query<{ n: string; author_id: string; text: string }>(
+      `select count(*)::text as n,
+              (select author_id::text from public.direct_messages
+                where conversation_id = $1 order by created_at desc limit 1) as author_id,
+              (select text from public.direct_messages
+                where conversation_id = $1 order by created_at desc limit 1) as text
+         from public.direct_messages where conversation_id = $1`,
+      [conversationId],
+    );
+    check("réponse : livrée dans la conversation", delivered.rows[0]?.n === "1", delivered.rows[0]?.n);
+    check("réponse : message signé par le lecteur", delivered.rows[0]?.author_id === users.reader);
+    check(
+      "réponse : texte contextué",
+      (delivered.rows[0]?.text ?? "").includes("Bravo pour cette story"),
+      delivered.rows[0]?.text,
+    );
+
+    const conv = await client.query<{ participants: string[]; last_message: string }>(
+      "select participants, last_message from public.conversations where id = $1",
+      [conversationId],
+    );
+    check("conversation : créée avec les deux personnes", conv.rows[0]?.participants.length === 2);
+    check("conversation : aperçu à jour", (conv.rows[0]?.last_message ?? "").includes("Bravo"));
+
+    const members = await client.query<{ n: string }>(
+      "select count(*)::text as n from public.conversation_members where conversation_id = $1",
+      [conversationId],
+    );
+    check("conversation : deux membres (déclencheur)", members.rows[0]?.n === "2", members.rows[0]?.n);
+
+    // Une seconde réponse réutilise le fil au lieu d'en ouvrir un second.
+    await repository.reply(users.reader, story.live, "Et encore bravo");
+    const convs = await client.query<{ n: string }>(
+      "select count(*)::text as n from public.conversations where id = $1",
+      [conversationId],
+    );
+    check("conversation : une seule par paire", convs.rows[0]?.n === "1", convs.rows[0]?.n);
+
+    // L'auteur lit bien le message reçu, sous son identité.
+    const received = await withUser(
+      users.author,
+      (query) =>
+        query<{ n: string }>(
+          "select count(*)::text as n from public.direct_messages where conversation_id = $1",
+          [conversationId],
+        ),
+      getPostgresPool(),
+    );
+    check("conversation : l'auteur lit les réponses", received[0]?.n === "2", received[0]?.n);
     await repository
       .reply(users.author, story.live, "Je me réponds à moi-même")
       .then(() => check("réponse à soi : refusée", false))

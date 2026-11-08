@@ -188,17 +188,26 @@ export async function markStorySeen(storyId: string): Promise<void> {
   await postStory<Record<string, never>>({ action: "view", storyId }).catch(() => undefined);
 }
 
-/** Réponse privée à l'auteur de la story. */
+/**
+ * Réponse privée à l'auteur de la story.
+ *
+ * Elle arrive dans la conversation privée : la route écrit le message et
+ * rend l'identifiant du fil, pour qu'un futur écran puisse l'ouvrir.
+ */
 export function replyToStory(
   storyId: string,
   body: string,
-): Promise<StoryActionResult<{ id: string }>> {
+): Promise<StoryActionResult<{ id: string; conversationId: string; messageId: string }>> {
   const clean = body.trim();
   if (!clean) return Promise.resolve({ ok: false, error: "réponse vide" });
   if (clean.length > STORY_REPLY_MAX) {
     return Promise.resolve({ ok: false, error: `${STORY_REPLY_MAX} caractères maximum` });
   }
-  return postStory<{ id: string }>({ action: "reply", storyId, body: clean });
+  return postStory<{ id: string; conversationId: string; messageId: string }>({
+    action: "reply",
+    storyId,
+    body: clean,
+  });
 }
 
 /** Pose un sticker aux coordonnées normalisées (0–1). */

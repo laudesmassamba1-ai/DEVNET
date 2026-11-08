@@ -70,7 +70,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       case "reply": {
         const result = await repository.reply(readerId, action.value.storyId, action.value.body);
-        return NextResponse.json({ ok: true, id: result.id }, { headers: NO_STORE });
+        return NextResponse.json(
+          {
+            ok: true,
+            id: result.id,
+            conversationId: result.conversationId,
+            messageId: result.messageId,
+          },
+          { headers: NO_STORE },
+        );
       }
       case "sticker": {
         const { storyId, stickerId, x, y, scale, rotation } = action.value;

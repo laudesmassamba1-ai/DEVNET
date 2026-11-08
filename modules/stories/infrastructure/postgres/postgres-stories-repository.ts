@@ -245,21 +245,75 @@ export class PostgresStoriesRepository implements StoriesRepository {
     }
   }
 
-  async reply(readerId: string, storyId: string, body: string): Promise<{ id: string }> {
+  async reply(
+    readerId: string,
+    storyId: string,
+    body: string,
+  ): Promise<{ id: string; conversationId: string; messageId: string }> {
+    const text = `Réponse à ta story : ${body}`;
+
     try {
-      const rows = await this.dependencies.asUser(readerId, (query) =>
-        query<{ id: string }>(
+      return await this.dependencies.asUser(readerId, async (query) => {
+        const rows = await query<{ id: string; to_id: string }>(
           `insert into public.story_replies (story_id, from_id, to_id, body)
            select s.id, $2, s.author_id, $3
              from public.stories s
             where s.id = $1 and s.expires_at > now() and s.author_id <> $2
-           returning id::text as id`,
+           returning id::text as id, to_id::text as to_id`,
           [storyId, readerId, body],
-        ),
-      );
-      const id = rows[0]?.id;
-      if (!id) throw new StoriesRepositoryError("reply", "story-inaccessible");
-      return { id: String(id) };
+        );
+
+        const row = rows[0];
+        if (!row) throw new StoriesRepositoryError("reply", "story-inaccessible");
+
+        // Même identifiant de conversation que l'écran des messages :
+        // `[a, b].sort().join("|")`. Deux conventions différentes
+        // ouvriraient deux fils pour la même paire de personnes.
+        const conversationId = [readerId, row.to_id].sort().join("|");
+
+        const existing = await query<{ one: number }>(
+          "select 1 as one from public.conversations where id = $1 limit 1",
+          [conversationId],
+        );
+        if (existing.length === 0) {
+          try {
+            // Le déclencheur `conversations_sync_members` remplit
+            // `conversation_members` : la lecture du fil en dépend.
+            await query(
+              `insert into public.conversations (id, participants, last_message, last_message_at)
+               values ($1, array[$2::uuid, $3::uuid], $4, now())`,
+              [conversationId, readerId, row.to_id, text],
+            );
+          } catch (error) {
+            // Conversation créée entre-temps par l'autre personne :
+            // c'est le résultat voulu, pas un échec.
+            if (pgCode(error) !== "23505") throw error;
+          }
+        }
+
+        const pseudo = await query<{ pseudo: string | null }>(
+          "select pseudo from public.users where id = $1 limit 1",
+          [readerId],
+        );
+
+        const message = await query<{ id: string }>(
+          `insert into public.direct_messages (conversation_id, author_id, author_name, text)
+           values ($1, $2, $3, $4)
+           returning id::text as id`,
+          [conversationId, readerId, pseudo[0]?.pseudo ?? "", text],
+        );
+
+        await query(
+          "update public.conversations set last_message = $2, last_message_at = now() where id = $1",
+          [conversationId, text],
+        );
+
+        return {
+          id: String(row.id),
+          conversationId,
+          messageId: String(message[0]?.id ?? ""),
+        };
+      });
     } catch (error) {
       if (error instanceof StoriesRepositoryError) throw error;
       throw new StoriesRepositoryError("reply", pgCode(error), { cause: error });
