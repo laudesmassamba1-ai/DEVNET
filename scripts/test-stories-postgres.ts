@@ -64,9 +64,12 @@ async function seed(client: Client): Promise<void> {
 }
 
 async function cleanup(client: Client): Promise<void> {
-  await client.query("delete from auth.users where id = any($1::uuid[])", [
-    [users.author, users.reader, users.solo],
-  ]);
+  const ids = [users.author, users.reader, users.solo];
+  // Les réponses de story créent une conversation : elle doit partir avant
+  // les comptes, sinon la clé étrangère des messages bloque la suppression.
+  await client.query("delete from public.direct_messages where author_id = any($1::uuid[])", [ids]);
+  await client.query("delete from public.conversations where participants && $1::uuid[]", [ids]);
+  await client.query("delete from auth.users where id = any($1::uuid[])", [ids]);
 }
 
 async function main(): Promise<void> {
@@ -251,6 +254,38 @@ async function main(): Promise<void> {
       })
       .then(() => check("sticker hors bornes : refusé", false))
       .catch(() => check("sticker hors bornes : refusé", true));
+
+    // 6 bis. Déplacement : geste de l'auteur, relu tel quel, refusé aux autres.
+    const moved = await repository.moveSticker(users.author, story.live, placed.id, {
+      x: 0.25,
+      y: 0.75,
+      scale: 1.4,
+      rotation: 12,
+    });
+    check("déplacement : coordonnées enregistrées", moved.x === 0.25 && moved.y === 0.75, moved);
+    check("déplacement : échelle et rotation", moved.scale === 1.4 && moved.rotation === 12, moved);
+
+    const movedFeed = await repository.fetchFeed(users.author);
+    const reread = movedFeed.stories.find((s) => s.id === story.live)?.stickers[0];
+    check("déplacement : relu avec la story", reread?.x === 0.25 && reread.scale === 1.4, reread);
+
+    await repository
+      .moveSticker(users.reader, story.live, placed.id, { x: 0.1, y: 0.1, scale: 1, rotation: 0 })
+      .then(() => check("déplacement d'autrui : refusé", false))
+      .catch(() => check("déplacement d'autrui : refusé", true));
+
+    // 6 ter. Retrait : refusé aux autres, effectif pour l'auteur.
+    await repository
+      .removeSticker(users.reader, story.live, placed.id)
+      .then(() => check("retrait d'autrui : refusé", false))
+      .catch(() => check("retrait d'autrui : refusé", true));
+
+    await repository.removeSticker(users.author, story.live, placed.id);
+    const afterRemove = await repository.fetchFeed(users.author);
+    check(
+      "retrait : le sticker disparaît",
+      (afterRemove.stories.find((s) => s.id === story.live)?.stickers.length ?? 0) === 0,
+    );
 
     // 7. RLS : les vues des autres ne sont pas lisibles par un tiers.
     const snooped = await withUser(

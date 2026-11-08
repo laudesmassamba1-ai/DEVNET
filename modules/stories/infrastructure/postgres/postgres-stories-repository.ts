@@ -386,6 +386,74 @@ export class PostgresStoriesRepository implements StoriesRepository {
     }
   }
 
+  async moveSticker(
+    authorId: string,
+    storyId: string,
+    placedId: string,
+    input: Omit<PlaceStickerInput, "stickerId">,
+  ): Promise<PlacedSticker> {
+    try {
+      const rows = await this.dependencies.asUser(authorId, (query) =>
+        query<StickerRow>(
+          `update public.story_stickers ss
+              set x = $4, y = $5, scale = $6, rotation = $7
+             from public.stories s
+            where ss.id = $3
+              and ss.story_id = $1
+              and ss.placed_by = $2
+              and s.id = ss.story_id
+              and s.expires_at > now()
+           returning ss.id::text as id,
+                     story_id::text as story_id,
+                     sticker_id,
+                     (select kind from public.stickers where id = sticker_id) as kind,
+                     (select glyph from public.stickers where id = sticker_id) as glyph,
+                     (select name from public.stickers where id = sticker_id) as name,
+                     (select fg from public.stickers where id = sticker_id) as fg,
+                     (select bg from public.stickers where id = sticker_id) as bg,
+                     x, y, scale, rotation, z`,
+          [storyId, authorId, placedId, input.x, input.y, input.scale, input.rotation],
+        ),
+      );
+      const row = rows[0];
+      if (!row) throw new StoriesRepositoryError("move-sticker", "sticker-inaccessible");
+      return {
+        id: String(row.id),
+        stickerId: String(row.sticker_id),
+        kind: (row.kind ?? "texte") as PlacedSticker["kind"],
+        glyph: String(row.glyph ?? ""),
+        name: String(row.name ?? ""),
+        fg: String(row.fg ?? ""),
+        bg: String(row.bg ?? ""),
+        x: num(row.x),
+        y: num(row.y),
+        scale: num(row.scale, 1),
+        rotation: num(row.rotation),
+        z: num(row.z),
+      };
+    } catch (error) {
+      if (error instanceof StoriesRepositoryError) throw error;
+      throw new StoriesRepositoryError("move-sticker", pgCode(error), { cause: error });
+    }
+  }
+
+  async removeSticker(authorId: string, storyId: string, placedId: string): Promise<void> {
+    try {
+      const rows = await this.dependencies.asUser(authorId, (query) =>
+        query<{ id: string }>(
+          `delete from public.story_stickers
+            where id = $3 and story_id = $1 and placed_by = $2
+            returning id::text as id`,
+          [storyId, authorId, placedId],
+        ),
+      );
+      if (!rows[0]) throw new StoriesRepositoryError("remove-sticker", "sticker-inaccessible");
+    } catch (error) {
+      if (error instanceof StoriesRepositoryError) throw error;
+      throw new StoriesRepositoryError("remove-sticker", pgCode(error), { cause: error });
+    }
+  }
+
   /** Catalogue de base — public, indépendant du lecteur. */
   async fetchCatalog(): Promise<StickerCatalogEntry[]> {
     const rows = await this.dependencies

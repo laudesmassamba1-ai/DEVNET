@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { createPortal } from "react-dom";
 import { Avatar } from "./Avatar";
 import { Icon } from "./Icon";
@@ -11,7 +17,9 @@ import { STORY_REPLY_MAX } from "@/modules/stories";
 import {
   fetchStoryFeed,
   markStorySeen,
+  moveStorySticker,
   placeStorySticker,
+  removeStorySticker,
   replyToStory,
   toggleStoryLike,
   type PlacedSticker,
@@ -137,6 +145,22 @@ export function StoryViewer({
   // Stickers : choix, puis placement au toucher.
   const [trayOpen, setTrayOpen] = useState(false);
   const [placing, setPlacing] = useState<StickerCatalogEntry | null>(null);
+  /** Sticker sélectionné : c'est lui qui porte la croix de retrait. */
+  const [selected, setSelected] = useState<string | null>(null);
+
+  /**
+   * Geste en cours sur un sticker posé. Un seul doigt déplace, deux doigts
+   * pincent (distance → échelle) et tournent (angle → rotation).
+   */
+  const dragRef = useRef<{
+    id: string;
+    rect: DOMRect;
+    start: { x: number; y: number };
+    origin: { x: number; y: number; scale: number; rotation: number };
+    pointers: Map<number, { x: number; y: number }>;
+    base: { distance: number; angle: number; centerX: number; centerY: number } | null;
+    latest: { x: number; y: number; scale: number; rotation: number };
+  } | null>(null);
 
   const reduced = usePrefersReducedMotion();
   const surfaceRef = useRef<HTMLDivElement | null>(null);
@@ -329,6 +353,183 @@ export function StoryViewer({
     setTrayOpen(false);
   }
 
+  function clamp01(value: number): number {
+    return Math.min(1, Math.max(0, value));
+  }
+
+  function clampScale(value: number): number {
+    return Math.min(3, Math.max(0.5, value));
+  }
+
+  /** Rotation ramenée dans (−180, 180] : un tour complet vaut zéro. */
+  function clampRotation(value: number): number {
+    const wrapped = ((((value + 180) % 360) + 360) % 360) - 180;
+    return Math.round(wrapped * 10) / 10;
+  }
+
+  function setStickerValues(
+    storyId: string,
+    placedId: string,
+    next: { x: number; y: number; scale: number; rotation: number },
+  ) {
+    setPlaced((all) => ({
+      ...all,
+      [storyId]: (all[storyId] ?? []).map((item) =>
+        item.id === placedId ? { ...item, ...next } : item,
+      ),
+    }));
+  }
+
+  function beginDrag(
+    event: ReactPointerEvent<HTMLButtonElement>,
+    sticker: PlacedSticker,
+  ) {
+    if (!isMine || placing) return;
+    const rect = surfaceRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    event.stopPropagation();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setSelected(sticker.id);
+    dragRef.current = {
+      id: sticker.id,
+      rect,
+      start: { x: event.clientX, y: event.clientY },
+      origin: { x: sticker.x, y: sticker.y, scale: sticker.scale, rotation: sticker.rotation },
+      pointers: new Map([[event.pointerId, { x: event.clientX, y: event.clientY }]]),
+      base: null,
+      latest: { x: sticker.x, y: sticker.y, scale: sticker.scale, rotation: sticker.rotation },
+    };
+  }
+
+  function moveDrag(event: ReactPointerEvent<HTMLButtonElement>) {
+    const drag = dragRef.current;
+    if (!drag) return;
+    drag.pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    const pointers = [...drag.pointers.values()];
+
+    let next: { x: number; y: number; scale: number; rotation: number };
+    if (pointers.length >= 2) {
+      const [a, b] = pointers;
+      const distance = Math.max(1, Math.hypot(b.x - a.x, b.y - a.y));
+      const angle = (Math.atan2(b.y - a.y, b.x - a.x) * 180) / Math.PI;
+      const centerX = (a.x + b.x) / 2;
+      const centerY = (a.y + b.y) / 2;
+      if (!drag.base) drag.base = { distance, angle, centerX, centerY };
+      next = {
+        x: clamp01(drag.origin.x + (centerX - drag.base.centerX) / drag.rect.width),
+        y: clamp01(drag.origin.y + (centerY - drag.base.centerY) / drag.rect.height),
+        scale: clampScale(drag.origin.scale * (distance / drag.base.distance)),
+        rotation: clampRotation(drag.origin.rotation + angle - drag.base.angle),
+      };
+    } else {
+      const [point] = pointers;
+      next = {
+        x: clamp01(drag.origin.x + (point.x - drag.start.x) / drag.rect.width),
+        y: clamp01(drag.origin.y + (point.y - drag.start.y) / drag.rect.height),
+        scale: drag.origin.scale,
+        rotation: drag.origin.rotation,
+      };
+    }
+
+    drag.latest = next;
+    if (current) setStickerValues(current.id, drag.id, next);
+  }
+
+  async function endDrag(event: ReactPointerEvent<HTMLButtonElement>) {
+    const drag = dragRef.current;
+    if (!drag) return;
+    drag.pointers.delete(event.pointerId);
+
+    if (drag.pointers.size > 0) {
+      // Un doigt reste posé : on repart de la position atteinte.
+      const [point] = [...drag.pointers.values()];
+      drag.origin = { ...drag.latest };
+      drag.start = { x: point.x, y: point.y };
+      drag.base = null;
+      return;
+    }
+
+    dragRef.current = null;
+    const storyId = current?.id;
+    if (!storyId) return;
+    const next = drag.latest;
+    const moved =
+      next.x !== drag.origin.x ||
+      next.y !== drag.origin.y ||
+      next.scale !== drag.origin.scale ||
+      next.rotation !== drag.origin.rotation;
+    if (!moved) return;
+
+    const result = await moveStorySticker(storyId, drag.id, next);
+    if (!result.ok) {
+      setStickerValues(storyId, drag.id, drag.origin);
+      setFeedback({ kind: "error", text: result.error });
+      return;
+    }
+    setStickerValues(storyId, drag.id, {
+      x: result.sticker.x,
+      y: result.sticker.y,
+      scale: result.sticker.scale,
+      rotation: result.sticker.rotation,
+    });
+  }
+
+  async function nudge(event: React.KeyboardEvent<HTMLButtonElement>, sticker: PlacedSticker) {
+    if (!isMine || !current) return;
+    const step = event.shiftKey ? 0.1 : 0.02;
+    const delta =
+      event.key === "ArrowLeft"
+        ? [-step, 0]
+        : event.key === "ArrowRight"
+          ? [step, 0]
+          : event.key === "ArrowUp"
+            ? [0, -step]
+            : event.key === "ArrowDown"
+              ? [0, step]
+              : null;
+    if (!delta) return;
+
+    event.preventDefault();
+    const storyId = current.id;
+    const next = {
+      x: clamp01(sticker.x + delta[0]),
+      y: clamp01(sticker.y + delta[1]),
+      scale: sticker.scale,
+      rotation: sticker.rotation,
+    };
+    setStickerValues(storyId, sticker.id, next);
+    const result = await moveStorySticker(storyId, sticker.id, next);
+    if (!result.ok) {
+      setStickerValues(storyId, sticker.id, {
+        x: sticker.x,
+        y: sticker.y,
+        scale: sticker.scale,
+        rotation: sticker.rotation,
+      });
+      setFeedback({ kind: "error", text: result.error });
+    }
+  }
+
+  async function removePlaced(sticker: PlacedSticker) {
+    if (!current) return;
+    const storyId = current.id;
+    const before = placed[storyId] ?? [];
+    setPlaced((all) => ({
+      ...all,
+      [storyId]: (all[storyId] ?? []).filter((item) => item.id !== sticker.id),
+    }));
+    setSelected(null);
+
+    const result = await removeStorySticker(storyId, sticker.id);
+    if (!result.ok) {
+      setPlaced((all) => ({ ...all, [storyId]: before }));
+      setFeedback({ kind: "error", text: result.error });
+      return;
+    }
+    setFeedback({ kind: "ok", text: "Sticker retiré" });
+  }
+
   if (!current) return null;
   if (typeof document === "undefined" || !monte) return null;
 
@@ -461,28 +662,99 @@ export function StoryViewer({
                 {current.caption}
               </p>
 
-              {/* Stickers posés — positionnés en fraction de la surface. */}
+              {/*
+                Stickers posés — positionnés en fraction de la surface.
+
+                Chez l'auteur, un sticker est un objet qu'on manipule : un
+                doigt le déplace, deux doigts le pincent (échelle) et le
+                tournent. Chez les autres, il reste une décoration : pas de
+                poignée, pas de geste, rien qui laisse croire qu'on peut y
+                toucher.
+              */}
               {currentPlaced.map((sticker) => (
                 <span
                   key={sticker.id}
-                  title={sticker.name}
-                  className="pointer-events-none absolute select-none"
-                  style={{
-                    left: `${sticker.x * 100}%`,
-                    top: `${sticker.y * 100}%`,
-                    transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
-                    fontSize: "34px",
-                    lineHeight: 1,
-                  }}
+                  className="absolute"
+                  style={{ left: `${sticker.x * 100}%`, top: `${sticker.y * 100}%` }}
                 >
-                  <StickerFace
-                    kind={sticker.kind}
-                    glyph={sticker.glyph}
-                    fg={sticker.fg}
-                    bg={sticker.bg}
-                    assetId={sticker.stickerId}
-                    size={46}
-                  />
+                  {isMine ? (
+                    <>
+                      <button
+                        type="button"
+                        title={sticker.name}
+                        aria-label={`Déplacer ${sticker.name} — un doigt pour déplacer, deux pour pincer et tourner, flèches pour ajuster`}
+                        aria-pressed={selected === sticker.id}
+                        onPointerDown={(event) => beginDrag(event, sticker)}
+                        onPointerMove={moveDrag}
+                        onPointerUp={endDrag}
+                        onPointerCancel={endDrag}
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          setSelected(sticker.id);
+                        }}
+                        onKeyDown={(event) => {
+                          if (event.key === "Delete" || event.key === "Backspace") {
+                            event.preventDefault();
+                            void removePlaced(sticker);
+                            return;
+                          }
+                          void nudge(event, sticker);
+                        }}
+                        className={`absolute flex items-center justify-center rounded-[var(--radius-chip)] p-1
+                          outline-2 outline-offset-2 outline-signal ${
+                            placing ? "pointer-events-none" : "cursor-grab touch-none active:cursor-grabbing"
+                          }`}
+                        style={{
+                          transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
+                          outlineStyle: selected === sticker.id ? "solid" : "none",
+                        }}
+                      >
+                        <StickerFace
+                          kind={sticker.kind}
+                          glyph={sticker.glyph}
+                          fg={sticker.fg}
+                          bg={sticker.bg}
+                          assetId={sticker.stickerId}
+                          size={46}
+                        />
+                      </button>
+
+                      {selected === sticker.id ? (
+                        <button
+                          type="button"
+                          aria-label={`Retirer ${sticker.name}`}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            void removePlaced(sticker);
+                          }}
+                          className="absolute flex size-11 items-center justify-center
+                            rounded-full border border-line-2 bg-void/85 text-chalk
+                            hover:border-danger hover:text-danger"
+                          style={{ transform: "translate(-50%, -165%)" }}
+                        >
+                          <Icon name="close" size={14} />
+                        </button>
+                      ) : null}
+                    </>
+                  ) : (
+                    <span
+                      title={sticker.name}
+                      aria-hidden
+                      className="pointer-events-none absolute select-none rounded-[var(--radius-chip)] p-1"
+                      style={{
+                        transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
+                      }}
+                    >
+                      <StickerFace
+                        kind={sticker.kind}
+                        glyph={sticker.glyph}
+                        fg={sticker.fg}
+                        bg={sticker.bg}
+                        assetId={sticker.stickerId}
+                        size={46}
+                      />
+                    </span>
+                  )}
                 </span>
               ))}
 

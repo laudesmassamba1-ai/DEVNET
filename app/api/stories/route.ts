@@ -91,6 +91,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         });
         return NextResponse.json({ ok: true, sticker }, { headers: NO_STORE });
       }
+      case "move-sticker": {
+        const { storyId, placedId, x, y, scale, rotation } = action.value;
+        const sticker = await repository.moveSticker(readerId, storyId, placedId, {
+          x,
+          y,
+          scale,
+          rotation,
+        });
+        return NextResponse.json({ ok: true, sticker }, { headers: NO_STORE });
+      }
+      case "remove-sticker": {
+        await repository.removeSticker(readerId, action.value.storyId, action.value.placedId);
+        return NextResponse.json({ ok: true }, { headers: NO_STORE });
+      }
     }
   } catch (error) {
     if (error instanceof StoriesRepositoryError) {

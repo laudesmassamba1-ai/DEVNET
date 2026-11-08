@@ -210,6 +210,28 @@ export function replyToStory(
   });
 }
 
+/** Déplace, tourne et redimensionne un sticker posé — par son auteur seul. */
+export function moveStorySticker(
+  storyId: string,
+  placedId: string,
+  input: Omit<PlaceStickerInput, "stickerId">,
+): Promise<StoryActionResult<{ sticker: PlacedSticker }>> {
+  return postStory<{ sticker: PlacedSticker }>({
+    action: "move-sticker",
+    storyId,
+    placedId,
+    ...input,
+  });
+}
+
+/** Retire un sticker posé. La story reste. */
+export function removeStorySticker(
+  storyId: string,
+  placedId: string,
+): Promise<StoryActionResult<Record<string, never>>> {
+  return postStory<Record<string, never>>({ action: "remove-sticker", storyId, placedId });
+}
+
 /** Pose un sticker aux coordonnées normalisées (0–1). */
 export function placeStorySticker(
   storyId: string,

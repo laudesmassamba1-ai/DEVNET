@@ -83,6 +83,18 @@ export interface StoriesRepository {
     storyId: string,
     input: PlaceStickerInput,
   ): Promise<PlacedSticker>;
+  /**
+   * Déplace, tourne ou redimensionne un sticker déjà posé. Réservé à
+   * l'auteur de la story, tant qu'elle est vivante.
+   */
+  moveSticker(
+    readerId: string,
+    storyId: string,
+    placedId: string,
+    input: Omit<PlaceStickerInput, "stickerId">,
+  ): Promise<PlacedSticker>;
+  /** Retire un sticker posé — la story, elle, reste. */
+  removeSticker(readerId: string, storyId: string, placedId: string): Promise<void>;
 }
 
 export class StoriesRepositoryError extends Error {
@@ -92,6 +104,8 @@ export class StoriesRepositoryError extends Error {
       | "toggle-like"
       | "mark-seen"
       | "reply"
+      | "move-sticker"
+      | "remove-sticker"
       | "place-sticker",
     readonly code: string,
     options?: ErrorOptions,
