@@ -1476,17 +1476,73 @@
   outline-offset: 3px;
 }
 
+/* ============================================================
+   Deux densités, deux directions artistiques — pas deux réglages
+   de la même mise en page.
+
+   · Confortable : le fil comme une page. Grands blancs, coins larges,
+     ombre douce, texte de lecture.
+   · Compacte : le fil comme un terminal. Hauteur au trait, angles
+     quasi vifs, aucune ombre, métadonnées en monospace, texte dense.
+
+   Les deux partagent les couleurs et la typographie ; ce qui change
+   est le rythme et la matière — c'est ce qui les rend reconnaissables
+   sans étiquette.
+   ============================================================ */
+
+[data-feed-density="comfortable"] .feed-post {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sh-1);
+  margin-bottom: 1rem;
+}
+
+[data-feed-density="comfortable"] .feed-post__content {
+  padding-block: 1.5rem;
+  padding-inline: 1.25rem;
+}
+
+[data-feed-density="comfortable"] .feed-post__text {
+  font-size: 15.5px;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+
+[data-feed-density="compact"] .feed-post {
+  border-radius: 2px;
+  box-shadow: none;
+  margin-bottom: 0;
+  border-bottom-width: 1px;
+}
+
 [data-feed-density="compact"] .feed-post__content {
-  padding-block: 0.75rem;
+  padding-block: 0.6rem;
+  padding-inline: 0.75rem;
 }
 
 [data-feed-density="compact"] .feed-post__gutter {
-  padding-block: 0.75rem;
+  padding-block: 0.6rem;
+  padding-inline: 0.5rem;
 }
 
 [data-feed-density="compact"] .feed-post__text {
-  margin-bottom: 0.75rem;
-  line-height: 1.45;
+  margin-bottom: 0.45rem;
+  font-size: 13.5px;
+  line-height: 1.42;
+  letter-spacing: -0.005em;
+}
+
+[data-feed-density="compact"] .feed-post__meta,
+[data-feed-density="compact"] .label-micro {
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+[data-feed-density="compact"] .feed-post__actions {
+  gap: 0.25rem;
+}
+
+[data-feed-density="compact"] .feed-post__actions button {
+  min-height: 32px;
+  border-radius: 2px;
 }
 
 :where(input, textarea, select):focus {

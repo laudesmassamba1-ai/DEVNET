@@ -10,11 +10,12 @@ export type {
   StickerActionRead,
   StickerColorToken,
 } from "./application/sticker-input";
-export {
-  reencodeSticker,
-  STICKER_MAX_SIDE,
-  STICKER_OUTPUT_MAX_BYTES,
-} from "./infrastructure/image/reencode";
+/*
+ * Le re-encodage n'est **pas** réexporté ici : l'index est importé par un
+ * composant client, et `sharp` est un module natif de serveur. L'export
+ * l'aurait tiré dans le paquet du navigateur. Le serveur l'importe
+ * directement depuis `infrastructure/image/reencode`.
+ */
 export { StickersRepositoryError } from "./ports/stickers-repository";
 export type {
   ImageStickerInput,

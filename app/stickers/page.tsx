@@ -158,8 +158,8 @@ export default function StickerStudioPage() {
 
   function readFile(file: File | undefined) {
     if (!file) return;
-    if (!/^image\/(png|jpeg|webp)$/.test(file.type)) {
-      toast("PNG, JPEG ou WebP attendu", "err");
+    if (!/^image\/(png|jpeg|webp|gif)$/.test(file.type)) {
+      toast("PNG, JPEG, WebP ou GIF attendu", "err");
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
@@ -308,13 +308,13 @@ export default function StickerStudioPage() {
           ) : (
             <div className="mt-4">
               <label htmlFor="sticker-file" className="label-micro text-chalk-3">
-                Image — PNG, JPEG ou WebP, 2 Mo maximum
+                Image ou GIF — 2 Mo maximum, 80 images, 1,5 Mo re-encodé
               </label>
               <input
                 id="sticker-file"
                 ref={fileRef}
                 type="file"
-                accept="image/png,image/jpeg,image/webp"
+                accept="image/png,image/jpeg,image/webp,image/gif"
                 onChange={(event) => readFile(event.target.files?.[0])}
                 className="mt-1 block w-full text-sm text-chalk-2 file:mr-3 file:min-h-11
                   file:rounded-[var(--radius-chip)] file:border-0 file:bg-surface-2

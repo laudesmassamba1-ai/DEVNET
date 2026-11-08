@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Icon, type IconName } from "./Icon";
+import { SectionIcon } from "./SectionIcon";
 import { Logo } from "./Logo";
 import { PendingStatus, usePendingVisible } from "./Pending";
 import { Sheet } from "./Sheet";
@@ -243,7 +244,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
                   rounded-[var(--radius-input)] px-3 text-[14px]
                   ${active ? "bg-surface-2 text-signal" : "text-chalk-2 hover:bg-surface-2"}`}
               >
-                <Icon name={link.icon} size={18} />
+                <SectionIcon name={link.icon} size={18} />
                 {link.label}
               </Link>
             );

@@ -10,11 +10,13 @@ import sharp from "sharp";
 import {
   decodeDataUrl,
   readStickerAction,
-  reencodeSticker,
   STICKER_GLYPH_MAX,
   STICKER_NAME_MAX,
-  STICKER_OUTPUT_MAX_BYTES,
 } from "../modules/stickers";
+import {
+  reencodeSticker,
+  STICKER_OUTPUT_MAX_BYTES,
+} from "../modules/stickers/infrastructure/image/reencode";
 
 let failures = 0;
 

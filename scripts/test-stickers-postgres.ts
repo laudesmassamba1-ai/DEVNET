@@ -15,7 +15,7 @@ import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import sharp from "sharp";
 import { PostgresStickersRepository } from "../modules/stickers/infrastructure/postgres/postgres-stickers-repository";
-import { reencodeSticker, STICKER_OUTPUT_MAX_BYTES } from "../modules/stickers";
+import { reencodeSticker, STICKER_OUTPUT_MAX_BYTES } from "../modules/stickers/infrastructure/image/reencode";
 import { closePostgresPool, getPostgresPool } from "../platform/infrastructure/postgres/pool";
 import { withUser } from "../platform/infrastructure/postgres/with-user";
 import { parseEndpoint } from "./db/guard";

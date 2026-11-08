@@ -77,7 +77,7 @@ function visibility(value: unknown): "prive" | "public" {
   return value === "public" ? "public" : "prive";
 }
 
-const DATA_URL = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/;
+const DATA_URL = /^data:image\/(png|jpeg|webp|gif);base64,([A-Za-z0-9+/=]+)$/;
 
 export function readStickerAction(raw: unknown): StickerActionRead {
   if (!isRecord(raw)) return { ok: false, error: "corps de requête invalide" };
@@ -116,7 +116,7 @@ export function readStickerAction(raw: unknown): StickerActionRead {
   if (raw.action === "image") {
     const dataUrl = typeof raw.dataUrl === "string" ? raw.dataUrl : "";
     if (!DATA_URL.test(dataUrl)) {
-      return { ok: false, error: "image PNG, JPEG ou WebP attendue" };
+      return { ok: false, error: "image PNG, JPEG, WebP ou GIF attendue" };
     }
     const base64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
     // Une chaîne base64 de 2 Mo d'image pèse ~2,7 Mo de texte : on borne la
