@@ -2,7 +2,7 @@
 
 - **Date** : 2026-11-04
 - **Statut** : accepté
-- **Contexte** : Phase 2 (« environnement local reproductible »), skill §5.1
+- **Contexte** : Phase 2 (« environnement local reproductible »)
 
 ## Décision
 
@@ -49,5 +49,4 @@ vérifié par `scripts/db/test-migrate.ts` (rejeu, dérive, hôte distant).
 
 Le rôle de connexion applicatif. Aujourd'hui les tables appartiennent au
 rôle qui migre ; en production l'application devra se connecter avec un rôle
-**non propriétaire** pour que la RLS s'applique réellement (skill §5.2,
-piège n°2). Cela arrive avec l'adaptateur Postgres, en Phase 5, et non avant.
+**non propriétaire** pour que la RLS s'applique réellement (piège n°2). Cela arrive avec l'adaptateur Postgres, en Phase 5, et non avant.

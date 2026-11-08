@@ -10,7 +10,7 @@
 | Langage | **TypeScript** strict |
 | Styles | **Tailwind CSS v4** (tokens CSS-first via `@theme`) |
 | Base actuelle | **Supabase** (compatibilité en transition) |
-| Cible envisagée | PostgreSQL 17 chez Systalink, capacité annoncée de 5 Go (non achetée ni vérifiée) |
+| Cible | PostgreSQL **18.3** chez Systalink (mesuré le 2026-11-08) ; miroir local PostgreSQL 18.3 |
 | Auth | Supabase Auth (email + mot de passe) |
 | Temps réel | Supabase Realtime (`postgres_changes`) |
 | Polices | `next/font` — Fraunces, Space Grotesk, JetBrains Mono |
@@ -45,10 +45,26 @@ Limite assumée : le temps réel local est un bus en mémoire, donc **un seul on
 ## Base de données
 
 La connexion applicative actuelle utilise encore la compatibilité Supabase.
-La cible annoncée est PostgreSQL 17 avec 5 Go chez Systalink, mais elle n'est
-pas encore achetée. Aucun accès distant, droit, SSL ni extension n'a donc été
-vérifié ; ne lancez pas de migration distante. La configuration locale
-PostgreSQL 17 et les scripts de migration sont conservés pour les essais.
+La cible est PostgreSQL direct chez Systalink ; le miroir local est PostgreSQL
+18.3, aligné sur la version majeure mesurée. La Phase 1 du 2026-11-08 a mesuré une cible **PostgreSQL 18.3**, TLS
+TLSv1.3, `max_connections = 100`, sans schéma `auth` ni rôles RLS. Les
+migrations sont bloquées : `devnet_u` n'a pas `CREATEROLE`. Ne lancez aucune
+migration distante sans le runbook et sans confirmation.
+
+- [`docs/ops/db-capabilities.md`](docs/ops/db-capabilities.md) — mesures locales et inconnues distantes
+- [`docs/ops/runbook.md`](docs/ops/runbook.md) — reconstruction locale, migrations, Phase 1
+- [`docs/ops/incidents.md`](docs/ops/incidents.md) — diagnostic et ticket Systalink
+- [`docs/ops/backups.md`](docs/ops/backups.md) — sauvegarde, restauration, dérive
+- [`docs/ops/exit-plan.md`](docs/ops/exit-plan.md) — changer de PostgreSQL en moins d'un jour
+
+Commandes locales :
+
+```bash
+npm run db:guard                 # cible masquée + garde-fous
+npm run db:migrate               # simulation par défaut
+npm run db:migrate -- --apply    # écrit réellement
+npm run test:db-rls              # RLS et identité, base locale requise
+```
 
 Dans Supabase → SQL Editor, exécuter dans l'ordre :
 
@@ -150,7 +166,7 @@ prolonge sans les renier.
 Aucun angle droit — contrôles, glyphes et images arrondis par la couche de base.
 - **Symboles Adinkra** conservés en filigrane à 10 % d'opacité — jamais sur du texte.
 
-Voir `DESIGN.md` pour le système complet (tokens, typo, mise en page, icônes).
+Voir `docs/design-log.md` pour les décisions de design et les captures.
 
 ## Structure
 
@@ -193,8 +209,8 @@ supabase/             migrations SQL
 scripts/              suites de tests
 ```
 
-Deux documents de référence : `DESIGN.md` (système de design) et `ROADMAP.md`
-(diagnostic produit + plan de fonctionnalités).
+Un document de référence : `ROADMAP.md` (état du produit et plan de
+fonctionnalités).
 
 ## Scripts
 
@@ -235,7 +251,7 @@ code. Jamais un bouton.
 
 - `/preview-code` — banc d'essai, montre les deux variantes et le jeu d'icônes
 
-Voir `DESIGN.md` pour le système complet (tokens, typo, mise en page, icônes).
+Voir `docs/design-log.md` pour les décisions de design et les captures.
 
 ## Progression : score, séries, paliers
 

@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 !.env.local.example
 
 # vercel
@@ -68,3 +69,10 @@ __pycache__/
 /docs-technique.pdf
 /Capture*.png
 /parcours-*.png
+
+# Outils de développement locaux : recréés par les éditeurs, jamais versionnés
+AGENTS.md
+CLAUDE.md
+.agents/
+.claude/
+.freebuff/

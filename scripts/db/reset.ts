@@ -3,10 +3,11 @@
  *
  * Garde-fou : refuse tout hôte qui n'est pas local. Un `DATABASE_URL`
  * distant recopié par erreur dans `.env.local` ne doit pas pouvoir
- * effacer une base réelle (skill §5.4 : jamais de reset en production).
+ * effacer une base réelle (jamais de reset en production).
  */
 import path from "node:path";
 import { Client } from "pg";
+import { assertSafeTarget, readTarget } from "./guard";
 import { loadEnvFiles, isLocalHost, MigrationError, parseFlag, resolveDatabaseUrl, runMigrations } from "./lib";
 
 function assertLocal(databaseUrl: string): string {
@@ -43,7 +44,15 @@ async function dropSchemas(databaseUrl: string): Promise<void> {
 async function main(): Promise<void> {
   loadEnvFiles();
   const databaseUrl = resolveDatabaseUrl(parseFlag(process.argv, "database-url"));
+  const target = readTarget();
+  const description = assertSafeTarget({
+    databaseUrl,
+    target,
+    operation: "reset",
+    confirmRemote: process.env.CONFIRM_REMOTE,
+  });
   const host = assertLocal(databaseUrl);
+  console.log(`Réinitialisation — ${description}`);
 
   if (!process.argv.includes("--yes")) {
     if (!process.stdin.isTTY) {
@@ -64,11 +73,13 @@ async function main(): Promise<void> {
   await dropSchemas(databaseUrl);
   console.log(`Base vidée sur ${host}.`);
 
-  await runMigrations({
+  const report = await runMigrations({
     databaseUrl,
     migrationsDir: path.resolve(parseFlag(process.argv, "dir") ?? "supabase"),
     compatDir: path.resolve("db/compat"),
+    apply: true,
   });
+  console.log(`${report.applied.length} migration(s) appliquée(s).`);
 }
 
 main().catch((error: unknown) => {

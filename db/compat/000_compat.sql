@@ -9,7 +9,7 @@
 --  Ce fichier recrée **ces noms**, pas Supabase : aucune requête ne
 --  sort de la base, aucune clé n'est nécessaire. Il est le seul
 --  endroit où un nom propre à un hébergeur a le droit d'exister
---  (règle d'indépendance, skill §4).
+--  (règle d'indépendance du projet).
 --
 --  Idempotent : peut être rejoué sur une base déjà préparée.
 --  Exécuté par `npm run db:migrate`, avant les migrations, et suivi
@@ -54,7 +54,7 @@ create table if not exists auth.users (
 -- Identité posée par requête, dans la transaction, jamais au niveau
 -- session : `set_config(..., true)` est local à la transaction, donc
 -- un pool ne peut pas faire fuir l'identité d'un utilisateur à
--- l'autre (piège mortel n°1 du skill §5.2).
+-- l'autre (piège classique des pools de connexions).
 create or replace function auth.uid()
 returns uuid
 language sql
@@ -74,8 +74,8 @@ $$;
 -- ── Publication temps réel ─────────────────────────────────
 -- Les migrations font `alter publication supabase_realtime add table`.
 -- Sans cette publication, elles échouent dès la 001. Elle ne sert à
--- rien en PostgreSQL direct (le temps réel passera par du polling,
--- skill §7) mais elle évite de réécrire l'historique.
+-- rien en PostgreSQL direct (le temps réel passera par du polling)
+-- mais elle évite de réécrire l'historique.
 do $$
 begin
   if not exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
@@ -103,6 +103,30 @@ alter default privileges in schema public
 -- Nouvelle sessions uniquement : `public` d'abord, puis `extensions`.
 do $$
 begin
-  execute format('alter database %I set search_path = public, extensions', current_database());
+  if current_setting('is_superuser') = 'on'
+     or pg_has_role(current_user, 'pg_database_owner', 'member')
+     or pg_has_role(
+          current_user,
+          (select datdba from pg_database where datname = current_database()),
+          'member'
+        )
+  then
+    execute format(
+      'alter database %I set search_path = public, extensions',
+      current_database()
+    );
+  else
+    -- Rôle applicatif non propriétaire : le fournisseur peut interdire
+    -- ALTER DATABASE. Le search_path du rôle suffit à la migration ; les
+    -- appels à `extensions.digest(...)` restent qualifiés.
+    begin
+      execute format(
+        'alter role %I set search_path = public, extensions',
+        current_user
+      );
+    exception when insufficient_privilege then
+      raise notice 'search_path non modifié : % n''a pas les droits nécessaires', current_user;
+    end;
+  end if;
 end
 $$;

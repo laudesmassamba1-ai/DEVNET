@@ -1,3 +1,5 @@
+> **Note 2026-11-08** : ce document est un instantané historique. Le miroir local est désormais PostgreSQL 18.3, les migrations vont jusqu’à 044 et l’exploitation est décrite dans `docs/ops/` et l’ADR 0011.
+
 # État de référence — Phase 0
 
 > Mesuré le 2026-11-04 sur `refactor/independence` (commit `4b0a81f`), Node
@@ -19,9 +21,9 @@ ligne). Il est **déjà corrigé** : `app/layout.tsx` utilise `next/font/local`
 avec les fichiers de `app/fonts/` (Inter variable + IBM Plex Mono 400/500/600/700).
 Le build passe donc sans accès réseau. ✅ vérifié, pas seulement relu.
 
-## 2. Compteurs réels (et écarts avec le skill)
+## 2. Compteurs réels (et écarts avec l'estimation initiale)
 
-| Mesure | Valeur réelle | Ce qu'annonçait le skill §1 |
+| Mesure | Valeur réelle | Estimation initiale |
 |---|---|---|
 | Suites dans `npm test` | **36** | 33 |
 | Fichiers `supabase/NNN_*.sql` | **40** (001 → 040) | 39 |
@@ -29,7 +31,7 @@ Le build passe donc sans accès réseau. ✅ vérifié, pas seulement relu.
 | Fichiers passant par le client maison `lib/supabase/*` | **51** | — (le chiffre 56 les comptait tous) |
 | Occurrences de `.from(` (app, components, lib, hooks) | **304** | 289 |
 
-Le skill surestimait donc l'usage direct du SDK (4 fichiers seulement :
+L'estimation initiale surestimait donc l'usage direct du SDK (4 fichiers seulement :
 `app/api/admin/accounts/route.ts`, `lib/supabase/client.ts`,
 `lib/supabase/server.ts`, `hooks/useSession.ts`) et sous-estimait le nombre
 d'appels `.from()`. Conséquence pratique : le point d'étranglement réel est
@@ -43,7 +45,7 @@ Ces changements étaient **déjà présents, non commités**, quand la mission a
 démarré. Je ne les ai pas écrits ; je les ai vérifiés :
 
 - `lib/github/crypto.ts` + `scripts/test-github-crypto.ts` : dérivation HKDF,
-  préfixe de version du jeton chiffré et période de grâce (§2.2 du skill).
+  préfixe de version du jeton chiffré et période de grâce.
 - `lib/github/oauth.ts` + `scripts/test-public-origin.ts` : origine publique
   explicite en production via variable d'environnement (§2.5).
 - `package.json`, `.gitignore`, `.env.local.example`.
