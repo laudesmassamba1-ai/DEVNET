@@ -72,13 +72,12 @@ Recommandation :
    GitHub et la clé de chiffrement de dev présents dans `.env.local`.
 3. **Mode shell + easter eggs** — ~1 j. Prévu, jamais
    planifié ; fort en démonstration si bien placé.
-4. **Médias** — 3-5 j, ⚠️ **ouvre `MEMO.md` §9**. À faire seulement si le
+4. **Médias** — 3-5 j, ⚠️ **décision à prendre**. À faire seulement si le
    temps le permet : c'est de la surface, et c'est le seul chantier qui
    ajoute un coût permanent (stockage).
 
 > Une note sur les **langages** : ajouter Go/Rust/Julia/Lean n'est pas un
-> item de plan, c'est une impossibilité du modèle navigateur (voir
-> `AUDIT.md` §5). Un langage **faisable** (Lua, Scheme, ou l'exécution d'un
+> item de plan, c'est une impossibilité du modèle navigateur. Un langage **faisable** (Lua, Scheme, ou l'exécution d'un
 > `.wasm` fourni) coûterait ~0,5 j et n'ouvre aucune décision.
 
 ---
@@ -145,7 +144,5 @@ Toujours valable depuis l'ancien document, et confirmé par l'état du code :
 
 ## 8. Documents de référence
 
-- `MEMO.md` — décisions, direction, journal des sessions (autorité).
-- `AUDIT.md` — ce qui manque, avec preuves.
-- `DESIGN.md` — système de design.
+- `ROADMAP.md` — ce document.
 - `README.md` — démarrage, stack, scripts.

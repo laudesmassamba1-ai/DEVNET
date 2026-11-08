@@ -2,7 +2,7 @@
 
 **Phase A — lecture seule.** Établi le 4 novembre 2026 sur la branche
 `refactor/independence`. Sources : `app/**/page.tsx`, `app/**/layout.tsx`,
-`components/`, `hooks/`, `app/globals.css`, `DESIGN.md`, `docs/design-log.md`,
+`components/`, `hooks/`, `app/globals.css`, `docs/design-log.md`,
 `docs/ui-contracts/admin-console.md`, `lib/admin-modules.ts`.
 
 **Convention de statut.** `complète` signifie que les sous-écrans décrits par

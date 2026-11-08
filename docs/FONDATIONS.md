@@ -1,3 +1,5 @@
+> **Note 2026-11-08** : instantané historique. Le miroir local est PostgreSQL 18.3, les migrations vont jusqu’à 044, et la procédure d’exploitation est dans `docs/ops/`.
+
 # DevNet — structure, couches et fondements
 
 > État mesuré le 4 novembre 2026 sur `refactor/independence`, Node 22, Next.js
@@ -153,7 +155,7 @@ réécriture globale.
 8. **Le design vient de la structure.** Marge, filets, heure en gouttière et
    typographie séparent conversation, code et annotation ; aucune couleur
    supplémentaire n'est ajoutée pour distinguer les registres. Voir
-   [`DESIGN.md`](../DESIGN.md).
+   [`design-log.md`](./design-log.md).
 9. **La preuve passe avant l'annonce.** Une migration non appliquée est dite
    non appliquée ; un score Lighthouse non mesuré n'est pas publié ; une
    vérification qui n'a pas tourné n'est pas un « ✅ ».
@@ -239,7 +241,6 @@ une preuve.
 
 - [`ARCHITECTURE.md`](./ARCHITECTURE.md) — décisions, historique de migration, séquence.
 - [`BASELINE.md`](./BASELINE.md) — mesures de la Phase 0, compteurs de référence.
-- [`DESIGN.md`](../DESIGN.md) — direction « Carnet de terrain », tokens, composants.
 - [`design-log.md`](./design-log.md) — journal de design et fusion des directions.
 - [`adr/`](./adr/) — décisions ponctuelles (base de données, exécuteur, premier port).
 - [`ui/`](./ui/) — inventaire et matrice de couverture des surfaces.

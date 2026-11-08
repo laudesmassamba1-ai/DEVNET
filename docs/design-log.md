@@ -223,4 +223,4 @@ complète.
 
 La fusion ne prétend pas régler la dette transverse : i18n, pages 403/500,
 hors-ligne et audit d'accessibilité restent ouverts. La planche de référence
-de `DESIGN.md` décrit la cible, pas un écran mesuré.
+décrit la cible, pas un écran mesuré.
