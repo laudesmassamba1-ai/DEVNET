@@ -8,6 +8,8 @@
  */
 import { createEventDispatcher, type EventDispatcher } from "@/modules/events";
 import { PostgresEventOutboxRepository } from "@/modules/events/infrastructure/postgres/postgres-event-outbox-repository";
+import { PostgresAuthRepository } from "@/modules/auth/infrastructure/postgres/postgres-auth-repository";
+import type { AuthRepository } from "@/modules/auth/ports/auth-repository";
 import { PostgresFeedRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-repository";
 import type { FeedRepository } from "@/modules/feed/ports/feed-repository";
 import { withUser } from "./infrastructure/postgres/with-user";
@@ -59,6 +61,19 @@ export function getPluginRuntime(): PluginRuntime {
 export function getServerFeedRepository(): FeedRepository {
   return new PostgresFeedRepository({
     asUser: (userId, run) => withUser(userId, run),
+  });
+}
+
+/**
+ * Authentification servie par PostgreSQL direct.
+ *
+ * L'exécuteur est la connexion propriétaire : les deux tables d'auth n'ont
+ * aucune politique RLS, une identité d'utilisateur n'y verrait rien. Voir
+ * `supabase/046_auth_sessions.sql` pour la raison de ce choix.
+ */
+export function getServerAuthRepository(): AuthRepository {
+  return new PostgresAuthRepository({
+    query: async (sql, values) => (await getPostgresPool().query(sql, values)).rows,
   });
 }
 

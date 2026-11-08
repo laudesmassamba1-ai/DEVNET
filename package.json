@@ -15,6 +15,7 @@
     "db:reset": "tsx scripts/db/reset.ts",
     "test:db-migrate": "tsx scripts/db/test-migrate.ts",
     "test:db-rls": "tsx scripts/test-db-rls.ts",
+    "test:auth-postgres": "tsx scripts/test-auth-postgres.ts",
     "test:boundaries": "tsx scripts/test-boundaries.ts",
     "seed:extension": "tsx scripts/seed-example-extension.ts",
     "test:demo": "tsx scripts/test-demo.ts",

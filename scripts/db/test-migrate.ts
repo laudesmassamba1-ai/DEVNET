@@ -7,9 +7,10 @@
  * refus — dérive d'une migration appliquée, effacement d'une base distante.
  *
  * Ce test ne se connecte pas à une base. L'application réelle des migrations
- * doit être vérifiée séparément sur le conteneur PostgreSQL 17 local, puis sur
- * la cible distante après son achat et la vérification de ses droits.
+ * doit être vérifiée séparément sur le conteneur PostgreSQL 18.3 local, puis sur
+ * la cible distante après vérification de ses droits et confirmation.
  */
+import { assertSafeTarget, GuardError, maskHost, parseEndpoint, readTarget } from "./guard";
 import { assertNoDrift, isLocalHost, listMigrations, MigrationError } from "./lib";
 
 let failures = 0;
@@ -34,11 +35,11 @@ async function verifyFileSelection(): Promise<void> {
   const migrations = await listMigrations("supabase");
   const names = migrations.map((migration) => migration.name);
 
-  check("41 migrations retenues", migrations.length === 41, `${migrations.length} trouvées`);
+  check("46 migrations retenues", migrations.length === 46, `${migrations.length} trouvées`);
   check("première = 001_schema.sql", names[0] === "001_schema.sql", names[0]);
   check(
-    "dernière = 041_message_depth.sql",
-    names[names.length - 1] === "041_message_depth.sql",
+    "dernière = 046_auth_sessions.sql",
+    names[names.length - 1] === "046_auth_sessions.sql",
     names[names.length - 1],
   );
   check("ordre croissant", names.join() === [...names].sort().join());
@@ -76,6 +77,60 @@ function runs(run: () => void): boolean {
   }
 }
 
+function throwsGuard(label: string, run: () => void, expectedFragment: string): void {
+  try {
+    run();
+    check(label, false, "aucune erreur levée");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    check(label, error instanceof GuardError && message.includes(expectedFragment), message);
+  }
+}
+
+function verifyGuard(): void {
+  check("cible par défaut = local", readTarget({}) === "local");
+  check("cible remote acceptée", readTarget({ DB_TARGET: "remote" }) === "remote");
+  throwsGuard("cible inconnue refusée", () => readTarget({ DB_TARGET: "production" }), "DB_TARGET invalide");
+
+  const endpoint = parseEndpoint("postgres://user@db.devnet.test:5432/devnet");
+  check("hôte extrait", endpoint.host === "db.devnet.test");
+  check("base extraite", endpoint.database === "devnet");
+  check("hôte masqué", maskHost(endpoint.host) !== endpoint.host && maskHost(endpoint.host).includes("***"));
+  check(
+    "description sans URL",
+    !JSON.stringify(endpoint).includes("postgres"),
+  );
+
+  const databaseUrl = "postgres://user@db.devnet.test:5432/devnet";
+  check(
+    "écriture locale acceptée",
+    assertSafeTarget({ databaseUrl: "postgres://devnet@127.0.0.1:5433/devnet", target: "local", operation: "migrate" }).includes("base=devnet"),
+  );
+  throwsGuard(
+    "écriture distante sans confirmation refusée",
+    () => assertSafeTarget({ databaseUrl, target: "remote", operation: "migrate" }),
+    "CONFIRM_REMOTE=devnet",
+  );
+  throwsGuard(
+    "confirmation distante erronée refusée",
+    () => assertSafeTarget({ databaseUrl, target: "remote", operation: "migrate", confirmRemote: "autre" }),
+    "ne correspond pas",
+  );
+  check(
+    "écriture distante confirmée acceptée",
+    assertSafeTarget({ databaseUrl, target: "remote", operation: "migrate", confirmRemote: "devnet" }).includes("cible=remote"),
+  );
+  throwsGuard(
+    "reset distant refusé",
+    () => assertSafeTarget({ databaseUrl, target: "remote", operation: "reset", confirmRemote: "devnet" }),
+    "jamais autorisé",
+  );
+  check(
+    "lecture distante sans confirmation acceptée",
+    assertSafeTarget({ databaseUrl, target: "remote", operation: "read" }).includes("cible=remote"),
+  );
+}
+
 function verifyLocalHosts(): void {
   for (const host of ["localhost", "127.0.0.1", "::1", "db"]) {
     check(`hôte local accepté : ${host}`, isLocalHost(host));
@@ -88,6 +143,7 @@ function verifyLocalHosts(): void {
 async function main(): Promise<void> {
   await verifyFileSelection();
   verifyDriftGuard();
+  verifyGuard();
   verifyLocalHosts();
 
   if (failures > 0) {
