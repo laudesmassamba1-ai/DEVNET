@@ -362,3 +362,15 @@ file et sanctions de modération, contenu/audit admin.
 | DM de groupe | P3 | Refusé par `ROADMAP.md` ; schéma et charge de modération hors périmètre. |
 | Demandes de connexion | P2 | Le suivi asymétrique couvre le besoin ; un second modèle relationnel n'est pas justifié. |
 | Vue recruteur | P2 | Aucun besoin validé ni parcours de recrutement. |
+
+## Mise à jour du 10 novembre 2026 (surfaces livrées)
+
+| ID | Surface | Statut | Prio | Backend | Rôles | Constat |
+|---|---|---|---|---|---|---|
+| B24 | GIF dans le fil | complète | P1 | existe | Membre | Sélecteur Tenor/Giphy via route serveur, clé jamais côté client, envoi sans texte, rendu et retrait. Vérifié en réel (Giphy). |
+| B25 | Stickers et GIF dans les commentaires | complète | P1 | existe | Membre | Migration 054, pièce jointe en attente, envoi média seul, rendu dans la ligne. |
+| B26 | Stickers et GIF en messagerie | complète | P0 | existe | Membre | Privé et groupes ; catalogue chargé par écran ; envoi immédiat (geste). |
+| B27 | Créateur de sticker dans le sélecteur | complète | P1 | existe | Membre | Image obligatoire, nom, visibilité ; le sticker créé entre dans la grille. Démo : catalogue embarqué en images SVG. |
+| B28 | Studio de statut | complète | P1 | partiel | Membre | Aperçu 9:16, légende, média (re-encodage serveur), compteur ; média non testé contre un backend réel. |
+| G11 | Exécution de code | **partielle** | P0 | existe | Membre | Le code s'exécute dans un Web Worker (pas dans l'app) : CR-01 tenu, **CR-02 non tenu** (origine de l'app, réseau et cookies). Voir `docs/ui/code-runner.md`. |
+| P12 | Portes de conformité (`verify:ui`) | complète | P0 | statique | — | ui-lint, motion-check, cliquet UX, crochet de commit, CI. Preuve d'échec faite. |
