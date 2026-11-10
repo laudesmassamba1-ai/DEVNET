@@ -28,7 +28,7 @@ export function Avatar({
       aria-hidden="true"
       className={`flex shrink-0 items-center justify-center rounded-[var(--radius-input)] border font-display font-bold
         ${SIZE[size]} ${avatarClass(color as AvatarColor)} ${className}`}
-      style={size === "lg" ? { boxShadow: "0 0 0 2px var(--color-void), 0 0 0 4px var(--color-line-2), 0 0 14px 2px rgba(255,138,61,0.15)" } : {}}
+      style={size === "lg" ? { boxShadow: "var(--shadow-avatar-ring)" } : {}}
     >
       {initials(name)}
     </div>

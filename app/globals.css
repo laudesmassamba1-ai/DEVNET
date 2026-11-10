@@ -193,6 +193,14 @@
   --radius-input: 6px;
   --radius-card:  10px;
 
+  /* ── Lueurs et anneaux (DS-01) ──────────────────────────────────
+     Ces valeurs vivaient dans des `style` de composants. Une lueur est
+     une décision de DA : elle appartient aux tokens, pas au JSX. */
+  --glow-signal: 0 0 12px rgba(255, 138, 61, 0.5);
+  --shadow-avatar-ring: 0 0 0 2px var(--color-void), 0 0 0 4px var(--color-line-2),
+    0 0 14px 2px rgba(255, 138, 61, 0.35);
+  --color-signal-soft: #FFC68E;
+
   /* ── Épaisseurs de bordure : des filets, pas des cadres ──
      Le verre ne se délimite pas au trait épais : l'épaisseur est
      portée par le reflet et l'ombre ambiante. */
@@ -1172,8 +1180,11 @@
 /* La pastille d'état. `currentColor` permet de la poser dans n'importe
    quelle couleur de statut sans redéfinir la couleur dans l'utilitaire —
    l'utilitaire décrit le *mouvement*, pas l'*information*. */
+/* Trois battements, puis la pastille reste allumée : une boucle infinie
+   attire l'œil en permanence pour une information qui, elle, est stable
+   (le canal est en direct). */
 @utility mode-live {
-  animation: liveBeat 2.6s var(--ease-continuous) infinite;
+  animation: liveBeat 2.6s var(--ease-continuous) 3;
 }
 
 /* ── Mouvement surfacique ──

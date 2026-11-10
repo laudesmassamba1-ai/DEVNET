@@ -178,7 +178,7 @@ export function AnimatedLogo({
           .al-svg { will-change: transform; }
 
           .al-stage { transform-box: fill-box; transform-origin: 50% 50%; }
-          .al-anim .al-stage { animation: al-float 7s ease-in-out infinite; animation-delay: ${T.settle}s; }
+          .al-anim .al-stage { animation: al-float 7s ease-in-out 2; animation-delay: ${T.settle}s; }
           @keyframes al-float {
             0%,100% { transform: translateY(0); }
             50%     { transform: translateY(-1.6%); }
@@ -393,7 +393,7 @@ export function AnimatedLogo({
             </g>
             <g clipPath="url(#al-rim)">
               <g className="al-cut" style={{ "--al-cut": `${T.rim}s` } as CSSProperties}>
-                <rect x="3" y="7" width="58" height="50" rx="2" stroke="#FFC68E" strokeWidth="1.3" />
+                <rect x="3" y="7" width="58" height="50" rx="2" stroke="var(--color-signal-soft)" strokeWidth="1.3" />
               </g>
             </g>
           </g>
@@ -433,13 +433,13 @@ export function AnimatedLogo({
               </g>
               <g className="al-cut" style={{ "--al-cut": `${T.rim}s` } as CSSProperties}>
                 <path d="M14.6 28.6 L26.4 38 L14.6 47.4" pathLength="100"
-                  stroke="#FFC68E" strokeWidth="1.2" strokeLinejoin="miter" />
+                  stroke="var(--color-signal-soft)" strokeWidth="1.2" strokeLinejoin="miter" />
               </g>
             </g>
           </g>
 
           {/* IMPACT : rayures d'étoile au point de frappe */}
-          <g className="al-rays" stroke="#FFC68E" strokeWidth="1.5" strokeLinecap="round" fill="none">
+          <g className="al-rays" stroke="var(--color-signal-soft)" strokeWidth="1.5" strokeLinecap="round" fill="none">
             {[
               "M33 38 L39 38", "M30.95 42.95 L35.19 47.19", "M26 45 L26 51",
               "M21.05 42.95 L16.81 47.19", "M19 38 L13 38", "M21.05 33.05 L16.81 28.81",

@@ -373,3 +373,55 @@ réel pour le média (route serveur) : la publication texte l'a été.
 - Vérifications : `tsc` 0, ESLint 0, `ux:check` tenu, build 0, `npm test`
   (54 migrations, `test:gifs` 43/43), navigateur commentaires **16/16**,
   messagerie **10/10**, studio **13/13**.
+
+## Phase 0 — portes de contrôle (10 novembre 2026)
+
+Contrat d'expérience : **29 BLOQUANTES, 12 MAJEURES**. Les portes
+construites d'abord, puis le travail derrière.
+
+### En place et prouvées
+
+| Porte | Règles | Preuve |
+|---|---|---|
+| `npm run ui:lint` | DS-01, MO-02, MO-05, FT-01, PR-02 | 0 / 0 / 0 / 0 ; PR-02 figé à 3 (ADR 0012) |
+| `npm run ui:motion` | MO-06 | 18 rôles + 22 utilitaires documentés dans `docs/ui/motion.md` |
+| `npm run ux:check` | cliquet UX (18 indicateurs) | tenu |
+| `npm run verify:ui` | agrégat | **échec provoqué** : `href="#"` → sortie 1 (« FT-01 : 1, +1 ») ; retrait → sortie 0 |
+| `.githooks/pre-commit` | PR-02 | `core.hooksPath=.githooks`, exécute `verify:ui` |
+| CI | PR-03 | `npm run verify:ui && npm run lint && npm run build` |
+| Modèle de PR | PR-01 | `.github/pull_request_template.md` (règles + preuves + « non vérifié ») |
+
+### Corrigé pour passer les portes
+
+- **DS-01** : 4 couleurs en dur → tokens `--glow-signal`,
+  `--shadow-avatar-ring`, `--color-signal-soft`. Compte : 0.
+- **MO-02** : la visite guidée animait `left/top/width/height` ; le halo et
+  la bulle se posent maintenant sans transition. Compte : 0.
+- **MO-05** : `mode-live` bat trois fois puis se tait ; le flottement de
+  `AnimatedLogo` est borné à deux cycles. Compte : 0 (seuls les indicateurs
+  de chargement bouclent).
+
+### Dette assumée, avec raison
+
+- **PR-02** : 3 `eslint-disable` `no-img-element` pour des URL externes
+  arbitraires (GIF, aperçus) et des `blob:` — documentés par l'ADR 0012,
+  figés à 3. Toute occurrence nouvelle échoue.
+- **FT-03** (chaque route ↔ `coverage.md`) : non implémenté — la matrice est
+  par **surface**, pas par route ; un rapprochement naïf produirait 37 faux
+  défauts. À faire avec une table de correspondance explicite.
+- **I18-01** (aucune chaîne en dur) : non implémenté — l'application est
+  intégralement en français codé en dur ; un scanner à zéro serait rouge en
+  permanence. Décision à prendre : extraction i18n (chantier) ou règle
+  reformulée.
+- **AX-01/AX-02/MO-03/MO-04/PF-01/PF-02/CR-02/CR-04** : nécessitent
+  Playwright, `axe-core` et Lighthouse CI — dépendances de développement à
+  approuver. Les tests d'abus du bac à sable (§7.3.10) en dépendent aussi.
+- **MO-04** : mouvement réduit présent, niveaux N0–N3 non surchargeables.
+
+### Clé Giphy
+
+Clé fournie par Laudes, posée dans `.env.local` (ignoré par git). Recherche
+Giphy **réelle** vérifiée de bout en bout : fil, messagerie, commentaires
+**10/10** (recherche, choix, aperçu, publication, bulle, commentaire, zéro
+erreur console). La clé n'apparaît jamais côté client : la route serveur
+`/api/gifs/search` relaie et renvoie seulement `provider` + résultats.

@@ -220,7 +220,7 @@ function SearchScreen() {
           <div className="relative mb-3">              <span
               aria-hidden="true"
               className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 font-mono text-signal"
-              style={{ textShadow: "0 0 12px rgba(255,138,61,0.5)" }}
+              style={{ textShadow: "var(--glow-signal)" }}
             >
               $
             </span>

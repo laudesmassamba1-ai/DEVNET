@@ -1,0 +1,10 @@
+{
+  "note": "Dette figée par scripts/ui-lint.mjs. Chaque compte ne peut que diminuer. Toute augmentation échoue (contrat d'expérience, Phase 0).",
+  "counts": {
+    "hardcodedColor": 0,
+    "layoutAnimation": 0,
+    "infiniteLoop": 0,
+    "deadUi": 0,
+    "bypass": 3
+  }
+}

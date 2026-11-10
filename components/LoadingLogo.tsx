@@ -290,7 +290,7 @@ export function LoadingLogo({
         </g>
 
         {/* Les rayures d'étoile au moment de la frappe */}
-        <g className="ll-rays" stroke="#FFC68E" strokeWidth="1.5" strokeLinecap="round" fill="none">
+        <g className="ll-rays" stroke="var(--color-signal-soft)" strokeWidth="1.5" strokeLinecap="round" fill="none">
           {[
             "M33 38 L39 38", "M30.95 42.95 L35.19 47.19", "M26 45 L26 51",
             "M21.05 42.95 L16.81 47.19", "M19 38 L13 38", "M21.05 33.05 L16.81 28.81",
