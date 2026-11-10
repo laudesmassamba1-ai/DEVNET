@@ -107,6 +107,52 @@ export async function publishStory(
   return { error: error?.message ?? null };
 }
 
+/**
+ * Publie un statut média : image, GIF ou vidéo.
+ *
+ * Le fichier monte en data URL ; le serveur le re-encode (WebP borné,
+ * MP4 15 s) et rend l'identifiant de la story. Rien de ce qui part d'ici
+ * n'est publié tel quel.
+ */
+export function publishStoryMedia(
+  caption: string,
+  file: File,
+): Promise<{ id: string | null; error: string | null }> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onerror = () => resolve({ id: null, error: "Lecture du fichier impossible" });
+    reader.onload = async () => {
+      if (typeof reader.result !== "string") {
+        resolve({ id: null, error: "Fichier illisible" });
+        return;
+      }
+      try {
+        const response = await fetch("/api/stories/media", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ caption: caption.trim(), dataUrl: reader.result }),
+        });
+        const body = (await response.json().catch(() => null)) as
+          | { id?: string; error?: string }
+          | null;
+        if (!response.ok) {
+          resolve({ id: null, error: body?.error ?? `Erreur ${response.status}` });
+          return;
+        }
+        resolve({ id: body?.id ?? null, error: null });
+      } catch {
+        resolve({ id: null, error: "Réseau indisponible" });
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/** URL des octets du média d'un statut. */
+export function storyMediaUrl(storyId: string): string {
+  return `/api/stories/${encodeURIComponent(storyId)}/media`;
+}
+
 /** Retire une story — la sienne, la RLS n'autorisant rien d'autre. */
 export async function deleteStory(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.from("stories").delete().eq("id", id);

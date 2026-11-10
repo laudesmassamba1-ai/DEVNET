@@ -36,6 +36,7 @@ export function ChatComposer({
   sending = false,
   code,
   onToggleCode,
+  attachments,
 }: {
   id: string;
   value: string;
@@ -52,6 +53,13 @@ export function ChatComposer({
    */
   code?: boolean;
   onToggleCode?: () => void;
+  /**
+   * Boutons de pièces jointes (GIF, sticker), rendus à gauche du champ.
+   * Le composeur ne sait pas ce qu'ils envoient : il ouvre la place, les
+   * écrans décident. Un GIF ou un sticker part **au choix**, sans étape
+   * de confirmation : c'est le geste d'une messagerie, pas d'un e-mail.
+   */
+  attachments?: React.ReactNode;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -71,6 +79,8 @@ export function ChatComposer({
           correspond — les réactions du projet sont des glyphes du jeu
           d'icônes, pas des émoticônes. Le champ n'a rien perdu : la
           frappe suffit. */}
+
+      {attachments}
 
       <textarea
         id={id}

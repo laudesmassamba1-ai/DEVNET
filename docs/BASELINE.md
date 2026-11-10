@@ -1,4 +1,4 @@
-> **Note 2026-11-08** : ce document est un instantané historique. Le miroir local est désormais PostgreSQL 18.3, les migrations vont jusqu’à 044 et l’exploitation est décrite dans `docs/ops/` et l’ADR 0011.
+> **Note 2026-11-09** : ce document est un instantané historique. Le miroir local est PostgreSQL 18.3, les migrations vont jusqu’à 051 (52 entrées avec `000_compat.sql`), et la cible Systalink a été migrée le 2026-11-09. L’exploitation est décrite dans `docs/ops/` et l’ADR 0011.
 
 # État de référence — Phase 0
 
@@ -60,8 +60,8 @@ code, mais **non commités** — à relire puis commiter avant la Phase 8.
   `tunnel*.log`, `tunnel.pid`, `.dev.pid`, `dev-server.log`, captures d'écran
   et `docs-technique.pdf` à la racine du dépôt.
 - `supabase/seed.sql` (hachages bcrypt de comptes de test) toujours présent.
-- `supabase/migrations/` duplique les fichiers `001…040` déjà à la racine de
-  `supabase/` : deux sources de vérité pour les migrations.
+- `supabase/migrations/` duplique des fichiers déjà à la racine de `supabase/`
+  (héritage `001…040`) : deux sources de vérité pour les migrations.
 
 ## 5. Décision de séquence
 
@@ -72,6 +72,9 @@ code, mais **non commités** — à relire puis commiter avant la Phase 8.
   sans Systalink** — l'environnement Compose cible PostgreSQL 17.
 
 ## 5.1 Cible Systalink annoncée
+
+> **Dépassé le 2026-11-09** : la cible est mesurée, migrée et décrite dans
+> `docs/ops/db-capabilities.md`. Ce paragraphe conserve la décision initiale.
 
 - La base **n'est pas encore achetée**.
 - La cible envisagée est **PostgreSQL 17, capacité annoncée de 5 Go**. Cette
@@ -84,15 +87,31 @@ code, mais **non commités** — à relire puis commiter avant la Phase 8.
 
 ## 6. Risques identifiés pour la suite (pré-mortem Phase 2)
 
-1. **Les 40 migrations supposent Supabase** (`auth.uid()`, rôles `anon` /
+1. **Les 51 migrations supposent Supabase** (`auth.uid()`, rôles `anon` /
    `authenticated`, schéma `extensions`, publication `supabase_realtime`).
    Sans la couche de compatibilité `000_compat.sql`, elles échoueront sur un
-   PostgreSQL vierge. Mitigation : écrire la couche d'abord, la valider sur un
-   conteneur jetable, et n'annoncer « les migrations passent » qu'après
-   exécution réelle.
+   PostgreSQL vierge. Mitigation : la couche a été écrite et validée sur un
+   conteneur jetable, puis les 52 entrées ont été appliquées en local et en
+   distant.
 2. **Deux copies des migrations** (`supabase/` et `supabase/migrations/`)
    peuvent diverger silencieusement. Mitigation : choisir une source unique
    avant tout exécuteur suivi, et vérifier l'égalité fichier par fichier.
 3. **`npm run db:reset`** peut viser une base distante par erreur de variable.
    Mitigation : refus explicite si l'hôte n'est ni `localhost`, ni `127.0.0.1`,
    ni le conteneur local.
+
+## 7. Mise à jour — 2026-11-09
+
+- Cible Systalink mesurée : PostgreSQL 18.3, TLS 1.3, `max_connections = 100`.
+- 52 migrations appliquées (`000_compat.sql` + `001…051`) ; simulation
+  « Rien à appliquer ».
+- Rôles `anon`, `authenticated`, `service_role` créés et accordés ; `devnet_u`
+  n'a toujours pas `CREATEROLE`, ce qui est attendu.
+- Compteurs distants : 58 tables, 178 politiques, 92 fonctions `public`
+  (dont 2 fournies par `pgaudit`), 35 déclencheurs, 14 tables temps réel.
+- Mot de passe exposé le 2026-11-08 renouvelé ; l'ancien est invalide.
+- Sauvegarde distante chiffrée GPG effectuée et restaurée dans une base locale
+  vide ; compteurs, RLS (17) et stories (41) vérifiés. Clé encore locale, copie
+  hors site et planification à faire.
+- L'application n'est pas encore basculée : `.env.local` ne pointe pas vers la
+  base distante.

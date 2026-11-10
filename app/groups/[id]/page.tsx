@@ -9,6 +9,7 @@ import { Avatar, EmptyState, Loading, PrimaryButton } from "@/components/Avatar"
 import { Sheet } from "@/components/Sheet";
 import { GroupReceipt } from "@/components/Receipt";
 import { MessageExtras, ReplyQuote } from "@/components/MessageExtras";
+import { MessageAttachmentButtons, MessageAttachmentView } from "@/components/MessageAttachments";
 import { TypingLine } from "@/components/TypingDots";
 import { ChatComposer, ComposerBar } from "@/components/ChatComposer";
 import { useToast } from "@/components/Toast";
@@ -41,6 +42,8 @@ import {
   type ReactionSummary,
 } from "@/lib/messages";
 import type { Group, GroupMessage, GroupRole, Project } from "@/lib/types";
+import { canSendMessage, attachmentColumns, type MessageAttachment } from "@/lib/message-media";
+import { fetchStickers, type StickerRowView } from "@/lib/stickers";
 import { fetchProjectsForGroup } from "@/lib/repo";
 
 const CHANNEL_KEY = "c";
@@ -60,6 +63,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   const [text, setText] = useState("");
   const [asCode, setAsCode] = useState(false);
   const [sending, setSending] = useState(false);
+  /** Catalogue des stickers : la bulle ne stocke qu'un identifiant. */
+  const [stickerCatalog, setStickerCatalog] = useState<Map<string, StickerRowView>>(new Map());
   const [openNew, setOpenNew] = useState(false);
   const [newName, setNewName] = useState("");
   const [newTopic, setNewTopic] = useState("");
@@ -98,6 +103,17 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   const scrollDown = useCallback(() => {
     const wall = endRef.current?.parentElement;
     if (wall) wall.scrollTo({ top: wall.scrollHeight, behavior: "smooth" });
+  }, []);
+
+  // Catalogue des stickers, chargé une fois pour toutes les bulles.
+  useEffect(() => {
+    let alive = true;
+    void fetchStickers().then((rows) => {
+      if (alive) setStickerCatalog(new Map(rows.map((row) => [row.id, row])));
+    });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   // ── Chargement ──
@@ -390,10 +406,12 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     }
   }
 
-  async function send() {
+  async function send(attachment?: MessageAttachment) {
     if (!profile || !active) return;
     const body = text.trim();
-    if (!body) return;
+    // Mêmes règles que le privé : média seul accepté, URL filtrée.
+    if (!canSendMessage(body, attachment)) return;
+    const media = attachmentColumns(attachment);
 
     setSending(true);
     const { error } = await supabase.from("group_messages").insert({
@@ -404,6 +422,9 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
       author_color: profile.avatar_color,
       text: body,
       is_code: asCode,
+      gif_url: media.gif_url,
+      gif_alt: media.gif_alt,
+      sticker_id: media.sticker_id,
       reply_to_id: replyTo?.id ?? null,
     });
 
@@ -730,6 +751,13 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                             ? "border-signal/60 glass-flat text-chalk"
                             : "border-line-2 glass-flat text-chalk-2"}`}
                     >
+                      <MessageAttachmentView
+                        gifUrl={m.gif_url}
+                        gifAlt={m.gif_alt}
+                        sticker={
+                          m.sticker_id ? stickerCatalog.get(m.sticker_id) ?? null : null
+                        }
+                      />
                       {m.text}
                     </div>
                     <span className="px-0.5 text-[10px] tracking-wider text-chalk-4">
@@ -816,7 +844,14 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
               id="composer-channel"
               value={text}
               onValueChange={setText}
-              onSend={send}
+              onSend={() => void send()}
+              attachments={
+                <MessageAttachmentButtons
+                  disabled={!active || sending}
+                  onGif={(gif) => void send({ kind: "gif", gif })}
+                  onSticker={(sticker) => void send({ kind: "sticker", stickerId: sticker.id })}
+                />
+              }
               onTyping={notifyTyping}
               sending={sending}
               disabled={!active}
@@ -833,6 +868,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         <div className="mb-3">
           <label className="label mb-1.5 block text-chalk">Nom</label>
           <input
+            aria-label="Nom du canal"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="développement"
@@ -857,6 +893,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         <div className="mb-4">
           <label className="label mb-1.5 block text-chalk">Sujet (facultatif)</label>
           <input
+            aria-label="Sujet du canal"
             value={newTopic}
             onChange={(e) => setNewTopic(e.target.value)}
             placeholder="À quoi sert ce canal ?"

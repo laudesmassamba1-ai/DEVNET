@@ -22,6 +22,7 @@ import {
   placeStorySticker,
   removeStorySticker,
   replyToStory,
+  storyMediaUrl,
   toggleStoryLike,
   type PlacedSticker,
   type StickerCatalogEntry,
@@ -132,6 +133,8 @@ export function StoryViewer({
 
   // État d'interaction, chargé par le lecteur.
   const [catalog, setCatalog] = useState<StickerCatalogEntry[]>([]);
+  /** Médias par story : le type suffit, les octets ont leur route. */
+  const [mediaById, setMediaById] = useState<Record<string, { mime: string } | null>>({});
   const [liked, setLiked] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
   const [placed, setPlaced] = useState<Record<string, PlacedSticker[]>>({});
@@ -194,6 +197,9 @@ export function StoryViewer({
           return;
         }
         setCatalog(feed.catalog);
+        setMediaById(
+          Object.fromEntries(feed.stories.map((s) => [s.id, s.media] as const)),
+        );
         setLiked(new Set(feed.stories.filter((s) => s.liked).map((s) => s.id)));
         setLikeCounts(
           Object.fromEntries(feed.stories.map((s) => [s.id, s.likes] as const)),
@@ -649,7 +655,22 @@ export function StoryViewer({
                 </span>
               </div>
 
-              {current.media_url ? (
+              {mediaById[current.id]?.mime.startsWith("video/") ? (
+                <video
+                  src={storyMediaUrl(current.id)}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="max-h-[46vh] w-full bg-void object-contain"
+                />
+              ) : mediaById[current.id] ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={storyMediaUrl(current.id)}
+                  alt=""
+                  className="max-h-[46vh] w-full bg-void/5 object-cover"
+                />
+              ) : current.media_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={current.media_url}

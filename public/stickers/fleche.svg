@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Flèche">
+  <path d="M14 60h76" fill="none" stroke="#FF7A45" stroke-width="14" stroke-linecap="round"/>
+  <path d="M70 30l32 30-32 30" fill="none" stroke="#FF7A45" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

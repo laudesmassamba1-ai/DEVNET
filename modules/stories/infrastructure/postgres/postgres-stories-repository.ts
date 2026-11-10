@@ -147,6 +147,14 @@ export class PostgresStoriesRepository implements StoriesRepository {
       throw new StoriesRepositoryError("list-stories", pgCode(error), { cause: error });
     }
 
+    const media = await this.dependencies.asUser(readerId, (query) =>
+      query<{ story_id: string; mime: string }>(
+        "select story_id::text as story_id, mime from public.story_media where story_id = any($1::uuid[])",
+        [rows.map((row) => String(row.id))],
+      ),
+    ).catch(() => [] as { story_id: string; mime: string }[]);
+    const mediaByStory = new Map(media.map((row) => [String(row.story_id), row.mime]));
+
     const byStory = new Map<string, PlacedSticker[]>();
     for (const sticker of stickers) {
       const list = byStory.get(String(sticker.story_id)) ?? [];
@@ -182,6 +190,9 @@ export class PostgresStoriesRepository implements StoriesRepository {
         liked: row.liked === true,
         seen: row.seen === true,
         stickers: byStory.get(String(row.id)) ?? [],
+        media: mediaByStory.has(String(row.id))
+          ? { mime: String(mediaByStory.get(String(row.id))) }
+          : null,
       };
     });
 
@@ -438,6 +449,74 @@ export class PostgresStoriesRepository implements StoriesRepository {
     } catch (error) {
       if (error instanceof StoriesRepositoryError) throw error;
       throw new StoriesRepositoryError("move-sticker", pgCode(error), { cause: error });
+    }
+  }
+
+  async createStory(
+    authorId: string,
+    input: {
+      caption: string;
+      media?: {
+        bytes: Buffer;
+        mime: string;
+        width: number | null;
+        height: number | null;
+        durationMs: number | null;
+      };
+    },
+  ): Promise<{ id: string }> {
+    try {
+      return await this.dependencies.asUser(authorId, async (query) => {
+        const rows = await query<{ id: string }>(
+          `insert into public.stories (author_id, caption)
+           values ($1, $2)
+           returning id::text as id`,
+          [authorId, input.caption],
+        );
+        const id = rows[0]?.id;
+        if (!id) throw new StoriesRepositoryError("create-story", "insertion-sans-ligne");
+
+        if (input.media) {
+          await query(
+            `insert into public.story_media
+               (story_id, mime, bytes, byte_size, width, height, duration_ms)
+             values ($1, $2, $3, $4, $5, $6, $7)`,
+            [
+              id,
+              input.media.mime,
+              input.media.bytes,
+              input.media.bytes.length,
+              input.media.width,
+              input.media.height,
+              input.media.durationMs,
+            ],
+          );
+        }
+        return { id: String(id) };
+      });
+    } catch (error) {
+      if (error instanceof StoriesRepositoryError) throw error;
+      throw new StoriesRepositoryError("create-story", pgCode(error), { cause: error });
+    }
+  }
+
+  async fetchStoryMedia(
+    readerId: string | null,
+    storyId: string,
+  ): Promise<{ mime: string; bytes: Buffer } | null> {
+    try {
+      const rows = await this.dependencies.asUser(
+        readerId ?? "00000000-0000-0000-0000-000000000000",
+        (query) =>
+          query<{ mime: string; bytes: Buffer }>(
+            "select mime, bytes from public.story_media where story_id = $1",
+            [storyId],
+          ),
+      );
+      const row = rows[0];
+      return row ? { mime: row.mime, bytes: row.bytes } : null;
+    } catch (error) {
+      throw new StoriesRepositoryError("read-story-media", pgCode(error), { cause: error });
     }
   }
 

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Script from "next/script";
 import { BackendGate } from "@/components/BackendGate";
+import { EventPump } from "@/components/EventPump";
 import { SplashScreen } from "@/components/SplashScreen";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { ToastProvider } from "@/components/Toast";
@@ -119,6 +120,7 @@ export default function RootLayout({
           */}
           <TourProvider>
             <BackendGate>{children}</BackendGate>
+            <EventPump />
           </TourProvider>
         </ToastProvider>
       </body>

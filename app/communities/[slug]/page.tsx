@@ -5,6 +5,7 @@ import { use, useEffect, useState } from "react";
 import { AppShell, IconButton } from "@/components/AppShell";
 import { Avatar, EmptyState, Loading, PrimaryButton } from "@/components/Avatar";
 import { CommentsPanel } from "@/components/CommentsPanel";
+import { Field } from "@/components/Field";
 import { Icon, asIconName } from "@/components/Icon";
 import { PostCard } from "@/components/PostCard";
 import { PostOwnerTools } from "@/components/PostOwnerTools";
@@ -270,6 +271,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
         {canPost && (
           <div className="mb-4">
             <textarea
+              aria-label="Publier un message dans la communauté"
               value={draft} onChange={(e) => setDraft(e.target.value)}
               rows={2} placeholder={`Publier dans ${community.name}…`}
               className="mb-2 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
@@ -330,7 +332,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
         title={`Membres · ${community.member_count}`}>
         {staff && (
           <div className="mb-4 flex gap-2">
-            <input value={invite} onChange={(e) => setInvite(e.target.value)}
+            <input value={invite} aria-label="Inviter par pseudo" onChange={(e) => setInvite(e.target.value)}
               placeholder="Inviter par pseudo (@…)"
               className="h-[var(--h-input)] flex-1 rounded-[var(--radius-input)] border border-line-3 bg-surface
                 px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
@@ -408,7 +410,7 @@ function MemberRow({ m, staff, meId, onChangeRole, onRemove }: {
       </div>
 
       {staff && !isMe ? (
-        <select value={m.role} onChange={(e) => onChangeRole(e.target.value as CommunityRole)}
+        <select value={m.role} aria-label="Rôle du membre" onChange={(e) => onChangeRole(e.target.value as CommunityRole)}
           className="h-8 cursor-pointer rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2
             text-[11px] font-bold outline-none">
           <option value="member">membre</option>
@@ -532,6 +534,7 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
         <div className="grid grid-cols-5 gap-2">
           {ICONS.map((k) => (
             <button key={k} type="button" onClick={() => setIcon(k)}
+              aria-label={`Icône ${k}`} aria-pressed={icon === k}
               className={`flex aspect-square items-center justify-center rounded-[var(--radius-input)]
                 border border-line-3 ${icon === k ? "bg-signal text-void" : "bg-surface text-signal-d"}`}>
               <Icon name={k} size={18} strokeWidth={1.6} />
@@ -575,14 +578,5 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
         )}
       </div>
     </Sheet>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="mb-4">
-      <label className="label mb-1.5 block text-chalk">{label}</label>
-      {children}
-    </div>
   );
 }

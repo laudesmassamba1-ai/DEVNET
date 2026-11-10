@@ -45,15 +45,16 @@ Limite assumée : le temps réel local est un bus en mémoire, donc **un seul on
 ## Base de données
 
 La connexion applicative actuelle utilise encore la compatibilité Supabase.
-La cible est PostgreSQL direct chez Systalink ; le miroir local est PostgreSQL
-18.3, aligné sur la version majeure mesurée. La Phase 1 du 2026-11-08 a mesuré une cible **PostgreSQL 18.3**, TLS
-TLSv1.3, `max_connections = 100`, sans schéma `auth` ni rôles RLS. Les
-migrations sont bloquées : `devnet_u` n'a pas `CREATEROLE`. Ne lancez aucune
-migration distante sans le runbook et sans confirmation.
+La cible PostgreSQL directe chez Systalink est mesurée et **migrée** :
+PostgreSQL 18.3, TLS 1.3, 52 migrations appliquées le 2026-11-09, rôles RLS
+créés, `search_path` effectif. Le mot de passe exposé a été renouvelé. La base
+distante contient le schéma, pas encore les données applicatives ; la bascule
+de l'application reste à faire. Ne lancez aucune migration distante sans le
+runbook et sans confirmation.
 
-- [`docs/ops/db-capabilities.md`](docs/ops/db-capabilities.md) — mesures locales et inconnues distantes
-- [`docs/ops/runbook.md`](docs/ops/runbook.md) — reconstruction locale, migrations, Phase 1
-- [`docs/ops/incidents.md`](docs/ops/incidents.md) — diagnostic et ticket Systalink
+- [`docs/ops/db-capabilities.md`](docs/ops/db-capabilities.md) — mesures locales et distantes
+- [`docs/ops/runbook.md`](docs/ops/runbook.md) — reconstruction locale, migrations, exploitation distante
+- [`docs/ops/incidents.md`](docs/ops/incidents.md) — diagnostic, rotation et ticket Systalink
 - [`docs/ops/backups.md`](docs/ops/backups.md) — sauvegarde, restauration, dérive
 - [`docs/ops/exit-plan.md`](docs/ops/exit-plan.md) — changer de PostgreSQL en moins d'un jour
 
@@ -63,8 +64,15 @@ Commandes locales :
 npm run db:guard                 # cible masquée + garde-fous
 npm run db:migrate               # simulation par défaut
 npm run db:migrate -- --apply    # écrit réellement
+npm run db:probe:remote          # sonde distante, lecture seule
+npm run db:migrate:remote        # simulation distante
+npm run db:backup:remote         # dump chiffré GPG, lecture seule
 npm run test:db-rls              # RLS et identité, base locale requise
 ```
+
+> Les migrations ne s'exécutent pas à la main dans l'éditeur Supabase : pour
+> PostgreSQL direct, `scripts/db/migrate.ts` lit `supabase/001…051` et applique
+> les fichiers dans l'ordre, avec sommes de contrôle.
 
 Dans Supabase → SQL Editor, exécuter dans l'ordre :
 
@@ -82,6 +90,10 @@ reposts), `017_read_receipts` (accusés de lecture), `018_social_depth`
 `019_presence` (présence et divergence du dépôt), puis `020` à `029`
 (`025` forks et notation, `026` liens de profil, `027` réglages de projet,
 `028` communautés, `029` la table des notes).
+
+> Cette énumération manuelle s'arrête à `029` et ne remplace pas l'exécuteur.
+> La source à jour est `supabase/001…051` ; `npm run db:migrate` en simulation
+> liste l'ordre exact sans rien écrire.
 
 ### Migration 025 — forks et notation par les pairs
 

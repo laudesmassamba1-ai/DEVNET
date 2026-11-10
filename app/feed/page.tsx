@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell, IconButton } from "@/components/AppShell";
-import { Avatar, EmptyState, Loading, PrimaryButton, Spinner } from "@/components/Avatar";
+import { EmptyState, Loading, PrimaryButton, Spinner } from "@/components/Avatar";
 import { CodeBlock } from "@/components/CodeBlock";
 import { CommentsPanel } from "@/components/CommentsPanel";
+import { GifPicker } from "@/components/GifPicker";
 import { Icon, asIconName } from "@/components/Icon";
 import { Motion } from "@/components/Motion";
 import { PostCard } from "@/components/PostCard";
@@ -13,15 +14,11 @@ import { PostOwnerTools } from "@/components/PostOwnerTools";
 import { Sheet } from "@/components/Sheet";
 import { groupStoriesByAuthor, StoryRail, StoryViewer } from "@/components/StoryRail";
 import { useToast } from "@/components/Toast";
+import { StoryStudio } from "@/components/StoryStudio";
 import { supabase } from "@/lib/supabase/client";
 import { useSession } from "@/hooks/useSession";
 import { postPoints } from "@/lib/gamification";
-import {
-  deleteStory,
-  fetchLiveStories,
-  publishStory,
-  STORY_MAX,
-} from "@/lib/stories";
+import { deleteStory, fetchLiveStories } from "@/lib/stories";
 import {
   fetchFeedHydrationCached as fetchFeedHydration,
   fetchFeedPageCached as fetchFeedPage,
@@ -38,6 +35,7 @@ import {
 import { removeSamplePosts, seedSamplePosts, SAMPLE_MARK } from "@/lib/seed";
 import { fetchCommunityFeed } from "@/lib/communities";
 import type { PostWithAuthor, StoryWithAuthor } from "@/lib/types";
+import type { Gif } from "@/lib/gifs";
 import { OPEN_POST_COMPOSER_EVENT } from "@/lib/ui-events";
 import { FEED_DENSITY_KEY, type FeedDensity } from "@/lib/ui-preferences";
 import { FeedRepositoryError } from "@/modules/feed";
@@ -108,6 +106,9 @@ export default function FeedPage() {
   const [code, setCode] = useState<string>(() => readDraft().code);
   const [lang, setLang] = useState<string>(() => readDraft().lang);
   const [isCode, setIsCode] = useState<boolean>(() => readDraft().isCode);
+  /** GIF joint à la publication en cours — un lien, pas un fichier. */
+  const [gif, setGif] = useState<Gif | null>(null);
+  const [gifOpen, setGifOpen] = useState(false);
   const [density, setDensity] = useState<FeedDensity>("comfortable");
   const [densityReady, setDensityReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -117,7 +118,6 @@ export default function FeedPage() {
   const [stories, setStories] = useState<StoryWithAuthor[] | null>(null);
   /** Feuille de publication d'une story. */
   const [openStoryCompose, setOpenStoryCompose] = useState(false);
-  const [storyText, setStoryText] = useState("");
   const [seeding, setSeeding] = useState(false);
   /** Ids des posts aimés par l'utilisateur courant — lus à part, en une requête. */
   const [likedIds, setLikedIds] = useState<string[]>([]);
@@ -565,6 +565,7 @@ export default function FeedPage() {
     setCode("");
     setLang("");
     setIsCode(false);
+    setGif(null);
     // Le projet choisi ne survit pas à la publication : le rattachement
     // est une décision par publication, pas une préférence. Le garder
     // ferait rattacher par automatisme des publications sans rapport.
@@ -574,7 +575,9 @@ export default function FeedPage() {
   async function publish() {
     if (!profile) return;
     const body = text.trim();
-    if (!body) return toast("Écris quelque chose", "err");
+    // Un GIF peut tenir lieu de texte : envoyer un GIF seul est un geste
+    // complet, comme une image dans une messagerie.
+    if (!body && !gif) return toast("Écris quelque chose ou choisis un GIF", "err");
 
     setBusy(true);
     // On relit la ligne insérée : il faut son identifiant pour la
@@ -592,6 +595,10 @@ export default function FeedPage() {
         has_code: isCode && code.trim().length > 0,
         code: isCode ? code.trim() : "",
         lang: isCode ? lang : "",
+        // Le GIF est un lien filtré côté serveur à la recherche, et
+        // re-vérifié par la contrainte `posts_gif_url_https` en base.
+        gif_url: gif?.url ?? "",
+        gif_alt: gif?.alt ?? "",
       })
       .select("id")
       .single();
@@ -1040,6 +1047,50 @@ export default function FeedPage() {
             text-[14px] leading-[1.6] outline-none placeholder:text-chalk-4"
         />
 
+        {/* Le GIF se choisit dans une feuille à part : la grille a besoin
+            de place, et le composeur doit rester lisible. */}
+        <div className="mb-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setGifOpen(true)}
+            aria-haspopup="dialog"
+            className="inline-flex min-h-[var(--h-tap)] items-center gap-1.5
+              rounded-[var(--radius-chip)] border border-line-3 px-3 font-mono
+              text-[12px] font-bold uppercase tracking-[0.08em] text-chalk-3
+              transition-colors duration-[var(--d-fast)]
+              hover:border-signal hover:text-signal"
+          >
+            <Icon name="gif" size={16} />
+            {gif ? "Changer le GIF" : "Ajouter un GIF"}
+          </button>
+        </div>
+
+        {gif && (
+          <Motion role="scale" className="mb-3">
+            <div className="relative overflow-hidden rounded-[var(--radius-input)] border border-line-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={gif.preview}
+                alt={gif.alt}
+                className="max-h-[220px] w-full object-contain bg-surface-2"
+              />
+              <button
+                type="button"
+                onClick={() => setGif(null)}
+                aria-label="Retirer le GIF"
+                className="absolute right-2 top-2 inline-flex size-11 items-center
+                  justify-center rounded-full border border-line-3 bg-void/80
+                  text-chalk shadow-sh-1 backdrop-blur transition-colors
+                  hover:border-danger hover:text-danger"
+              >
+                <Icon name="close" size={14} />
+              </button>
+            </div>
+          </Motion>
+        )}
+
+        <GifPicker open={gifOpen} onClose={() => setGifOpen(false)} onPick={setGif} />
+
         <label className="mb-3 flex cursor-pointer items-center gap-2 text-[12.5px] text-chalk-3">
           <input
             type="checkbox" checked={isCode}
@@ -1054,6 +1105,7 @@ export default function FeedPage() {
             <div className="mb-4">
               <label className="label mb-1.5 block text-chalk">Langage</label>
               <select
+                aria-label="Langage du code"
                 value={lang} onChange={(e) => setLang(e.target.value)}
                 className="h-[var(--h-input)] w-full cursor-pointer
                   rounded-[var(--radius-input)] border border-line-3 bg-surface
@@ -1073,6 +1125,7 @@ export default function FeedPage() {
                 </div>
               )}
               <textarea
+                aria-label="Code à publier"
                 value={code} onChange={(e) => setCode(e.target.value)} rows={7}
                 placeholder="// Ton code ici…"
                 className="w-full rounded-[var(--radius-input)] border border-line-3
@@ -1153,82 +1206,22 @@ export default function FeedPage() {
       </Sheet>
 
 
-      {/* ── Publier une story ── */}
-      <Sheet
+      {/* ── Studio de story : on compose ce qu'on verra. ── */}
+      <StoryStudio
         open={openStoryCompose}
         onClose={() => setOpenStoryCompose(false)}
-        title="Nouvelle story"
-      >
-        {/* Qui publie. Une story est un visage avant d'être un texte : on
-            montre l'auteur et l'échéance sur la même ligne, avant le champ. */}
-        <div className="mb-3.5 flex items-center gap-2.5">
-          <span
-            className="flex size-[42px] shrink-0 items-center justify-center rounded-full p-[2px]"
-            style={{ background: "var(--story-ring-gradient)" }}
-          >
-            <span className="flex size-full items-center justify-center rounded-full bg-page">
-              <Avatar
-                name={profile?.prenom ?? "moi"}
-                color={profile?.avatar_color}
-                className="size-[34px] border-0 text-[13px]"
-              />
-            </span>
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-[13px] font-bold text-chalk">
-              @{profile?.pseudo ?? "moi"}
-            </p>
-            <p className="label-micro text-chalk-4">Disparaît dans 24 h</p>
-          </div>
-        </div>
-
-        {/* On écrit **dans** le cadre de la story. L'anneau de marque
-            encadre le texte exactement comme il l'encadrera dans le
-            lecteur : on compose ce qu'on voit, et non un champ dont on
-            découvrirait le rendu après publication. */}
-        <div
-          className="rounded-[calc(var(--radius-card)+4px)] p-[2px]"
-          style={{ background: "var(--story-ring-gradient)" }}
-        >
-          <div className="min-h-[180px] rounded-[var(--radius-card)] bg-page px-4 py-3.5">
-            <textarea
-              value={storyText}
-              onChange={(e) => setStoryText(e.target.value)}
-              rows={5}
-              maxLength={STORY_MAX}
-              autoFocus
-              placeholder="Ta story en un texte court…"
-              className="w-full resize-none border-0 bg-transparent p-0 text-[16px]
-                leading-[1.55] text-chalk outline-none placeholder:text-chalk-4"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <span className="tnum font-mono text-[10.5px] text-chalk-4">
-            {storyText.length}/{STORY_MAX}
-          </span>
-          <button
-            type="button"
-            disabled={!profile || !storyText.trim()}
-            onClick={async () => {
-              if (!profile) return;
-              const { error } = await publishStory(profile.id, storyText);
-              if (error) return toast(`Story non publiée : ${error}`, "err");
-              setStoryText("");
-              setOpenStoryCompose(false);
-              await refreshStories();
-              toast("Story publiée · 24 h");
-            }}
-            className="mo-press h-[var(--h-input)] rounded-[var(--radius-chip)] border
-              border-signal bg-signal px-5 font-mono text-[12px] font-bold
-              tracking-[0.1em] text-void uppercase shadow-sh-1
-              disabled:opacity-40"
-          >
-            Publier
-          </button>
-        </div>
-      </Sheet>
+        profile={
+          profile
+            ? {
+                id: profile.id,
+                prenom: profile.prenom,
+                pseudo: profile.pseudo,
+                avatar_color: profile.avatar_color,
+              }
+            : null
+        }
+        onPublished={refreshStories}
+      />
 
       {openStories.length > 0 && (
         <StoryViewer

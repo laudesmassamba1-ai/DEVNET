@@ -31,9 +31,22 @@ export default function Login() {
 
   const isDemo = backend.state === "offline";
 
+  /**
+   * Destination après connexion.
+   *
+   * Seuls les chemins internes sont acceptés : `//hôte` et les URL
+   * absolues sont écartés pour ne pas transformer `?next=` en redirection
+   * ouverte. Sans `next`, on revient au fil.
+   */
+  const destination = useCallback(() => {
+    if (typeof window === "undefined") return "/feed";
+    const raw = new URLSearchParams(window.location.search).get("next");
+    return raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/feed";
+  }, []);
+
   useEffect(() => {
-    if (!loading && session) router.replace("/feed");
-  }, [loading, session, router]);
+    if (!loading && session) router.replace(destination());
+  }, [loading, session, router, destination]);
 
   const signIn = useCallback(
     async (emailToUse: string, password: string, pick?: User) => {
@@ -58,13 +71,13 @@ export default function Login() {
         // La session vient de s'ouvrir : l'écran de lancement se rejoue
         // au prochain chargement complet (voir `rearmSplash`).
         rearmSplash();
-        router.replace("/feed");
+        router.replace(destination());
         return true;
       } finally {
         setBusy(false);
       }
     },
-    [router],
+    [router, destination],
   );
 
   async function submit(e: React.FormEvent) {

@@ -40,6 +40,7 @@ import {
   MenuScale,
   Medal,
   MediaImage,
+  GifFormat,
   MoreHoriz,
   MultiplePages,
   NavArrowDown,
@@ -50,6 +51,7 @@ import {
   Pin,
   Play,
   Plus,
+  Repeat,
   Search,
   SendDiagonal,
   Server,
@@ -92,7 +94,7 @@ export const ICON_NAMES = [
   "bolt", "layers", "grid", "cursor", "keyboard", "file", "stop", "play",
   "pin", "star", "verified", "globe", "lock", "flame", "trophy", "chart",
   "spark", "medal", "fork", "target", "info", "flag", "smile", "droplet",
-  "sun", "moon",
+  "sun", "moon", "gif",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];
@@ -124,7 +126,10 @@ const ICONS: Record<IconName, IconoirGlyph> = {
   like: Heart,
   comment: ChatBubbleEmpty,
   share: ShareAndroid,
-  repost: ChatLines,
+  // Le repost n'est pas une conversation : `ChatLines` (bulle de chat)
+  // servait aussi aux messages, donc le même glyphe disait deux gestes
+  // différents. `Repeat` dit le retour dans le fil, et rien d'autre.
+  repost: Repeat,
   bookmark: Bookmark,
   follow: UserPlus,
   send: SendDiagonal,
@@ -138,6 +143,7 @@ const ICONS: Record<IconName, IconoirGlyph> = {
   link: Link,
   download: Download,
   image: MediaImage,
+  gif: GifFormat,
   eye: Eye,
   "eye-off": EyeClosed,
   "arrow-left": ArrowLeft,

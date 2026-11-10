@@ -10,6 +10,9 @@ import { Sheet } from "@/components/Sheet";
 import { useToast } from "@/components/Toast";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { addComment, deleteComment, fetchComments } from "@/lib/social";
+import { MessageAttachmentButtons, MessageAttachmentView } from "@/components/MessageAttachments";
+import { canSendMessage, type MessageAttachment } from "@/lib/message-media";
+import { fetchStickers, type StickerRowView } from "@/lib/stickers";
 import { badgeFor, xpOf } from "@/lib/verification";
 import { splitContent } from "@/lib/text";
 import type { CommentWithAuthor } from "@/lib/types";
@@ -70,6 +73,7 @@ function CommentRow({
   canModerate,
   leaving,
   busy,
+  sticker,
   onReply,
   onRemove,
 }: {
@@ -79,6 +83,8 @@ function CommentRow({
   canModerate: boolean;
   leaving: boolean;
   busy: boolean;
+  /** Le sticker joint, résolu depuis le catalogue chargé par le panneau. */
+  sticker: StickerRowView | null;
   onReply: (c: CommentWithAuthor) => void;
   onRemove: (id: string) => void;
 }) {
@@ -105,6 +111,11 @@ function CommentRow({
             {relativeTime(comment.created_at)}
           </span>
         </p>
+        <MessageAttachmentView
+          gifUrl={comment.gif_url}
+          gifAlt={comment.gif_alt}
+          sticker={sticker}
+        />
         <p className="mt-1 text-[13.5px] leading-[1.55] break-words whitespace-pre-wrap text-chalk-2">
           {/* Même découpage que dans une publication : c'est ici qu'on
               cite le plus souvent quelqu'un, et un `@pseudo` qui ne mène
@@ -199,6 +210,10 @@ export function CommentsPanel({
   const [leavingId, setLeavingId] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [busy, setBusy] = useState(false);
+  /** Média joint au prochain commentaire — sticker ou GIF, jamais un emoji. */
+  const [attachment, setAttachment] = useState<MessageAttachment | null>(null);
+  /** Catalogue des stickers, pour rendre un commentaire déjà envoyé. */
+  const [stickerCatalog, setStickerCatalog] = useState<Map<string, StickerRowView>>(new Map());
   /** Le fil qu'on est en train de regarder — trie les réponses en vol. */
   const postIdRef = useRef(postId);
   useEffect(() => {
@@ -233,6 +248,15 @@ export function CommentsPanel({
       await load(postId);
     })();
   }, [open, postId, load]);
+
+  // Le catalogue ne change pas pendant la lecture d'un fil : une requête
+  // par ouverture suffit, et elle sert toutes les bulles d'un coup.
+  useEffect(() => {
+    if (!open) return;
+    void fetchStickers().then((rows) => {
+      setStickerCatalog(new Map(rows.map((row) => [row.id, row])));
+    });
+  }, [open]);
 
   /**
    * Le fil reconstitué depuis la liste plate.
@@ -297,8 +321,15 @@ export function CommentsPanel({
 
   async function send() {
     if (!postId || !me || busy) return;
+    if (!canSendMessage(text, attachment ?? undefined)) return;
     setBusy(true);
-    const { error } = await addComment(postId, me, text, replyTo?.rootId ?? null);
+    const { error } = await addComment(
+      postId,
+      me,
+      text,
+      replyTo?.rootId ?? null,
+      attachment ?? undefined,
+    );
     setBusy(false);
 
     if (error) {
@@ -306,6 +337,7 @@ export function CommentsPanel({
       return;
     }
     setText("");
+    setAttachment(null);
     setReplyTo(null);
     await load(postId);
   }
@@ -376,6 +408,7 @@ export function CommentsPanel({
                 canModerate={canModerate}
                 leaving={leavingId === c.id}
                 busy={busy}
+                sticker={c.sticker_id ? stickerCatalog.get(c.sticker_id) ?? null : null}
                 onReply={beginReply}
                 onRemove={remove}
               />
@@ -396,6 +429,7 @@ export function CommentsPanel({
                       canModerate={canModerate}
                       leaving={leavingId === r.id}
                       busy={busy}
+                      sticker={r.sticker_id ? stickerCatalog.get(r.sticker_id) ?? null : null}
                       onReply={beginReply}
                       onRemove={remove}
                     />
@@ -436,7 +470,30 @@ export function CommentsPanel({
           </div>
         )}
 
+        {attachment && (
+          <div className="mb-2 flex items-center gap-2 rounded-input border border-line-2
+            bg-surface-2/60 px-2.5 py-1.5">
+            <span className="min-w-0 flex-1 truncate text-[11.5px] text-chalk-2">
+              {attachment.kind === "sticker" ? "Sticker prêt à envoyer" : "GIF prêt à envoyer"}
+            </span>
+            <button
+              type="button"
+              onClick={() => setAttachment(null)}
+              aria-label="Retirer la pièce jointe"
+              className="flex size-8 shrink-0 items-center justify-center rounded-full
+                text-chalk-4 transition-colors hover:text-danger"
+            >
+              <Icon name="close" size={12} strokeWidth={2.2} />
+            </button>
+          </div>
+        )}
+
         <div className="flex items-end gap-2">
+          <MessageAttachmentButtons
+            disabled={!me || busy}
+            onGif={(gif) => setAttachment({ kind: "gif", gif })}
+            onSticker={(sticker) => setAttachment({ kind: "sticker", stickerId: sticker.id })}
+          />
           <textarea
             ref={composerRef}
             value={text}
@@ -452,6 +509,7 @@ export function CommentsPanel({
             }}
             rows={2}
             maxLength={1000}
+            aria-label="Écrire un commentaire"
             placeholder={me ? "Répondre…" : "Connecte-toi pour répondre"}
             disabled={!me}
             className="min-h-[42px] flex-1 resize-none rounded-[var(--radius-input)]
@@ -463,7 +521,7 @@ export function CommentsPanel({
           />
           <button
             type="submit"
-            disabled={!me || busy || !text.trim()}
+            disabled={!me || busy || !canSendMessage(text, attachment ?? undefined)}
             aria-label="Publier le commentaire"
             className="h-[42px] shrink-0 rounded-[var(--radius-chip)] border
               border-signal bg-signal px-3.5 font-mono text-[12px] font-bold

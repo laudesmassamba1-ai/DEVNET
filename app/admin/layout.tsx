@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { AdminGate } from "@/components/AdminGate";
-import { serverCannotCheckAdmin } from "@/lib/admin-access";
 import { getOrCreateServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -13,17 +11,6 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  /**
-   * Quand aucune session serveur ne peut exister — pas de backend, ou
-   * démonstration forcée dont la session vit dans `localStorage` — le
-   * refus serveur rendrait `/admin` inaccessible même à un compte
-   * administrateur. On laisse alors `AdminGate` trancher sur le profil
-   * client, et on ne rend jamais la console pour un compte sans rôle.
-   */
-  if (serverCannotCheckAdmin()) {
-    return <AdminGate>{children}</AdminGate>;
-  }
-
   const client = await getOrCreateServerClient();
   if (!client) notFound();
 
@@ -50,7 +37,5 @@ export default async function AdminLayout({
   }
   if (profile?.is_admin !== true) notFound();
 
-  // Seconde barrière, y compris sur backend réel : le client confirme le
-  // rôle au lieu de faire confiance au seul rendu serveur.
-  return <AdminGate>{children}</AdminGate>;
+  return children;
 }

@@ -40,6 +40,11 @@ export interface PlacedSticker {
 }
 
 export interface StoryEntry extends StoryWithAuthor {
+  /**
+   * Média de la story, s'il y en a un. Seul le type voyage avec le fil :
+   * les octets sont servis par une route dédiée, jamais dans la liste.
+   */
+  media: { mime: string } | null;
   /** Nombre de likes — renseigné pour l'auteur seulement. */
   likes: number;
   /** Nombre de vues — renseigné pour l'auteur seulement. */
@@ -95,6 +100,25 @@ export interface StoriesRepository {
   ): Promise<PlacedSticker>;
   /** Retire un sticker posé — la story, elle, reste. */
   removeSticker(readerId: string, storyId: string, placedId: string): Promise<void>;
+  /** Publie une story, avec ou sans média déjà re-encodé. */
+  createStory(
+    authorId: string,
+    input: {
+      caption: string;
+      media?: {
+        bytes: Buffer;
+        mime: string;
+        width: number | null;
+        height: number | null;
+        durationMs: number | null;
+      };
+    },
+  ): Promise<{ id: string }>;
+  /** Octets du média, sous les droits du lecteur. */
+  fetchStoryMedia(
+    readerId: string | null,
+    storyId: string,
+  ): Promise<{ mime: string; bytes: Buffer } | null>;
 }
 
 export class StoriesRepositoryError extends Error {
@@ -106,14 +130,20 @@ export class StoriesRepositoryError extends Error {
       | "reply"
       | "move-sticker"
       | "remove-sticker"
-      | "place-sticker",
+      | "place-sticker"
+      | "create-story"
+      | "read-story-media",
     readonly code: string,
     options?: ErrorOptions,
   ) {
     super(
       operation === "list-stories"
         ? "Impossible de charger les stories. Réessaie dans un instant."
-        : "Impossible d’enregistrer ce geste. Réessaie dans un instant.",
+        : operation === "create-story"
+          ? "Impossible de publier la story. Réessaie dans un instant."
+          : operation === "read-story-media"
+            ? "Impossible de charger le média. Réessaie dans un instant."
+            : "Impossible d’enregistrer ce geste. Réessaie dans un instant.",
       options,
     );
     this.name = "StoriesRepositoryError";

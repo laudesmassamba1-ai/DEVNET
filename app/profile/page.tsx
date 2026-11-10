@@ -805,6 +805,7 @@ export default function ProfilePage() {
 
                   {verifyStatus !== "acceptee" && verifyStatus !== "attente" && (
                     <textarea
+                      aria-label="Note de vérification"
                       value={verifyNote}
                       onChange={(e) => setVerifyNote(e.target.value)}
                       rows={3}
@@ -1056,6 +1057,7 @@ function EditForm({
       <div className="mb-4">
         <label className={label}>Prénom</label>
         <input
+          aria-label="Prénom"
           value={prenom}
           onChange={(e) => setPrenom(e.target.value)}
           placeholder="Ton prénom"
@@ -1065,7 +1067,7 @@ function EditForm({
 
       <div className="mb-4">
         <label className={label}>Pseudo</label>
-        <input value={profile.pseudo} disabled className={`${inputCls} cursor-not-allowed opacity-60`} />
+        <input value={profile.pseudo} aria-label="Pseudonyme" disabled className={`${inputCls} cursor-not-allowed opacity-60`} />
         <p className="mt-1.5 text-[11.5px] text-chalk-4">
           Identifiant public (URL, mentions) — non modifiable.
         </p>
@@ -1079,6 +1081,7 @@ function EditForm({
           </span>
         </div>
         <textarea
+          aria-label="Bio"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           rows={3}
@@ -1091,14 +1094,14 @@ function EditForm({
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div>
           <label className={label}>Filière</label>
-          <select value={filiere} onChange={(e) => setFiliere(e.target.value)}
+          <select value={filiere} aria-label="Filière" onChange={(e) => setFiliere(e.target.value)}
             className={`${inputCls} cursor-pointer`}>
             {FILIERES.map((f) => <option key={f}>{f}</option>)}
           </select>
         </div>
         <div>
           <label className={label}>Niveau</label>
-          <select value={niveau} onChange={(e) => setNiveau(e.target.value)}
+          <select value={niveau} aria-label="Niveau" onChange={(e) => setNiveau(e.target.value)}
             className={`${inputCls} cursor-pointer`}>
             {NIVEAUX.map((n) => <option key={n}>{n}</option>)}
           </select>
@@ -1108,12 +1111,12 @@ function EditForm({
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div>
           <label className={label}>Ville</label>
-          <input value={ville} onChange={(e) => setVille(e.target.value)}
+          <input value={ville} aria-label="Ville" onChange={(e) => setVille(e.target.value)}
             placeholder="Abidjan" className={inputCls} />
         </div>
         <div>
           <label className={label}>Pays</label>
-          <input value={pays} onChange={(e) => setPays(e.target.value)}
+          <input value={pays} aria-label="Pays" onChange={(e) => setPays(e.target.value)}
             placeholder="Côte d'Ivoire" className={inputCls} />
         </div>
       </div>
@@ -1149,12 +1152,14 @@ function EditForm({
           {links.map((l, i) => (
             <div key={i} className="flex gap-2">
               <input
+                aria-label="Libellé du lien"
                 value={l.label}
                 onChange={(e) => setLink(i, { label: e.target.value })}
                 placeholder="GitHub"
                 className={`${inputBox} w-[38%]`}
               />
               <input
+                aria-label="URL du lien"
                 value={l.url}
                 onChange={(e) => setLink(i, { url: e.target.value })}
                 placeholder="github.com/vous"

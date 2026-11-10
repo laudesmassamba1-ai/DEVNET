@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppShell, IconButton } from "@/components/AppShell";
 import { Icon, asIconName } from "@/components/Icon";
 import { EmptyState, Loading } from "@/components/Avatar";
+import { ExtensionSlot } from "@/components/ExtensionSlot";
+import { Field } from "@/components/Field";
+import { ExtensionStudio } from "@/components/ExtensionStudio";
 import { Sheet } from "@/components/Sheet";
 import { useToast } from "@/components/Toast";
 import { useSession } from "@/hooks/useSession";
@@ -12,12 +15,13 @@ import {
   fetchExtensions, fetchMyInstalls, installExtension, setExtensionEnabled,
   setExtensionSettings, uninstallExtension,
 } from "@/lib/extensions";
+import { EXAMPLE_EXTENSION, EXAMPLE_EXTENSION_SLUG } from "@/lib/example-extension";
 import type {
   ExtensionCategory, ExtensionInstall, ExtensionSetting, ExtensionSnippet,
   ExtensionWithAuthor,
 } from "@/lib/types";
 
-const ICONS = ["grid", "package", "star", "bolt", "terminal",
+const ICONS = ["grid", "package", "star", "bolt",  "terminal",
   "code", "layers", "server", "lock", "globe"] as const;
 
 const SNIPPET_LANGS = ["*", "javascript", "typescript", "python", "json", "html", "css"] as const;
@@ -170,6 +174,37 @@ export default function ExtensionsPage() {
     setCommandRows([]);
   }
 
+  /**
+   * Publier l’exemple sur le backend courant, puis l’installer.
+   *
+   * Sur backend réel, aucune migration n’est nécessaire : c’est un insert
+   * ordinaire, soumis à la RLS de `029`, avec l’utilisateur comme auteur.
+   * En démonstration, l’exemple existe déjà (fixture `e-5`).
+   */
+  async function publishExample() {
+    if (!profile) return;
+    if (extensions?.some((e) => e.slug === EXAMPLE_EXTENSION_SLUG)) {
+      return toast("L’exemple est déjà publié", "err");
+    }
+
+    setBusy(true);
+    const { extension, error } = await createExtension(EXAMPLE_EXTENSION, profile.id);
+    if (error || !extension) {
+      setBusy(false);
+      return toast(`Erreur : ${error ?? "publication impossible"}`, "err");
+    }
+
+    const { error: installError } = await installExtension(extension.id, profile.id);
+    setBusy(false);
+    if (installError) {
+      return toast(`Publiée, mais installation impossible : ${installError}`, "err");
+    }
+
+    await load();
+    await loadMine();
+    toast("Exemple publié et installé");
+  }
+
   async function remove(e: ExtensionWithAuthor) {
     const { error } = await deleteExtension(e.id);
     if (error) return toast(`Erreur : ${error}`, "err");
@@ -186,6 +221,8 @@ export default function ExtensionsPage() {
     () => [...installs.values()].filter((i) => i.enabled).length,
     [installs],
   );
+  const example = (extensions ?? []).find((e) => e.slug === EXAMPLE_EXTENSION_SLUG) ?? null;
+  const exampleInstall = example ? installs.get(example.id) : undefined;
 
   return (
     <AppShell
@@ -202,8 +239,23 @@ export default function ExtensionsPage() {
           interprète. {activeCount > 0 && <span>{activeCount} active{activeCount > 1 ? "s" : ""}.</span>}
         </div>
 
+        <ExtensionStudio
+          example={example}
+          install={exampleInstall}
+          signedIn={Boolean(profile)}
+          onPublish={() => void publishExample()}
+          onInstall={() => { if (example) void install(example); }}
+          onToggle={() => { if (example) void toggle(example); }}
+          onSettings={() => { if (example) setSettingsFor(example); }}
+        />
+
+        <div className="mb-3">
+          <ExtensionSlot slot="extensions.page" title="Vos extensions actives" />
+        </div>
+
         <input
           value={query} onChange={(e) => setQuery(e.target.value)}
+          aria-label="Rechercher une extension"
           placeholder="Rechercher une extension…"
           className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
             px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
@@ -346,6 +398,7 @@ export default function ExtensionsPage() {
           <div className="grid grid-cols-5 gap-2">
             {ICONS.map((k) => (
               <button key={k} type="button" onClick={() => setIcon(k)}
+                aria-label={`Icône ${k}`} aria-pressed={icon === k}
                 className="flex aspect-square items-center justify-center rounded-[var(--radius-input)]
                   border border-line-3 transition-colors"
                 data-active={icon === k ? "true" : "false"}
@@ -362,24 +415,25 @@ export default function ExtensionsPage() {
           {snippets.map((s, i) => (
             <div key={i} className="mb-2 rounded-[var(--radius-input)] border border-line-3 bg-surface-2 p-2.5">
               <div className="mb-2 flex gap-2">
-                <select value={s.language}
+                <select value={s.language} aria-label={`Langage de l'extrait ${i + 1}`}
                   onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, language: e.target.value } : x))}
                   className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-[12px] outline-none">
                   {SNIPPET_LANGS.map((l) => <option key={l} value={l}>{l === "*" ? "tous" : l}</option>)}
                 </select>
-                <input value={s.prefix}
+                <input value={s.prefix} aria-label={`Préfixe de l'extrait ${i + 1}`}
                   onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, prefix: e.target.value } : x))}
                   placeholder="préfixe"
                   className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
                 {snippets.length > 1 && (
                   <button type="button"
                     onClick={() => setSnippets((prev) => prev.filter((_, j) => j !== i))}
+                    aria-label={`Supprimer l'extrait ${i + 1}`}
                     className="flex size-9 items-center justify-center rounded-[var(--radius-chip)] text-chalk-4 hover:text-signal">
                     <Icon name="close" size={14} />
                   </button>
                 )}
               </div>
-              <textarea value={s.body} rows={2}
+              <textarea value={s.body} aria-label={`Corps de l'extrait ${i + 1}`} rows={2}
                 onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, body: e.target.value } : x))}
                 placeholder={"Corps inséré. ${1}, ${2}… marquent les tabulations."}
                 className="w-full rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 py-2
@@ -400,7 +454,7 @@ export default function ExtensionsPage() {
           {commandRows.map((c, i) => (
             <div key={i} className="mb-2 rounded-[var(--radius-input)] border border-line-3 bg-surface-2 p-2.5">
               <div className="mb-2 flex gap-2">
-                <input value={c.title}
+                <input value={c.title} aria-label={`Titre de la commande ${i + 1}`}
                   onChange={(e) => setCommandRows((prev) => prev.map((x, j) => j === i ? { ...x, title: e.target.value } : x))}
                   placeholder="Titre de la commande"
                   className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
@@ -411,7 +465,7 @@ export default function ExtensionsPage() {
                   <Icon name="close" size={14} />
                 </button>
               </div>
-              <textarea value={c.body} rows={2}
+              <textarea value={c.body} aria-label={`Corps de la commande ${i + 1}`} rows={2}
                 onChange={(e) => setCommandRows((prev) => prev.map((x, j) => j === i ? { ...x, body: e.target.value } : x))}
                 placeholder="Texte inséré au curseur"
                 className="w-full rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 py-2
@@ -428,15 +482,15 @@ export default function ExtensionsPage() {
         <Field label="Réglages">
           {settingRows.map((s, i) => (
             <div key={i} className="mb-2 flex gap-2">
-              <input value={s.key}
+              <input value={s.key} aria-label={`Clé du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i ? { ...x, key: e.target.value } : x))}
                 placeholder="clé"
                 className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
-              <input value={s.label}
+              <input value={s.label} aria-label={`Libellé du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i ? { ...x, label: e.target.value } : x))}
                 placeholder="libellé"
                 className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
-              <select value={s.type}
+              <select value={s.type} aria-label={`Type du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i
                   ? { ...x, type: e.target.value as ExtensionSetting["type"] } : x))}
                 className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-[12px] outline-none">
@@ -446,6 +500,7 @@ export default function ExtensionsPage() {
               </select>
               <button type="button"
                 onClick={() => setSettingRows((prev) => prev.filter((_, j) => j !== i))}
+                aria-label={`Supprimer le réglage ${i + 1}`}
                 className="flex size-9 items-center justify-center rounded-[var(--radius-chip)] text-chalk-4 hover:text-signal">
                 <Icon name="close" size={14} />
               </button>
@@ -559,18 +614,5 @@ function Chip({ active, onClick, children }: {
         : { borderColor: "var(--color-line-3)", background: "var(--color-surface)", color: "var(--color-chalk-2)" }}>
       {children}
     </button>
-  );
-}
-
-function Field({ label, children, tight }: {
-  label: string;
-  children: React.ReactNode;
-  tight?: boolean;
-}) {
-  return (
-    <div className={tight ? "" : "mb-4"}>
-      <label className="label mb-1.5 block text-chalk">{label}</label>
-      {children}
-    </div>
   );
 }

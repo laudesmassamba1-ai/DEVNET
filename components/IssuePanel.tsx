@@ -314,6 +314,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                         type="button"
                         onClick={() => void answer(issue)}
                         disabled={busy || !reply.trim()}
+                        aria-label="Envoyer la réponse"
                         className="mo-press h-[var(--h-input)] shrink-0 rounded-[var(--radius-input)]
                           border border-line-3 px-3 font-mono text-[11px] font-bold
                           uppercase tracking-[0.12em] text-chalk-3

@@ -24,7 +24,7 @@
  */
 
 import { readdirSync, readFileSync } from "node:fs";
-import { join, relative } from "node:path";
+import { join, posix, relative } from "node:path";
 
 const ROOT = process.cwd();
 
@@ -37,7 +37,7 @@ const SDK_ALLOWED = new Set([
 ]);
 
 /** Dossiers lus : le produit. Scripts et documentation sont hors périmètre. */
-const SOURCE_DIRS = ["app", "components", "hooks", "lib", "modules", "platform"];
+const SOURCE_DIRS = ["app", "components", "hooks", "lib", "modules", "platform", "plugins", "shared"];
 
 let passed = 0;
 const failures: string[] = [];
@@ -140,13 +140,77 @@ for (const file of moduleFiles) {
   );
 }
 
+// ── 3bis. Un plugin ne parle qu'au SDK ────────────────────────────────────
+//
+// Un plugin est du code de confiance, mais sa **surface** reste étroite : il
+// n'importe ni l'intérieur d'un module, ni un adaptateur, ni l'UI du cœur. Le
+// SDK est sa seule porte vers le reste.
+const pluginFiles = files.filter((f) => f.startsWith("plugins/"));
+
+for (const file of pluginFiles) {
+  const pluginRoot = file.split("/").slice(0, 2).join("/");
+  for (const spec of imports(file)) {
+    if (spec === "@devnet/plugin-sdk") continue;
+    if (spec.startsWith(".")) {
+      const resolved = posix.normalize(posix.join(posix.dirname(file), spec));
+      check(
+        `plugin sans sortie de son dossier : ${file}`,
+        resolved === pluginRoot || resolved.startsWith(`${pluginRoot}/`),
+        spec,
+      );
+      continue;
+    }
+    check(
+      `plugin importe uniquement le SDK : ${file}`,
+      false,
+      spec,
+    );
+  }
+}
+
+// ── 3ter. Le SDK reste indépendant de tout fournisseur ────────────────────
+const sdkFiles = files.filter((f) => f.startsWith("shared/plugin-sdk/"));
+
+for (const file of sdkFiles) {
+  const external = imports(file).filter(
+    (spec) =>
+      spec.startsWith("@/")
+      || spec.startsWith("@supabase/")
+      || spec === "pg"
+      || spec.startsWith("@vercel/")
+      || spec.startsWith("next/"),
+  );
+  check(
+    `SDK sans dépendance fournisseur : ${file}`,
+    external.length === 0,
+    external.join(", "),
+  );
+}
+
+// ── 3quater. Le driver PostgreSQL reste dans l'infrastructure ─────────────
+const pgUsers = files.filter((file) =>
+  imports(file).some((spec) => spec === "pg" || spec.startsWith("pg/")),
+);
+
+for (const file of pgUsers) {
+  check(
+    `pg confiné à l'infrastructure : ${file}`,
+    file.includes("/infrastructure/"),
+    "import de pg hors infrastructure",
+  );
+}
+
 // ── 4. Le conteneur est le seul à composer un adaptateur concret ──────────
+const COMPOSERS = new Set([
+  "platform/container.ts",
+  "platform/server-container.ts",
+]);
 const composers = files.filter((file) =>
   imports(file).some(
     (spec) =>
       /modules\/[^/]+\/infrastructure\//.test(spec) &&
       !file.startsWith("modules/") &&
-      file !== "platform/container.ts",
+      !COMPOSERS.has(file),
   ),
 );
 
@@ -155,6 +219,19 @@ for (const file of composers) {
     `composition centralisée : ${file}`,
     false,
     "un adaptateur est instancié hors de platform/container.ts",
+  );
+}
+
+// ── 4bis. Le conteneur serveur n'entre jamais dans le bundle client ────────
+const serverContainerUsers = files.filter((file) =>
+  imports(file).includes("@/platform/server-container"),
+);
+
+for (const file of serverContainerUsers) {
+  check(
+    `conteneur serveur réservé aux routes : ${file}`,
+    file.startsWith("app/api/") || file.startsWith("lib/server/"),
+    "import depuis une page, un composant ou un hook",
   );
 }
 

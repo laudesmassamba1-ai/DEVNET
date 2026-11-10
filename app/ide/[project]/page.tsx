@@ -642,6 +642,7 @@ export default function IdePage() {
               <div className="flex items-center gap-1.5">
                 <select
                   value={branch}
+                  aria-label="Branche"
                   onChange={(e) => switchBranch(e.target.value)}
                   className="mo-press h-[32px] rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 font-mono text-[11px] text-chalk-2"
                 >
@@ -800,6 +801,7 @@ export default function IdePage() {
           <div className="space-y-2">
             <label className="label block text-chalk-2">Nom de la branche</label>
             <input
+              aria-label="Nom de la nouvelle branche"
               value={branchName}
               onChange={(e) => setBranchName(e.target.value)}
               className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-[12.5px] text-chalk outline-none"
@@ -868,6 +870,7 @@ export default function IdePage() {
           <div className="space-y-2">
             <label className="label block text-chalk-2">Message du commit</label>
             <textarea
+              aria-label="Message du commit"
               value={commitMsg}
               onChange={(e) => setCommitMsg(e.target.value)}
               rows={3}

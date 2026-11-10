@@ -81,6 +81,7 @@ export function PostOwnerTools({
           pis-aller. */}
       <Sheet open={editing !== null} onClose={cancelEdit} title="Modifier le post">
         <textarea
+          aria-label="Texte du post"
           value={editText}
           onChange={(e) => setEditText(e.target.value)}
           rows={5}

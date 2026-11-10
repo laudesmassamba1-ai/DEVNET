@@ -3,7 +3,7 @@ import { AUTHOR_COLUMNS } from "@/lib/social";
 import { slugify, uniqueSlug } from "@/lib/groups/channels";
 import type {
   Extension, ExtensionCategory, ExtensionCommand, ExtensionInstall,
-  ExtensionManifest, ExtensionSnippet, ExtensionWithAuthor,
+  ExtensionManifest, ExtensionSlot, ExtensionSnippet, ExtensionWithAuthor,
 } from "@/lib/types";
 
 /**
@@ -29,13 +29,26 @@ export const CATEGORY_LABELS: Record<ExtensionCategory, string> = {
   snippets: "Extraits",
   language: "Langage",
   tool: "Outil",
-  ai: "IA",
   other: "Autre",
 };
 
 export const CATEGORY_ORDER: ExtensionCategory[] = [
-  "snippets", "theme", "language", "tool", "ai", "other",
+  "snippets", "theme", "language", "tool", "other",
 ];
+
+/**
+ * Un lien de slot est-il inoffensif ?
+ *
+ * Deux formes seulement : `https://` (lien sortant) et `/…` (route interne).
+ * Tout le reste — `javascript:`, `data:`, `//hôte` — est refusé : une carte
+ * de slot est rendue comme un lien cliquable, et un manifeste n'a aucune
+ * raison de pouvoir exécuter quelque chose au clic.
+ */
+export function isSafeSlotHref(href: string): boolean {
+  const value = href.trim();
+  return value.startsWith("https://")
+    || (value.startsWith("/") && !value.startsWith("//"));
+}
 
 /**
  * Un manifeste, validé.
@@ -88,6 +101,25 @@ export function normalizeManifest(raw: unknown): ExtensionManifest {
         // pas reste lisible — elle vient d'un manifeste antérieur — mais
         // `executableCommands` ne la proposera pas dans l'éditeur.
         body: typeof c.body === "string" ? c.body : undefined,
+      }));
+  }
+
+  if (Array.isArray(m.slots)) {
+    out.slots = m.slots
+      // Un slot sans emplacement ne s'affiche nulle part, et une carte sans
+      // titre n'est qu'un paragraphe orphelin : les deux sont écartés.
+      .filter((s): s is { slot: string; title: string; body?: unknown; href?: unknown } =>
+        !!s && typeof s === "object"
+        && typeof (s as { slot?: unknown }).slot === "string"
+        && (s as { slot: string }).slot.trim() !== ""
+        && typeof (s as { title?: unknown }).title === "string"
+        && (s as { title: string }).title.trim() !== "",
+      )
+      .map((s) => ({
+        slot: s.slot.trim(),
+        title: s.title.trim(),
+        body: typeof s.body === "string" && s.body.trim() !== "" ? s.body.trim() : undefined,
+        href: typeof s.href === "string" && isSafeSlotHref(s.href) ? s.href.trim() : undefined,
       }));
   }
 
@@ -327,6 +359,53 @@ export async function setExtensionSettings(
     .eq("user_id", userId);
 
   return { error: error?.message ?? null };
+}
+
+/**
+ * Une carte de slot, avec l'extension qui la déclare.
+ *
+ * Le nom de l'extension est conservé : une carte doit dire d'où elle vient,
+ * sinon l'utilisateur ne peut pas la désactiver en connaissance de cause.
+ */
+export interface SlotContribution {
+  extension: ExtensionWithAuthor;
+  slot: ExtensionSlot;
+}
+
+/**
+ * Les cartes qu'un emplacement doit afficher, pour les extensions actives.
+ *
+ * Fonction pure : le filtrage `enabled` est celui de `fetchActiveContributions`,
+ * et un slot inconnu ne renvoie rien plutôt que de faire échouer l'écran.
+ * Une extension désactivée ne contribue **aucune** carte, même installée.
+ */
+export function contributionsForSlot(
+  extensions: ExtensionWithAuthor[],
+  installs: Map<string, ExtensionInstall>,
+  slot: string,
+): SlotContribution[] {
+  const active = new Set(
+    [...installs.values()].filter((i) => i.enabled).map((i) => i.extension_id),
+  );
+  if (active.size === 0) return [];
+
+  return extensions
+    .filter((e) => active.has(e.id))
+    .flatMap((extension) =>
+      (extension.manifest.slots ?? [])
+        .filter((s) => s.slot === slot)
+        .map((s) => ({ extension, slot: s })),
+    );
+}
+
+/** Les cartes d'un emplacement, lues pour un utilisateur donné. */
+export async function fetchSlotContributions(
+  userId: string,
+  slot: string,
+): Promise<SlotContribution[]> {
+  const installs = await fetchMyInstalls(userId);
+  if (![...installs.values()].some((i) => i.enabled)) return [];
+  return contributionsForSlot(await fetchExtensions(), installs, slot);
 }
 
 /** Le nombre d'extensions actives — pour la pastille de l'onglet IDE. */

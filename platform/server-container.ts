@@ -13,7 +13,13 @@ import type { AuthRepository } from "@/modules/auth/ports/auth-repository";
 import { PostgresFeedRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-repository";
 import { PostgresFeedHydrationRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-hydration-repository";
 import { PostgresStoriesRepository } from "@/modules/stories/infrastructure/postgres/postgres-stories-repository";
+import {
+  encodeStoryMedia,
+  mediaKind,
+} from "@/modules/stories/infrastructure/media/story-media";
 import type { StoriesRepository } from "@/modules/stories/ports/stories-repository";
+
+export { encodeStoryMedia, mediaKind };
 import { PostgresStickersRepository } from "@/modules/stickers/infrastructure/postgres/postgres-stickers-repository";
 import type { StickersRepository } from "@/modules/stickers/ports/stickers-repository";
 import { reencodeSticker } from "@/modules/stickers/infrastructure/image/reencode";

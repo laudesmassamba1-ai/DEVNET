@@ -764,7 +764,7 @@ const ENUM_CHECKS: Record<string, Record<string, string[]>> = {
   // catégorie que l'écran ne sait pas ranger ni rendre (un onglet fantôme),
   // et que Postgres refuserait à la bascule.
   extensions: {
-    category: ["theme", "snippets", "language", "tool", "ai", "other"],
+    category: ["theme", "snippets", "language", "tool", "other"],
   },
   // Même liste que le `check` de la 030. Un état libre serait un état que
   // l'écran ne sait pas rendre — donc « active » ou « en erreur » selon la

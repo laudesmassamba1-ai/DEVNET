@@ -412,6 +412,7 @@ export function GithubPanel({
               />
               <div className="flex flex-col gap-2.5">
                 <input
+                  aria-label="URL du dépôt GitHub"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://github.com/koffi-devnet/cooperative"
@@ -624,6 +625,7 @@ function ConnectionsSection({ me }: { me: string }) {
                 <div className="flex flex-col gap-2">
                   <p className="text-[11.5px] leading-snug text-chalk-3">{p.hint}</p>
                   <input
+                    aria-label="Identifiant de la preuve"
                     value={draft.login}
                     onChange={(e) =>
                       setDrafts((d) => ({ ...d, [p.id]: { ...draft, login: e.target.value } }))
@@ -636,6 +638,7 @@ function ConnectionsSection({ me }: { me: string }) {
                   />
                   {p.needsEndpoint && (
                     <input
+                      aria-label="Point de contrôle de la preuve"
                       value={draft.endpoint}
                       onChange={(e) =>
                         setDrafts((d) => ({ ...d, [p.id]: { ...draft, endpoint: e.target.value } }))

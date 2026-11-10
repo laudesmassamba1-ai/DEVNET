@@ -1,3 +1,4 @@
+import { EXAMPLE_EXTENSION } from "../example-extension";
 import type {
   Community, CommunityMember, Conversation, DirectMessage, Extension,
   ExtensionInstall, Group, GroupMessage, Post, User,
@@ -999,7 +1000,7 @@ export const DEMO_EXTENSIONS: Extension[] = [
     description: "Des invites de revue prêtes à insérer dans le fichier pour l'assistant de votre choix : explication, tests, cas limites.",
     version: "0.4.0",
     icon: "bolt",
-    category: "ai",
+    category: "snippets",
     manifest: {
       commands: [
         {
@@ -1022,25 +1023,16 @@ export const DEMO_EXTENSIONS: Extension[] = [
     created_at: ago(12 * 24 * HOUR),
   },
   {
+    // L’exemple canonique : défini dans `lib/example-extension.ts` pour que
+    // la démo, l’interface et les tests parlent du même manifeste.
     id: "e-5",
-    slug: "conventions-python",
-    name: "Conventions Python",
-    description: "L'en-tête de module et le garde-fou PEP 8, insérés en une commande depuis la palette.",
-    version: "1.2.1",
-    icon: "terminal",
-    category: "tool",
-    manifest: {
-      commands: [
-        {
-          id: "module-header",
-          title: "Insérer l'en-tête de module",
-          body: "\"\"\"Module.\n\nDécris ici ce que fait ce fichier.\n\"\"\"\n",
-        },
-      ],
-      settings: [
-        { key: "maxLineLength", label: "Longueur de ligne maximale", type: "number", default: 88 },
-      ],
-    },
+    slug: EXAMPLE_EXTENSION.slug,
+    name: EXAMPLE_EXTENSION.name,
+    description: EXAMPLE_EXTENSION.description,
+    version: EXAMPLE_EXTENSION.version,
+    icon: EXAMPLE_EXTENSION.icon,
+    category: EXAMPLE_EXTENSION.category,
+    manifest: EXAMPLE_EXTENSION.manifest,
     owner_id: "u-thabo",
     installs: 0,
     created_at: ago(8 * 24 * HOUR),

@@ -239,12 +239,13 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
 
         <div className="mb-4">
           <label className={labelCls}>Nom</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+          <input value={name} aria-label="Nom du projet" onChange={(e) => setName(e.target.value)} className={inputCls} />
         </div>
 
         <div className="mb-4">
           <label className={labelCls}>Description</label>
           <textarea
+            aria-label="Description du projet"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
@@ -258,6 +259,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
           <div>
             <label className={labelCls}>Langage principal</label>
             <input
+              aria-label="Langage principal"
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
               placeholder="Python"
@@ -267,6 +269,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
           <div>
             <label className={labelCls}>Visibilité</label>
             <select
+              aria-label="Visibilité du projet"
               value={visibility}
               onChange={(e) => setVisibility(e.target.value as ProjectVisibility)}
               className={`${inputCls} cursor-pointer`}
@@ -478,6 +481,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
             <label className={labelCls}>Inviter par pseudo</label>
             <div className="flex gap-2">
               <input
+                aria-label="Inviter un membre par pseudo"
                 value={invite}
                 onChange={(e) => setInvite(e.target.value)}
                 onKeyDown={(e) => {

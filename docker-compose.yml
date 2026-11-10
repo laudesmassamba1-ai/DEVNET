@@ -1,8 +1,9 @@
 # Environnement local reproductible (Phase 2).
 #
-#   docker compose up -d db          base seule (5 min chrono avec npm ci)
-#   npm run db:migrate               compatibilité + 40 migrations
-#   docker compose --profile full up app   application + base
+#   docker compose up -d db                       base seule (5 min chrono avec npm ci)
+#   npm run db:migrate -- --apply                 compatibilité + 44 migrations
+#   npm run db:migrate                            simulation, sans écriture
+#   docker compose --profile full up app          application + base
 #
 # `docker-compose` v1 lit le même fichier : le champ `version` est là
 # pour lui, Compose v2 l'ignore en affichant un avertissement bénin.
@@ -10,7 +11,8 @@ version: "3.9"
 
 services:
   db:
-    image: postgres:17-alpine
+    # Même version majeure que la cible distante mesurée (Systalink, 2026-11-08).
+    image: postgres:18.3-alpine
     container_name: devnet-db
     environment:
       POSTGRES_USER: devnet
@@ -22,7 +24,8 @@ services:
       # 5433 en façade : le Supabase local occupe déjà 5432 sur cette machine.
       - "5433:5432"
     volumes:
-      - devnet-db-data:/var/lib/postgresql/data
+      # Volume neuf : PG18 range ses données dans un sous-dossier de version.
+      - devnet-db-data-v18:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U devnet -d devnet"]
       interval: 5s
@@ -50,5 +53,5 @@ services:
         condition: service_healthy
 
 volumes:
-  devnet-db-data:
+  devnet-db-data-v18:
   devnet-node-modules:

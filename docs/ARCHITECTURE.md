@@ -137,12 +137,14 @@ premier besoin réel, pas en anticipation.
    de changement de schéma.
 2. Introduire les frontières d'un domaine à la fois, en préservant ses
    comportements et en ajoutant des tests de contrat.
-3. Attendre les informations de Systalink avant de choisir le pilote, les
-   migrations, la stratégie de compatibilité, l'authentification cible ou le
-   modèle de connexion.
+3. Le socle local est PostgreSQL 18.3, avec les 52 migrations du dépôt et un
+   exécuteur en simulation par défaut. La cible Systalink est mesurée et migrée
+   (PostgreSQL 18.3, TLS 1.3, rôles RLS, `search_path`, `max_connections = 100`) ;
+   l'application reste branchée sur Supabase jusqu'à la bascule.
 4. N'exécuter aucune migration, aucun `db:reset` et aucune opération sur une
-   base distante avant validation explicite de la cible et de son accès.
+   base distante sans sauvegarde, simulation et confirmation explicite.
 
 Les compteurs de dépendances et l'état des validations sont suivis dans
 [`BASELINE.md`](./BASELINE.md) ; ils doivent être recalculés avant chaque tranche
-qui modifie ces frontières.
+qui modifie ces frontières. L'exploitation, les sauvegardes et le diagnostic
+sont décrits dans [`ops/runbook.md`](./ops/runbook.md).

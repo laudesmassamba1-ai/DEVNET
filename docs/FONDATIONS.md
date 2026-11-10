@@ -165,19 +165,21 @@ réécriture globale.
 
 ## 7. Socle de données
 
-- **41 migrations** `supabase/001…041`, plus `seed.sql`. Elles supposent
-  Supabase : `auth.uid()`, rôles `anon`/`authenticated`, schéma `extensions`,
-  publication `supabase_realtime`.
+- **51 migrations** `supabase/001…051`, plus `seed.sql`, soit **52 entrées**
+  avec `000_compat.sql`. Elles supposent Supabase : `auth.uid()`, rôles
+  `anon`/`authenticated`, schéma `extensions`, publication
+  `supabase_realtime`.
 - `db/compat/000_compat.sql` fournit la couche de compatibilité pour un
   PostgreSQL vierge ; `docker-compose.yml` et `scripts/db/` servent les essais
-  locaux (PostgreSQL 17).
+  locaux (PostgreSQL 18.3).
 - **Deux copies** des migrations existent (`supabase/*.sql` et
-  `supabase/migrations/`). Elles doivent rester identiques tant que la source
-  unique n'est pas choisie : c'est un risque de divergence silencieuse.
-- La cible annoncée (PostgreSQL 17, 5 Go chez Systalink) **n'est pas achetée**.
-  Aucun accès, droit, SSL ni extension n'a été vérifié : aucune migration
-  distante n'est exécutée. `db:reset` refuse par conception tout hôte qui n'est
-  pas local.
+  `supabase/migrations/`). L'exécuteur lit la racine `supabase/` ; l'autre
+  dossier est un héritage à ne pas utiliser pour une nouvelle migration, sous
+  peine de divergence silencieuse.
+- La cible Systalink **est mesurée et migrée** : PostgreSQL 18.3, TLS 1.3,
+  52 migrations appliquées le 2026-11-09, rôles RLS créés. L'application utilise
+  encore Supabase ; aucune donnée réelle n'a été basculée. `db:reset` refuse
+  par conception tout hôte qui n'est pas local.
 
 ## 8. Sécurité et identité
 

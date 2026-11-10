@@ -11,7 +11,7 @@
  *
  * Il **écrit** : il refuse toute cible distante et nettoie dans `finally`.
  */
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { Client } from "pg";
 import { PostgresStoriesRepository } from "../modules/stories/infrastructure/postgres/postgres-stories-repository";
 import { closePostgresPool, getPostgresPool } from "../platform/infrastructure/postgres/pool";
@@ -21,6 +21,7 @@ import { isLocalHost, loadEnvFiles, resolveDatabaseUrl } from "./db/lib";
 
 const users = { author: randomUUID(), reader: randomUUID(), solo: randomUUID() };
 const story = { live: randomUUID(), expired: randomUUID() };
+const imageSticker = `probe-${randomUUID()}`;
 
 let passed = 0;
 const failures: string[] = [];
@@ -48,6 +49,19 @@ async function seed(client: Client): Promise<void> {
       [id, `probe-${label}-${id.slice(0, 8)}`],
     );
   }
+
+  const stickerBytes = Buffer.from("probe-image", "utf8");
+  await client.query(
+    `insert into public.stickers
+       (id, pack, kind, glyph, name, owner_id, visibility, status, bytes, mime, sha256)
+     values ($1, 'probe', 'image', '', 'Probe image', $2, 'public', 'actif', $3, 'image/png', $4)`,
+    [
+      imageSticker,
+      users.author,
+      stickerBytes,
+      createHash("sha256").update(stickerBytes).digest("hex"),
+    ],
+  );
 
   await client.query(
     `insert into public.stories (id, author_id, caption, created_at)
@@ -94,8 +108,16 @@ async function main(): Promise<void> {
 
     // 1. Catalogue de base : public, stable.
     const anonymous = await repository.fetchFeed(null);
-    check("catalogue : au moins huit stickers", anonymous.catalog.length >= 8, anonymous.catalog.length);
-    check("catalogue : clés stables", anonymous.catalog.some((s) => s.id === "feu"));
+    check(
+      "catalogue : sticker d'image public présent",
+      anonymous.catalog.some((s) => s.id === imageSticker),
+      anonymous.catalog.map((s) => s.id),
+    );
+    check(
+      "catalogue : glyphes de base absents de la pellicule",
+      anonymous.catalog.every((s) => s.kind === "image"),
+      anonymous.catalog.map((s) => s.kind),
+    );
     check("sans identité : aucune story", anonymous.stories.length === 0);
 
     // 2. Fil : les vivantes seulement, état du lecteur inclus.

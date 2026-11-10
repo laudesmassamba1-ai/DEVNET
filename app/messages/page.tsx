@@ -10,6 +10,7 @@ import { Icon } from "@/components/Icon";
 import { Receipt } from "@/components/Receipt";
 import { TypingLine } from "@/components/TypingDots";
 import { MessageExtras, ReplyQuote } from "@/components/MessageExtras";
+import { MessageAttachmentButtons, MessageAttachmentView } from "@/components/MessageAttachments";
 import { DMContext } from "@/components/DMContext";
 import { ChatComposer, ComposerBar } from "@/components/ChatComposer";
 import { useToast } from "@/components/Toast";
@@ -46,6 +47,8 @@ import {
   type ReactionSummary,
 } from "@/lib/messages";
 import type { Conversation, DirectMessage, UserLite } from "@/lib/types";
+import { canSendMessage, attachmentColumns, type MessageAttachment } from "@/lib/message-media";
+import { fetchStickers, type StickerRowView } from "@/lib/stickers";
 
 type Peer = { conv: Conversation; other: (UserLite & { xp?: number }) | null };
 
@@ -102,6 +105,14 @@ export default function MessagesPage() {
   const [editing, setEditing] = useState<DirectMessage | null>(null);
   /** Le prochain message part comme bloc de code (migration 041). */
   const [asCode, setAsCode] = useState(false);
+  /**
+   * Catalogue des stickers, indexé par identifiant : un message ne
+   * stocke que `sticker_id`, et la bulle a besoin du glyphe. Une seule
+   * requête pour tout l'écran, refaite jamais — le catalogue change
+   * rarement, et un sticker retiré laisse simplement une bulle sans
+   * image plutôt qu'un écran en erreur.
+   */
+  const [stickerCatalog, setStickerCatalog] = useState<Map<string, StickerRowView>>(new Map());
 
   // Message dont la suppression attend confirmation. Une suppression est
   // irréversible : on ne la déclenche pas sur un clic, surtout que la
@@ -628,6 +639,20 @@ export default function MessagesPage() {
    * `null` = story introuvable ou expirée : le message a été écrit, la story
    * a vécu 24 h. On le dit au lieu de laisser un cadre vide.
    */
+  // Le catalogue est chargé une fois, même si aucun message n'a de
+  // sticker : la requête est petite, et l'alternative — la déclencher
+  // au premier sticker rencontré — rendrait la première bulle vide
+  // pendant un aller-retour.
+  useEffect(() => {
+    let alive = true;
+    void fetchStickers().then((rows) => {
+      if (alive) setStickerCatalog(new Map(rows.map((row) => [row.id, row])));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
   const [storyCards, setStoryCards] = useState<Record<string, { caption: string } | null>>({});
 
   useEffect(() => {
@@ -669,6 +694,9 @@ export default function MessagesPage() {
           author_name: message.author_name,
           text: message.text,
           is_code: message.is_code ?? false,
+          gif_url: message.gif_url ?? "",
+          gif_alt: message.gif_alt ?? "",
+          sticker_id: message.sticker_id ?? null,
           reply_to_id: message.reply_to_id ?? null,
         })
         .select("*")
@@ -825,14 +853,18 @@ export default function MessagesPage() {
     setReplyTo(null);
   }
 
-  async function send() {
+  async function send(attachment?: MessageAttachment) {
     if (editing) {
       await saveEdit();
       return;
     }
     if (!profile || !active) return;
     const body = text.trim();
-    if (!body || sending) return;
+    // Un sticker ou un GIF tient lieu de texte : le message est complet
+    // sans un mot. `canSendMessage` est la même règle que le canal de
+    // groupe, et elle refuse un GIF dont l'URL n'est pas sûre.
+    if (!canSendMessage(body, attachment) || sending) return;
+    const media = attachmentColumns(attachment);
 
     const message: MessageRow = {
       id: crypto.randomUUID(),
@@ -841,6 +873,9 @@ export default function MessagesPage() {
       author_name: profile.prenom,
       text: body,
       is_code: asCode,
+      gif_url: media.gif_url,
+      gif_alt: media.gif_alt,
+      sticker_id: media.sticker_id,
       reply_to_id: replyTo?.id ?? null,
       created_at: new Date().toISOString(),
       deliveryStatus: "sending",
@@ -941,6 +976,7 @@ export default function MessagesPage() {
                   <Icon name="search" size={14} className="shrink-0 text-chalk-4" />
                   <input
                     autoFocus
+                    aria-label="Rechercher dans la conversation"
                     value={find}
                     onChange={(e) => setFind(e.target.value)}
                     placeholder={`Chercher dans les échanges avec ${peer.prenom}…`}
@@ -1031,6 +1067,14 @@ export default function MessagesPage() {
                             </span>
                           </div>
                         )}
+
+                        <MessageAttachmentView
+                          gifUrl={m.gif_url}
+                          gifAlt={m.gif_alt}
+                          sticker={
+                            m.sticker_id ? stickerCatalog.get(m.sticker_id) ?? null : null
+                          }
+                        />
 
                         {m.is_code && (
                           <button
@@ -1204,7 +1248,14 @@ export default function MessagesPage() {
                   id="dm-composer"
                   value={text}
                   onValueChange={setText}
-                  onSend={send}
+                  onSend={() => void send()}
+                  attachments={
+                    <MessageAttachmentButtons
+                      disabled={!active || sending}
+                      onGif={(gif) => void send({ kind: "gif", gif })}
+                      onSticker={(sticker) => void send({ kind: "sticker", stickerId: sticker.id })}
+                    />
+                  }
                   onTyping={notifyTyping}
                   sending={sending}
                   code={asCode}
@@ -1235,6 +1286,7 @@ export default function MessagesPage() {
           shell:overflow-y-auto`}>
           <div className="px-(--gutter) pt-3 shell:px-3 shell:pt-2">
         <input value={search} onChange={(e) => setSearch(e.target.value)}
+          aria-label="Rechercher une conversation"
           placeholder="Rechercher…"
             className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
               px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
@@ -1292,7 +1344,7 @@ export default function MessagesPage() {
       </div>
 
       <Sheet open={openNew} onClose={() => setOpenNew(false)} title="Nouvelle conversation">
-        <input value={userSearch} onChange={(e) => setUserSearch(e.target.value)}
+        <input value={userSearch} aria-label="Rechercher un pseudo" onChange={(e) => setUserSearch(e.target.value)}
           placeholder="Rechercher un pseudo…"
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
             px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />

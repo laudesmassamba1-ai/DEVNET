@@ -313,6 +313,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
               <Icon name="search" size={14} />
             </span>
             <input
+              aria-label="Rechercher un compte"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="pseudo, prénom ou email"

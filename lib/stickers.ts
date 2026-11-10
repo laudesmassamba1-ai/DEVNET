@@ -9,6 +9,12 @@ import type { StickerColorToken } from "@/modules/stickers";
 
 export interface StickerRowView {
   id: string;
+  /**
+   * Nom de fichier d'une image **embarquée** (`public/stickers/<nom>.svg`).
+   * Absent pour un sticker venu de la base, dont les octets sont servis par
+   * la route d'asset.
+   */
+  builtin?: string;
   pack: string;
   kind: "texte" | "image" | "animé";
   glyph: string;

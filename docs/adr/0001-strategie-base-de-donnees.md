@@ -1,7 +1,11 @@
 # ADR 0001 — Stratégie de base de données
 
 - **Date** : 2026-11-04
-- **Statut** : provisoire ; stratégie distante en attente de l'achat
+- **Statut** : historique ; remplacé pour le miroir local par l'ADR 0011
+- **Note 2026-11-09** : le miroir local est PostgreSQL 18.3, la cible Systalink
+  a été mesurée puis migrée (52 migrations appliquées). Les sections ci-dessous
+  conservent la décision et les hypothèses initiales ; l’état réel est dans
+  `docs/adr/0011-exploitation-postgresql.md` et `docs/ops/db-capabilities.md`.
 
 ## Contexte
 

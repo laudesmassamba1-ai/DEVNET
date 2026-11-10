@@ -13,6 +13,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { decodeDataUrl, readStickerAction, StickersRepositoryError } from "@/modules/stickers";
 import { currentUserId } from "@/lib/supabase/server";
 import { getServerStickersRepository } from "@/platform/server-container";
+import { HOUSE_STICKERS, houseStickersEnabled } from "@/lib/sticker-catalog";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,6 +39,12 @@ export async function GET(): Promise<NextResponse> {
     const stickers = await getServerStickersRepository().list(await currentUserId());
     return NextResponse.json({ stickers }, { headers: NO_STORE });
   } catch (error) {
+    // Démonstration forcée : pas de base, donc pas de catalogue. On sert
+    // celui de la maison plutôt qu'une grille vide — sinon le sélecteur
+    // de sticker a l'air cassé alors qu'il n'y a rien à interroger.
+    if (houseStickersEnabled()) {
+      return NextResponse.json({ stickers: HOUSE_STICKERS }, { headers: NO_STORE });
+    }
     return errorResponse(error);
   }
 }

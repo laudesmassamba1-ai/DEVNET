@@ -1,0 +1,4 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Étoile">
+  <path d="M60 12l14.6 29.6 32.7 4.8-23.7 23 5.6 32.5L60 86.5 30.8 101.9l5.6-32.5-23.7-23 32.7-4.8z" fill="#FF7A45" stroke="#12140F" stroke-width="6" stroke-linejoin="round"/>
+  <path d="M47 55l9 9 17-17" fill="none" stroke="#12140F" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity=".25"/>
+</svg>

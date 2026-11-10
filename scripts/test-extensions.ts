@@ -102,7 +102,7 @@ async function main(): Promise<void> {
   /* ---------------------------------------------------------------- */
 
   eq("catégories : chaque catégorie a un libellé", CATEGORY_ORDER.every((c) => !!CATEGORY_LABELS[c]), true);
-  eq("catégories : l'ordre couvre les six catégories", CATEGORY_ORDER.length, 6);
+  eq("catégories : l'ordre couvre les cinq catégories", CATEGORY_ORDER.length, 5);
 
   eq(
     "slug : dérivé du nom et rendu unique",

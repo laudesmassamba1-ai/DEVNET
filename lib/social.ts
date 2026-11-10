@@ -5,6 +5,11 @@ import { fetchBookmarkedPostIds } from "@/lib/signets";
 import { fetchProjectsForPosts } from "@/lib/repo";
 import { withAuthorXp } from "@/lib/author-xp";
 import {
+  attachmentColumns,
+  canSendMessage,
+  type MessageAttachment,
+} from "@/lib/message-media";
+import {
   AUTHOR_COLUMNS,
   POST_AUTHOR_COLUMNS,
   PROFILE_COLUMNS,
@@ -455,10 +460,17 @@ export async function addComment(
   author: string,
   text: string,
   parentId?: string | null,
+  attachment?: MessageAttachment,
 ): Promise<{ error: string | null }> {
   const clean = text.trim();
-  if (!clean) return { error: "Le commentaire est vide" };
+  // Un sticker ou un GIF tient lieu de texte : la contrainte 054 accepte un
+  // commentaire sans mots s'il porte un média. Le filtre d'URL vient de la
+  // même fonction que la messagerie — deux règles divergeraient.
+  if (!canSendMessage(clean, attachment)) {
+    return { error: "Le commentaire est vide" };
+  }
   if (clean.length > 1000) return { error: "1000 caractères maximum" };
+  const media = attachmentColumns(attachment);
 
   const { error } = await supabase
     .from("comments")
@@ -467,6 +479,9 @@ export async function addComment(
       author_id: author,
       text: clean,
       parent_id: parentId ?? null,
+      gif_url: media.gif_url,
+      gif_alt: media.gif_alt,
+      sticker_id: media.sticker_id,
     });
 
   return { error: error?.message ?? null };
