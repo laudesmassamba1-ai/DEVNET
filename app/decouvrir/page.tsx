@@ -88,7 +88,7 @@ export default function DiscoverPage() {
               <ExtensionSlot slot="discover.sidebar" />
               <section className="rounded-[var(--radius-card)] border border-dashed border-line-2 p-4">
                 <p className="label-micro text-chalk-4">Règle du vivier</p>
-                <p className="mt-2 text-[12.5px] leading-relaxed text-chalk-3">
+                <p className="mt-2 text-sm leading-relaxed text-chalk-3">
                   Rien ici ne se découvre au hasard : une preuve publiée, un atelier qui
                   cherche des mains, un cercle qui s&apos;ouvre. Des traces de travail,
                   pas des images à faire défiler.
@@ -281,7 +281,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
           color={author?.avatar_color}
           className="size-[24px] border-[var(--bw-thin)] text-[10px]"
         />
-        <span className="flex min-w-0 items-center gap-1.5 truncate text-[12.5px] font-semibold text-chalk">
+        <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold text-chalk">
           {author?.prenom ?? "Anonyme"}
           {badge && <VerifiedBadge tier={badge} size="sm" />}
         </span>
@@ -410,7 +410,7 @@ function NextStep({ xp, ready, signedIn }: { xp?: number; ready: boolean; signed
     return (
       <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-4">
         <p className="prompt-label text-chalk-2">Ta prochaine marche</p>
-        <p className="mt-2 text-[12.5px] text-chalk-3">Connecte-toi pour suivre ton palier.</p>
+        <p className="mt-2 text-sm text-chalk-3">Connecte-toi pour suivre ton palier.</p>
         <Link href="/login" className="label-micro mt-3 inline-flex items-center gap-1 text-signal">
           Se connecter <Icon name="chevron-right" size={11} />
         </Link>
@@ -458,7 +458,7 @@ function Shortcuts() {
         <Link
           key={l.href}
           href={l.href}
-          className="flex items-center gap-2.5 rounded-[var(--radius-input)] px-2.5 py-2 text-[12.5px] text-chalk-3 transition-colors hover:bg-surface-2/60 hover:text-chalk"
+          className="flex items-center gap-2.5 rounded-[var(--radius-input)] px-2.5 py-2 text-sm text-chalk-3 transition-colors hover:bg-surface-2/60 hover:text-chalk"
         >
           <Icon name={l.icon} size={14} />
           {l.label}

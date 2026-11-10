@@ -198,7 +198,7 @@ export default function GithubRepoPage() {
               </h2>
             </div>
             {detail.description && (
-              <p className="mt-1.5 text-[12.5px] leading-relaxed text-chalk-2">
+              <p className="mt-1.5 text-sm leading-relaxed text-chalk-2">
                 {detail.description}
               </p>
             )}
@@ -244,8 +244,8 @@ export default function GithubRepoPage() {
                 value={ref}
                 onChange={(e) => setRef(e.target.value)}
                 className="h-[var(--h-input)] w-full appearance-none rounded-[var(--radius-input)]
-                  border border-line-3 bg-surface pr-3 pl-8 font-mono text-[12.5px]
-                  text-chalk shadow-sh-1 outline-none focus:shadow-[3px_3px_0_var(--color-signal)]"
+                  border border-line-3 bg-surface pr-3 pl-8 font-mono text-sm
+                  text-chalk shadow-sh-1 focus:shadow-[3px_3px_0_var(--color-signal)]"
               >
                 {branches.map((b) => (
                   <option key={b.name} value={b.name}>
@@ -299,7 +299,7 @@ export default function GithubRepoPage() {
                   placeholder="Filtrer les fichiers"
                   className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                     border border-line-3 bg-surface pr-3 pl-8 font-mono text-[12px]
-                    shadow-sh-1 outline-none placeholder:text-chalk-4
+                    shadow-sh-1 placeholder:text-chalk-4
                     focus:shadow-[3px_3px_0_var(--color-signal)]"
                 />
               </label>
@@ -418,7 +418,7 @@ export default function GithubRepoPage() {
                     className="flex items-center justify-between gap-3 rounded-[var(--radius-input)]
                       border border-line-2/60 bg-surface px-3.5 py-2.5"
                   >
-                    <span className="flex min-w-0 items-center gap-2 font-mono text-[12.5px] text-chalk">
+                    <span className="flex min-w-0 items-center gap-2 font-mono text-sm text-chalk">
                       <Icon name="branch" size={12} className="text-chalk-4" />
                       <span className="truncate">{b.name}</span>
                       {b.name === ref && (

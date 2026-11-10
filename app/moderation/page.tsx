@@ -205,7 +205,7 @@ export default function ModerationPage() {
                   </p>
 
                   {r.details && (
-                    <p className="mt-1 border-l border-line-2 pl-2.5 text-[12.5px]
+                    <p className="mt-1 border-l border-line-2 pl-2.5 text-sm
                       leading-relaxed text-chalk-2">
                       {r.details}
                     </p>

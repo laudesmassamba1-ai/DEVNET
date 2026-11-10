@@ -980,8 +980,8 @@ export default function MessagesPage() {
                     value={find}
                     onChange={(e) => setFind(e.target.value)}
                     placeholder={`Chercher dans les échanges avec ${peer.prenom}…`}
-                    className="h-[30px] w-full border-none bg-transparent text-[12.5px] text-chalk
-                      outline-none placeholder:text-chalk-4"
+                    className="h-[30px] w-full border-none bg-transparent text-sm text-chalk
+                      placeholder:text-chalk-4"
                   />
                   <button
                     type="button" aria-label="Fermer la recherche"
@@ -1274,7 +1274,7 @@ export default function MessagesPage() {
             <div className="hidden h-full flex-col items-center justify-center gap-3
               border-l border-line-2 text-chalk-4 shell:flex">
               <Icon name="messages" size={24} strokeWidth={1.3} />
-              <p className="text-[12.5px]">Choisis une conversation</p>
+              <p className="text-sm">Choisis une conversation</p>
             </div>
           )}
         </section>
@@ -1289,7 +1289,7 @@ export default function MessagesPage() {
           aria-label="Rechercher une conversation"
           placeholder="Rechercher…"
             className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-              px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
+              px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
               focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]" />
 
           {visibleConvs === null && <Loading />}
@@ -1347,10 +1347,10 @@ export default function MessagesPage() {
         <input value={userSearch} aria-label="Rechercher un pseudo" onChange={(e) => setUserSearch(e.target.value)}
           placeholder="Rechercher un pseudo…"
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
 
         {users.length === 0 && (
-          <p className="py-6 text-center text-[12.5px] text-chalk-3">Aucun membre trouvé</p>
+          <p className="py-6 text-center text-sm text-chalk-3">Aucun membre trouvé</p>
         )}
 
         {users.map((u) => (

@@ -82,7 +82,7 @@ const EMOJI_CHOICES = [
 
 const inputCls =
   "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 " +
-  "bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4";
+  "bg-surface px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4";
 const labelCls = "label mb-1.5 block text-chalk";
 
 export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDeleted }: Props) {
@@ -251,7 +251,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
             rows={3}
             placeholder="En une phrase, ce que fait le projet."
             className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-              px-3.5 py-3 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4"
+              px-3.5 py-3 text-[14px] shadow-sh-1 placeholder:text-chalk-4"
           />
         </div>
 
@@ -293,7 +293,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                 onClick={() => setStage(s.id)}
                 aria-pressed={stage === s.id}
                 title={s.hint}
-                className={`mo-press rounded-[var(--radius-chip)] border px-3 py-1.5 text-[12.5px]
+                className={`mo-press rounded-[var(--radius-chip)] border px-3 py-1.5 text-sm
                   font-bold transition-colors ${
                     stage === s.id
                       ? "border-signal bg-signal/10 text-signal"
@@ -382,7 +382,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
           onClick={() => void saveSettings()}
           disabled={saving || !canAdmin}
           className="mo-press inline-flex h-[var(--h-tap)] items-center justify-center gap-2
-            rounded-[var(--radius-input)] border border-line-3 bg-signal px-4 text-[12.5px]
+            rounded-[var(--radius-input)] border border-line-3 bg-signal px-4 text-sm
             font-bold text-void shadow-sh-1 hover:shadow-sh-2 disabled:opacity-40"
         >
           <Icon name="check" size={14} strokeWidth={2.2} />
@@ -428,7 +428,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                       aria-label={`Rôle de ${m.prenom}`}
                       title={ROLE_HINTS[m.role as ProjectRole] ?? ""}
                       className="h-[34px] cursor-pointer rounded-[var(--radius-input)]
-                        border border-line-3 bg-surface px-2 text-[12.5px] text-chalk-2 outline-none"
+                        border border-line-3 bg-surface px-2 text-sm text-chalk-2"
                     >
                       {(["maintainer", "editor", "viewer"] as ProjectRole[]).map((r) => (
                         <option key={r} value={r}>
@@ -495,7 +495,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                 onClick={() => void addByPseudo()}
                 disabled={inviting || !invite.trim()}
                 className="mo-press inline-flex h-[var(--h-input)] shrink-0 items-center gap-1.5
-                  rounded-[var(--radius-input)] border border-line-3 bg-page px-3.5 text-[12.5px]
+                  rounded-[var(--radius-input)] border border-line-3 bg-page px-3.5 text-sm
                   font-bold text-chalk transition-colors hover:border-chalk-3 disabled:opacity-40"
               >
                 <Icon name="follow" size={14} />
@@ -516,14 +516,14 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
             <Icon name="flag" size={14} />
             Supprimer le projet
           </h2>
-          <p className="mb-3 text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="mb-3 text-sm leading-relaxed text-chalk-3">
             Le dépôt, ses commits, ses issues et ses tâches disparaissent. C&apos;est
             définitif : il n&apos;y a pas de corbeille.
           </p>
 
           {confirmDelete ? (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="mr-auto text-[12.5px] font-bold text-chalk">
+              <span className="mr-auto text-sm font-bold text-chalk">
                 Confirmer la suppression de « {project.name} » ?
               </span>
               <button
@@ -549,7 +549,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
               type="button"
               onClick={() => setConfirmDelete(true)}
               className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2 rounded-[var(--radius-input)]
-                border border-danger px-3.5 text-[12.5px] font-bold text-danger transition-colors
+                border border-danger px-3.5 text-sm font-bold text-danger transition-colors
                 hover:bg-danger hover:text-void"
             >
               <Icon name="trash" size={14} />

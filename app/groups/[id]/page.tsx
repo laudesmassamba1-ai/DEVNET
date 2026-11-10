@@ -587,7 +587,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                 {repos.map((r) => (
                   <Link key={r.id} href={`/projects/${r.id}`} title={`Ouvrir ${r.name}`}
                     className="flex w-full items-center gap-1.5 rounded-[var(--radius-chip)]
-                      px-2.5 py-2 text-left text-[12.5px] text-chalk-3 transition-colors
+                      px-2.5 py-2 text-left text-sm text-chalk-3 transition-colors
                       hover:bg-surface-2/60 hover:text-signal">
                     <span aria-hidden="true" className="shrink-0 leading-none text-signal-d">
                       <Icon name={asIconName(r.emoji, "layers")} size={12} strokeWidth={1.8} />
@@ -656,7 +656,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   <button key={c.id} type="button" onClick={() => setActiveSlug(c.slug)}
                     aria-current={on ? "true" : undefined}
                     className={`relative flex shrink-0 items-center gap-1.5
-                      rounded-[var(--radius-chip)] px-2.5 py-1.5 text-[12.5px] transition-colors
+                      rounded-[var(--radius-chip)] px-2.5 py-1.5 text-sm transition-colors
                       ${on ? "bg-surface-2 font-semibold text-signal"
                            : "text-chalk-3 hover:bg-surface-2/60 hover:text-chalk"}`}>
                     <Icon name={c.is_private ? "lock" : "hash"} size={11} strokeWidth={2}
@@ -667,7 +667,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
               })}
               <button type="button" onClick={() => setOpenNew(true)}
                 className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-chip)]
-                  px-2.5 py-1.5 text-[12.5px] text-chalk-4 transition-colors
+                  px-2.5 py-1.5 text-sm text-chalk-4 transition-colors
                   hover:bg-surface-2/60 hover:text-chalk">
                 <Icon name="plus" size={11} strokeWidth={2} />
                 Nouveau
@@ -873,7 +873,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             onChange={(e) => setNewName(e.target.value)}
             placeholder="développement"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
-              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
+              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
               placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
           {/* Aperçu du slug : le nom affiché et le nom tapé diffèrent, et
@@ -898,7 +898,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             onChange={(e) => setNewTopic(e.target.value)}
             placeholder="À quoi sert ce canal ?"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
-              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
+              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
               placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
         </div>

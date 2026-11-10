@@ -139,7 +139,7 @@ export function PrimaryButton({
       onClick={onClick}
       className="mo-press inline-flex h-[var(--h-tap)] items-center justify-center gap-2
         rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
-        text-[12.5px] font-bold text-void shadow-sh-1
+        text-sm font-bold text-void shadow-sh-1
         hover:border-signal hover:shadow-sh-2"
     >
       {icon && <Icon name={icon} size={14} strokeWidth={2.2} />}

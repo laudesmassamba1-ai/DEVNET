@@ -124,7 +124,7 @@ export function ScorePanel({
   if (files.length === 0) {
     return (
       <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2 p-4">
-        <p className="text-[12.5px] leading-snug text-chalk-3">
+        <p className="text-sm leading-snug text-chalk-3">
           Aucun fichier à noter.
         </p>
       </div>

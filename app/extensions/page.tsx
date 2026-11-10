@@ -232,7 +232,7 @@ export default function ExtensionsPage() {
     >
       <div className="px-(--gutter) pt-3" data-tour="extensions-list">
         <div className="mb-4 rounded-[var(--radius-input)] border border-line-3 bg-surface-2 px-3.5 py-3
-          text-[12px] leading-relaxed text-chalk-2">
+          text-sm leading-relaxed text-chalk-2">
           Une extension DevNet est un <span className="font-bold text-chalk">manifeste</span>, pas
           du code exécuté : des <span className="font-bold text-chalk">extraits</span> de saisie,
           des <span className="font-bold text-chalk">commandes</span> et des réglages que l&apos;IDE
@@ -258,7 +258,7 @@ export default function ExtensionsPage() {
           aria-label="Rechercher une extension"
           placeholder="Rechercher une extension…"
           className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
+            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
@@ -291,13 +291,13 @@ export default function ExtensionsPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="truncate font-bold">{e.name}</span>
-                    <span className="text-[10px] font-bold text-chalk-4">v{e.version}</span>
+                    <span className="text-sm font-bold text-chalk-4">v{e.version}</span>
                     <span className="shrink-0 rounded-[var(--radius-chip)] border border-line-3 px-1.5 py-0.5
-                      text-[9px] font-bold uppercase tracking-[0.1em] text-chalk-3">
+                      text-sm font-bold uppercase tracking-[0.1em] text-chalk-3">
                       {CATEGORY_LABELS[e.category]}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[12px] leading-relaxed text-chalk-4">{e.description}</p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-chalk-4">{e.description}</p>
                   <p className="mt-1 text-[10.5px] text-chalk-4">
                     {e.author?.pseudo ? `@${e.author.pseudo} · ` : ""}
                     {e.installs || 0} installation{(e.installs || 0) === 1 ? "" : "s"}
@@ -315,7 +315,7 @@ export default function ExtensionsPage() {
                 {!installed && (
                   <button type="button" onClick={() => install(e)}
                     className="mo-press rounded-[var(--radius-chip)] border border-line-3 bg-signal px-3.5
-                      py-1.5 text-[11.5px] font-bold text-void shadow-sh-1">
+                      py-1.5 text-sm font-bold text-void shadow-sh-1">
                     Installer
                   </button>
                 )}
@@ -324,7 +324,7 @@ export default function ExtensionsPage() {
                   <>
                     <button type="button" onClick={() => toggle(e)}
                       className="mo-press flex items-center gap-1.5 rounded-[var(--radius-chip)] border
-                        px-3 py-1.5 text-[11.5px] font-bold"
+                        px-3 py-1.5 text-sm font-bold"
                       style={installed.enabled
                         ? { borderColor: "var(--color-line-3)", background: "var(--color-surface)", color: "var(--color-chalk)" }
                         : { borderColor: "var(--color-line-3)", background: "var(--color-surface-2)", color: "var(--color-chalk-4)" }}>
@@ -335,13 +335,13 @@ export default function ExtensionsPage() {
                     {!!e.manifest.settings?.length && (
                       <button type="button" onClick={() => setSettingsFor(e)}
                         className="mo-press rounded-[var(--radius-chip)] border border-line-3 px-3.5
-                          py-1.5 text-[11.5px] font-bold text-chalk-2 hover:bg-surface-2">
+                          py-1.5 text-sm font-bold text-chalk-2 hover:bg-surface-2">
                         Réglages
                       </button>
                     )}
 
                     <button type="button" onClick={() => uninstall(e)}
-                      className="rounded-[var(--radius-chip)] px-2 py-1.5 text-[11.5px] font-bold
+                      className="rounded-[var(--radius-chip)] px-2 py-1.5 text-sm font-bold
                         text-chalk-4 hover:text-signal">
                       Désinstaller
                     </button>
@@ -350,7 +350,7 @@ export default function ExtensionsPage() {
 
                 {mine && (
                   <button type="button" onClick={() => remove(e)}
-                    className="ml-auto rounded-[var(--radius-chip)] px-2 py-1.5 text-[11.5px] font-bold
+                    className="ml-auto rounded-[var(--radius-chip)] px-2 py-1.5 text-sm font-bold
                       text-chalk-4 hover:text-[var(--color-err,var(--color-signal))]">
                     Retirer la mienne
                   </button>
@@ -367,26 +367,26 @@ export default function ExtensionsPage() {
           <input value={name} onChange={(e) => setName(e.target.value)}
             placeholder="ex: Extraits Rust"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <Field label="Description">
           <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2}
             placeholder="À quoi sert cette extension ?"
             className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <div className="mb-4 grid grid-cols-2 gap-3">
           <Field label="Version" tight>
             <input value={version} onChange={(e) => setVersion(e.target.value)}
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-                text-[14px] shadow-sh-1 outline-none" />
+                text-[14px] shadow-sh-1" />
           </Field>
           <Field label="Catégorie" tight>
             <select value={category} onChange={(e) => setCategory(e.target.value as ExtensionCategory)}
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3
-                text-[14px] shadow-sh-1 outline-none">
+                text-[14px] shadow-sh-1">
               {CATEGORY_ORDER.map((c) => (
                 <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
               ))}
@@ -417,13 +417,13 @@ export default function ExtensionsPage() {
               <div className="mb-2 flex gap-2">
                 <select value={s.language} aria-label={`Langage de l'extrait ${i + 1}`}
                   onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, language: e.target.value } : x))}
-                  className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-[12px] outline-none">
+                  className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-sm ">
                   {SNIPPET_LANGS.map((l) => <option key={l} value={l}>{l === "*" ? "tous" : l}</option>)}
                 </select>
                 <input value={s.prefix} aria-label={`Préfixe de l'extrait ${i + 1}`}
                   onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, prefix: e.target.value } : x))}
                   placeholder="préfixe"
-                  className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
+                  className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-sm " />
                 {snippets.length > 1 && (
                   <button type="button"
                     onClick={() => setSnippets((prev) => prev.filter((_, j) => j !== i))}
@@ -437,17 +437,17 @@ export default function ExtensionsPage() {
                 onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, body: e.target.value } : x))}
                 placeholder={"Corps inséré. ${1}, ${2}… marquent les tabulations."}
                 className="w-full rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 py-2
-                  font-mono text-[12px] outline-none" />
+                  font-mono text-sm " />
             </div>
           ))}
           <button type="button" onClick={() => setSnippets((prev) => [...prev, { ...BLANK_SNIPPET }])}
-            className="text-[12px] font-bold text-signal">
+            className="text-sm font-bold text-signal">
             + Ajouter un extrait
           </button>
         </Field>
 
         <Field label="Commandes de l'éditeur">
-          <p className="mb-2 text-[11.5px] leading-relaxed text-chalk-4">
+          <p className="mb-2 text-sm leading-relaxed text-chalk-4">
             Chaque commande apparaît dans la palette de l&apos;IDE (F1) et insère
             son corps au curseur.
           </p>
@@ -457,7 +457,7 @@ export default function ExtensionsPage() {
                 <input value={c.title} aria-label={`Titre de la commande ${i + 1}`}
                   onChange={(e) => setCommandRows((prev) => prev.map((x, j) => j === i ? { ...x, title: e.target.value } : x))}
                   placeholder="Titre de la commande"
-                  className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
+                  className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-sm " />
                 <button type="button"
                   onClick={() => setCommandRows((prev) => prev.filter((_, j) => j !== i))}
                   aria-label="Retirer la commande"
@@ -469,12 +469,12 @@ export default function ExtensionsPage() {
                 onChange={(e) => setCommandRows((prev) => prev.map((x, j) => j === i ? { ...x, body: e.target.value } : x))}
                 placeholder="Texte inséré au curseur"
                 className="w-full rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 py-2
-                  font-mono text-[12px] outline-none" />
+                  font-mono text-sm " />
             </div>
           ))}
           <button type="button"
             onClick={() => setCommandRows((prev) => [...prev, { title: "", body: "" }])}
-            className="text-[12px] font-bold text-signal">
+            className="text-sm font-bold text-signal">
             + Ajouter une commande
           </button>
         </Field>
@@ -485,15 +485,15 @@ export default function ExtensionsPage() {
               <input value={s.key} aria-label={`Clé du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i ? { ...x, key: e.target.value } : x))}
                 placeholder="clé"
-                className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
+                className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-sm " />
               <input value={s.label} aria-label={`Libellé du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i ? { ...x, label: e.target.value } : x))}
                 placeholder="libellé"
-                className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
+                className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-sm " />
               <select value={s.type} aria-label={`Type du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i
                   ? { ...x, type: e.target.value as ExtensionSetting["type"] } : x))}
-                className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-[12px] outline-none">
+                className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-sm ">
                 <option value="string">texte</option>
                 <option value="number">nombre</option>
                 <option value="boolean">booléen</option>
@@ -508,7 +508,7 @@ export default function ExtensionsPage() {
           ))}
           <button type="button"
             onClick={() => setSettingRows((prev) => [...prev, { key: "", label: "", type: "string", default: "" }])}
-            className="text-[12px] font-bold text-signal">
+            className="text-sm font-bold text-signal">
             + Ajouter un réglage
           </button>
         </Field>
@@ -578,7 +578,7 @@ function SettingsSheet({ e, install, onClose, onSave }: {
                 [f.key]: f.type === "number" ? Number(ev.target.value) : ev.target.value,
               }))}
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-                text-[14px] shadow-sh-1 outline-none"
+                text-[14px] shadow-sh-1"
             />
           )}
         </Field>
@@ -607,7 +607,7 @@ function Chip({ active, onClick, children }: {
 }) {
   return (
     <button type="button" onClick={onClick}
-      className="mo-press rounded-[var(--radius-chip)] border px-3 py-1.5 text-[11.5px] font-bold
+      className="mo-press rounded-[var(--radius-chip)] border px-3 py-1.5 text-sm font-bold
         transition-colors"
       style={active
         ? { borderColor: "var(--color-line-3)", background: "var(--color-signal)", color: "var(--color-void)" }

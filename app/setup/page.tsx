@@ -75,7 +75,7 @@ export default function SetupPage() {
                 : "Non vérifié"}
         </p>
         {backend.reason && (
-          <p className="mt-2 text-[12.5px] leading-[1.5] opacity-90">{backend.reason}</p>
+          <p className="mt-2 text-sm leading-[1.5] opacity-90">{backend.reason}</p>
         )}
         {backend.url && (
           <p className="mt-2 font-mono text-[11px] opacity-75">{backend.url}</p>
@@ -93,13 +93,13 @@ export default function SetupPage() {
             <button
               type="button" onClick={retry} disabled={busy}
               className="mo-press h-[40px] rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
-                text-[12.5px] font-bold text-chalk shadow-sh-1 disabled:opacity-40"
+                text-sm font-bold text-chalk shadow-sh-1 disabled:opacity-40"
             >
               {busy ? "Vérification…" : "Réessayer maintenant"}
             </button>
             <button
               type="button" onClick={hardReset}
-              className="h-[40px] rounded-[var(--radius-input)] border border-line-3 px-4 text-[12.5px]
+              className="h-[40px] rounded-[var(--radius-input)] border border-line-3 px-4 text-sm
                 font-bold transition-colors hover:bg-surface-2"
             >
               Réinitialiser les données de démo
@@ -120,7 +120,7 @@ export default function SetupPage() {
           <li key={s.title}
             className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
             <h3 className="mb-1.5 text-[13.5px] font-bold">{s.title}</h3>
-            <p className="text-[12.5px] leading-[1.6] text-chalk-2">{s.body}</p>
+            <p className="text-sm leading-[1.6] text-chalk-2">{s.body}</p>
             {s.code && (
               <pre className="mt-3 overflow-x-auto rounded-[var(--radius-input)] border-[var(--bw-thin)]
                 border-line-2 bg-surface-2 px-3 py-2 font-mono text-[11px] text-chalk">
@@ -132,7 +132,7 @@ export default function SetupPage() {
       </ol>
 
       <div className="mb-7 rounded-[var(--radius-card)] border border-dashed border-line-2 bg-surface-2 p-4">
-        <h3 className="mb-1.5 text-[12.5px] font-bold">Compte de démonstration</h3>
+        <h3 className="mb-1.5 text-sm font-bold">Compte de démonstration</h3>
         <p className="text-[12px] leading-[1.6] text-chalk-2">
           Pour ouvrir le fil sans backend :{" "}
           <span className="font-mono text-chalk">koffi@devnet.africa</span>, n&apos;importe

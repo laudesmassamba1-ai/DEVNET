@@ -20,7 +20,7 @@ import {
 
 const inputCls =
   "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
-  "shadow-sh-1 outline-none transition-[box-shadow,border-color] placeholder:text-chalk-4 " +
+  "shadow-sh-1 transition-[box-shadow,border-color] placeholder:text-chalk-4 " +
   "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
 type Theme = typeof DEFAULT_THEME | typeof LIGHT_THEME;

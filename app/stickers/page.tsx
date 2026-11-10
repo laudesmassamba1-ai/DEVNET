@@ -220,7 +220,7 @@ export default function StickerStudioPage() {
               disabled={!profile || busy}
               className="mo-press inline-flex h-[var(--h-tap)] items-center justify-center
                 rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
-                text-[12.5px] font-bold text-void shadow-sh-1
+                text-sm font-bold text-void shadow-sh-1
                 hover:border-signal hover:shadow-sh-2
                 disabled:cursor-not-allowed disabled:opacity-50"
             >

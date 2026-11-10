@@ -68,7 +68,7 @@ export function DMContext({ peer }: { peer: UserLite }) {
         {story ? "en ce moment" : "en cours"}
       </p>
 
-      <div className="flex items-center gap-4 px-3 py-2 text-[12.5px] text-chalk-3">
+      <div className="flex items-center gap-4 px-3 py-2 text-sm text-chalk-3">
         {story && (
           <Link href={`/feed?story=${encodeURIComponent(story.author_id)}`}
             className="flex min-w-0 items-center gap-1.5 hover:text-signal">

@@ -117,7 +117,7 @@ export function ExtensionGuide() {
       hint: "Un seul fichier JSON décrit tout ce que l’extension apporte. Aucun code n’est exécuté.",
       code: JSON_MANIFEST,
       preview: (
-        <ul className="space-y-2 text-[12.5px] text-chalk-3">
+        <ul className="space-y-2 text-sm text-chalk-3">
           {[
             ["Extraits", "2 préfixes de complétion"],
             ["Commandes", "2 entrées de palette F1"],
@@ -167,7 +167,7 @@ Puis : Publier
             border-line-3 bg-surface px-3 py-2 text-[12px] font-bold text-chalk">
             <Icon name="check" size={12} /> Activée
           </span>
-          <p className="text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="text-sm leading-relaxed text-chalk-3">
             Une extension désactivée reste installée : ses données et ses réglages
             sont conservés, mais elle ne contribue plus rien à l’interface.
           </p>
@@ -193,7 +193,7 @@ palette F1               → « Insérer un plan de tests »`,
           ].map(([title, detail]) => (
             <li key={title} className="rounded-[var(--radius-input)] border border-line-2 bg-surface p-2.5">
               <p className="label-micro text-signal">{title}</p>
-              <p className="mt-1 text-[12.5px] leading-relaxed text-chalk-3">{detail}</p>
+              <p className="mt-1 text-sm leading-relaxed text-chalk-3">{detail}</p>
             </li>
           ))}
         </ul>

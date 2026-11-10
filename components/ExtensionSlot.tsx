@@ -59,7 +59,7 @@ export function ExtensionSlot({
           return (
             <li
               key={`${extension.id}-${index}`}
-              className="text-[12.5px] leading-relaxed text-chalk-3"
+              className="text-sm leading-relaxed text-chalk-3"
             >
               <p className="font-bold text-chalk">{card.title}</p>
               {card.body && <p className="mt-0.5">{card.body}</p>}

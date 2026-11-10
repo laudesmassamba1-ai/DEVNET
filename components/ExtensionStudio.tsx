@@ -50,7 +50,7 @@ export function ExtensionStudio({
             <h2 id="example-extension-title" className="mt-1 font-display text-[19px] font-bold text-chalk">
               {EXAMPLE_EXTENSION.name}
             </h2>
-            <p className="mt-1 max-w-[62ch] text-[12.5px] leading-relaxed text-chalk-3">
+            <p className="mt-1 max-w-[62ch] text-sm leading-relaxed text-chalk-3">
               {EXAMPLE_EXTENSION.description}
             </p>
           </div>
@@ -84,7 +84,7 @@ export function ExtensionStudio({
             <Link
               href="/login"
               className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-input)]
-                border border-line-3 bg-signal px-4 text-[12.5px] font-bold text-void"
+                border border-line-3 bg-signal px-4 text-sm font-bold text-void"
             >
               Se connecter pour l’essayer
             </Link>
@@ -95,7 +95,7 @@ export function ExtensionStudio({
               type="button"
               onClick={onPublish}
               className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-input)]
-                border border-line-3 bg-signal px-4 text-[12.5px] font-bold text-void"
+                border border-line-3 bg-signal px-4 text-sm font-bold text-void"
             >
               Publier l’exemple
             </button>
@@ -106,7 +106,7 @@ export function ExtensionStudio({
               type="button"
               onClick={onInstall}
               className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[var(--radius-input)]
-                border border-line-3 bg-signal px-4 text-[12.5px] font-bold text-void"
+                border border-line-3 bg-signal px-4 text-sm font-bold text-void"
             >
               <Icon name="package" size={14} /> Installer l’exemple
             </button>
@@ -117,7 +117,7 @@ export function ExtensionStudio({
               type="button"
               onClick={onToggle}
               className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-4 text-[12.5px] font-bold text-chalk"
+                border border-line-3 bg-surface px-4 text-sm font-bold text-chalk"
             >
               <Icon name={install.enabled ? "check" : "lock"} size={14} />
               {install.enabled ? "Désactiver" : "Activer"}
@@ -129,7 +129,7 @@ export function ExtensionStudio({
               type="button"
               onClick={onSettings}
               className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-input)]
-                border border-line-3 px-4 text-[12.5px] font-bold text-chalk-2"
+                border border-line-3 px-4 text-sm font-bold text-chalk-2"
             >
               Réglages
             </button>
@@ -138,7 +138,7 @@ export function ExtensionStudio({
           <Link
             href="/decouvrir"
             className="inline-flex min-h-11 items-center justify-center rounded-[var(--radius-input)]
-              px-3 text-[12.5px] font-bold text-signal hover:underline"
+              px-3 text-sm font-bold text-signal hover:underline"
           >
             Voir dans Découvrir
           </Link>

@@ -206,7 +206,7 @@ export default function Login() {
                   >
                     <Avatar name={u.prenom} color={u.avatar_color} size="sm" />
                     <div className="min-w-0">
-                      <p className="truncate font-display text-[12.5px] font-bold text-chalk">
+                      <p className="truncate font-display text-sm font-bold text-chalk">
                         @{u.pseudo}
                       </p>
                       <p className="truncate label-micro text-chalk-4">
@@ -243,7 +243,7 @@ export default function Login() {
                       >
                         <Avatar name={u.prenom} color={u.avatar_color} size="sm" />
                         <div className="min-w-0">
-                          <p className="truncate font-display text-[12.5px] font-bold text-chalk">
+                          <p className="truncate font-display text-sm font-bold text-chalk">
                             @{u.pseudo}
                           </p>
                           <p className="truncate label-micro text-chalk-4">{u.ville}</p>
@@ -295,7 +295,7 @@ export default function Login() {
               <div
                 role="alert"
                 className="rounded-[var(--radius-input)] border
-                  border-danger bg-danger/12 px-3.5 py-2.5 text-[12.5px] font-medium text-danger"
+                  border-danger bg-danger/12 px-3.5 py-2.5 text-sm font-medium text-danger"
               >
                 {error}
               </div>
@@ -316,7 +316,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="votre@email.com"
                 className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-                  text-[14px] outline-none
+                  text-[14px]
                   transition-[transform,box-shadow] duration-[var(--d-base)] ease-[var(--ease-spring)]
                   placeholder:text-chalk-4 focus-visible:ring-2 focus-visible:ring-signal/70
                   focus-visible:ring-offset-2 focus-visible:ring-offset-page"
@@ -338,7 +338,7 @@ export default function Login() {
                   onChange={(e) => setPw(e.target.value)}
                   placeholder="••••••••"
                   className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-                    px-3.5 pr-12 text-[14px] outline-none
+                    px-3.5 pr-12 text-[14px]
                     transition-[transform,box-shadow] duration-[var(--d-base)] ease-[var(--ease-spring)]
                     placeholder:text-chalk-4 focus-visible:ring-2 focus-visible:ring-signal/70
                     focus-visible:ring-offset-2 focus-visible:ring-offset-page"
@@ -388,7 +388,7 @@ export default function Login() {
         </Motion>
 
         <Motion role="fade" delay={1000}>
-          <p className="mt-5 text-center text-[12.5px] text-chalk-3">
+          <p className="mt-5 text-center text-sm text-chalk-3">
             Pas encore de compte ?{" "}
             <Link href="/register" className="font-bold text-signal underline-sweep">
               Créer un compte

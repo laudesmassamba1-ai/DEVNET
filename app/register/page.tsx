@@ -124,7 +124,7 @@ export default function Register() {
 
   const inputCls =
     "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
-    "outline-none transition-[transform,box-shadow] placeholder:text-chalk-4 " +
+    "outline transition-[transform,box-shadow] placeholder:text-chalk-4 " +
     "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
   return (
@@ -168,7 +168,7 @@ export default function Register() {
             <div
               role="alert"
               className="rounded-[var(--radius-input)] border
-                border-danger bg-danger/12 px-3.5 py-2.5 text-[12.5px] font-medium text-danger"
+                border-danger bg-danger/12 px-3.5 py-2.5 text-sm font-medium text-danger"
             >
               {error}
             </div>
@@ -210,7 +210,7 @@ export default function Register() {
                           ? "border-signal bg-signal/10"
                           : "border-line-2 bg-surface hover:border-line-3 hover:bg-surface-2"}`}
                     >
-                      <span className="block text-[12.5px] font-bold">{label}</span>
+                      <span className="block text-sm font-bold">{label}</span>
                     </button>
                   </Motion>
                 ))}
@@ -377,7 +377,7 @@ export default function Register() {
         )}
 
         <Motion role="fade" delay={760}>
-          <p className="mt-5 text-center text-[12.5px] text-chalk-3">
+          <p className="mt-5 text-center text-sm text-chalk-3">
             Déjà inscrit ?{" "}
             <Link href="/login" className="font-bold text-signal underline-sweep">
               Se connecter

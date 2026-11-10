@@ -70,6 +70,9 @@ __pycache__/
 /Capture*.png
 /parcours-*.png
 
+# Ignorer les fichiers de documentation markdown pour le dépôt
+*.md
+
 # Outils de développement locaux : recréés par les éditeurs, jamais versionnés
 AGENTS.md
 CLAUDE.md

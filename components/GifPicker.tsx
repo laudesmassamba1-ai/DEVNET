@@ -69,7 +69,7 @@ export function GifPicker({
         autoFocus
         className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
           border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
-          outline-none placeholder:text-chalk-4
+          placeholder:text-chalk-4
           focus:shadow-[3px_3px_0_var(--color-signal)]"
       />
 
@@ -89,7 +89,7 @@ export function GifPicker({
           <p className="text-[13px] font-semibold text-chalk">
             {configured ? "Les GIF sont indisponibles" : "Les GIF ne sont pas configurés"}
           </p>
-          <p className="mt-1 text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="mt-1 text-sm leading-relaxed text-chalk-3">
             {configured
               ? message
               : "Ajoute une clé TENOR_API_KEY (ou GIPHY_API_KEY) au fichier .env de l'installation, puis recharge la page."}

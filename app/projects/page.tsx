@@ -369,7 +369,7 @@ export default function ProjectsPage() {
                       </span>
 
                       {p.description && (
-                        <span className="mt-0.5 line-clamp-2 block text-[12.5px] leading-snug text-chalk-3">
+                        <span className="mt-0.5 line-clamp-2 block text-sm leading-snug text-chalk-3">
                           {p.description}
                         </span>
                       )}
@@ -454,7 +454,7 @@ export default function ProjectsPage() {
           placeholder="registre-cooperatives"
           autoFocus
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-            border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
+            border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
             transition-[transform,box-shadow] duration-[var(--d-base)]
             ease-[var(--ease-spring)] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -470,7 +470,7 @@ export default function ProjectsPage() {
           rows={2}
           placeholder="Ce que ce dépôt fait, en une phrase."
           className="mb-4 w-full rounded-[var(--radius-input)] border border-line-3
-            bg-surface px-3.5 py-3 text-[14px] shadow-sh-1 outline-none
+            bg-surface px-3.5 py-3 text-[14px] shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
@@ -486,7 +486,7 @@ export default function ProjectsPage() {
               onChange={(e) => setLanguage(e.target.value)}
               placeholder="Python"
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
+                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
@@ -500,7 +500,7 @@ export default function ProjectsPage() {
               value={stage}
               onChange={(e) => setStage(e.target.value as ProjectStage)}
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1 outline-none
+                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             >
               {PROJECT_STAGES.map((s) => (
@@ -532,7 +532,7 @@ export default function ProjectsPage() {
               onChange={(e) => setDemandLanguages(e.target.value)}
               placeholder="Python, SQL"
               className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
+                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
@@ -597,7 +597,7 @@ export default function ProjectsPage() {
       >
         {applyTo && (
           <>
-            <p className="mb-4 text-[12.5px] leading-relaxed text-chalk-3">
+            <p className="mb-4 text-sm leading-relaxed text-chalk-3">
               {applyTo.demand_languages.length > 0 || applyTo.demand_roles.length > 0
                 ? "Ce projet cherche : " +
                   [...applyTo.demand_languages, ...applyTo.demand_roles.map(roleLabel)].join(", ")
@@ -612,7 +612,7 @@ export default function ProjectsPage() {
               value={applyRole}
               onChange={(e) => setApplyRole(e.target.value)}
               className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1 outline-none
+                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             >
               {(applyTo.demand_roles.length > 0
@@ -633,7 +633,7 @@ export default function ProjectsPage() {
               rows={3}
               placeholder="Ce que vous apportez, en deux phrases."
               className="mb-5 w-full rounded-[var(--radius-input)] border border-line-3
-                bg-surface px-3.5 py-3 text-[14px] shadow-sh-1 outline-none
+                bg-surface px-3.5 py-3 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
@@ -688,7 +688,7 @@ function FilterBar({
 }) {
   const selectClass =
     "h-[34px] rounded-[var(--radius-chip)] border border-line-2 bg-surface px-2.5 " +
-    "font-mono text-[11.5px] text-chalk-2 shadow-sh-1 outline-none focus:border-signal";
+    "font-mono text-[11.5px] text-chalk-2 shadow-sh-1 focus:border-signal";
 
   return (
     <Motion role="slide" delay={80}>

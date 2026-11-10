@@ -137,7 +137,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
 
   const inputCls =
     "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 " +
-    "bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none transition-[transform,box-shadow] " +
+    "bg-surface px-3.5 text-[14px] shadow-sh-1 transition-[transform,box-shadow] " +
     "placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px " +
     "focus:shadow-[3px_3px_0_var(--color-signal)]";
 
@@ -237,7 +237,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                   aria-pressed={accountType === value}
                   onClick={() => setAccountType(value)}
                   className={`h-[var(--h-input)] rounded-[var(--radius-input)] border
-                    text-[12.5px] font-bold transition-[background-color,border-color]
+                    text-sm font-bold transition-[background-color,border-color]
                     duration-[var(--d-fast)] ${accountType === value
                       ? "border-signal bg-signal/10 text-chalk"
                       : "border-line-2 bg-surface hover:border-line-3 hover:bg-surface-2"}`}
@@ -255,7 +255,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
               aria-pressed={giveRole}
               onClick={() => setGiveRole((v) => !v)}
               className={`flex h-[var(--h-input)] w-full items-center justify-center gap-2
-                rounded-[var(--radius-input)] border text-[12.5px] font-bold
+                rounded-[var(--radius-input)] border text-sm font-bold
                 transition-[background-color,border-color] duration-[var(--d-fast)] ${giveRole
                   ? "border-signal bg-signal/10 text-chalk"
                   : "border-line-2 bg-surface text-chalk-3 hover:border-line-3"}`}

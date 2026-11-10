@@ -306,7 +306,7 @@ export function StoryStudio({
                     maxLength={STORY_MAX}
                     placeholder="Ta légende…"
                     className="w-full resize-none bg-transparent text-[15px] leading-snug
-                      text-chalk outline-none placeholder:text-chalk/55"
+                      text-chalk placeholder:text-chalk/55"
                   />
                 </div>
 

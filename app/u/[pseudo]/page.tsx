@@ -712,7 +712,7 @@ export default function PublicProfilePage({
                             transition-colors duration-[var(--d-fast)] hover:border-signal"
                         >
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate font-mono text-[12.5px] font-bold text-chalk">
+                            <span className="block truncate font-mono text-sm font-bold text-chalk">
                               {repo.name}
                             </span>
                             {repo.description && (

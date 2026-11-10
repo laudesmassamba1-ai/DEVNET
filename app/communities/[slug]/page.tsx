@@ -260,7 +260,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
               <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-chalk-3">
                 Règlement
               </p>
-              <p className="whitespace-pre-line text-[12.5px] leading-relaxed text-chalk-2">
+              <p className="whitespace-pre-line text-sm leading-relaxed text-chalk-2">
                 {community.rules}
               </p>
             </div>
@@ -275,13 +275,13 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
               value={draft} onChange={(e) => setDraft(e.target.value)}
               rows={2} placeholder={`Publier dans ${community.name}…`}
               className="mb-2 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-                text-[14px] leading-[1.6] shadow-sh-1 outline-none placeholder:text-chalk-4
+                text-[14px] leading-[1.6] shadow-sh-1 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
             <div className="flex justify-end">
               <button type="button" onClick={publish} disabled={busy}
                 className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2 rounded-[var(--radius-input)]
-                  border border-line-3 bg-signal px-4 text-[12.5px] font-bold text-void shadow-sh-2
+                  border border-line-3 bg-signal px-4 text-sm font-bold text-void shadow-sh-2
                   disabled:opacity-40">
                 <Icon name="send" size={14} />
                 Publier
@@ -335,10 +335,10 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
             <input value={invite} aria-label="Inviter par pseudo" onChange={(e) => setInvite(e.target.value)}
               placeholder="Inviter par pseudo (@…)"
               className="h-[var(--h-input)] flex-1 rounded-[var(--radius-input)] border border-line-3 bg-surface
-                px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+                px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
             <button type="button" onClick={addInvite}
               className="mo-press rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
-                text-[12.5px] font-bold text-void shadow-sh-1">
+                text-sm font-bold text-void shadow-sh-1">
               Ajouter
             </button>
           </div>
@@ -412,7 +412,7 @@ function MemberRow({ m, staff, meId, onChangeRole, onRemove }: {
       {staff && !isMe ? (
         <select value={m.role} aria-label="Rôle du membre" onChange={(e) => onChangeRole(e.target.value as CommunityRole)}
           className="h-8 cursor-pointer rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2
-            text-[11px] font-bold outline-none">
+            text-[11px] font-bold outline">
           <option value="member">membre</option>
           <option value="moderator">modérateur</option>
           <option value="owner">créateur</option>
@@ -500,19 +500,19 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
       <Field label="Nom">
         <input value={name} onChange={(e) => setName(e.target.value)}
           className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 outline-none" />
+            px-3.5 text-[14px] shadow-sh-1" />
       </Field>
 
       <Field label="Description">
         <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2}
           className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] shadow-sh-1 outline-none" />
+            text-[14px] shadow-sh-1 " />
       </Field>
 
       <Field label="Règlement intérieur">
         <textarea value={rules} onChange={(e) => setRules(e.target.value)} rows={4}
           className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] shadow-sh-1 outline-none" />
+            text-[14px] shadow-sh-1 " />
       </Field>
 
       <Field label="Visibilité">

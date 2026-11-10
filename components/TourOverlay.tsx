@@ -297,7 +297,7 @@ export function TourOverlay({
               type="button"
               onClick={onSkipIntro}
               className="ml-auto rounded-[var(--radius-input)] border border-transparent px-3
-                text-[12.5px] font-bold text-chalk-3 transition-colors hover:text-chalk"
+                text-sm font-bold text-chalk-3 transition-colors hover:text-chalk"
             >
               Passer
             </button>
@@ -307,7 +307,7 @@ export function TourOverlay({
                 type="button"
                 onClick={onPrev}
                 className="mo-press rounded-[var(--radius-input)] border border-line-3 px-4
-                  text-[12.5px] font-bold text-chalk transition-colors hover:border-signal hover:text-signal"
+                  text-sm font-bold text-chalk transition-colors hover:border-signal hover:text-signal"
               >
                 Précédent
               </button>
@@ -318,7 +318,7 @@ export function TourOverlay({
               ref={primaryRef}
               onClick={onNext}
               className="mo-press flex h-[var(--h-tap)] items-center gap-2 rounded-[var(--radius-input)]
-                border border-signal bg-signal px-4 text-[12.5px] font-bold text-void shadow-sh-2"
+                border border-signal bg-signal px-4 text-sm font-bold text-void shadow-sh-2"
             >
               {last ? "Commencer la visite" : "Suivant"}
               <Icon name="chevron-right" size={12} strokeWidth={2.4} />

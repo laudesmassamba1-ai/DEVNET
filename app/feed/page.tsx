@@ -960,7 +960,7 @@ export default function FeedPage() {
                     disabled={seeding}
                     className="inline-flex h-[var(--h-tap)] items-center gap-2
                       rounded-[var(--radius-input)] border border-line-2 px-4
-                      text-[12.5px] font-bold text-chalk-3 transition-colors
+                      text-sm font-bold text-chalk-3 transition-colors
                       hover:border-signal hover:text-signal disabled:opacity-40"
                   >
                     <Icon name="package" size={14} strokeWidth={2} />
@@ -1049,7 +1049,7 @@ export default function FeedPage() {
           aria-label="Texte de la publication"
           placeholder="Partage une question, un extrait ou une avancée."
           className="mb-3 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] leading-[1.6] outline-none placeholder:text-chalk-4"
+            text-[14px] leading-[1.6] placeholder:text-chalk-4"
         />
 
         {/* Le GIF se choisit dans une feuille à part : la grille a besoin
@@ -1096,7 +1096,7 @@ export default function FeedPage() {
 
         <GifPicker open={gifOpen} onClose={() => setGifOpen(false)} onPick={setGif} />
 
-        <label className="mb-3 flex cursor-pointer items-center gap-2 text-[12.5px] text-chalk-3">
+        <label className="mb-3 flex cursor-pointer items-center gap-2 text-sm text-chalk-3">
           <input
             type="checkbox" checked={isCode}
             onChange={(e) => setIsCode(e.target.checked)}
@@ -1114,7 +1114,7 @@ export default function FeedPage() {
                 value={lang} onChange={(e) => setLang(e.target.value)}
                 className="h-[var(--h-input)] w-full cursor-pointer
                   rounded-[var(--radius-input)] border border-line-3 bg-surface
-                  px-3.5 text-[14px] shadow-sh-1 outline-none"
+                  px-3.5 text-[14px] shadow-sh-1"
               >
                 {LANG_OPTIONS.map((l) => (
                   <option key={l} value={l}>{l || "Sélectionner…"}</option>
@@ -1135,7 +1135,7 @@ export default function FeedPage() {
                 placeholder="// Ton code ici…"
                 className="w-full rounded-[var(--radius-input)] border border-line-3
                   bg-surface-2 px-3.5 py-3 font-mono text-[var(--text-code)]
-                  leading-[var(--lh-code)] shadow-sh-1 outline-none
+                  leading-[var(--lh-code)] shadow-sh-1
                   placeholder:text-chalk-4"
               />
             </div>

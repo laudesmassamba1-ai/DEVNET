@@ -244,7 +244,7 @@ export default function AdminPage() {
                   </p>
 
                   {r.verification_note && (
-                    <p className="mt-1.5 border-l border-line-2 pl-2.5 text-[12.5px]
+                    <p className="mt-1.5 border-l border-line-2 pl-2.5 text-sm
                       leading-relaxed text-chalk-2">
                       {r.verification_note}
                     </p>

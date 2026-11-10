@@ -795,7 +795,7 @@ export default function IdePage() {
         title="Nouvelle branche"
       >
         <div className="space-y-4 p-4">
-          <p className="text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="text-sm leading-relaxed text-chalk-3">
             Créer depuis <span className="font-mono text-chalk-2">{branch}</span>
           </p>
           <div className="space-y-2">
@@ -804,7 +804,7 @@ export default function IdePage() {
               aria-label="Nom de la nouvelle branche"
               value={branchName}
               onChange={(e) => setBranchName(e.target.value)}
-              className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-[12.5px] text-chalk outline-none"
+              className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-sm text-chalk"
               placeholder="feature/ide"
               spellCheck={false}
             />
@@ -835,7 +835,7 @@ export default function IdePage() {
         title="Supprimer la branche"
       >
         <div className="space-y-4 p-4">
-          <p className="text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="text-sm leading-relaxed text-chalk-3">
             Confirmer la suppression de <span className="font-mono text-danger">{dropping}</span>
           </p>
           <div className="flex justify-end gap-2">
@@ -864,7 +864,7 @@ export default function IdePage() {
         title="Enregistrer (commit)"
       >
         <div className="space-y-4 p-4">
-          <p className="text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="text-sm leading-relaxed text-chalk-3">
             Branche <span className="font-mono text-chalk-2">{branch}</span>
           </p>
           <div className="space-y-2">
@@ -875,7 +875,7 @@ export default function IdePage() {
               onChange={(e) => setCommitMsg(e.target.value)}
               rows={3}
               spellCheck={false}
-              className="w-full resize-y rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-[12.5px] leading-relaxed text-chalk outline-none"
+              className="w-full resize-y rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-sm leading-relaxed text-chalk"
               placeholder="fix: corriger l’éditeur"
             />
           </div>

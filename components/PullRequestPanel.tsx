@@ -301,7 +301,7 @@ export function PullRequestPanel({
           aria-label="Titre de la demande"
           placeholder="ce que cette branche change"
           className="mb-3 h-[var(--h-input)] w-full border border-line-2
-            bg-surface-2 px-3 text-[13px] text-chalk outline-none
+            bg-surface-2 px-3 text-[13px] text-chalk
             focus:border-signal"
         />
 
@@ -315,7 +315,7 @@ export function PullRequestPanel({
           placeholder="pourquoi, et comment vérifier"
           rows={4}
           className="mb-4 w-full border border-line-2 bg-surface-2 p-3
-            text-[13px] leading-relaxed text-chalk outline-none focus:border-signal"
+            text-[13px] leading-relaxed text-chalk focus:border-signal"
         />
 
         <div className="flex gap-2">
@@ -466,7 +466,7 @@ export function PullRequestPanel({
                 {deploye && (
                   <div className="border-t border-line-2 px-3 py-3">
                     {pull.body && (
-                      <p className="mb-3 whitespace-pre-wrap text-[12.5px] leading-relaxed text-chalk-2">
+                      <p className="mb-3 whitespace-pre-wrap text-sm leading-relaxed text-chalk-2">
                         {pull.body}
                       </p>
                     )}

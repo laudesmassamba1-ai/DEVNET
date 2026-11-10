@@ -236,7 +236,7 @@ function SearchScreen() {
               data-tour="search-input"
               autoFocus
               className="h-[var(--h-tap)] w-full rounded-[var(--radius-input)] border
-                border-line-3 bg-surface pr-10 pl-8 text-[14px] shadow-sh-1 outline-none
+                border-line-3 bg-surface pr-10 pl-8 text-[14px] shadow-sh-1
                 transition-[transform,box-shadow] duration-[var(--d-base)]
                 ease-[var(--ease-spring)] placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"

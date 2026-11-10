@@ -982,7 +982,7 @@ async function showDiff(sha: string) {
                           {project.name}
                         </h1>
                         {project.description && (
-                          <p className="mt-0.5 text-[12.5px] leading-snug text-chalk-3">
+                          <p className="mt-0.5 text-sm leading-snug text-chalk-3">
                             {project.description}
                           </p>
                         )}
@@ -1000,7 +1000,7 @@ async function showDiff(sha: string) {
                         onChange={(e) => setBranch(e.target.value)}
                         aria-label="Branche"
                         className="h-[var(--h-tap)] cursor-pointer bg-transparent
-                          text-chalk-2 outline-none"
+                          text-chalk-2"
                       >
                         {branches.length === 0 && <option value={branch}>{branch}</option>}
                         {branches.map((b) => (
@@ -1252,7 +1252,7 @@ async function showDiff(sha: string) {
           }}
           className="mb-2 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
             border border-line-3 bg-surface px-3.5 font-mono text-[13px] shadow-sh-1
-            outline-none transition-[transform,box-shadow] placeholder:text-chalk-4
+             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
@@ -1356,7 +1356,7 @@ async function showDiff(sha: string) {
           }}
           className="mb-2 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
             border border-line-3 bg-surface px-3.5 font-mono text-[13px] shadow-sh-1
-            outline-none transition-[transform,box-shadow] placeholder:text-chalk-4
+             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
         <p className="mb-5 font-mono text-[11px] text-chalk-4">

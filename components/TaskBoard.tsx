@@ -283,7 +283,7 @@ export function TaskBoard({
                     value={task.assignee ?? ""}
                     onChange={(e) => void assign(task, e.target.value || null)}
                     aria-label={`Assigner la tâche ${task.title}`}
-                    className="max-w-[120px] cursor-pointer bg-transparent text-chalk-3 outline-none"
+                    className="max-w-[120px] cursor-pointer bg-transparent text-chalk-3 outline"
                   >
                     <option value="">personne</option>
                     {meId && (
@@ -354,7 +354,7 @@ export function TaskBoard({
                     placeholder="Nouvelle tâche…"
                     className="h-[var(--h-input)] min-w-0 flex-1 rounded-[var(--radius-input)]
                       border border-line-2 bg-surface px-3 text-[13px] text-chalk
-                      outline-none placeholder:text-chalk-4 focus:border-signal"
+                      placeholder:text-chalk-4 focus:border-signal"
                   />
                   <button
                     type="button"
