@@ -28,5 +28,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run verify:ui
+      - run: npx playwright install --with-deps chromium
+      - run: npm run verify:ui:browser
       - run: npm run lint
       - run: npm run build

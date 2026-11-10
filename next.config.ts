@@ -1,9 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    optimizePackageImports: ["iconoir-react"],
-  },
   allowedDevOrigins: [
     // Ouvrir la page par `127.0.0.1` au lieu de `localhost` suffisait à
     // bloquer `/_next/hmr` : la page ne s'hydratait plus et restait sur le

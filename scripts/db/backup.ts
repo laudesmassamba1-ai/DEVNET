@@ -7,6 +7,7 @@ import {
   mkdirSync,
   mkdtempSync,
   openSync,
+  readFileSync,
   readdirSync,
   rmSync,
   statSync,
@@ -66,6 +67,17 @@ function sqlModeFor(target: "local" | "remote", url: URL): string | undefined {
   return target === "remote" ? "require" : undefined;
 }
 
+function caCertificate(): string | undefined {
+  const value = process.env.DATABASE_CA_CERT?.trim();
+  if (!value) return undefined;
+  if (value.includes("-----BEGIN CERTIFICATE-----")) return value;
+  try {
+    return readFileSync(value, "utf8");
+  } catch {
+    throw new MigrationError(`Certificat CA introuvable ou illisible : ${value}.`);
+  }
+}
+
 function assertPassphrase(file: string): void {
   if (!existsSync(file)) {
     throw new MigrationError(
@@ -83,19 +95,23 @@ async function dump(url: URL, target: "local" | "remote", output: number, image:
   const envFile = path.join(tempDir, "pg.env");
   const password = decodeURIComponent(url.password);
   const sslmode = sqlModeFor(target, url);
+  const verify = sslmode === "verify-full" || sslmode === "verify-ca";
+  const ca = verify ? caCertificate() : undefined;
+  if (verify && !ca) {
+    throw new MigrationError(
+      `sslmode=${sslmode} exige DATABASE_CA_CERT (contenu PEM ou chemin du root.crt).`,
+    );
+  }
   const envLines = [`PGPASSWORD=${password}`];
   if (sslmode) envLines.push(`PGSSLMODE=${sslmode}`);
+  if (ca) envLines.push("PGSSLROOTCERT=/certs/root.crt");
 
   try {
     writeFileSync(envFile, `${envLines.join("\n")}\n`, { mode: 0o600 });
-    const args = [
-      "run",
-      "--rm",
-      "-i",
-      "--network",
-      "host",
-      "--env-file",
-      envFile,
+    if (ca) writeFileSync(path.join(tempDir, "root.crt"), ca, { mode: 0o600 });
+    const args = ["run", "--rm", "-i", "--network", "host", "--env-file", envFile];
+    if (ca) args.push("-v", `${tempDir}:/certs:ro`);
+    args.push(
       image,
       "pg_dump",
       "--format=custom",
@@ -105,7 +121,7 @@ async function dump(url: URL, target: "local" | "remote", output: number, image:
       `--port=${url.port || "5432"}`,
       `--username=${decodeURIComponent(url.username)}`,
       `--dbname=${decodeURIComponent(url.pathname.replace(/^\/+/, "")) || "postgres"}`,
-    ];
+    );
     const result = await run("docker", args, process.env, output);
     if (result.code !== 0) {
       throw new MigrationError(`pg_dump a échoué (code ${result.code}) : ${result.stderr.trim()}`);
@@ -212,7 +228,7 @@ async function main(): Promise<void> {
   console.log(`Fichier : ${encryptedPath}`);
   console.log(`Taille : ${size} octets`);
   console.log(`SHA-256 : ${digest}`);
-  console.log(`Chiffrement : GPG AES-256 (clé ${passphraseFile})`);
+  console.log(`Chiffrement : GPG AES-256 (phrase ${passphraseFile})`);
   if (removed.length > 0) console.log(`Rotation : ${removed.length} ancienne(s) sauvegarde(s) supprimée(s).`);
 }
 

@@ -85,7 +85,7 @@ export function StoryRail({
           <button
             type="button"
             onClick={onPublish}
-            className="group flex w-[64px] shrink-0 flex-col items-center gap-1.5"
+            className="group flex w-[80px] shrink-0 flex-col items-center gap-1.5"
           >
             <span
               className="relative flex size-[54px] items-center justify-center
@@ -107,7 +107,9 @@ export function StoryRail({
                 <Icon name="plus" size={11} strokeWidth={2.4} />
               </span>
             </span>
-            <span className="label-micro w-full truncate text-center text-chalk-2">
+            {/* Pas de troncature ici : le libellé tient dans la largeur du
+                cercle, et « Votre st… » ne dit plus ce qu'on peut faire. */}
+            <span className="label-micro w-full whitespace-nowrap text-center leading-tight text-chalk-2">
               Votre story
             </span>
           </button>
@@ -118,7 +120,7 @@ export function StoryRail({
             key={g.authorId}
             type="button"
             onClick={() => onOpen(g.authorId)}
-            className="group flex w-[64px] shrink-0 flex-col items-center gap-1.5"
+            className="group flex w-[80px] shrink-0 flex-col items-center gap-1.5"
           >
             {/* Anneau « sonde » — la signature de marque.
                 Le dégradé phosphor ambre→vert, d'un écran qui s'allume.

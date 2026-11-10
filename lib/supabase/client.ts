@@ -47,12 +47,38 @@ let clientUrl: string | null = null;
  * compteur. Le chargement suit donc **le vrai temps du réseau**, pas une
  * durée inventée.
  */
+const REST_PATH = "/rest/v1/";
+
+function restUrl(input: RequestInfo | URL): URL | null {
+  const raw =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.toString()
+        : input.url;
+  const url = new URL(raw, window.location.origin);
+  const index = url.pathname.indexOf(REST_PATH);
+  if (index === -1) return null;
+  const table = url.pathname.slice(index + REST_PATH.length);
+  const target = new URL(`/api/rest/${table}`, window.location.origin);
+  target.search = url.search;
+  return target;
+}
+
 function trackedFetch(
   input: RequestInfo | URL,
   init?: RequestInit,
 ): Promise<Response> {
   beginPending();
-  return fetch(input, init).finally(endPending);
+  const target = restUrl(input);
+  if (!target) return fetch(input, init).finally(endPending);
+
+  const headers = new Headers(
+    init?.headers ?? (input instanceof Request ? input.headers : undefined),
+  );
+  headers.delete("apikey");
+  headers.delete("authorization");
+  return fetch(target, { ...init, headers }).finally(endPending);
 }
 
 function getLiveClient() {

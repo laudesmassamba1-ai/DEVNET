@@ -12,7 +12,7 @@
 alter table public.comments
   add column if not exists gif_url text not null default '',
   add column if not exists gif_alt text not null default '',
-  add column if not exists sticker_id uuid references public.stickers(id) on delete set null;
+  add column if not exists sticker_id text references public.stickers(id) on delete set null;
 
 alter table public.comments
   drop constraint if exists comments_text_len,

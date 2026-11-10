@@ -214,7 +214,7 @@ export default function SettingsPage() {
                 <dt className="text-chalk-4">Vérification</dt>
                 <dd className="mt-0.5 text-chalk">
                   {VERIFY_STATUS_LABEL[asVerificationStatus(profile?.verification_status)]}
-                  {" "}
+                  {" · "}
                   <Link
                     href="/profile?tab=settings"
                     className="font-bold text-signal hover:underline"

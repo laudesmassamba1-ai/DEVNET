@@ -49,6 +49,15 @@ function signInForAdmin(request: NextRequest) {
 }
 
 export async function proxy(request: NextRequest) {
+  // En démonstration forcée, il n'y a pas de session serveur : la console
+  // d'administration est un écran client, et le rôle est porté par le store
+  // de démonstration. Bloquer ici rendait `/admin` inaccessible (503) alors
+  // que la page sait déjà afficher « réservé à l'administration ». La
+  // démonstration ne doit pas être moins complète que le produit.
+  if (process.env.NEXT_PUBLIC_FORCE_DEMO === "true") {
+    return NextResponse.next({ request });
+  }
+
   const url = getSupabaseUrl();
   if (!url || !anonKey) {
     console.error("Admin access check failed: Supabase configuration unavailable");

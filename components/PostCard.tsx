@@ -352,7 +352,10 @@ export function PostCard({
             type="button"
             onClick={() => onToggleLike?.(post.id)}
             aria-pressed={liked}
-            aria-label={liked ? "Ne plus aimer cette publication" : "Aimer cette publication"}
+            // Le nombre est visible : sous 2.5.3, le nom accessible doit le
+            // contenir. « Aimer cette publication, 12 » se lit, se cherche
+            // à la voix et garde le compte annoncé.
+            aria-label={`${liked ? "Ne plus aimer cette publication" : "Aimer cette publication"}, ${likes}`}
             className={`${ACTION} ${
               liked
                 ? "border-signal text-signal"
@@ -418,11 +421,11 @@ export function PostCard({
             type="button"
             onClick={() => onRepost?.(post.id)}
             aria-pressed={reposted}
-            aria-label={
+            aria-label={`${
               reposted
                 ? "Retirer cette publication de ton fil"
                 : "Republier dans mon fil"
-            }
+            }${post.reposts ? `, ${post.reposts}` : ""}`}
             className={`${ACTION} ${
               reposted
                 ? "border-ok text-ok"

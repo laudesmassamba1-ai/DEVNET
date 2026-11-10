@@ -14,10 +14,11 @@ export type UserQuery = <T extends Record<string, unknown> = Record<string, unkn
   values?: unknown[],
 ) => Promise<T[]>;
 
-export async function withUser<T>(
-  userId: string,
+async function withIdentity<T>(
+  role: "authenticated" | "anon",
+  userId: string | null,
   run: (query: UserQuery) => Promise<T>,
-  pool: Pool = getPostgresPool(),
+  pool: Pool,
 ): Promise<T> {
   let client: PoolClient;
   try {
@@ -28,9 +29,9 @@ export async function withUser<T>(
 
   try {
     await client.query("begin");
-    await client.query("set local role authenticated");
-    await client.query("select set_config('request.jwt.claim.role', 'authenticated', true)");
-    await client.query("select set_config('request.jwt.claim.sub', $1, true)", [userId]);
+    await client.query(`set local role ${role}`);
+    await client.query("select set_config('request.jwt.claim.role', $1, true)", [role]);
+    await client.query("select set_config('request.jwt.claim.sub', $1, true)", [userId ?? ""]);
 
     const query: UserQuery = async <T extends Record<string, unknown>>(sql: string, values?: unknown[]) => {
       const result = await client.query<T>(sql, values);
@@ -46,4 +47,19 @@ export async function withUser<T>(
   } finally {
     client.release();
   }
+}
+
+export async function withUser<T>(
+  userId: string,
+  run: (query: UserQuery) => Promise<T>,
+  pool: Pool = getPostgresPool(),
+): Promise<T> {
+  return withIdentity("authenticated", userId, run, pool);
+}
+
+export async function withAnon<T>(
+  run: (query: UserQuery) => Promise<T>,
+  pool: Pool = getPostgresPool(),
+): Promise<T> {
+  return withIdentity("anon", null, run, pool);
 }

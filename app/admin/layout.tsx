@@ -11,6 +11,10 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Même raison que dans `proxy.ts` : la démonstration n'a pas de session
+  // serveur, et la console client vérifie elle-même le rôle du compte.
+  if (process.env.NEXT_PUBLIC_FORCE_DEMO === "true") return children;
+
   const client = await getOrCreateServerClient();
   if (!client) notFound();
 

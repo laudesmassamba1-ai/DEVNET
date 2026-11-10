@@ -975,6 +975,14 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Le champ de recherche a déjà son bouton d'effacement : la croix native
+   de WebKit ferait deux « x » côte à côte, dont un seul réagit. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
 /* Scanlines : très faible opacité, à poser sur une surface pleine. */
 @utility scanlines {
   background-image: repeating-linear-gradient(

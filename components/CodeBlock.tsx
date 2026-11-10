@@ -47,6 +47,10 @@ export function CodeBlock({
   const toast = useToast();
 
   const key = normalizeLang(lang);
+  // L'étiquette dit le langage **écrit**, pas la grammaire de coloration :
+  // un extrait CSS ou JSON est surligné comme du texte, mais annoncer
+  // « text » à l'écran serait faux et ne renseigne personne.
+  const languageLabel = (lang ?? "").trim() || key;
   const lines = useMemo(() => toLines(highlight(code, key)), [code, key]);
   const isFolded = lines.length > COLLAPSE_AFTER && !expanded;
   const visibleLines = isFolded ? lines.slice(0, COLLAPSE_AFTER) : lines;
@@ -84,7 +88,7 @@ export function CodeBlock({
             {filename}
           </span>
         )}
-        <span className={`label-micro ${headText}`}>{key}</span>
+        <span className={`label-micro ${headText}`}>{languageLabel}</span>
 
         <span className="ml-auto flex items-center gap-1">
           {lines.length > COLLAPSE_AFTER && (
@@ -127,8 +131,14 @@ export function CodeBlock({
         </span>
       </figcaption>
 
+      {/* Zone défilante : sans arrêt de tabulation, un clavier ne peut pas
+          atteindre le code qui déborde. `region` lui donne un nom, donc une
+          raison d'être annoncée. */}
       <div
         className="overflow-auto"
+        tabIndex={0}
+        role="region"
+        aria-label={lang ? `Code ${lang}` : "Code source"}
         style={maxHeight ? { maxHeight } : undefined}
       >
         <pre

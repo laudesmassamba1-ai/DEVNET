@@ -36,6 +36,7 @@ export default function StickerStudioPage() {
   const [name, setName] = useState("");
   const [visibility, setVisibility] = useState<"prive" | "public">("prive");
   const [dataUrl, setDataUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function reload() {
@@ -55,6 +56,7 @@ export default function StickerStudioPage() {
 
   function readFile(file: File | undefined) {
     if (!file) return;
+    setFileName(file.name);
     if (!/^image\/(png|jpeg|webp|gif)$/.test(file.type)) {
       toast("Image PNG, JPEG, WebP ou GIF attendue", "err");
       return;
@@ -93,6 +95,7 @@ export default function StickerStudioPage() {
       toast("Sticker re-encodé et enregistré");
       setName("");
       setDataUrl(null);
+      setFileName("");
       if (fileRef.current) fileRef.current.value = "";
       await reload();
     } finally {
@@ -164,16 +167,30 @@ export default function StickerStudioPage() {
           <label htmlFor="sticker-file" className="mt-4 block label-micro text-chalk-3">
             Média — PNG, JPEG, WebP ou GIF · 2 Mo · 80 images · 1,5 Mo animé
           </label>
+          {/* Le champ natif affiche « Choose File / No file chosen » : sa
+              langue suit celle du navigateur, pas celle de la page. On le
+              masque et on écrit nous-mêmes le bouton et le nom du fichier. */}
           <input
             id="sticker-file"
             ref={fileRef}
             type="file"
             accept="image/png,image/jpeg,image/webp,image/gif"
             onChange={(event) => readFile(event.target.files?.[0])}
-            className="mt-1 block w-full text-sm text-chalk-2 file:mr-3 file:min-h-11
-              file:rounded-[var(--radius-chip)] file:border-0 file:bg-surface-2
-              file:px-4 file:label-micro file:text-chalk"
+            className="sr-only"
           />
+          <div className="mt-1 flex min-w-0 flex-col items-start gap-1.5">
+            <label
+              htmlFor="sticker-file"
+              className="inline-flex min-h-11 shrink-0 cursor-pointer items-center rounded-[var(--radius-chip)]
+                border border-line-2 bg-surface-2 px-4 font-mono text-[10px] font-bold
+                uppercase tracking-[0.12em] text-chalk transition-colors hover:border-signal"
+            >
+              Choisir un fichier
+            </label>
+            <span className="break-all font-mono text-[11px] text-chalk-3">
+              {fileName || "Aucun fichier choisi"}
+            </span>
+          </div>
 
           <fieldset className="mt-5">
             <legend className="label-micro text-chalk-3">Visibilité</legend>

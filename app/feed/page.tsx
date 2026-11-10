@@ -819,7 +819,7 @@ export default function FeedPage() {
             <button
               type="button"
               onClick={() => setOpen(true)}
-              aria-label="Écrire une publication"
+              aria-label="Publier une publication"
               data-tour="composer"
               className="inline-flex min-h-[var(--h-tap)] min-w-[var(--h-tap)]
                 items-center justify-center gap-2 rounded-[var(--radius-input)]

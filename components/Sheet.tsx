@@ -32,11 +32,15 @@ export function Sheet({
   onClose,
   title,
   children,
+  size = "default",
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  /** `wide` ouvre la feuille aux outils qui ont besoin de deux colonnes
+      (studio de statut) ; le reste garde la largeur de lecture. */
+  size?: "default" | "wide";
 }) {
   const [dragY, setDragY] = useState(0);
   /** Le portail ne peut être posé qu'après le montage côté client. */
@@ -103,7 +107,7 @@ export function Sheet({
       role="presentation"
     >
       <div
-        className="mo-sheet w-full max-w-[520px]"
+        className={`mo-sheet w-full ${size === "wide" ? "max-w-[760px]" : "max-w-[520px]"}`}
       >
         <div
           role="dialog"

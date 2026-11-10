@@ -76,3 +76,9 @@ CLAUDE.md
 .agents/
 .claude/
 .freebuff/
+
+# Portes navigateur : artefacts Playwright (traces, rapports)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

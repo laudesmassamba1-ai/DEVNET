@@ -21,12 +21,12 @@
 -- ============================================================
 
 alter table public.group_messages
-  add column if not exists sticker_id uuid references public.stickers(id) on delete set null,
+  add column if not exists sticker_id text references public.stickers(id) on delete set null,
   add column if not exists gif_url text not null default '',
   add column if not exists gif_alt text not null default '';
 
 alter table public.direct_messages
-  add column if not exists sticker_id uuid references public.stickers(id) on delete set null,
+  add column if not exists sticker_id text references public.stickers(id) on delete set null,
   add column if not exists gif_url text not null default '',
   add column if not exists gif_alt text not null default '';
 
