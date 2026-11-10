@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
+import { WovenBand } from "@/components/WovenBand";
 import { Avatar, EmptyState, Loading } from "@/components/Avatar";
 import { CommentsPanel } from "@/components/CommentsPanel";
 import { Icon } from "@/components/Icon";
@@ -548,6 +549,7 @@ export default function PublicProfilePage({
           la seconde est celle qui décide — un recruteur ne lit pas des
           publications pour juger, il cherche la preuve d'un travail. */}
       <div className="px-(--gutter) py-4">
+        <WovenBand tone="phosphor" className="mb-3" />
         <div role="tablist" aria-label="Contenu du profil" className="mb-3 flex gap-0 border-b border-line-2">
           {([
             ["preuves", "Preuves"],

@@ -15,6 +15,7 @@ import { Sheet } from "@/components/Sheet";
 import { groupStoriesByAuthor, StoryRail, StoryViewer } from "@/components/StoryRail";
 import { useToast } from "@/components/Toast";
 import { StoryStudio } from "@/components/StoryStudio";
+import { WovenBand } from "@/components/WovenBand";
 import { supabase } from "@/lib/supabase/client";
 import { useSession } from "@/hooks/useSession";
 import { postPoints } from "@/lib/gamification";
@@ -840,6 +841,10 @@ export default function FeedPage() {
             onPublish={profile ? () => setOpenStoryCompose(true) : undefined}
           />
         </Motion>
+
+        {/* La trame sépare le fil de son en-tête : deux zones, pas deux
+            cartes. Le tissu prend la couleur de l'action. */}
+        <WovenBand tone="signal" className="mb-3" />
 
         {/* La publication s'ouvre dans la feuille depuis l'action en tête du fil. */}
 

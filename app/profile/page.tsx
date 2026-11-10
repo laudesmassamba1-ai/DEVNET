@@ -9,6 +9,7 @@ import { ProfileWorkPanel } from "@/components/ProfileWorkPanel";
 import { useToast } from "@/components/Toast";
 import { Icon } from "@/components/Icon";
 import { useTour } from "@/components/TourProvider";
+import { WovenBand } from "@/components/WovenBand";
 import { ProgressPanel } from "@/components/ProgressPanel";
 import { ChallengePanel } from "@/components/ChallengePanel";
 import { AchievementsPanel } from "@/components/AchievementsPanel";
@@ -550,6 +551,8 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+
+            <WovenBand tone="phosphor" className="mt-4" />
 
             <div role="tablist" aria-label="Contenu du profil" data-tour="profile-tabs" className="flex border-b border-line-3">
               {TABS.map((t) => (

@@ -160,3 +160,17 @@ filet entre les grandes zones, teintée par section. On obtient une identité
 reconnaissable sans refonte ni budget de police supplémentaire.
 
 Décision attendue : Laudes choisit A, B, C, ou « A + tissu ».
+
+## Décision — 10 novembre 2026
+
+**Direction retenue : A « Atelier de nuit » + la bande tissée de B.**
+
+- La bande est un composant unique (`components/WovenBand.tsx`), SVG en
+  `currentColor`, 8 px de haut, sans animation, `aria-hidden`.
+- Posée aux **grandes frontières** : entre l'en-tête du fil et le contenu
+  (teinte `signal`), entre l'identité et les onglets du profil (`phosphor`).
+- Pas de nouvelle police, pas de nouvelle couleur : la teinte vient des
+  tokens existants (`text-signal/45`, `text-phosphor/45`).
+- Vérifié au navigateur : rendue sur `/feed`, `/profile`, `/u/<pseudo>`,
+  pleine largeur, 8 px, teintes distinctes par section, zéro erreur console.
+  `verify:ui` reste vert (aucune valeur arbitraire ajoutée).
