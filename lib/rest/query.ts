@@ -503,17 +503,18 @@ function onConflictColumns(table: RestTable, searchParams: URLSearchParams): str
   throw new RestError(400, "PGRST102", `no primary key on "${table.name}" for upsert`);
 }
 
-function returningSql(
+function mutationRepresentationSql(
+  schemaTables: Map<string, RestTable>,
+  schemaForeignKeys: RestForeignKey[],
   table: RestTable,
   selection: Selection,
+  mutationSql: string,
 ): string {
-  if (selection.embeds.length > 0) {
-    throw new RestError(400, "PGRST100", "embedded select is not supported after a mutation");
-  }
-  const parts: string[] = [];
-  if (selection.allColumns) parts.push("b.*");
-  for (const item of selection.base) parts.push(baseColumnExpression(table, item));
-  return parts.length > 0 ? `returning ${parts.join(", ")}` : "";
+  const selectionSql = selectSql(schemaTables, schemaForeignKeys, table, selection);
+  return (
+    `with mutated as (${mutationSql} returning b.*) ` +
+    `select ${selectionSql.select} from mutated b ${selectionSql.joins}`
+  ).trim();
 }
 
 export async function executeRest(input: RestInput): Promise<RestOutput> {
@@ -550,13 +551,12 @@ export async function executeRest(input: RestInput): Promise<RestOutput> {
         });
         return `(${tuple.join(", ")})`;
       });
-      const conflict = input.prefer.includes("resolution=merge-duplicates")
-        ? onConflictColumns(table, input.searchParams)
-        : null;
       const ignore = input.prefer.includes("resolution=ignore-duplicates");
+      const merge = input.prefer.includes("resolution=merge-duplicates");
+      const conflict = ignore || merge ? onConflictColumns(table, input.searchParams) : null;
       let conflictSql = "";
-      if (ignore) {
-        conflictSql = ` on conflict (${conflict?.map(quote).join(", ") ?? ""}) do nothing`;
+      if (ignore && conflict) {
+        conflictSql = ` on conflict (${conflict.map(quote).join(", ")}) do nothing`;
       } else if (conflict) {
         const updates = columns
           .filter((column) => !conflict.includes(column))
@@ -565,14 +565,16 @@ export async function executeRest(input: RestInput): Promise<RestOutput> {
           updates.length > 0 ? `do update set ${updates.join(", ")}` : "do nothing"
         }`;
       }
-      const returning = wantsRepresentation(input.prefer)
-        ? returningSql(table, selection)
-        : "";
-      const sql =
+      const mutationSql =
         `insert into public.${quote(table.name)} as b (${columns.map(quote).join(", ")}) ` +
-        `values ${tuples.join(", ")}${conflictSql} ${returning}`.trim();
-      const inserted = returning ? await readRows(input.query, sql, values) : null;
-      if (!returning) await readRows(input.query, sql, values);
+        `values ${tuples.join(", ")}${conflictSql}`.trim();
+      const sql = wantsRepresentation(input.prefer)
+        ? mutationRepresentationSql(schema.tables, schema.foreignKeys, table, selection, mutationSql)
+        : mutationSql;
+      const inserted = wantsRepresentation(input.prefer)
+        ? await readRows(input.query, sql, values)
+        : null;
+      if (!wantsRepresentation(input.prefer)) await readRows(input.query, sql, values);
       return { rows: inserted, count: null, single: isSingle(input.accept) };
     }
 
@@ -584,23 +586,27 @@ export async function executeRest(input: RestInput): Promise<RestOutput> {
         values.push(patch[column] ?? null);
         return `${quote(column)} = $${values.length}`;
       });
-      const returning = wantsRepresentation(input.prefer)
-        ? returningSql(table, selection)
-        : "";
-      const sql =
-        `update public.${quote(table.name)} as b set ${set.join(", ")} ${where} ${returning}`.trim();
-      const updated = returning ? await readRows(input.query, sql, values) : null;
-      if (!returning) await readRows(input.query, sql, values);
+      const mutationSql =
+        `update public.${quote(table.name)} as b set ${set.join(", ")} ${where}`.trim();
+      const sql = wantsRepresentation(input.prefer)
+        ? mutationRepresentationSql(schema.tables, schema.foreignKeys, table, selection, mutationSql)
+        : mutationSql;
+      const updated = wantsRepresentation(input.prefer)
+        ? await readRows(input.query, sql, values)
+        : null;
+      if (!wantsRepresentation(input.prefer)) await readRows(input.query, sql, values);
       return { rows: updated, count: null, single: isSingle(input.accept) };
     }
 
     if (method === "DELETE") {
-      const returning = wantsRepresentation(input.prefer)
-        ? returningSql(table, selection)
-        : "";
-      const sql = `delete from public.${quote(table.name)} as b ${where} ${returning}`.trim();
-      const deleted = returning ? await readRows(input.query, sql, filter.values) : null;
-      if (!returning) await readRows(input.query, sql, filter.values);
+      const mutationSql = `delete from public.${quote(table.name)} as b ${where}`.trim();
+      const sql = wantsRepresentation(input.prefer)
+        ? mutationRepresentationSql(schema.tables, schema.foreignKeys, table, selection, mutationSql)
+        : mutationSql;
+      const deleted = wantsRepresentation(input.prefer)
+        ? await readRows(input.query, sql, filter.values)
+        : null;
+      if (!wantsRepresentation(input.prefer)) await readRows(input.query, sql, filter.values);
       return { rows: deleted, count: null, single: isSingle(input.accept) };
     }
 

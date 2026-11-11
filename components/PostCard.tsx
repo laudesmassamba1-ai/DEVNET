@@ -143,7 +143,18 @@ export function PostCard({
 
   return (
     <article
-      className="feed-post flex overflow-hidden border-b border-line-2"
+      /*
+        La carte porte une **surface** et non un simple filet : sur un écran
+        large, une suite de paragraphes séparés par des hairlines se lit
+        comme un document brut, pas comme un fil. La teinte reste très
+        basse (surface à 30 %) pour ne pas casser la métaphore du fichier
+        que la gouttière raconte ; le survol la relève d'un cran, sans
+        déplacer quoi que ce soit.
+      */
+      className="feed-post flex overflow-hidden border-b border-line-2
+        bg-surface/30 transition-[background-color,border-color,transform]
+        duration-[var(--d-fast)] ease-[var(--ease-spring)]
+        hover:-translate-y-px hover:border-line-3 hover:bg-surface/60"
     >
       {/* Gouttière de lecture, distincte du texte et du code intégré. */}
       <div
@@ -196,7 +207,10 @@ export function PostCard({
           <Avatar
             name={name}
             color={color}
-            className={author?.verified ? "shadow-[0_0_12px_1px_rgba(255,138,61,0.35)]" : ""}
+            /* Un anneau, pas une lueur : le cachet se lit à son filet.
+               Une ombre colorée autour de l'avatar faisait briller la
+               personne vérifiée — le privilège devenait un reflet. */
+            className={author?.verified ? "ring-1 ring-signal/45" : ""}
           />
           <div className="min-w-0 flex-1">
             {pseudo ? (
@@ -303,6 +317,36 @@ export function PostCard({
               className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
                 border border-line-2 bg-surface-2 object-contain"
             />
+          </Motion>
+        ) : null}
+
+        {/* ── Photo ou vidéo jointe (migration 056) ──
+            La vidéo se lit sur place, muette jusqu'au premier geste —
+            `playsInline` évite le plein écran automatique d'iOS, et
+            `preload="metadata"` ne télécharge que l'en-tête tant qu'on
+            n'a pas cliqué. */}
+        {post.media_url ? (
+          <Motion role="scale">
+            {post.media_type === "video" ? (
+              <video
+                src={post.media_url}
+                controls
+                playsInline
+                preload="metadata"
+                className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+                  border border-line-2 bg-surface-2 object-contain"
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={post.media_url}
+                alt="Photo jointe à la publication"
+                loading="lazy"
+                decoding="async"
+                className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+                  border border-line-2 bg-surface-2 object-contain"
+              />
+            )}
           </Motion>
         ) : null}
 
