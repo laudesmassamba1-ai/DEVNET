@@ -10,6 +10,7 @@
 import type {
   AuthRepository,
   CredentialsRecord,
+  NewAccount,
   NewSession,
   SessionRecord,
 } from "../../ports/auth-repository";
@@ -119,6 +120,34 @@ export class PostgresAuthRepository implements AuthRepository {
       ]);
     } catch (error) {
       throw new AuthRepositoryError("delete-session", pgCode(error), { cause: error });
+    }
+  }
+
+  async createAccount(account: NewAccount): Promise<string | null> {
+    try {
+      const rows = await this.dependencies.query<{ user_id: string }>(
+        `with lock as (
+           select pg_advisory_xact_lock(hashtext($1)) as locked
+         ),
+         existing as (
+           select 1 from auth.users, lock
+            where lower(email) = lower($1)
+            limit 1
+         ),
+         u as (
+           insert into auth.users (email, raw_user_meta_data)
+           select $1, $2::jsonb
+            where not exists (select 1 from existing)
+           returning id
+         )
+         insert into public.user_credentials (user_id, password_hash)
+         select id, $3 from u
+         returning user_id::text as user_id`,
+        [account.email, JSON.stringify(account.metadata), account.passwordHash],
+      );
+      return rows[0]?.user_id ?? null;
+    } catch (error) {
+      throw new AuthRepositoryError("create-account", pgCode(error), { cause: error });
     }
   }
 }

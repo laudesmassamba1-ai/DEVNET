@@ -61,6 +61,7 @@ async function seed(client: Client): Promise<void> {
 async function cleanup(client: Client): Promise<void> {
   // `auth.users` cascade vers public.users puis credentials et sessions.
   await client.query("delete from auth.users where id = any($1::uuid[])", [[alice, bob]]);
+  await client.query("delete from auth.users where email like 'carol-%@probe.local'");
 }
 
 async function main(): Promise<void> {
@@ -200,6 +201,28 @@ async function main(): Promise<void> {
     // 10. Une empreinte corrompue est un refus, pas un plantage.
     check("empreinte invalide refusée", (await verifyPassword(PASSWORD, "bcrypt$x$y")) === false);
     check("empreinte sans sel refusée", (await verifyPassword(PASSWORD, "scrypt$16384$8$1$$")) === false);
+
+    
+    // 11. Inscription.
+    const newEmail = `carol-${randomUUID().slice(0, 8)}@probe.local`;
+
+    const created = await service.signUp({
+      email: newEmail,
+      password: PASSWORD,
+      pseudo: "probe-carol",
+    });
+    check("signUp : un nouvel e-mail crée un compte", created.ok === true, created);
+
+    const again = await service.signUp({ email: newEmail.toUpperCase(), password: PASSWORD });
+    check(
+      "signUp : même e-mail (casse différente) refusé",
+      again.ok === false && again.reason === "email-taken",
+      again,
+    );
+
+    const login = await service.signIn({ email: newEmail, password: PASSWORD });
+    check("signIn : le compte créé peut se connecter", login.ok === true, login);
+
   } finally {
     await cleanup(client).catch((error: unknown) => {
       console.error("Nettoyage impossible :", error);

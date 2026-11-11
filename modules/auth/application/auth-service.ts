@@ -13,7 +13,7 @@
  */
 import { createHash, randomBytes } from "node:crypto";
 import type { AuthRepository } from "../ports/auth-repository";
-import { ABSENT_CREDENTIAL_HASH, verifyPassword } from "./password";
+import { ABSENT_CREDENTIAL_HASH, hashPassword, verifyPassword } from "./password";
 
 /** Trente jours : la durée d'un « rester connecté » ordinaire. */
 const DEFAULT_SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -38,7 +38,14 @@ export interface AuthService {
     token: string | null | undefined,
   ): Promise<{ userId: string; sessionId: string } | null>;
   signOut(token: string | null | undefined): Promise<void>;
+  signUp(input: {
+    email: string;
+    password: string;
+    pseudo?: string;
+    prenom?: string;
+  }): Promise<{ ok: true; userId: string } | { ok: false; reason: "email-taken" }>;
 }
+
 
 export function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
@@ -95,9 +102,19 @@ export function createAuthService(dependencies: AuthServiceDependencies): AuthSe
       return { userId: session.userId, sessionId: session.id };
     },
 
-    async signOut(token) {
+     async signOut(token) {
       if (!token) return;
       await repository.deleteSessionByTokenHash(hashSessionToken(token));
+    },
+
+    async signUp(input) {
+      const userId = await repository.createAccount({
+        email: normalizeEmail(input.email),
+        passwordHash: await hashPassword(input.password),
+        metadata: { pseudo: input.pseudo, prenom: input.prenom },
+      });
+      if (!userId) return { ok: false, reason: "email-taken" };
+      return { ok: true, userId };
     },
   };
 }

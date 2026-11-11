@@ -28,12 +28,20 @@ export interface SessionRecord {
   expiresAt: Date;
 }
 
+export interface NewAccount {
+  email: string;
+  passwordHash: string;
+  /** Lu par le trigger handle_new_user. */
+  metadata: { pseudo?: string; prenom?: string };
+}
+
 export interface AuthRepository {
   findCredentialsByEmail(email: string): Promise<CredentialsRecord | null>;
   /** Renvoie l'identifiant de la session créée. */
   createSession(session: NewSession): Promise<string>;
   findSessionByTokenHash(tokenHash: string): Promise<SessionRecord | null>;
   deleteSessionByTokenHash(tokenHash: string): Promise<void>;
+  createAccount(account: NewAccount): Promise<string | null>;
 }
 
 export class AuthRepositoryError extends Error {
@@ -42,7 +50,8 @@ export class AuthRepositoryError extends Error {
       | "find-credentials"
       | "create-session"
       | "find-session"
-      | "delete-session",
+      | "delete-session"
+      | "create-account",
     readonly code: string,
     options?: ErrorOptions,
   ) {
