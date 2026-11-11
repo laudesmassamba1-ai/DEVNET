@@ -16,6 +16,7 @@ import { useToast } from "@/components/Toast";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { badgeFor, xpOf } from "@/lib/verification";
 import { supabase } from "@/lib/supabase/client";
+import { uploadMedia } from "@/lib/media";
 import { useSession } from "@/hooks/useSession";
 import { useTyping } from "@/hooks/useTyping";
 import { messagePoints } from "@/lib/gamification";
@@ -63,6 +64,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   const [text, setText] = useState("");
   const [asCode, setAsCode] = useState(false);
   const [sending, setSending] = useState(false);
+  /** Fichier en cours de téléversement avant l'envoi du message. */
+  const [uploadingMedia, setUploadingMedia] = useState(false);
   /** Catalogue des stickers : la bulle ne stocke qu'un identifiant. */
   const [stickerCatalog, setStickerCatalog] = useState<Map<string, StickerRowView>>(new Map());
   const [openNew, setOpenNew] = useState(false);
@@ -425,6 +428,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
       gif_url: media.gif_url,
       gif_alt: media.gif_alt,
       sticker_id: media.sticker_id,
+      media_url: media.media_url,
+      media_type: media.media_type,
       reply_to_id: replyTo?.id ?? null,
     });
 
@@ -435,6 +440,15 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     // On annonce le gain, sans toast d'erreur : répondre dans un groupe
     // fait progresser, et l'utilisateur doit le voir.
     toast(`Envoyé · +${messagePoints(asCode)} pts`);
+  }
+
+  /** Envoyer une photo ou une vidéo dans le canal courant. */
+  async function sendMedia(file: File) {
+    setUploadingMedia(true);
+    const result = await uploadMedia(file);
+    setUploadingMedia(false);
+    if (!result.ok) return toast(result.error, "err");
+    await send({ kind: "media", url: result.media.url, mediaType: result.media.kind });
   }
 
   /**
@@ -754,6 +768,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                       <MessageAttachmentView
                         gifUrl={m.gif_url}
                         gifAlt={m.gif_alt}
+                        mediaUrl={m.media_url}
+                        mediaType={m.media_type}
                         sticker={
                           m.sticker_id ? stickerCatalog.get(m.sticker_id) ?? null : null
                         }
@@ -847,9 +863,9 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
               onSend={() => void send()}
               attachments={
                 <MessageAttachmentButtons
-                  disabled={!active || sending}
+                  disabled={!active || sending || uploadingMedia}
                   onGif={(gif) => void send({ kind: "gif", gif })}
-                  onSticker={(sticker) => void send({ kind: "sticker", stickerId: sticker.id })}
+                  onMedia={(file) => void sendMedia(file)}
                 />
               }
               onTyping={notifyTyping}

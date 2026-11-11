@@ -132,6 +132,8 @@ export interface User {
   verification_note?: string;
   followers: number;
   following: number;
+  /** Préférence : accepter les photos et vidéos dans les messages privés. */
+  dm_media?: boolean;
   created_at: string;
 }
 
@@ -164,6 +166,10 @@ export interface Post {
   gif_url?: string;
   /** Description du GIF pour les lecteurs d'écran (≤ 300 caractères). */
   gif_alt?: string;
+  /** Photo ou vidéo de la publication (migration 056) — URL du bucket `media`. */
+  media_url?: string;
+  /** `image`, `video`, ou vide quand la publication n'a pas de fichier. */
+  media_type?: "" | "image" | "video";
   /** Cache, maintenu par le déclencheur `sync_post_likes`. Jamais écrit par le client. */
   likes: number;
   /**
@@ -541,6 +547,9 @@ export interface GroupMessage {
   /** GIF joint, lien https vers un fournisseur (migration 053). */
   gif_url?: string;
   gif_alt?: string;
+  /** Photo ou vidéo jointe (migration 056) — URL du bucket `media`. */
+  media_url?: string;
+  media_type?: "" | "image" | "video";
   created_at: string;
 }
 
@@ -1001,6 +1010,9 @@ export interface DirectMessage {
   /** GIF joint, lien https vers un fournisseur (migration 053). */
   gif_url?: string;
   gif_alt?: string;
+  /** Photo ou vidéo jointe (migration 056) — URL du bucket `media`. */
+  media_url?: string;
+  media_type?: "" | "image" | "video";
   created_at: string;
 }
 
@@ -1034,6 +1046,7 @@ export type UserLite = Pick<
   | "verified"
   | "filiere"
   | "niveau"
+  | "dm_media"
 >;
 
 /**

@@ -18,6 +18,7 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { badgeFor, xpOf } from "@/lib/verification";
 import { loadAuthorXp } from "@/lib/author-xp";
 import { supabase } from "@/lib/supabase/client";
+import { uploadMedia } from "@/lib/media";
 import { useSession } from "@/hooks/useSession";
 import { useTyping } from "@/hooks/useTyping";
 import { clockTime } from "@/lib/utils";
@@ -46,6 +47,7 @@ import {
   type ReactionsByMessage,
   type ReactionSummary,
 } from "@/lib/messages";
+import { cascade } from "@/components/Motion";
 import type { Conversation, DirectMessage, UserLite } from "@/lib/types";
 import { canSendMessage, attachmentColumns, type MessageAttachment } from "@/lib/message-media";
 import { fetchStickers, type StickerRowView } from "@/lib/stickers";
@@ -127,6 +129,8 @@ export default function MessagesPage() {
   const pendingOutgoingRef = useRef(new Map<string, Map<string, MessageRow>>());
 
   const sending = messages?.some((message) => message.deliveryStatus === "sending") ?? false;
+  /** Un fichier est en cours de téléversement : le composeur reste bloqué. */
+  const [uploadingMedia, setUploadingMedia] = useState(false);
 
   const profileId = profile?.id;
 
@@ -167,7 +171,7 @@ export default function MessagesPage() {
       if (!otherId) return { conv, other: null };
       const { data: u } = await supabase
         .from("users")
-        .select("id, prenom, pseudo, avatar_color, account_type, verified")
+        .select("id, prenom, pseudo, avatar_color, account_type, verified, dm_media")
         .eq("id", otherId)
         .single();
       return { conv, other: (u as UserLite) ?? null };
@@ -697,6 +701,8 @@ export default function MessagesPage() {
           gif_url: message.gif_url ?? "",
           gif_alt: message.gif_alt ?? "",
           sticker_id: message.sticker_id ?? null,
+          media_url: message.media_url ?? "",
+          media_type: message.media_type ?? "",
           reply_to_id: message.reply_to_id ?? null,
         })
         .select("*")
@@ -876,6 +882,8 @@ export default function MessagesPage() {
       gif_url: media.gif_url,
       gif_alt: media.gif_alt,
       sticker_id: media.sticker_id,
+      media_url: media.media_url,
+      media_type: media.media_type,
       reply_to_id: replyTo?.id ?? null,
       created_at: new Date().toISOString(),
       deliveryStatus: "sending",
@@ -891,6 +899,26 @@ export default function MessagesPage() {
     // la phrase suivante en bloc monospace sans que personne l'ait demandé.
     setAsCode(false);
     await persistMessage(message);
+  }
+
+  /**
+   * Envoyer une photo ou une vidéo.
+   *
+   * Le refus du destinataire se lit **avant** le téléversement : mettre
+   * le fichier en ligne pour qu'il ne parte pas serait un gaspillage et
+   * une fausse promesse. La préférence est un droit de réception, pas
+   * une censure (le texte continue de passer).
+   */
+  async function sendMedia(file: File) {
+    if (!profile || !active) return;
+    if (active.other?.dm_media === false) {
+      return toast("Ce contact n'accepte pas les photos et vidéos.", "err");
+    }
+    setUploadingMedia(true);
+    const result = await uploadMedia(file);
+    setUploadingMedia(false);
+    if (!result.ok) return toast(result.error, "err");
+    await send({ kind: "media", url: result.media.url, mediaType: result.media.kind });
   }
 
   const peer = active?.other;
@@ -1071,6 +1099,8 @@ export default function MessagesPage() {
                         <MessageAttachmentView
                           gifUrl={m.gif_url}
                           gifAlt={m.gif_alt}
+                          mediaUrl={m.media_url}
+                          mediaType={m.media_type}
                           sticker={
                             m.sticker_id ? stickerCatalog.get(m.sticker_id) ?? null : null
                           }
@@ -1251,9 +1281,9 @@ export default function MessagesPage() {
                   onSend={() => void send()}
                   attachments={
                     <MessageAttachmentButtons
-                      disabled={!active || sending}
+                      disabled={!active || sending || uploadingMedia}
                       onGif={(gif) => void send({ kind: "gif", gif })}
-                      onSticker={(sticker) => void send({ kind: "sticker", stickerId: sticker.id })}
+                      onMedia={(file) => void sendMedia(file)}
                     />
                   }
                   onTyping={notifyTyping}
@@ -1301,15 +1331,16 @@ export default function MessagesPage() {
             />
           )}
 
-{visibleConvs?.map((peer) => {
+{visibleConvs?.map((peer, i) => {
             const { conv, other } = peer;
             const unread = unreadConvs[conv.id] ?? 0;
 
             return (
             <button key={conv.id} type="button" onClick={() => void openConversation(peer)}
-              className={`depth-card mb-[9px] flex w-full items-center gap-3.5
+              className={`depth-card mo-rise mb-[9px] flex w-full items-center gap-3.5
                 rounded-[var(--radius-card)] border glass-flat p-3.5 text-left
-                ${unread > 0 ? "border-signal/60" : "border-line-2/60"}`}>
+                ${unread > 0 ? "border-signal" : "border-line-2/60"}`}
+              style={{ animationDelay: `${cascade(i)}ms` }}>
               <Avatar name={other?.prenom} color={other?.avatar_color} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">

@@ -37,6 +37,33 @@ export default function SettingsPage() {
   const [themeBusy, setThemeBusy] = useState(false);
   const [appearanceMessage, setAppearanceMessage] = useState("");
   const [appearanceError, setAppearanceError] = useState("");
+  /** Préférence de réception des médias en messages privés. */
+  const [dmMediaOverride, setDmMediaOverride] = useState<boolean | null>(null);
+  const [dmMediaBusy, setDmMediaBusy] = useState(false);
+  const [dmMediaMessage, setDmMediaMessage] = useState("");
+  const [dmMediaError, setDmMediaError] = useState("");
+
+  // `null` tant que rien n'a été touché : la valeur vient du profil, et
+  // un état séparé éviterait deux sources de vérité qui divergent.
+  const dmMedia = dmMediaOverride ?? profile?.dm_media ?? true;
+
+  async function saveDmMedia(enabled: boolean) {
+    setDmMediaBusy(true);
+    setDmMediaMessage("");
+    setDmMediaError("");
+    const { error } = await supabase
+      .from("users")
+      .update({ dm_media: enabled })
+      .eq("id", profile?.id ?? "");
+    setDmMediaBusy(false);
+    if (error) return setDmMediaError(error.message);
+    setDmMediaOverride(enabled);
+    setDmMediaMessage(
+      enabled
+        ? "Les photos et vidéos sont acceptées dans vos messages."
+        : "Les photos et vidéos ne seront plus acceptées dans vos messages.",
+    );
+  }
   const [feedDensity, setFeedDensity] = useState<FeedDensity>("comfortable");
   const [reduceMotion, setReduceMotion] = useState(false);
   const [signOutError, setSignOutError] = useState("");
@@ -217,7 +244,7 @@ export default function SettingsPage() {
                   {" · "}
                   <Link
                     href="/profile?tab=settings"
-                    className="font-bold text-signal hover:underline"
+                    className="inline-flex min-h-[var(--h-tap)] items-center font-bold text-signal hover:underline"
                   >
                     gérer →
                   </Link>
@@ -378,15 +405,51 @@ export default function SettingsPage() {
 
           <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
+              <Icon name="messages" size={18} strokeWidth={2} />
+              Messages
+            </h2>
+            <p className="mt-2 text-[13px] leading-relaxed text-chalk-3">
+              Choisissez ce que vous acceptez de recevoir en conversation privée.
+            </p>
+            <label className="mt-4 flex min-h-[var(--h-tap)] items-center justify-between gap-4 border-t border-line-2 pt-4">
+              <span>
+                <span className="block text-[13px] font-semibold text-chalk">
+                  Accepter les photos et vidéos
+                </span>
+                <span className="mt-1 block text-[12px] text-chalk-4">
+                  Quand c'est désactivé, vos contacts ne peuvent plus vous en envoyer en privé.
+                  Le texte reste possible.
+                </span>
+              </span>
+              <input
+                type="checkbox"
+                checked={dmMedia}
+                disabled={dmMediaBusy || !profile}
+                onChange={(event) => void saveDmMedia(event.target.checked)}
+                className="size-5 shrink-0 accent-[var(--color-signal)] disabled:opacity-50"
+              />
+            </label>
+            {(dmMediaMessage || dmMediaError) && (
+              <p
+                role={dmMediaError ? "alert" : "status"}
+                className={`mt-3 text-[12px] ${dmMediaError ? "text-warn" : "text-ok"}`}
+              >
+                {dmMediaError || dmMediaMessage}
+              </p>
+            )}
+          </section>
+
+          <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="link" size={18} strokeWidth={2} />
               Liens utiles
             </h2>
-            <div className="mt-3 flex flex-wrap gap-2 text-[13px] font-bold text-chalk-3">
-              <Link href="/aide" className="hover:text-chalk">Aide</Link>
-              <Link href="/confidentialite" className="hover:text-chalk">Confidentialité</Link>
-              <Link href="/cgu" className="hover:text-chalk">CGU</Link>
-              <Link href="/a-propos" className="hover:text-chalk">À propos</Link>
-              <Link href="/setup" className="hover:text-chalk">Diagnostic</Link>
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] font-bold text-chalk-3">
+              <Link href="/aide" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">Aide</Link>
+              <Link href="/confidentialite" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">Confidentialité</Link>
+              <Link href="/cgu" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">CGU</Link>
+              <Link href="/a-propos" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">À propos</Link>
+              <Link href="/setup" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">Diagnostic</Link>
             </div>
           </section>
 
