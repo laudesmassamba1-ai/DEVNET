@@ -1,6 +1,9 @@
 /**
  * Client Supabase serveur — lit la session depuis les cookies HTTP.
  */
+import { SESSION_COOKIE_NAME } from "@/lib/auth/session-cookie";
+import { hasDatabaseUrl } from "@/platform/infrastructure/postgres/pool";
+import { getServerAuthService } from "@/platform/server-container";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseUrl } from "@/lib/backend";
@@ -53,6 +56,16 @@ export async function getOrCreateServerClient() {
  * cette fonction changera.
  */
 export async function currentUserId(): Promise<string | null> {
+  // 1. Session PostgreSQL (nouvelle authentification).
+  if (hasDatabaseUrl()) {
+    const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+    if (token) {
+      const session = await getServerAuthService().resolveSession(token);
+      if (session) return session.userId;
+    }
+  }
+
+  // 2. Repli : session Supabase, tant que la bascule n'est pas terminée.
   const client = await getOrCreateServerClient();
   if (!client) return null;
   const { data } = await client.auth.getUser();

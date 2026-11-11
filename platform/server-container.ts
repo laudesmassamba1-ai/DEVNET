@@ -10,6 +10,7 @@ import { createEventDispatcher, type EventDispatcher } from "@/modules/events";
 import { PostgresEventOutboxRepository } from "@/modules/events/infrastructure/postgres/postgres-event-outbox-repository";
 import { PostgresAuthRepository } from "@/modules/auth/infrastructure/postgres/postgres-auth-repository";
 import type { AuthRepository } from "@/modules/auth/ports/auth-repository";
+import { createAuthService, type AuthService } from "@/modules/auth";
 import { PostgresFeedRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-repository";
 import { PostgresFeedHydrationRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-hydration-repository";
 import { PostgresStoriesRepository } from "@/modules/stories/infrastructure/postgres/postgres-stories-repository";
@@ -127,6 +128,13 @@ export function getServerAuthRepository(): AuthRepository {
   return new PostgresAuthRepository({
     query: async (sql, values) => (await getPostgresPool().query(sql, values)).rows,
   });
+}
+
+let authService: AuthService | null = null;
+
+export function getServerAuthService(): AuthService {
+  authService ??= createAuthService({ repository: getServerAuthRepository() });
+  return authService;
 }
 
 export function getEventDispatcher(): EventDispatcher | null {
