@@ -132,6 +132,8 @@ export interface User {
   verification_note?: string;
   followers: number;
   following: number;
+  /** Préférence : accepter les photos et vidéos dans les messages privés. */
+  dm_media?: boolean;
   created_at: string;
 }
 
@@ -156,6 +158,18 @@ export interface Post {
   has_code: boolean;
   code: string;
   lang: string;
+  /**
+   * GIF joint, sous forme de **lien** https vers un fournisseur (Tenor,
+   * Giphy). Vide si la publication n'en a pas. Aucun binaire n'est
+   * stocké : le fournisseur peut retirer le GIF, le texte reste.
+   */
+  gif_url?: string;
+  /** Description du GIF pour les lecteurs d'écran (≤ 300 caractères). */
+  gif_alt?: string;
+  /** Photo ou vidéo de la publication (migration 056) — URL du bucket `media`. */
+  media_url?: string;
+  /** `image`, `video`, ou vide quand la publication n'a pas de fichier. */
+  media_type?: "" | "image" | "video";
   /** Cache, maintenu par le déclencheur `sync_post_likes`. Jamais écrit par le client. */
   likes: number;
   /**
@@ -261,6 +275,11 @@ export interface Comment {
    * répondu à Z »).
    */
   parent_id?: string | null;
+  /** GIF joint (migration 054) — `https` uniquement, comme les messages. */
+  gif_url?: string;
+  gif_alt?: string;
+  /** Sticker joint — un identifiant du catalogue, jamais un caractère. */
+  sticker_id?: string | null;
   created_at: string;
 }
 
@@ -422,7 +441,6 @@ export type ExtensionCategory =
   | "snippets"
   | "language"
   | "tool"
-  | "ai"
   | "other";
 
 /** Un gabarit de saisie (snippet) : un préfixe qui se déploie en corps. */
@@ -436,10 +454,19 @@ export interface ExtensionSnippet {
   description?: string;
 }
 
-/** Une commande exposée par l'extension, affichable dans la palette. */
+/**
+ * Une commande exposée par l'extension, dans la palette de l'éditeur.
+ *
+ * `body` est ce que la commande **fait** : le texte inséré au curseur.
+ * Une commande sans corps n'est pas une action, c'est une entrée de
+ * menu qui ne produit rien — l'IDE ne l'enregistre donc pas. Le champ
+ * reste optionnel pour que les manifestes publiés avant cette
+ * précision restent lisibles, pas pour encourager des commandes vides.
+ */
 export interface ExtensionCommand {
   id: string;
   title: string;
+  body?: string;
 }
 
 /** Un réglage proposé par l'extension, avec sa valeur par défaut. */
@@ -450,11 +477,28 @@ export interface ExtensionSetting {
   default: string | boolean | number;
 }
 
+/**
+ * Une carte qu'une extension déclare pour un emplacement de l'interface.
+ *
+ * `slot` est un identifiant d'emplacement connu de l'application
+ * (`discover.sidebar`, `extensions.page`), pas un sélecteur CSS : une
+ * extension ne peut pas décider *où* elle s'affiche, seulement dans quels
+ * emplacements prévus. `href` est restreint à `https://` et aux chemins
+ * internes (voir `isSafeSlotHref`) — jamais de `javascript:`.
+ */
+export interface ExtensionSlot {
+  slot: string;
+  title: string;
+  body?: string;
+  href?: string;
+}
+
 /** Le manifeste : tout ce qu'une extension déclare, et rien de plus. */
 export interface ExtensionManifest {
   snippets?: ExtensionSnippet[];
   commands?: ExtensionCommand[];
   settings?: ExtensionSetting[];
+  slots?: ExtensionSlot[];
 }
 
 export interface Extension {
@@ -498,6 +542,14 @@ export interface GroupMessage {
   author_color: AvatarColor;
   text: string;
   is_code: boolean;
+  /** Sticker du catalogue joint (migration 053). */
+  sticker_id?: string | null;
+  /** GIF joint, lien https vers un fournisseur (migration 053). */
+  gif_url?: string;
+  gif_alt?: string;
+  /** Photo ou vidéo jointe (migration 056) — URL du bucket `media`. */
+  media_url?: string;
+  media_type?: "" | "image" | "video";
   created_at: string;
 }
 
@@ -947,6 +999,20 @@ export interface DirectMessage {
   author_id: string;
   author_name: string;
   text: string;
+  /** Bloc de code isolé, jamais interprété (migration 041). */
+  is_code?: boolean;
+  /** Dernière correction ; absent pour un message d'origine (041). */
+  edited_at?: string | null;
+  /** Story d'origine, quand le message est une réponse de story (050). */
+  story_id?: string | null;
+  /** Sticker du catalogue joint (migration 053). */
+  sticker_id?: string | null;
+  /** GIF joint, lien https vers un fournisseur (migration 053). */
+  gif_url?: string;
+  gif_alt?: string;
+  /** Photo ou vidéo jointe (migration 056) — URL du bucket `media`. */
+  media_url?: string;
+  media_type?: "" | "image" | "video";
   created_at: string;
 }
 
@@ -980,6 +1046,7 @@ export type UserLite = Pick<
   | "verified"
   | "filiere"
   | "niveau"
+  | "dm_media"
 >;
 
 /**

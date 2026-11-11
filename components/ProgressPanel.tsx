@@ -160,7 +160,7 @@ function StreakCard({ stats }: { stats: ProgressStats }) {
         </div>
       </header>
 
-      <p className="mb-3 text-[12.5px] leading-[1.55] text-chalk-2">
+      <p className="mb-3 text-sm leading-[1.55] text-chalk-2 outline">
         {streak.activeToday ? (
           <><strong className="text-chalk">Série sécurisée.</strong> Reviens demain
             pour la prolonger.</>
@@ -337,7 +337,7 @@ function LeaderboardCard({ rows }: { rows: LeaderEntry[] }) {
       </header>
 
       {rows.length === 0 ? (
-        <p className="py-2 text-[12.5px] text-chalk-3">
+        <p className="py-2 text-sm text-chalk-3">
           Personne n&apos;a publié cette semaine.
         </p>
       ) : (
@@ -393,7 +393,7 @@ function JournalCard({ stats }: { stats: ProgressStats }) {
     return (
       <section className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 depth-card">
         <h3 className="label mb-2 text-chalk">Journal</h3>
-        <p className="text-[12.5px] text-chalk-3">
+        <p className="text-sm text-chalk-3">
           Ton journal est vide.
         </p>
       </section>
@@ -412,7 +412,7 @@ function JournalCard({ stats }: { stats: ProgressStats }) {
           <li key={`${e.at}-${i}`}
             className="flex items-center gap-2.5 border-b border-line py-2 last:border-0">
             <span className="min-w-0 flex-1">
-              <span className="block truncate text-[12.5px]">{e.label}</span>
+              <span className="block truncate text-sm">{e.label}</span>
               <span className="label-micro text-chalk-4">{timeAgo(e.at)}</span>
             </span>
             <span className="tnum label-micro shrink-0 text-signal">+{e.points}</span>
@@ -456,7 +456,7 @@ function PerksCard({ stats }: { stats: ProgressStats }) {
             <Icon name={asIconName(next.icon, "target")} size={14} />
           </div>
           <div className="min-w-0">
-            <div className="text-[12.5px] text-chalk">À venir · {next.title} (palier {next.level})</div>
+            <div className="text-sm text-chalk">À venir · {next.title} (palier {next.level})</div>
             <div className="text-[11.5px] text-chalk-3">{next.description}</div>
           </div>
         </div>

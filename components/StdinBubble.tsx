@@ -126,8 +126,8 @@ export function StdinBubble({
             aria-label="Entrées du programme, une valeur par ligne"
             placeholder={"20\nAminata"}
             className="w-full resize-y rounded-[var(--radius-input)] border
-              border-line-3 bg-surface px-3 py-2 font-mono text-[12.5px]
-              leading-relaxed text-chalk outline-none transition-colors
+              border-line-3 bg-surface px-3 py-2 font-mono text-sm
+              leading-relaxed text-chalk outline transition-colors
               duration-[var(--d-fast)] placeholder:text-chalk-4 focus:border-signal"
           />
 
@@ -136,7 +136,7 @@ export function StdinBubble({
               type="button"
               onClick={onClose}
               className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
-                border border-transparent text-[12.5px] font-bold text-chalk-2
+                border border-transparent text-sm font-bold text-chalk-2
                 hover:bg-surface-2 hover:text-chalk"
             >
               Annuler
@@ -146,7 +146,7 @@ export function StdinBubble({
               onClick={onRun}
               className="mo-press flex h-[var(--h-tap)] flex-1 items-center
                 justify-center gap-1.5 rounded-[var(--radius-input)] border
-                border-signal bg-signal text-[12.5px] font-bold text-void shadow-sh-1"
+                border-signal bg-signal text-sm font-bold text-void shadow-sh-1"
             >
               <Icon name="bolt" size={12} strokeWidth={2.2} />
               Exécuter

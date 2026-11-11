@@ -187,11 +187,12 @@ export default function GroupsPage() {
     >
       <div className="px-(--gutter) pt-3" data-tour="groups-list">
         <input
+          aria-label="Rechercher un groupe"
           value={query} onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher un groupe…"
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         {groups === null && <Loading />}
@@ -232,29 +233,29 @@ export default function GroupsPage() {
           <label className="label mb-1.5 block text-chalk">
             Nom
           </label>
-          <input value={name} onChange={(e) => setName(e.target.value)}
+          <input value={name} aria-label="Nom du groupe" onChange={(e) => setName(e.target.value)}
             placeholder="ex: Algo & Structures L2"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </div>
 
         <div className="mb-4">
           <label className="label mb-1.5 block text-chalk">
             Description
           </label>
-          <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2}
+          <textarea value={desc} aria-label="Description du groupe" onChange={(e) => setDesc(e.target.value)} rows={2}
             placeholder="À quoi sert ce groupe ?"
             className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </div>
 
         <div className="mb-4">
           <label className="label mb-1.5 block text-chalk">
             Catégorie
           </label>
-          <select value={category} onChange={(e) => setCategory(e.target.value)}
+          <select value={category} aria-label="Catégorie du groupe" onChange={(e) => setCategory(e.target.value)}
             className="h-[var(--h-input)] w-full cursor-pointer rounded-[var(--radius-input)] border border-line-3
-              bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none">
+              bg-surface px-3.5 text-[14px] shadow-sh-1">
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>

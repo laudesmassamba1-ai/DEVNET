@@ -187,7 +187,7 @@ export function ReportButton({
                 maxLength={1000}
                 placeholder="Ce que tu as vu, sans interprétation."
                 className="w-full resize-none border border-line-2 bg-surface px-2.5 py-2
-                  text-[13px] leading-relaxed text-chalk outline-none transition-colors
+                  text-[13px] leading-relaxed text-chalk outline
                   duration-[var(--d-fast)] placeholder:text-chalk-4/60 focus:border-signal"
               />
               <p className="mt-1 text-right font-mono text-[10.5px] text-chalk-4 tnum">

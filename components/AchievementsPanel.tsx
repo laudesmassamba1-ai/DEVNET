@@ -171,7 +171,7 @@ function AchievementRow({
           strokeWidth={2}
           className={a.tier === "or" ? "text-signal" : "text-chalk-3"}
         />
-        <span className={`text-[12.5px] font-bold ${tone}`}>{a.label}</span>
+        <span className={`text-sm font-bold ${tone}`}>{a.label}</span>
         {a.tier && (
           <span className="font-mono text-[10px] uppercase tracking-wider text-signal/70">
             {a.tier}

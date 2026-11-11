@@ -10,9 +10,26 @@ import { ReportButton } from "./ReportButton";
 import { PostShareButton } from "./PostShareButton";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { badgeFor } from "@/lib/verification";
-import { profileMeta, timeAgo } from "@/lib/utils";
+import { clockTime, profileMeta, timeAgo } from "@/lib/utils";
 import { splitContent } from "@/lib/text";
 import type { PostWithAuthor } from "@/lib/types";
+
+/**
+ * Barre d'actions : une seule cible, 44 px partout.
+ *
+ * Les boutons avaient chacun leur recette de classes — `px-2.5 py-2`,
+ * `px-2`, un `size-[34px]` pour « Signaler » — et trois d'entre eux
+ * mesuraient 30 à 40 px de large au doigt. Une seule constante garantit
+ * que le prochain bouton ajouté hérite de la bonne cible.
+ */
+const ACTION =
+  "inline-flex min-h-[var(--h-tap)] min-w-[var(--h-tap)] items-center justify-center gap-1.5 " +
+  "rounded-[var(--radius-chip)] border-[var(--bw-thin)] px-3 font-mono text-[12px] font-medium " +
+  "transition-[color,border-color,background-color,transform] duration-[var(--d-fast)] " +
+  "active:translate-y-px";
+
+/** Icône seule : même cible, sans largeur de texte. */
+const ACTION_ICON = `${ACTION} px-0`;
 
 /**
  * Carte de post.
@@ -26,29 +43,12 @@ import type { PostWithAuthor } from "@/lib/types";
  * de repères stable. Le contenu est un flux, mais la structure doit être
  * stable — c'est ce qui permet à l'œil de parcourir le fil sans lire.
  *
- * Chorégraphie d'entrée. La carte ne « apparaît » pas : elle se
- * **assemble**, dans l'ordre de lecture d'un fichier. La gouttière se
- * pose, l'en-tête arrive, le corps se déroule, le bloc de code s'insère
- * et la barre d'actions se déploie en dernier. Chaque étage est retardé
- * de 55 ms — l'écart de `--stagger-step`, choisi pour que l'œil suive
- * l'ordre sans le lire comme une attente.
- *
- *   0 ms   gouttière
- *  55 ms   en-tête (avatar, nom, horodatage)
- * 110 ms   corps
- * 165 ms   bloc de code, s'il y en a un
- * 220 ms   barre d'actions
- * 440 ms   carte complète à l'arrêt
- *
- * Le compteur de likes, lui, ne s'anime pas au chargement : il compte
- * de 0 à sa valeur. Un chiffre qui apparaît d'un coup est un chiffre ;
- * un chiffre qui monte est une progression — et c'est la progression qui
- * est l'information, ici.
+ * La gouttière rappelle la marge d'un éditeur. Les séparateurs du fil
+ * gardent les publications dans une seule colonne, sans empilement de cartes.
  */
 export function PostCard({
   post,
   liked,
-  index = 0,
   onToggleLike,
   onOpenComments,
   onOpenProfile,
@@ -67,8 +67,6 @@ export function PostCard({
 }: {
   post: PostWithAuthor;
   liked: boolean;
-  /** Rang dans le fil — pilote le retard de la cascade. */
-  index?: number;
   onToggleLike?: (id: string) => void;
   /** Ouvre le fil de commentaires du post. */
   onOpenComments?: (id: string) => void;
@@ -137,70 +135,92 @@ export function PostCard({
   const likes = useCount(post.likes ?? 0);
   const comments = useCount(post.comments ?? 0);
 
-  // La cascade est plafonnée : au-delà de douze cartes, tout le reste
-  // arrive ensemble. Un fil de quarante posts ne doit pas demander une
-  // seconde et demie de lecture avant d'être lisible.
-  const step = (n: number) => Math.min(index * 55 + n * 55, 640);
+  // L'heure absolue vit dans la marge, l'heure relative reste dans
+  // l'en-tête. Les deux ne disent pas la même chose : « il y a 8 min »
+  // situe la lecture, « 08:42 » date le contenu. La marge porte le
+  // repère fixe, l'en-tête le repère mouvant.
+  const posted = clockTime(post.created_at);
 
   return (
     <article
-      className="depth-card mb-3 flex overflow-hidden rounded-[var(--radius-card)]
-        border border-line-2 bg-surface"
+      /*
+        La carte porte une **surface** et non un simple filet : sur un écran
+        large, une suite de paragraphes séparés par des hairlines se lit
+        comme un document brut, pas comme un fil. La teinte reste très
+        basse (surface à 30 %) pour ne pas casser la métaphore du fichier
+        que la gouttière raconte ; le survol la relève d'un cran, sans
+        déplacer quoi que ce soit.
+      */
+      className="feed-post flex overflow-hidden border-b border-line-2
+        bg-surface/30 transition-[background-color,border-color,transform]
+        duration-[var(--d-fast)] ease-[var(--ease-spring)]
+        hover:-translate-y-px hover:border-line-3 hover:bg-surface/60"
     >
-      {/* ── Gouttière : l'ascenseur de l'éditeur, en un seul cran. ── */}
+      {/* Gouttière de lecture, distincte du texte et du code intégré. */}
       <div
-        className="flex w-[26px] shrink-0 flex-col items-center rounded-[var(--radius-input)] border-r
-          border-line bg-surface-2/60 py-3"
+        className="feed-post__gutter flex w-8 shrink-0 flex-col items-center
+          border-r border-line-2 py-4"
       >
-        <Motion as="span" role="rotate" delay={step(0)}>
+        <Motion as="span" role="rotate">
           <Icon name="file" size={12} className="text-chalk-4" />
         </Motion>
 
-        <Motion
-          as="span"
-          role="slide"
-          delay={step(0) + 20}
-          className="line-gutter mt-2 block"
-        >
-          1
+        {/* Cadran : deux lignes de deux chiffres tiennent dans les 32 px
+            de la gouttière et alignent la colonne de repères d'un post à
+            l'autre, sans élargir la marge de lecture. */}
+        <Motion as="span" role="slide" className="mt-2 block">
+          <time
+            dateTime={post.created_at}
+            title={`Publié à ${posted}`}
+            className="line-gutter tnum block text-center leading-[1.5]"
+          >
+            <span aria-hidden="true">
+              {posted.slice(0, 2)}
+              <br />
+              {posted.slice(3, 5)}
+            </span>
+            <span className="sr-only">Publié à {posted}</span>
+          </time>
         </Motion>
 
         {/* Le filet vertical ne s'étire qu'entre deux éléments : c'est
             une liaison, pas un séparateur. */}
         <Motion
           role="slide"
-          delay={step(0) + 40}
           className="mt-6 w-px flex-1"
           style={{ transformOrigin: "top" }}
         >
           <span className="block h-full w-px bg-line" />
         </Motion>
 
-        <Motion as="span" role="fade" delay={step(4)}>
+        <Motion as="span" role="fade">
           <Icon name="comment" size={11} className="text-chalk-4" />
         </Motion>
       </div>
 
-      <div className="min-w-0 flex-1 px-4 py-3.5">
+      <div className="feed-post__content min-w-0 flex-1 px-4 py-4">
         {/* ── En-tête ── */}
         <Motion
           role="rise"
-          delay={step(1)}
           className="mb-2.5 flex items-center gap-2.5"
         >
           <Avatar
             name={name}
             color={color}
-            className={author?.verified ? "shadow-[0_0_12px_1px_rgba(255,138,61,0.35)]" : ""}
+            /* Un anneau, pas une lueur : le cachet se lit à son filet.
+               Une ombre colorée autour de l'avatar faisait briller la
+               personne vérifiée — le privilège devenait un reflet. */
+            className={author?.verified ? "ring-1 ring-signal/45" : ""}
           />
           <div className="min-w-0 flex-1">
             {pseudo ? (
               <button
                 type="button"
                 onClick={() => onOpenProfile?.(pseudo)}
-                className="group/author -ml-0.5 -my-[3px] block py-[3px] text-left"
+                className="group/author -ml-0.5 flex min-h-[var(--h-tap)] flex-col
+                  justify-center py-1 text-left"
               >
-                <span className="inline-flex items-center gap-1.5 text-[13.5px]
+                <span className="inline-flex items-center gap-1.5 text-[14px]
                   font-semibold transition-colors group-hover/author:text-signal">
                   {name}
                   {author?.verified && (
@@ -211,7 +231,7 @@ export function PostCard({
                   )}
                 </span>
                 <span
-                  className="ml-1.5 font-mono text-[11.5px] font-normal
+                  className="ml-1.5 font-mono text-[12px] font-normal
                     text-chalk-3 transition-colors group-hover/author:text-signal/70"
                 >
                   @{pseudo}
@@ -220,7 +240,7 @@ export function PostCard({
             ) : (
               <div className="text-[13.5px] font-semibold">{name}</div>
             )}
-            <div className="label-micro mt-1 text-chalk-4">
+            <div className="mt-1 font-mono text-[12px] text-chalk-4">
               {meta ? `${meta} · ` : ""}
               {timeAgo(post.created_at)}
             </div>
@@ -242,8 +262,7 @@ export function PostCard({
             à recopier le pseudo. */}
         <Motion
           role="slide"
-          delay={step(2)}
-          className="mb-3.5 text-[14.5px] leading-[1.66] break-words
+          className="feed-post__text mb-3.5 text-[15px] leading-[1.66] break-words
             whitespace-pre-wrap text-chalk-2"
         >
           {splitContent(post.text).map((segment, i) =>
@@ -253,6 +272,7 @@ export function PostCard({
                 type="button"
                 onClick={() => router.push(`/search?tag=${encodeURIComponent(segment.tag!)}`)}
                 title={`Voir les publications #${segment.tag}`}
+                data-inline-link
                 className="font-medium text-signal underline-sweep"
               >
                 {segment.text}
@@ -263,6 +283,7 @@ export function PostCard({
                 type="button"
                 onClick={() => router.push(`/u/${encodeURIComponent(segment.mention!)}`)}
                 title={`Ouvrir le profil de @${segment.mention}`}
+                data-inline-link
                 className="font-medium text-chalk underline-sweep hover:text-signal"
               >
                 {segment.text}
@@ -279,10 +300,60 @@ export function PostCard({
           )}
         </Motion>
 
+        {/* ── GIF : le média est du contenu, il vient après le texte. ──
+            `loading="lazy"` évite de charger les GIF des posts qu'on n'a
+            pas encore atteints ; `object-contain` garde le cadrage du
+            fournisseur sans le rogner. L'`alt` vient de la description
+            du fournisseur : un GIF sans description reste annoncé
+            comme un GIF, jamais comme une image muette. */}
+        {post.gif_url ? (
+          <Motion role="scale">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={post.gif_url}
+              alt={post.gif_alt || "GIF joint à la publication"}
+              loading="lazy"
+              decoding="async"
+              className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+                border border-line-2 bg-surface-2 object-contain"
+            />
+          </Motion>
+        ) : null}
+
+        {/* ── Photo ou vidéo jointe (migration 056) ──
+            La vidéo se lit sur place, muette jusqu'au premier geste —
+            `playsInline` évite le plein écran automatique d'iOS, et
+            `preload="metadata"` ne télécharge que l'en-tête tant qu'on
+            n'a pas cliqué. */}
+        {post.media_url ? (
+          <Motion role="scale">
+            {post.media_type === "video" ? (
+              <video
+                src={post.media_url}
+                controls
+                playsInline
+                preload="metadata"
+                className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+                  border border-line-2 bg-surface-2 object-contain"
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={post.media_url}
+                alt="Photo jointe à la publication"
+                loading="lazy"
+                decoding="async"
+                className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+                  border border-line-2 bg-surface-2 object-contain"
+              />
+            )}
+          </Motion>
+        ) : null}
+
         {/* ── Code : s'insère après le texte, à sa place dans la lecture. ── */}
         {post.has_code && (
-          <Motion role="scale" delay={step(3)}>
-            <CodeBlock code={post.code} lang={post.lang} variant="paper" />
+          <Motion role="scale">
+            <CodeBlock code={post.code} lang={post.lang} variant="paper" lineNumbers />
           </Motion>
         )}
 
@@ -292,13 +363,13 @@ export function PostCard({
             quelque chose d'intéressant » et « voici le code ». Sans ce
             lien, le lien post↔projet n'existerait que dans la base. */}
         {project && (
-          <Motion role="fade" delay={step(3)}>
+          <Motion role="fade">
             <button
               type="button"
               onClick={() => onOpenProject?.(project.id)}
-              className="mb-3 inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-                border border-line-3 px-2.5 py-1.5 font-mono text-[11px]
-                text-chalk-3 transition-colors duration-[var(--d-fast)]
+              className="mb-3 inline-flex min-h-[var(--h-tap)] items-center gap-1.5
+                rounded-[var(--radius-chip)] border border-line-3 px-3 font-mono
+                text-[12px] text-chalk-3 transition-colors duration-[var(--d-fast)]
                 hover:border-signal hover:text-signal"
             >
               <span aria-hidden="true" className="shrink-0 leading-none">
@@ -319,21 +390,21 @@ export function PostCard({
         {/* ── Actions ── */}
         <Motion
           role="slide"
-          delay={step(4)}
           className="flex flex-wrap items-center gap-1.5"
         >
           <button
             type="button"
             onClick={() => onToggleLike?.(post.id)}
             aria-pressed={liked}
-            aria-label={liked ? "Ne plus aimer cette publication" : "Aimer cette publication"}
-            className={`inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-              border-[var(--bw-thin)] px-2.5 py-2 min-h-[var(--h-action)] max-sm:min-h-[var(--h-tap)] inline-flex items-center font-mono text-[12px] font-medium
-              transition-[color,border-color,background-color,transform] duration-[var(--d-fast)]
-              ${liked
-                ? "border-danger text-danger"
-                : "border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"}
-              active:translate-y-px`}
+            // Le nombre est visible : sous 2.5.3, le nom accessible doit le
+            // contenir. « Aimer cette publication, 12 » se lit, se cherche
+            // à la voix et garde le compte annoncé.
+            aria-label={`${liked ? "Ne plus aimer cette publication" : "Aimer cette publication"}, ${likes}`}
+            className={`${ACTION} ${
+              liked
+                ? "border-signal text-signal"
+                : "border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"
+            }`}
           >
             {/* Le cœur ne « remplit » pas : il se contracte puis revient.
                 Un remplissage instantané est un changement d'état ; la
@@ -360,12 +431,7 @@ export function PostCard({
             type="button"
             onClick={() => onOpenComments?.(post.id)}
             aria-label={`Ouvrir les ${post.comments || 0} commentaires`}
-            className={`inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-              border-[var(--bw-thin)] px-2.5 py-2 min-h-[var(--h-action)] max-sm:min-h-[var(--h-tap)] inline-flex items-center font-mono text-[12px]
-              text-chalk-3 transition-[color,border-color,background-color]
-              duration-[var(--d-fast)]
-              hover:border-line-3 hover:bg-surface-2 hover:text-chalk
-              active:translate-y-px`}
+            className={`${ACTION} border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk`}
           >
             <Icon name="comment" size={14} />
             <span className="tnum">{comments}</span>
@@ -399,19 +465,16 @@ export function PostCard({
             type="button"
             onClick={() => onRepost?.(post.id)}
             aria-pressed={reposted}
-            aria-label={
+            aria-label={`${
               reposted
                 ? "Retirer cette publication de ton fil"
                 : "Republier dans mon fil"
-            }
-            className={`inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-              border-[var(--bw-thin)] px-2.5 py-2 min-h-[var(--h-action)] max-sm:min-h-[var(--h-tap)] inline-flex items-center font-mono text-[12px]
-              transition-[color,border-color,background-color,transform]
-              duration-[var(--d-fast)]
-              ${reposted
+            }${post.reposts ? `, ${post.reposts}` : ""}`}
+            className={`${ACTION} ${
+              reposted
                 ? "border-ok text-ok"
-                : "border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"}
-              active:translate-y-px`}
+                : "border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"
+            }`}
           >
             <Motion key={String(reposted)} role="rotate" as="span" delay={0}>
               <Icon name="repost" size={14} />
@@ -434,13 +497,11 @@ export function PostCard({
                 : "Enregistrer dans les signets"
             }
             title={bookmarked ? "Retirer des signets" : "Enregistrer"}
-            className={`inline-flex items-center rounded-[var(--radius-chip)]
-              border-[var(--bw-thin)] px-2 py-2 min-h-[var(--h-action)]
-              max-sm:min-h-[var(--h-tap)] transition-[color,border-color,transform]
-              duration-[var(--d-fast)] active:translate-y-px
-              ${bookmarked
+            className={`${ACTION_ICON} ${
+              bookmarked
                 ? "border-signal text-signal"
-                : "border-line text-chalk-4 hover:border-line-3 hover:text-chalk"}`}
+                : "border-line text-chalk-4 hover:border-line-3 hover:text-chalk"
+            }`}
           >
             <Motion key={String(bookmarked)} role="pop" as="span" delay={0}>
               <Icon
@@ -465,10 +526,7 @@ export function PostCard({
             targetLabel="cette publication"
             targetAuthorId={post.author_id}
             compact
-            className="ml-1 inline-flex size-[34px] items-center justify-center
-              rounded-[var(--radius-chip)] border-[var(--bw-thin)] border-line
-              text-chalk-4 transition-[color,border-color,background-color]
-              duration-[var(--d-fast)] hover:border-danger hover:text-danger"
+            className={`${ACTION_ICON} ml-1 border-line text-chalk-4 hover:border-danger hover:text-danger`}
           />
 
           {/* Les deux actions de l'auteur. Elles ne displacement pas
@@ -484,11 +542,7 @@ export function PostCard({
                 onClick={() => onEdit?.(post)}
                 aria-label="Modifier ce post"
                 title="Modifier"
-                className="inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-                  border-[var(--bw-thin)] border-line px-2.5 py-2 text-chalk-3
-                  transition-[color,background-color,border-color] duration-[var(--d-fast)]
-                  hover:border-line-3 hover:bg-surface-2 hover:text-chalk
-                  active:translate-y-px"
+                className={`${ACTION_ICON} border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk`}
               >
                 <Icon name="edit" size={14} />
               </button>
@@ -498,11 +552,7 @@ export function PostCard({
                 onClick={() => onDelete?.(post)}
                 aria-label="Supprimer ce post"
                 title="Supprimer"
-                className="inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-                  border-[var(--bw-thin)] border-line px-2.5 py-2 text-chalk-3
-                  transition-[color,background-color,border-color] duration-[var(--d-fast)]
-                  hover:border-danger hover:text-danger
-                  active:translate-y-px"
+                className={`${ACTION_ICON} border-line text-chalk-3 hover:border-danger hover:text-danger`}
               >
                 <Icon name="trash" size={14} />
               </button>

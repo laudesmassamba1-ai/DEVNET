@@ -1,103 +1,65 @@
-/* ================================================================
-   DEVNET — Design system « LIQUID BLEU » + Motion
-
-  Un fond ivoire mat porte les plaques translucides. Les barres et
-  surfaces flottantes reçoivent le flou en direct ; les cartes restent
-  légères et transmettent la couleur du fond. Un reflet directionnel,
-  un liseré fin et deux ombres douces donnent au verre son épaisseur
-   sans sacrifier la lisibilité ni les performances.
-
-  L'olive est l'accent d'interaction ; le vert reste réservé aux données
-  vivantes. Les éditeurs gardent leur plan sombre dédié.
-
-   Le mouvement est une propriété de l'élément, jamais un conteneur.
-   Les animations n'interpolent que `transform` et `opacity`.
-================================================================ */
+/* DevNet : papier d'atelier en clair, encre en sombre, terre cuite pour
+   l'action. Les filets et la typographie structurent le contenu. */
 
 @import "tailwindcss";
 
 /* Les polices viennent de next/font : la variable est résolue à l'usage,
    donc next/font peut la poser sur <body> sans casser le thème. */
 @theme {
-  /* ── Substrat : ivoire mat, graphite et verre clair ───────── */
-  --color-void:    #24261F;
-  --color-page:    #F1EFE6;
-  --color-surface:   rgba(255, 255, 255, 0.24);
-  --color-surface-2: rgba(255, 255, 255, 0.40);
-  --color-surface-3: rgba(255, 255, 255, 0.62);
-
-  /* ── Encre : graphite, du plus dense au plus clair ────────────────
-     Les deux tons clairs ont été assombris : sur l'ivoire, #62655D et
-     #6B6E65 tombaient sous le seuil de lisibilité du petit texte. La
-     hiérarchie `chalk < chalk-2 < chalk-3 < chalk-4` est conservée. */
-  --color-chalk:    #272A24;
-  --color-chalk-2:  #41443D;
-  --color-chalk-3:  #54574D;
-  --color-chalk-4:  #5E6157;
-
-  /* ── Filets : séparations mates et discrètes ──────────────── */
-  --color-line:   rgba(42, 45, 38, 0.08);
-  --color-line-2: rgba(42, 45, 38, 0.14);
-  --color-line-3: rgba(42, 45, 38, 0.24);
-
-  /* ── Signal : olive pour les actions et les liens ─────────────
-     Assombri depuis #C5D58C : le vert pâle se confondait avec l'ivoire,
-     les boutons pleins ne se voyaient plus. L'olive moyen garde le
-     texte sombre (`--color-void`) lisible par-dessus. */
-  --color-signal:   #8FAF4E;
-  --color-signal-d: #496439;
+  /* ── Thème sombre par défaut ── */
+  --color-void:       #11110E;
+  --color-page:       #11110E;
+  --color-page-end:   #11110E;
+  --color-surface:    #191914;
+  --color-surface-2:  #201F19;
+  --color-surface-3:  #292A23;
+  --color-chalk:      #ECE9DF;
+  --color-chalk-2:    #C9C4B8;
+  --color-chalk-3:    #9A978B;
+  --color-chalk-4:    #9A978B;
+  --color-line:       #2A2A23;
+  --color-line-2:     #35352D;
+  --color-line-3:     #44443B;
+  --color-signal:     #FF7A45;
+  --color-signal-d:   #FF7A45;
+  --color-signal-fill:#FF7A45;
 
   /* ── Vivant : la donnée qui bouge ───────────────────────────────
       Présence, sonde en direct, ticks lus, compteurs actifs. Vert
       franc — jamais sur un bouton, jamais en fond. */
-  --color-phosphor:   #4F8A5B;
-  --color-phosphor-d: #346B43;
+  --color-phosphor:   #5FBF86;
+  --color-phosphor-d: #5FBF86;
 
   /* ── Sémantique, rare ── */
-  --color-ok:      #327A4D;  /* succès, série sécurisée */
-  --color-danger:  #B2433D;  /* erreur, like, suppression */
-  --color-warn:    #855B16;  /* badge vérifié uniquement */
-  --color-info:    #386D74;  /* schéma, annotation */
+  --color-ok:      #5FBF86;
+  --color-danger:  #FF6B61;
+  --color-warn:    #E6BC75;
+  --color-info:    #A6B7B0;
 
-  /* ── Avatars : pastel, ils ressortent sur le bleu nuit ── */
+  /* ── Avatars : pastels distincts sur les deux thèmes ── */
   --color-av-lime-bg:   #CDE3A4;  --color-av-lime-fg:   #2E4411;
   --color-av-sage-bg:   #CFE0CF;  --color-av-sage-fg:   #254528;
   --color-av-pink-bg:   #F0C4C9;  --color-av-pink-fg:   #6D1B20;
   --color-av-orange-bg: #F6D8AC;  --color-av-orange-fg: #6A430E;
   --color-av-violet-bg: #DBC4DF;  --color-av-violet-fg: #4D2346;
 
-/* ── Dégradés — touches de couleur rares ──
-   Un dégradé est une affirmation, pas un fond. L'anneau de story est la
-   paire de la marque (vert → lime) ; les tons ambre/or sont conservés
-   pour les **gains** et le badge vérifié seulement. Aucun dégradé
-   « Instagram » (rose, violet, coucher de soleil). */
-  --gradient-amber-fire: linear-gradient(135deg, #C27A42 0%, #AD564E 100%);
-  --gradient-ember:      linear-gradient(135deg, #C99443 0%, #DFC16D 100%);
-  --gradient-phosphor:   linear-gradient(135deg, #4F7B55 0%, #A5B77A 100%);
-  --gradient-aura:       linear-gradient(135deg, rgba(73, 100, 57, 0.10) 0%, rgba(165, 183, 122, 0.08) 100%);
+--gradient-amber-fire: var(--color-signal);
+--gradient-ember:      var(--color-signal);
+--gradient-phosphor:   var(--color-ok);
+--gradient-aura:       none;
 
-  /* ── Story ring gradient ──
-     L'anneau de story est la « sonde » : l'accent d'interaction qui
-     rejoint la donnée vivante. Vert → lime, la même paire que le reste
-     de l'interface, pas un arc-en-ciel. */
-  --story-ring-gradient: linear-gradient(135deg, #496439, #A5B77A);
+  --story-ring-gradient: var(--color-signal);
 
-  /* ── Typo ──
-     Inter pour tout le texte, titres compris : une seule famille,
-     la hiérarchie se fait au poids et à l'interlettrage.
-     IBM Plex Mono pour la donnée : compteurs, libellés, code. */
-  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Instrument Sans pour la lecture, IBM Plex Mono pour les données. */
+  --font-display: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-plex-mono), ui-monospace, monospace;
 
-  /* ── Ombres : contact doux sur le plan ivoire ──────────────── */
-  --shadow-sh-1:  0 1px 2px rgba(35, 37, 29, 0.05),
-                  0 5px 16px -8px rgba(35, 37, 29, 0.10);
-  --shadow-sh-2:  0 2px 6px rgba(35, 37, 29, 0.06),
-                  0 12px 30px -10px rgba(35, 37, 29, 0.12);
-  --shadow-sh-3:  0 3px 8px rgba(35, 37, 29, 0.07),
-                  0 26px 56px -22px rgba(35, 37, 29, 0.16);
-  --shadow-action: 0 8px 24px -12px rgba(35, 37, 29, 0.16);
+  /* Une seule élévation, réservée aux menus et aux feuilles. */
+  --shadow-sh-1:  0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-sh-2:  var(--shadow-sh-1);
+  --shadow-sh-3:  var(--shadow-sh-1);
+  --shadow-action: none;
   --shadow-inset-signal: inset 0 -3px 0 var(--color-signal);
 
   /* ── Profondeur ─────────────────────────────────────────────────
@@ -107,48 +69,28 @@
 
      Un seul palier : `lift-1` existait aussi, mais rien ne
      l'utilisait — un jeton non employé est une classe morte. */
-  --shadow-lift-2: 0 2px 6px rgba(35, 37, 29, 0.06),
-                   0 18px 40px -16px rgba(35, 37, 29, 0.13);
-  /* Anneau de focus : un filet d'accent, pas une lueur. */
-  --shadow-ring-signal: 0 0 0 3px rgba(73, 100, 57, 0.28);
+  --shadow-lift-2: var(--shadow-sh-1);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
   /* Ombre portée vers le haut : pour une feuille qui monte du bas,
      l'ombre doit être au-dessus, sinon elle se colle au bord. */
-  --shadow-sh-signal-top: 0 -6px 0 var(--color-signal-d);
+  --shadow-sh-signal-top: 0 -6px 0 var(--color-signal);
 
-  /* ── Verre : transparence, reflet directionnel et profondeur ── */
-  --glass-bg:        rgba(255, 255, 255, 0.34);
-  --glass-bg-strong: rgba(255, 255, 255, 0.52);
-  --glass-refract:        blur(10px) saturate(1.04);
-  --glass-refract-strong: blur(16px) saturate(1.08);
-  --glass-lens:           blur(22px) saturate(1.10);
-  --glass-sheen:
-    linear-gradient(155deg,
-      rgba(255, 255, 255, 0.30) 0%,
-      rgba(255, 255, 255, 0.08) 42%,
-      rgba(255, 255, 255, 0) 72%);
-  --glass-rim:
-    inset 0 1px 0 rgba(255, 255, 255, 0.82),
-    inset 0 0 0 1px rgba(42, 45, 38, 0.07),
-    inset 0 -1px 0 rgba(42, 45, 38, 0.08);
-  --color-edge:      rgba(42, 45, 38, 0.14);
-  --shadow-drop:     0 2px 5px -1px rgba(35, 37, 29, 0.07),
-                     0 18px 38px -16px rgba(35, 37, 29, 0.12);
-  --shadow-drop-lg:  0 4px 9px -2px rgba(35, 37, 29, 0.09),
-                     0 30px 64px -22px rgba(35, 37, 29, 0.16);
-  /* ── Superposition ──
-     Une couche qui s'affiche **au-dessus** d'une autre est plus
-     importante : ce qu'elle recouvre doit s'effacer pour qu'on lise son
-     contenu. Le fond passe donc derrière un voile — assombri et flou —
-     tandis que la couche du dessus garde un fond fumé et un texte très
-     contrasté. */
-  --overlay-veil-bg:  rgba(35, 37, 29, 0.28);
-  --overlay-blur:     blur(9px) saturate(1.15);
-  --overlay-frost-bg: rgba(245, 243, 235, 0.82);
-  --overlay-panel-bg: rgba(248, 247, 241, 0.96);
-  --shadow-brut:     0 2px 6px rgba(35, 37, 29, 0.06),
-                     0 12px 28px -10px rgba(35, 37, 29, 0.12);
-  --shadow-brut-lg:  0 4px 10px rgba(35, 37, 29, 0.08),
-                     0 28px 60px -24px rgba(35, 37, 29, 0.16);
+  --glass-bg:        var(--color-surface);
+  --glass-bg-strong: var(--color-surface);
+  --glass-refract:        none;
+  --glass-refract-strong: none;
+  --glass-lens:           none;
+  --glass-sheen:          none;
+  --glass-rim:            none;
+  --color-edge:           var(--color-line);
+  --shadow-drop:          none;
+  --shadow-drop-lg:       var(--shadow-sh-1);
+  --overlay-veil-bg:  rgb(17 17 14 / 72%);
+  --overlay-blur:     none;
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-brut:     none;
+  --shadow-brut-lg:  var(--shadow-sh-1);
 
   /* ================================================================
      MOUVEMENT — grammaire par intention
@@ -167,10 +109,10 @@
      pop        — confirmation (compteur, badge). Dépassement franc.
      ═══════════════════════════════════════════════════════════════ */
   --ease-entrance:  cubic-bezier(0.16, 1, 0.30, 1);
-  --ease-spring:    cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring:    cubic-bezier(0.2, 0, 0, 1);
   --ease-continuous: cubic-bezier(0.45, 0, 0.55, 1);
-  --ease-pop:        cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-gravity:    cubic-bezier(0.34, 1.2, 0.64, 1);
+  --ease-pop:        cubic-bezier(0.2, 0, 0, 1);
+  --ease-gravity:    cubic-bezier(0.2, 0, 0, 1);
   --ease-timing:    steps(1, end);
 
   /* `snap` — réaction à un geste ponctuel : le cœur qui se remplit,
@@ -183,37 +125,34 @@
   /* ── Durées : une échelle courte, pas une liste de valeurs arbitraires ── */
   --d-instant:  90ms;   /* réaction immédiate (press) */
   --d-fast:    140ms;   /* micro-feedback (survol, toggle) */
-  --d-base:    240ms;   /* changement d'état (onglet, bouton) */
-  --d-slow:    380ms;   /* mouvement de surface (carte, sheet) */
-  --d-enter:   520ms;   /* apparition de contenu */
-  --d-scene:   760ms;   /* durée totale d'une scène chorégraphiée */
+  --d-base:    180ms;
+  --d-slow:    200ms;
+  --d-enter:   180ms;
+  --d-scene:   200ms;
   --d-story:  6000ms;   /* durée d'une story */
   --d-caret:  1060ms;   /* cadence du clignotement du curseur */
   --d-orbit:  1100ms;   /* une révolution complète (attente, chargement) */
   --d-burst:   300ms;   /* éclat d'une réaction posée */
 
   /* ── Rythme de cascade ──
-     L'écart entre deux éléments d'une cascade. Assez pour que l'œil
-     distingue l'ordre, assez court pour que dix cartes soient là en
-     une seconde. */
-  --stagger-step: 55ms;
-  /* Plafond : au-delà, la cascade ne s'étire plus. Un fil de quarante
-     posts ne doit pas mettre trois secondes à se lire. */
-  --stagger-max: 640ms;
+     La cascade est calculée en JavaScript (`Stagger`), pas en CSS : les
+     tokens `--stagger-step` / `--stagger-max` qui vivaient ici ne lisaient
+     rien et valaient `0ms` — deux valeurs mortes qui laissaient croire
+     que le rythme était réglable par la feuille de style. */
 
   /* ── Palette de code, variante « éditeur » ────────────────────────
      Elle dérive des mêmes teintes que l'UI : un utilisateur qui passe
      d'une card à un bloc de code ne voit pas un autre univers. Le vert
      des chaînes est le phosphor, l'ambre reste aux mots-clés. */
-  --color-code-bg:     #0A0E1A;
-  --color-code-plain:  #E9EDF8;
-  --color-code-keyword: #FF9E64;
-  --color-code-string:  #8FF25C;
-  --color-code-number:  #FFC46B;
-  --color-code-function:#C9A0E8;
-  --color-code-type:    #FFD166;
-  --color-code-comment: #96A0AB;
-  --color-code-punct:   #A8B1BA;
+  --color-code-bg:     #191914;
+  --color-code-plain:  #ECE9DF;
+  --color-code-keyword: #FFAD7E;
+  --color-code-string:  #8FCB9E;
+  --color-code-number:  #E6BC75;
+  --color-code-function:#E4C1A9;
+  --color-code-type:    #E6BC75;
+  --color-code-comment: #9A978B;
+  --color-code-punct:   #C9C4B8;
 
   /* ── Espacement : base 4 px ── */
   --space-xs:  4px;
@@ -222,7 +161,7 @@
   --space-lg:  16px;
   --space-xl:  24px;
   --space-2xl: 32px;
-  --gutter:    1.1rem;
+  --gutter:    16px;
 
   /* ── Seuils de coque ──────────────────────────────────────────
      Ce ne sont pas des « tailles d'écran » mais des capacités : à partir
@@ -235,22 +174,32 @@
      plus grand. Le `md:` de Tailwind (768 px) donnait 532 px de contenu
      collé aux bords — plus étroit que le mobile qu'on venait de quitter.
 
-     `wide` (1440 px) : au-delà, la colonne s'élargit à 720 px. Au-delà de
-     1920, un écran affiche deux voids de 500 px de chaque côté — c'est le
-     comportement normal d'une colonne de lecture centrée, celui de GitHub
-     et de Twitter, et le remplir serait de la décoration.
+     `wide` (1440 px) : la colonne **ne s'élargit plus**. Elle reste à
+     720 px de contenu, soit ~80 caractères par ligne — la mesure d'un texte
+     suivi. Un palier à 960 px existait ici ; il produisait des lignes de
+     ~110 caractères dans le fil, et le seuil franchi RÉTRÉCISSAIT la page
+     quand on revenait en dessous. Une colonne de lecture ne s'élargit pas
+     parce que l'écran est plus grand : au-delà de 1920, l'écran affiche
+     deux marges de respiration de chaque côté — c'est le comportement
+     normal d'une colonne centrée, celui de GitHub et de Twitter, et le
+     remplir serait de la décoration. Les surfaces qui ont besoin de largeur
+     (IDE, messagerie) passent `wide`/`immersive` dans `AppShell`.
    */
   --breakpoint-shell: 55rem;  /* 880 px */
   --breakpoint-wide:  90rem;  /* 1440 px */
 
-  /* ── Rayons : capsules et coques continues ──
-     Liquid Glass : les commandes deviennent des gélules (`chip` en
-     pastille pleine), les champs s'arrondissent franchement, les
-     cartes forment une coque. L'arrondi circulaire plein reste
-     réservé aux pastilles (avatars, présence, anneaux de story). */
-  --radius-chip:  999px;
-  --radius-input: 14px;
-  --radius-card:  18px;
+  /* Deux rayons d'interface : petit pour les contrôles, moyen pour les panneaux. */
+  --radius-chip:  6px;
+  --radius-input: 6px;
+  --radius-card:  10px;
+
+  /* ── Lueurs et anneaux (DS-01) ──────────────────────────────────
+     Ces valeurs vivaient dans des `style` de composants. Une lueur est
+     une décision de DA : elle appartient aux tokens, pas au JSX. */
+  --glow-signal: 0 0 12px rgba(255, 138, 61, 0.5);
+  --shadow-avatar-ring: 0 0 0 2px var(--color-void), 0 0 0 4px var(--color-line-2),
+    0 0 14px 2px rgba(255, 138, 61, 0.35);
+  --color-signal-soft: #FFC68E;
 
   /* ── Épaisseurs de bordure : des filets, pas des cadres ──
      Le verre ne se délimite pas au trait épais : l'épaisseur est
@@ -270,7 +219,7 @@
   /* Action secondaire d'une barre d'outils : pas de la navigation, donc
      pas 44 px — mais le plancher de 24 px du WCAG 2.2 (critère 2.5.8,
      niveau AA), sous lequel une cible n'est plus atteignable au pouce. */
-  --h-action:    32px;
+  --h-action:    44px;
 
   /* ── Icônes : grille 24, trait 1.6, angles coupés ── */
   --icon-stroke: 1.6;
@@ -288,12 +237,12 @@
   --text-display-xl: 1.75rem;   --lh-display-xl: 1.05;
   --text-display-l:  1.375rem;  --lh-display-l:  1.1;
   --text-display-m:  1.125rem;  --lh-display-m:  1.2;
-  --text-body:       0.938rem;  --lh-body:       1.62;
-  --text-body-s:     0.844rem;
+  --text-body:       0.938rem;  --lh-body:       1.6;
+  --text-body-s:     0.8125rem;
   --text-caption:    0.75rem;   --lh-caption:    1.45;
-  --text-label:      0.656rem;  --lh-label:      1.3;
-  --text-micro:      0.594rem;  --lh-micro:      1.25;
-  --text-code:       0.938rem;  --lh-code:       1.7;
+  --text-label:      0.6875rem; --lh-label:      1.35;
+  --text-micro:      0.6875rem; --lh-micro:      1.35;
+  --text-code:       0.8125rem; --lh-code:       1.65;
 
   /* ── Pas de halo ──
      Les jetons `--glow-*` ont été retirés : un halo coloré autour
@@ -313,50 +262,95 @@
 
    `--ease-entrance` n'est **pas** remplacée : elle sert aussi aux
    sorties, où un dépassement ferait repartir le contenu à l'envers. */
-/* ================================================================
-   THÈME « CLAIRE »
-
-   Le thème par défaut, « Bleu Liquid », pose un fond ivoire mat et
-   chaud. « Claire » en est la variante froide et plus lumineuse :
-   fond blanc cassé légèrement bleuté, verre plus opaque, filets un
-   cran plus francs. On ne redéfinit que les jetons qui changent — le
-   reste (signal, phosphor, ombres, typo, mouvement) est commun, donc
-   aucun composant n'a besoin de connaître le thème.
-
-   Le sélecteur est plus spécifique que `:root` (Tailwind v4 pose les
-   jetons `@theme` sur `:root`), il gagne donc sans `!important`. */
+/* Thème clair : papier et encre, sans transparence ni halo. */
 :root[data-theme="light"] {
-  --color-page: #FAFBFD;
-
-  /* Encre et filets : à garder lisibles sur un fond plus blanc. */
-  --color-line:   rgba(38, 42, 50, 0.09);
-  --color-line-2: rgba(38, 42, 50, 0.15);
-  --color-line-3: rgba(38, 42, 50, 0.25);
-
-  /* Verre : plus opaque que sur l'ivoire, sinon les plaques se
-     confondent avec le fond blanc. */
-  --glass-bg:        rgba(255, 255, 255, 0.62);
-  --glass-bg-strong: rgba(255, 255, 255, 0.78);
-  --color-edge: rgba(38, 42, 50, 0.12);
-
-  --overlay-veil-bg:  rgba(28, 32, 40, 0.26);
-  --overlay-frost-bg: rgba(255, 255, 255, 0.86);
-  --overlay-panel-bg: rgba(255, 255, 255, 0.97);
+  color-scheme: light;
+  --color-void: #16150F;
+  --color-page: #F6F4EF;
+  --color-page-end: #F6F4EF;
+  --color-surface: #FBFAF7;
+  --color-surface-2: #F1EEE6;
+  --color-surface-3: #EAE6DC;
+  --color-chalk: #16150F;
+  --color-chalk-2: #423F37;
+  --color-chalk-3: #58554B;
+  --color-chalk-4: #6B685E;
+  --color-line: #E3DFD3;
+  --color-line-2: #D7D2C5;
+  --color-line-3: #C6C0B2;
+  --color-signal: #C2410C;
+  --color-signal-d: #A3330B;
+  --color-signal-fill: #C2410C;
+  --color-phosphor: #2F7D4F;
+  --color-phosphor-d: #2F7D4F;
+  --color-ok: #2F7D4F;
+  --color-danger: #B3261E;
+  --color-warn: #815A18;
+  --color-info: #53645C;
+  --color-edge: #E3DFD3;
+  --glass-bg: var(--color-surface);
+  --glass-bg-strong: var(--color-surface);
+  --glass-sheen: none;
+  --glass-rim: none;
+  --overlay-veil-bg: rgb(22 21 15 / 48%);
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-sh-1: 0 8px 24px rgb(22 21 15 / 14%);
+  --shadow-sh-2: var(--shadow-sh-1);
+  --shadow-sh-3: var(--shadow-sh-1);
+  --shadow-drop: none;
+  --shadow-drop-lg: var(--shadow-sh-1);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
+  --color-code-bg: #EEEAE0;
+  --color-code-plain: #25231D;
+  --color-code-keyword: #A3330B;
+  --color-code-string: #2F704F;
+  --color-code-number: #815A18;
+  --color-code-function: #6B4E3D;
+  --color-code-type: #725619;
+  --color-code-comment: #625E54;
+  --color-code-punct: #423F37;
 }
 
-/* Le dégradé de page est écrit en dur sur `body` : on le remplace
-   pour le thème clair, sinon le fond ivoire resterait visible. */
 :root[data-theme="light"] body {
-  background-color: #FAFBFD;
-  background-image: linear-gradient(180deg, #FFFFFF 0%, #FAFBFD 55%, #F3F5F9 100%);
+  background-color: var(--color-page);
+  background-image: none;
+}
+
+:root[data-theme="light"] .bg-signal {
+  color: #FBFAF7;
+}
+
+[data-code-variant="paper"] {
+  --color-code-bg: #191914;
+  --color-code-plain: #ECE9DF;
+  --color-code-keyword: #FFAD7E;
+  --color-code-string: #8FCB9E;
+  --color-code-number: #E6BC75;
+  --color-code-function: #E4C1A9;
+  --color-code-type: #E6BC75;
+  --color-code-comment: #AAA699;
+  --color-code-punct: #C9C4B8;
+}
+
+:root[data-theme="light"] [data-code-variant="paper"] {
+  --color-code-bg: #EEEAE0;
+  --color-code-plain: #25231D;
+  --color-code-keyword: #A3330B;
+  --color-code-string: #2F704F;
+  --color-code-number: #815A18;
+  --color-code-function: #6B4E3D;
+  --color-code-type: #725619;
+  --color-code-comment: #625E54;
+  --color-code-punct: #423F37;
 }
 
 @supports (animation-timing-function: linear(0, 1)) {
   :root {
-    --ease-spring:  linear(0, 0.319 5.6%, 0.716 11.1%, 0.93 16.7%, 1.003 22.2%, 1.015 27.8%, 1.01 33.3%, 1.004 38.9%, 1.001 44.4%, 1 50%, 1);
-    --ease-pop:     linear(0, 0.277 5%, 0.741 10%, 1.059 15%, 1.162 20%, 1.127 25%, 1.051 30%, 0.995 35%, 0.974 40%, 0.978 45%, 0.99 50%, 1 55%, 1.004 60%, 1.004 65%, 1.002 70%, 1 75%, 0.999 80%, 1);
-    --ease-gravity: linear(0, 0.34 5.6%, 0.781 11.1%, 1.004 16.7%, 1.054 22.2%, 1.036 27.8%, 1.012 33.3%, 1 38.9%, 0.997 44.4%, 1 55.6%, 1);
-    --ease-snap:    linear(0, 0.504 6.3%, 0.876 12.5%, 0.983 18.8%, 1.001 25%, 1 37.5%, 1);
+    --ease-spring:  cubic-bezier(0.2, 0, 0, 1);
+    --ease-pop:     cubic-bezier(0.2, 0, 0, 1);
+    --ease-gravity: cubic-bezier(0.2, 0, 0, 1);
+    --ease-snap:    cubic-bezier(0.2, 0, 0, 1);
   }
 }
 
@@ -364,15 +358,15 @@
    Contexte d'isolation forte : lecture longue, fond plus profond que
    la surface, contraste poussé d'un cran.                          */
 [data-code-variant="terminal"] {
-  --color-code-bg:      #04060A;
-  --color-code-plain:   #F2F6FC;
-  --color-code-keyword: #FFB37C;
-  --color-code-string:  #98F36B;
-  --color-code-number:  #FFC46B;
-  --color-code-function:#D8B0F0;
-  --color-code-type:    #FFDD8A;
-  --color-code-comment: #8794A4;
-  --color-code-punct:   #ADB7C2;
+  --color-code-bg:      #11110E;
+  --color-code-plain:   #ECE9DF;
+  --color-code-keyword: #FFAD7E;
+  --color-code-string:  #8FCB9E;
+  --color-code-number:  #E6BC75;
+  --color-code-function:#E4C1A9;
+  --color-code-type:    #E6BC75;
+  --color-code-comment: #AAA699;
+  --color-code-punct:   #C9C4B8;
 }
 
 /* ================================================================
@@ -504,18 +498,6 @@
   50%      { opacity: 0.45; }
 }
 
-/* Sonnerie : la cloche oscille brièvement puis se tait. Un balancement
-   court dit « il vient d'arriver quelque chose » sans occuper l'œil
-   comme une pulsation permanente. */
-@keyframes bellRing {
-  0%, 100% { transform: rotate(0); }
-  12%      { transform: rotate(13deg); }
-  28%      { transform: rotate(-11deg); }
-  44%      { transform: rotate(8deg); }
-  60%      { transform: rotate(-5deg); }
-  76%      { transform: rotate(2deg); }
-}
-
 /* Respiration : échelle ET opacité, symétrique. Utilisée là où un
    clignotement serait une alarme (pastille de mode, badge de présence)
    mais où l'absence de mouvement serait trompeur (inactif). */
@@ -644,12 +626,7 @@
 
 /* Texture discrète de conversation, presque imperceptible. */
 .chat-wall {
-  background-color: transparent;
-  background-image:
-   radial-gradient(rgba(73, 100, 57, 0.045) 1px, transparent 1px),
-   radial-gradient(rgba(42, 45, 38, 0.025) 1px, transparent 1px);
-  background-size: 22px 22px, 22px 22px;
-  background-position: 0 0, 11px 11px;
+  background-color: var(--color-page);
 }
 
 /* Le curseur bloc : en marches, jamais en dégradé. Un curseur de
@@ -716,10 +693,9 @@
    skeleton, toast, reveal au défilement, heartbeat, count pop, flou
    directionnel) a été supprimée : aucune n'était attachée à un écran.
 
-   Deux raisons, pas une. D'abord la direction artistique : `DESIGN.md` dit
-   que « le mouvement vient des transitions de surface et de l'élévation,
-   pas d'une animation lumineuse permanente » — un glitch et une pulsation
-   infinie la contredisaient. Ensuite `prefers-reduced-motion` : ces classes
+   Deux raisons, pas une. D'abord la direction artistique : « le mouvement vient des transitions
+   de surface et de l'élévation, pas d'une animation lumineuse permanente »
+   — un glitch et une pulsation infinie la contredisaient. Ensuite `prefers-reduced-motion` : ces classes
    portaient des durées écrites en dur (`3s`, `2s`, `4s`, `0.6s`, `1.5s`)
    au lieu des jetons `--d-*`, donc le réglage d'accessibilité ne pouvait
    pas les atteindre.
@@ -740,13 +716,13 @@
     --h-banner: 0px;
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   body {
     font-family: var(--font-sans);
     background-color: var(--color-page);
-    background-image: linear-gradient(180deg, #F7F5ED 0%, #F1EFE6 52%, #ECEAE0 100%);
+    background-image: none;
     color: var(--color-chalk);
     font-size: 15px;
     line-height: 1.55;
@@ -810,7 +786,7 @@
   html:has([aria-modal="true"]) { overflow: hidden; }
 }
 
-/* ── Écritures d'accent : l'olive reste lisible sur le verre ── */
+/* ── Écritures d'accent : les valeurs lisibles priment sur la teinte ── */
 .text-signal,
 .hover\:text-signal:hover,
 .group:hover .group-hover\:text-signal,
@@ -821,29 +797,24 @@
 .text-info   { color: var(--color-info); }
 .text-phosphor { color: var(--color-phosphor-d); }
 
-/* Le prompt `❯` est une écriture, pas un fond. */
-.prompt-label::before { color: var(--color-signal-d); }
-
 /* ── Utilitaires ── */
 
-/* Le motif « label mono » : signature de l'interface. Tout ce qui est
-   donnée — un compteur, un pseudo, une unité — passe en mono uppercase. */
 @utility label {
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-s);
   font-weight: 600;
   line-height: var(--lh-label);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 @utility label-micro {
   font-family: var(--font-mono);
   font-size: var(--text-micro);
-  font-weight: 600;
+  font-weight: 500;
   line-height: var(--lh-micro);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 /* Les compteurs ne doivent pas sauter quand le nombre change. */
@@ -851,21 +822,13 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* Un libellé précédé du prompt shell : `❯ LIBELLÉ`. */
 @utility prompt-label {
-  font-family: var(--font-mono);
-  font-size: var(--text-label);
+  font-family: var(--font-sans);
+  font-size: var(--text-body-s);
   font-weight: 600;
   line-height: var(--lh-label);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-
-  &::before {
-    content: "❯";
-    color: var(--color-signal);
-    margin-right: 0.5em;
-    font-weight: 700;
-  }
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 /* Le prompt se « résout » : au survol, le chevron se décale d'un cran
@@ -938,6 +901,13 @@
   backdrop-filter: var(--overlay-blur);
 }
 
+@utility sheet-glass {
+  background-color: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  backdrop-filter: blur(14px) saturate(1.12);
+  border-top-color: color-mix(in srgb, var(--color-chalk) 18%, var(--color-line));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-chalk) 12%, transparent);
+}
+
 /* Verre simple — transparent ; ne reste que le liseré de bord. */
 @utility glass {
   background-color: var(--glass-bg);
@@ -969,15 +939,9 @@
   background-image: var(--glass-sheen);
   border: var(--bw-thick) solid var(--color-edge);
   box-shadow: var(--glass-rim), var(--shadow-drop);
-  transition:
-    transform     var(--d-base) var(--ease-spring),
-    box-shadow    var(--d-base) var(--ease-spring),
-    border-color  var(--d-fast) var(--ease-continuous),
-    background-color var(--d-fast) var(--ease-continuous);
+  transition: border-color var(--d-fast) var(--ease-continuous);
 
   &:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--glass-rim), var(--shadow-drop-lg);
     border-color: var(--color-line-3);
   }
 }
@@ -999,27 +963,7 @@
   backdrop-filter: var(--glass-lens);
   border: var(--bw-thick) solid var(--color-edge);
   box-shadow: var(--glass-rim), var(--shadow-drop);
-
-  &::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    padding: 1px;
-    border-radius: inherit;
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.34),
-      rgba(191, 225, 255, 0.14) 28%,
-      transparent 56%,
-      rgba(111, 189, 255, 0.20)
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-  }
 }
-
 
 /* Gouttière de lignes : la colonne de numéros à gauche d'un bloc de
    code, comme dans un vrai éditeur. */
@@ -1029,6 +973,14 @@
   color: var(--color-chalk-4);
   user-select: none;
   font-variant-numeric: tabular-nums;
+}
+
+/* Le champ de recherche a déjà son bouton d'effacement : la croix native
+   de WebKit ferait deux « x » côte à côte, dont un seul réagit. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 /* Scanlines : très faible opacité, à poser sur une surface pleine. */
@@ -1071,13 +1023,6 @@
   );
 }
 
-/* Motif Adinkra « Nkran » : le lien entre la marque et le terminal.
-   Tracé en clair, il habille le fond sans jamais slapoter le texte. */
-@utility adinkra-motif {
-  background-image:
-    repeating-linear-gradient(45deg, transparent 0 11px, rgba(231, 235, 243, 0.05) 11px 13px),
-    repeating-linear-gradient(-45deg, transparent 0 11px, rgba(231, 235, 243, 0.05) 11px 13px);
-}
 
 /* ═══════════════════════════════════════════════════════════════
    MOUVEMENT — classes par intention
@@ -1115,11 +1060,6 @@
 /* Le fondu-matière : la surface émerge du flou au lieu de glisser. Pour
    les plans rapprochés, pas les listes. */
 @utility mo-soft   { animation: enterSoft  var(--d-enter) var(--ease-entrance) backwards; }
-
-/* La cloche des défis oscille une fois. Pas de `fill`, donc aucun
-   `transform` ne subsiste après : le `position: fixed` du bouton reste
-   intact (voir le piège du bloc conteneur expliqué plus haut). */
-@utility mo-bell { animation: bellRing 1.15s var(--ease-spring) 1; transform-origin: 50% 0; }
 
 /* Bulles : l'origine du mouvement est le côté de l'auteur. */
 @utility mo-msg-in     { animation: msgInRight var(--d-enter) var(--ease-spring) backwards; }
@@ -1172,25 +1112,11 @@
    fait que l'accompagner. Un grand déplacement avec une petite ombre
    donne une carte qui glisse. */
 @utility depth-card {
-   /* Dalle de cristal : transparente au centre, la profondeur vient du
-      liseré de bord et de l'ombre ambiante, jamais d'un voile peint. */
-  background-color: var(--glass-bg);
-  background-image: var(--glass-sheen);
-  /* Les cartes peuvent être nombreuses : on garde le verre par reflet
-     et transmission et réserve le flou live aux surfaces fixes. */
+  background-color: transparent;
+  background-image: none;
   border-color: var(--color-edge);
-  box-shadow: var(--glass-rim), var(--shadow-drop);
-  transition:
-    transform      var(--d-base)   var(--ease-spring),
-    box-shadow     var(--d-base)   var(--ease-spring),
-    border-color   var(--d-fast)   var(--ease-continuous),
-    background-color var(--d-fast) var(--ease-continuous);
-
-  &:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: var(--glass-rim), var(--shadow-drop-lg);
-    border-color: var(--color-line-3);
-  }
+  box-shadow: none;
+  transition: border-color var(--d-fast) var(--ease-continuous);
 }
 
 /* La profondeur d'un panneau **fixe** (feuille, dialogue).
@@ -1262,8 +1188,11 @@
 /* La pastille d'état. `currentColor` permet de la poser dans n'importe
    quelle couleur de statut sans redéfinir la couleur dans l'utilitaire —
    l'utilitaire décrit le *mouvement*, pas l'*information*. */
+/* Trois battements, puis la pastille reste allumée : une boucle infinie
+   attire l'œil en permanence pour une information qui, elle, est stable
+   (le canal est en direct). */
 @utility mode-live {
-  animation: liveBeat 2.6s var(--ease-continuous) infinite;
+  animation: liveBeat 2.6s var(--ease-continuous) 3;
 }
 
 /* ── Mouvement surfacique ──
@@ -1343,15 +1272,6 @@
   animation: breathe 2.6s var(--ease-continuous) infinite;
 }
 
-/* ── Pavé de code : apparition ligne à ligne ──
-   Utilisé par `<CodeBlock>`. Le delay est calculé par indice, plafonné
-   pour qu'un fichier de 80 lignes ne prenne pas quatre secondes : au-delà
-   de 18 lignes, tout le reste arrive ensemble.
-   ─────────────────────────────────────────────────────────────────── */
-@utility code-line {
-  animation: enterRise var(--d-enter) var(--ease-entrance) backwards;
-}
-
 /* ── Accessibilité ──
    On ne se contente pas d'accélérer : les mouvements continus sont
    coupés. Une pastille qui respire en boucle reste une animation pour
@@ -1373,6 +1293,27 @@
 
   .mo-pre { opacity: 1; }
   .lift-card:hover, .lift-press:hover, .lift-press:active { transform: none; }
+}
+
+.admin-activity-chart__bar {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: adminBarIn 180ms ease-out both;
+}
+
+@keyframes adminBarIn {
+  from { opacity: 0.45; transform: scaleY(0.55); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+:root[data-reduce-motion="true"] *,
+:root[data-reduce-motion="true"] *::before,
+:root[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }
 
 /* ── Coloration syntaxique ──
@@ -1538,4 +1479,210 @@
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.42),
     0 0 4px rgba(224,162,90,0.14);
+}
+
+:root[data-theme="light"] .text-signal,
+:root[data-theme="light"] .hover\:text-signal:hover {
+  color: var(--color-signal-d);
+}
+
+.bg-signal {
+  background-color: var(--color-signal-fill);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   Deux densités, deux directions artistiques — pas deux réglages
+   de la même mise en page.
+
+   · Confortable : le fil comme une page. Grands blancs, coins larges,
+     ombre douce, texte de lecture.
+   · Compacte : le fil comme un terminal. Hauteur au trait, angles
+     quasi vifs, aucune ombre, métadonnées en monospace, texte dense.
+
+   Les deux partagent les couleurs et la typographie ; ce qui change
+   est le rythme et la matière — c'est ce qui les rend reconnaissables
+   sans étiquette.
+   ============================================================ */
+
+[data-feed-density="comfortable"] .feed-post {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sh-1);
+  margin-bottom: 1rem;
+}
+
+[data-feed-density="comfortable"] .feed-post__content {
+  padding-block: 1.5rem;
+  padding-inline: 1.25rem;
+}
+
+[data-feed-density="comfortable"] .feed-post__text {
+  font-size: 15.5px;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+
+[data-feed-density="compact"] .feed-post {
+  border-radius: 2px;
+  box-shadow: none;
+  margin-bottom: 0;
+  border-bottom-width: 1px;
+}
+
+[data-feed-density="compact"] .feed-post__content {
+  padding-block: 0.6rem;
+  padding-inline: 0.75rem;
+}
+
+[data-feed-density="compact"] .feed-post__gutter {
+  padding-block: 0.6rem;
+  padding-inline: 0.5rem;
+}
+
+[data-feed-density="compact"] .feed-post__text {
+  margin-bottom: 0.45rem;
+  font-size: 13.5px;
+  line-height: 1.42;
+  letter-spacing: -0.005em;
+}
+
+[data-feed-density="compact"] .feed-post__meta,
+[data-feed-density="compact"] .label-micro {
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+[data-feed-density="compact"] .feed-post__actions {
+  gap: 0.25rem;
+}
+
+[data-feed-density="compact"] .feed-post__actions button {
+  min-height: 32px;
+  border-radius: 2px;
+}
+
+/* ============================================================
+   Le lecteur de statuts — direction propre : **la projection**.
+
+   Le reste de l'application est une table de travail : coins doux,
+   surfaces pleines, ombres. Un statut est autre chose — une image
+   qu'on projette, le temps d'un plan. D'où :
+
+   · un fond de salle (dégradé sombre, grain, vignette) qui isole
+     complètement du fil ;
+   · des angles vifs, une ouverture fine autour du contenu ;
+   · des contrôles sans fond, qui n'apparaissent qu'au survol ;
+   · une pellicule de stickers, pas une grille de boutons.
+
+   Rien ici ne fuit hors du lecteur : tout est porté par
+   `.story-stage`.
+   ============================================================ */
+
+.story-stage {
+  --story-stage-bg: #07080a;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(255, 92, 53, 0.10), transparent 60%),
+    radial-gradient(90% 60% at 50% 100%, rgba(23, 233, 165, 0.06), transparent 70%),
+    var(--story-stage-bg);
+}
+
+.story-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+}
+
+.story-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(70% 55% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.story-stage > * {
+  position: relative;
+  z-index: 1;
+}
+
+.story-aperture {
+  border-radius: 2px;
+  filter: drop-shadow(0 0 26px rgba(255, 92, 53, 0.18));
+}
+
+.story-frame {
+  border-radius: 0;
+  border: 1px solid rgba(236, 233, 223, 0.09);
+}
+
+.story-credit {
+  padding-bottom: 0.5rem;
+  background: linear-gradient(to bottom, rgba(7, 8, 10, 0.88), transparent);
+}
+
+.story-control {
+  border: 1px solid rgba(236, 233, 223, 0.16);
+  border-radius: 2px;
+  background: rgba(7, 8, 10, 0.45);
+  backdrop-filter: blur(6px);
+  transition: border-color var(--d-fast), color var(--d-fast), background-color var(--d-fast);
+}
+
+.story-control:hover {
+  border-color: rgba(236, 233, 223, 0.38);
+}
+
+.story-film span[class*="bg-signal"] {
+  box-shadow: 0 0 8px rgba(255, 92, 53, 0.55);
+}
+
+.story-ticks {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--color-signal);
+  border-radius: 1px;
+  background: var(--color-signal);
+  box-shadow: 0 0 10px rgba(255, 92, 53, 0.5);
+}
+
+.story-caption {
+  background: linear-gradient(to top, rgba(7, 8, 10, 0.55), transparent 70%);
+  font-size: clamp(16px, 2.4vw, 19px) !important;
+  line-height: 1.5 !important;
+  letter-spacing: -0.01em;
+}
+
+.story-tray {
+  border: 1px solid rgba(236, 233, 223, 0.14);
+  border-radius: 2px;
+  background: rgba(7, 8, 10, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.story-tray button[aria-label^="Poser"] {
+  border-radius: 2px;
+  border: 1px solid transparent;
+}
+
+.story-tray button[aria-label^="Poser"]:hover {
+  border-color: var(--color-signal);
+  background: rgba(255, 92, 53, 0.08);
+}
+
+:where(input, textarea, select):focus {
+  border-color: var(--color-signal) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+:where(input, textarea, select):focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
 }

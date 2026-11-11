@@ -61,7 +61,7 @@ export function ProofPanel({
   if (proofs.length === 0) {
     return (
       <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2 p-4">
-        <p className="text-[12.5px] leading-snug text-chalk-3">
+        <p className="text-sm leading-snug text-chalk-3 outline">
           Aucune preuve pour l&apos;instant. Une preuve n&apos;est pas une
           déclaration : elle apparaît quand un commit est écrit, un snippet
           exécuté et publié, une correction acceptée, une tâche terminée, ou
@@ -87,7 +87,6 @@ export function ProofPanel({
       {/* ── Le total ── */}
       <section className="relative overflow-hidden rounded-[var(--radius-card)]
         border border-signal/35 bg-surface-2 p-4">
-        <div className="adinkra-motif pointer-events-none absolute inset-0 opacity-[0.10]" />
         <div className="relative flex items-start justify-between gap-4">
           <div className="min-w-0">
             <div className="prompt-label mb-2 text-chalk-4">réputation prouvée</div>

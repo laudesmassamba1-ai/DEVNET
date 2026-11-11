@@ -444,7 +444,7 @@ export function CodeEditor({
               setSuggest(null);
             }}
             className={`${LAYER} [grid-area:1/1] block w-full resize-none overflow-hidden
-              border-0 bg-transparent text-transparent caret-signal outline-none
+              border-0 bg-transparent text-transparent caret-signal outline
               placeholder:text-[var(--color-code-comment)]`}
           />
         </div>
@@ -470,7 +470,7 @@ export function CodeEditor({
                   accept(suggest, index);
                 }}
                 onMouseEnter={() => setSuggest({ ...suggest, index })}
-                className={`block w-full px-3 py-1 text-left font-mono text-[12.5px] ${
+                className={`block w-full px-3 py-1 text-left font-mono text-sm ${
                   index === suggest.index
                     ? "bg-signal/15 text-signal"
                     : "text-chalk hover:bg-surface-2"

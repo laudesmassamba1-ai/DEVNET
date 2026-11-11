@@ -14,8 +14,8 @@
  */
 
 import {
-  CATEGORY_LABELS, CATEGORY_ORDER, activeCount, extensionSlug,
-  normalizeManifest,
+  CATEGORY_LABELS, CATEGORY_ORDER, activeCount, executableCommands,
+  extensionSlug, normalizeManifest,
 } from "../lib/extensions";
 import { demoFrom } from "../lib/demo/query";
 import { getStore, resetStore } from "../lib/demo/store";
@@ -60,9 +60,25 @@ async function main(): Promise<void> {
   eq("extraits : le préfixe est conservé", mixed.snippets?.[0].prefix, "def");
 
   const commands = normalizeManifest({
-    commands: [{ id: "a", title: "A" }, { id: "b" }, { title: "sans id" }],
+    commands: [
+      { id: "a", title: "A", body: "console.log('a')" },
+      { id: "b", title: "B" },
+      { id: "c" },
+      { title: "sans id" },
+    ],
   });
-  eq("commandes : id et titre requis", commands.commands?.length, 1);
+  eq("commandes : id et titre requis", commands.commands?.length, 2);
+  eq("commandes : le corps inséré est conservé", commands.commands?.[0].body, "console.log('a')");
+  eq("commandes : une commande sans corps reste lisible", commands.commands?.[1].body, undefined);
+
+  // L'IDE n'enregistre que ce qui produit un effet : une entrée de palette
+  // sans corps est un clic perdu.
+  eq("exécutables : seules les commandes avec un corps", executableCommands(commands.commands).length, 1);
+  eq("exécutables : un corps vide ne compte pas", executableCommands([
+    { id: "x", title: "X", body: "   " },
+    { id: "y", title: "Y" },
+  ]).length, 0);
+  eq("exécutables : l'absence de commandes ne lève pas", executableCommands(undefined).length, 0);
 
   const settings = normalizeManifest({
     settings: [
@@ -86,7 +102,7 @@ async function main(): Promise<void> {
   /* ---------------------------------------------------------------- */
 
   eq("catégories : chaque catégorie a un libellé", CATEGORY_ORDER.every((c) => !!CATEGORY_LABELS[c]), true);
-  eq("catégories : l'ordre couvre les six catégories", CATEGORY_ORDER.length, 6);
+  eq("catégories : l'ordre couvre les cinq catégories", CATEGORY_ORDER.length, 5);
 
   eq(
     "slug : dérivé du nom et rendu unique",
@@ -132,7 +148,7 @@ async function main(): Promise<void> {
   saveSessionId("u-koffi");
 
   const mine = await demoFrom("extension_installs").select("extension_id").eq("user_id", "u-koffi");
-  eq("Koffi démarre avec deux installations", (mine.data as Rowish[]).length, 2);
+  eq("Koffi démarre avec trois installations", (mine.data as Rowish[]).length, 3);
 
   const spoof = await demoFrom("extension_installs").insert({
     extension_id: "e-2", user_id: "u-zainab", enabled: true, settings: {},

@@ -262,7 +262,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                 {expanded && (
                   <div className="border-t border-line-2 px-3 py-3">
                     {issue.body && (
-                      <p className="mb-3 whitespace-pre-wrap text-[12.5px] leading-relaxed text-chalk-2">
+                      <p className="mb-3 whitespace-pre-wrap text-sm leading-relaxed text-chalk-2">
                         {issue.body}
                       </p>
                     )}
@@ -287,7 +287,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                             <p className="font-mono text-[10.5px] text-chalk-4">
                               @{c.author?.pseudo ?? "inconnu"} · {timeAgo(c.created_at)}
                             </p>
-                            <p className="mt-0.5 whitespace-pre-wrap text-[12.5px] leading-relaxed text-chalk-2">
+                            <p className="mt-0.5 whitespace-pre-wrap text-sm leading-relaxed text-chalk-2">
                               {c.body}
                             </p>
                           </div>
@@ -306,7 +306,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                         aria-label={`Répondre à l'issue ${issue.number}`}
                         className="h-[var(--h-input)] min-w-0 flex-1
                           rounded-[var(--radius-input)] border border-line-3
-                          bg-surface-2 px-3 font-mono text-[12.5px] outline-none
+                          bg-surface-2 px-3 font-mono text-sm
                           transition-[border-color] duration-[var(--d-fast)]
                           placeholder:text-chalk-4 focus:border-signal"
                       />
@@ -314,6 +314,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                         type="button"
                         onClick={() => void answer(issue)}
                         disabled={busy || !reply.trim()}
+                        aria-label="Envoyer la réponse"
                         className="mo-press h-[var(--h-input)] shrink-0 rounded-[var(--radius-input)]
                           border border-line-3 px-3 font-mono text-[11px] font-bold
                           uppercase tracking-[0.12em] text-chalk-3
@@ -399,8 +400,8 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           autoFocus
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
             border border-line-3 bg-surface px-3.5 text-[13px] shadow-sh-1
-            outline-none transition-[transform,box-shadow] placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            transition-[transform,box-shadow] placeholder:text-chalk-4
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         <label htmlFor="issue-body" className="prompt-label mb-1.5 block text-chalk-2">
@@ -414,9 +415,9 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           placeholder="Comment on l'a vu, ce qu'on attend."
           className="mb-5 w-full resize-y rounded-[var(--radius-input)] border
             border-line-3 bg-surface px-3.5 py-2.5 text-[13px] leading-relaxed
-            shadow-sh-1 outline-none transition-[transform,box-shadow]
+            shadow-sh-1 transition-[transform,box-shadow]
             placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px
-            focus:shadow-[3px_3px_0_#FF8A3D]"
+            focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         <div className="flex gap-2">

@@ -178,7 +178,7 @@ export function AnimatedLogo({
           .al-svg { will-change: transform; }
 
           .al-stage { transform-box: fill-box; transform-origin: 50% 50%; }
-          .al-anim .al-stage { animation: al-float 7s ease-in-out infinite; animation-delay: ${T.settle}s; }
+          .al-anim .al-stage { animation: al-float 7s ease-in-out 2; animation-delay: ${T.settle}s; }
           @keyframes al-float {
             0%,100% { transform: translateY(0); }
             50%     { transform: translateY(-1.6%); }
@@ -364,13 +364,13 @@ export function AnimatedLogo({
 
           {/* 3 · Aplat de la vitre, déversé du bord gauche */}
           <g clipPath="url(#al-win)">
-            <rect className="al-flood" x="5.4" y="9.4" width="53.2" height="45.2" fill="#221610" />
+            <rect className="al-flood" x="5.4" y="9.4" width="53.2" height="45.2" fill="var(--color-page-end)" />
           </g>
 
           {/* Cel shading : bande d'ombre à bord dur + lumière du plafond */}
           <g clipPath="url(#al-win)">
             <g className="al-cut" style={{ "--al-cut": `${T.shade}s` } as CSSProperties}>
-              <rect x="33.6" y="9.4" width="25" height="45.2" fill="#150C07" />
+              <rect x="33.6" y="9.4" width="25" height="45.2" fill="var(--color-page)" />
             </g>
             <g className="al-cut" style={{ "--al-cut": `${T.rim}s` } as CSSProperties}>
               <rect x="5.4" y="9.4" width="53.2" height="4.2" fill="#2E1E12" />
@@ -380,20 +380,20 @@ export function AnimatedLogo({
           {  /* 2 · Encre du contour, tirée trait par trait */}
           <g fill="none">
             <rect x="3" y="7" width="58" height="50" rx="2"
-              className="al-ink" stroke="#200F04" strokeWidth="5.6" strokeLinejoin="round" />
+              className="al-ink" stroke="var(--color-void)" strokeWidth="5.6" strokeLinejoin="round" />
           </g>
 
           {/* Cadre orange : aplat, ombre dure à droite, rim fin */}
           <g fill="none" strokeLinejoin="miter">
-            <rect x="3" y="7" width="58" height="50" rx="2" stroke="#FF8A3D" strokeWidth="3.4" />
+            <rect x="3" y="7" width="58" height="50" rx="7" stroke="var(--color-signal)" strokeWidth="3.4" />
             <g clipPath="url(#al-shade-x)">
               <g className="al-cut" style={{ "--al-cut": `${T.shade}s` } as CSSProperties}>
-                <rect x="3" y="7" width="58" height="50" rx="2" stroke="#B8541C" strokeWidth="3.4" />
+                <rect x="3" y="7" width="58" height="50" rx="7" stroke="var(--color-signal-d)" strokeWidth="3.4" />
               </g>
             </g>
             <g clipPath="url(#al-rim)">
               <g className="al-cut" style={{ "--al-cut": `${T.rim}s` } as CSSProperties}>
-                <rect x="3" y="7" width="58" height="50" rx="2" stroke="#FFC68E" strokeWidth="1.3" />
+                <rect x="3" y="7" width="58" height="50" rx="2" stroke="var(--color-signal-soft)" strokeWidth="1.3" />
               </g>
             </g>
           </g>
@@ -401,10 +401,10 @@ export function AnimatedLogo({
           {/* Barre de titre + ses trois pastilles */}
           <g clipPath="url(#al-win)">
             <line className="al-line" x1="5.4" y1="19" x2="58.6" y2="19"
-              pathLength="100" stroke="#FF8A3D" strokeWidth="2.2" />
+              pathLength="100" stroke="var(--color-signal)" strokeWidth="2.2" />
             <g clipPath="url(#al-shade-x)">
               <g className="al-cut" style={{ "--al-cut": `${T.shade}s` } as CSSProperties}>
-                <line x1="5.4" y1="19" x2="58.6" y2="19" stroke="#B8541C" strokeWidth="2.2" />
+                <line x1="5.4" y1="19" x2="58.6" y2="19" stroke="var(--color-signal-d)" strokeWidth="2.2" />
               </g>
             </g>
           </g>
@@ -415,7 +415,7 @@ export function AnimatedLogo({
             { x: 23, o: .45 },
           ].map((d, i) => (
             <g key={i} className="al-dot" style={{ "--al-i": i } as CSSProperties}>
-              <rect x={d.x} y="11" width="4.4" height="4.4" fill="#FF8A3D" opacity={d.o} />
+              <rect x={d.x} y="11" width="4.4" height="4.4" fill="var(--color-signal)" opacity={d.o} />
               <rect x={d.x} y="11" width="1.7" height="1.7" fill="#FFD2B0" opacity={d.o} />
             </g>
           ))}
@@ -423,23 +423,23 @@ export function AnimatedLogo({
           {/* 5 · Le chevron `>` : encre, aplat, ombre, rim */}
           <g fill="none" strokeLinecap="butt">
             <path className="al-chv" d="M14.6 28.6 L26.4 38 L14.6 47.4" pathLength="100"
-              stroke="#200F04" strokeWidth="8" strokeLinejoin="miter" />
+              stroke="var(--color-void)" strokeWidth="8" strokeLinejoin="miter" />
             <path className="al-chv" d="M14.6 28.6 L26.4 38 L14.6 47.4" pathLength="100"
-              stroke="#FF8A3D" strokeWidth="4.8" strokeLinejoin="miter" />
+              stroke="var(--color-signal)" strokeWidth="4.8" strokeLinejoin="miter" />
             <g clipPath="url(#al-shade-x)">
               <g className="al-cut" style={{ "--al-cut": `${T.shade}s` } as CSSProperties}>
                 <path d="M14.6 28.6 L26.4 38 L14.6 47.4" pathLength="100"
-                  stroke="#B8541C" strokeWidth="4.8" strokeLinejoin="miter" />
+                  stroke="var(--color-signal-d)" strokeWidth="4.8" strokeLinejoin="miter" />
               </g>
               <g className="al-cut" style={{ "--al-cut": `${T.rim}s` } as CSSProperties}>
                 <path d="M14.6 28.6 L26.4 38 L14.6 47.4" pathLength="100"
-                  stroke="#FFC68E" strokeWidth="1.2" strokeLinejoin="miter" />
+                  stroke="var(--color-signal-soft)" strokeWidth="1.2" strokeLinejoin="miter" />
               </g>
             </g>
           </g>
 
           {/* IMPACT : rayures d'étoile au point de frappe */}
-          <g className="al-rays" stroke="#FFC68E" strokeWidth="1.5" strokeLinecap="round" fill="none">
+          <g className="al-rays" stroke="var(--color-signal-soft)" strokeWidth="1.5" strokeLinecap="round" fill="none">
             {[
               "M33 38 L39 38", "M30.95 42.95 L35.19 47.19", "M26 45 L26 51",
               "M21.05 42.95 L16.81 47.19", "M19 38 L13 38", "M21.05 33.05 L16.81 28.81",
@@ -450,8 +450,8 @@ export function AnimatedLogo({
           </g>
           {[
             { dx: -8.5, dy: -6, c: "#FFC68E" },
-            { dx: 9, dy: -5, c: "#FF8A3D" },
-            { dx: -6, dy: 7, c: "#FF8A3D" },
+            { dx: 9, dy: -5, c: "var(--color-signal)" },
+            { dx: -6, dy: 7, c: "var(--color-signal)" },
             { dx: 7.5, dy: 6.5, c: "#FFC68E" },
             { dx: 0, dy: -9, c: "#FFD2B0" },
           ].map((b, i) => (
@@ -462,9 +462,9 @@ export function AnimatedLogo({
 
           {/* 6 · Curseur bloc phosphor */}
           <g className="al-cur">
-            <rect x="32" y="42.6" width="14" height="5.6" fill="#8FFF5C" />
-            <rect x="39" y="42.6" width="7" height="5.6" fill="#5CA83A" />
-            <rect x="32" y="42.6" width="14" height="1.7" fill="#D8FFB4" />
+            <rect x="32" y="42.6" width="14" height="5.6" fill="var(--color-phosphor)" />
+            <rect x="39" y="42.6" width="7" height="5.6" fill="var(--color-phosphor-d)" />
+            <rect x="32" y="42.6" width="14" height="1.7" fill="var(--color-chalk)" />
           </g>
 
           {/* 7 · Starche traversant la vitre */}

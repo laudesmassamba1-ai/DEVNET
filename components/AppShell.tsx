@@ -11,6 +11,7 @@ import { NotificationBell } from "./NotificationBell";
 import { StatusBar, StatusProvider } from "./StatusBar";
 import { useSession } from "@/hooks/useSession";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
+import { getBackFallback } from "@/lib/navigation";
 
 /** Navigation par clavier, comme dans un terminal : une touche, un écran. */
 const KEY_FOCUS: Record<string, string> = {
@@ -97,13 +98,14 @@ export function AppShell({
   immersive?: boolean;
   children: React.ReactNode;
 }) {
-  const { session, loading } = useSession();
+  const { session, profile, loading } = useSession();
   const router = useRouter();
   /* Le pathname est le battement du re-tampon : à chaque navigation,
      le logo de la barre se « tamponne » à nouveau et la barre de
      progression se re-trace — la navigation a un pouls. */
   const pathname = usePathname();
   const desktop = useIsDesktop();
+  const backFallback = getBackFallback(pathname);
 
   /**
    * Le panneau de navigation est **repliable**.
@@ -129,6 +131,15 @@ export function AppShell({
   useEffect(() => {
     window.localStorage.setItem("devnet.nav", navOpen ? "open" : "closed");
   }, [navOpen]);
+
+  function navigateBack() {
+    if (window.history.length > 1) {
+      router.back();
+      return;
+    }
+
+    if (backFallback) router.push(backFallback);
+  }
 
   // Raccourcis clavier. Ignorés quand on tape dans un champ : « g » dans
   // le composeur veut dire « g », pas « aller au fil ».
@@ -165,7 +176,11 @@ export function AppShell({
     <StatusProvider>
       <div className={desktop ? "flex min-h-[calc(100dvh-var(--h-banner,0px))]" : ""}>
         {desktop && navOpen && (
-          <Sidebar path={path} onCollapse={() => setNavOpen(false)} />
+          <Sidebar
+            path={path}
+            isAdmin={profile?.is_admin === true}
+            onCollapse={() => setNavOpen(false)}
+          />
         )}
 
         <div className="min-w-0 flex-1">
@@ -173,7 +188,7 @@ export function AppShell({
             className="sticky top-[var(--h-banner,0px)] z-[var(--z-sticky)] relative flex
               h-[var(--h-topbar)] items-stretch justify-between
               border-b-[var(--bw-heavy)] border-edge glass-strong
-              rounded-[var(--radius-card)]"
+              rounded-none"
           >
             {/* La barre de progression de navigation : tracée à chaque
                 changement de route, de gauche à droite, puis rendue à
@@ -205,6 +220,12 @@ export function AppShell({
               </div>
             )}
 
+            {backFallback && (
+              <div className="flex items-center border-r-[var(--bw-thin)] border-line px-1">
+                <IconButton label="Retour" name="arrow-left" onClick={navigateBack} />
+              </div>
+            )}
+
             {title ? (
               /* Onglet ouvert : il partage la ligne avec le contenu, et
                  l'absence de coins le distingue de la barre qui le porte.
@@ -216,9 +237,9 @@ export function AppShell({
                 key={title}
                 role="slide"
                 as="h1"
-                className="label flex flex-1 items-center gap-2 self-center
+                className="flex flex-1 items-center gap-2 self-center
                   border-l-[3px] border-signal bg-surface-2 px-(--gutter) text-chalk
-                  rounded-[var(--radius-input)]"
+                  font-display text-[15px] font-semibold tracking-[-0.02em]"
               >
                 <Icon name="file" size={12} className="text-chalk-4" />
                 {title}
@@ -261,7 +282,16 @@ export function AppShell({
 
           {/* La colonne entre par une ascension de 8 px seulement : assez
               pour qu'on perçoive un changement de page, pas assez pour
-              qu'on ait l'impression que la page « saute ». */}
+              qu'on ait l'impression que la page « saute ».
+
+              **Largeur : 560 px sur mobile, 720 px au-delà du seuil coque,
+              et plus d'élargissement ensuite.** Le palier de 960 px qui
+              existait au-delà de 1440 donnait des lignes de ~110 caractères
+              dans le fil : lisible pour un tableau, épuisant pour un texte
+              suivi. Une colonne de lecture ne s'élargit pas parce qu'un
+              écran est plus grand ; les surfaces qui ont besoin de largeur
+              (IDE, messagerie à deux volets) passent `wide` ou `immersive`
+              et ne sont pas concernées. */}
           <Motion
             key={path}
             role={immersive ? "none" : "slide"}
@@ -273,7 +303,7 @@ export function AppShell({
                 : desktop
                   ? wide
                     ? "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] max-w-none"
-                    : "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] w-full max-w-[820px] wide:max-w-[960px]"
+                    : "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] w-full max-w-[720px]"
                   : "max-w-[560px] min-h-0"}
               ${immersive
                 ? "pb-0"
@@ -285,7 +315,7 @@ export function AppShell({
 
         {!desktop && !immersive && (
           <>
-            <BottomNav />
+            <BottomNav isAdmin={profile?.is_admin === true} />
             <StatusBar path={path} />
           </>
         )}

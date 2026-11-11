@@ -4,6 +4,7 @@ import { use, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
+import { WovenBand } from "@/components/WovenBand";
 import { Avatar, EmptyState, Loading } from "@/components/Avatar";
 import { CommentsPanel } from "@/components/CommentsPanel";
 import { Icon } from "@/components/Icon";
@@ -548,6 +549,7 @@ export default function PublicProfilePage({
           la seconde est celle qui décide — un recruteur ne lit pas des
           publications pour juger, il cherche la preuve d'un travail. */}
       <div className="px-(--gutter) py-4">
+        <WovenBand tone="phosphor" className="mb-3" />
         <div role="tablist" aria-label="Contenu du profil" className="mb-3 flex gap-0 border-b border-line-2">
           {([
             ["preuves", "Preuves"],
@@ -593,12 +595,11 @@ export default function PublicProfilePage({
           <EmptyState title="Aucune publication" />
         )}
 
-        {posts?.map((p, i) => (
+        {posts?.map((p) => (
           <PostCard
             key={p.id}
             post={p}
             meId={profile?.id ?? null}
-            index={i}
             liked={likedIds.includes(p.id)}
             onToggleLike={async (id) => {
               if (!profile) return;
@@ -711,7 +712,7 @@ export default function PublicProfilePage({
                             transition-colors duration-[var(--d-fast)] hover:border-signal"
                         >
                           <span className="min-w-0 flex-1">
-                            <span className="block truncate font-mono text-[12.5px] font-bold text-chalk">
+                            <span className="block truncate font-mono text-sm font-bold text-chalk">
                               {repo.name}
                             </span>
                             {repo.description && (

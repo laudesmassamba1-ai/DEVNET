@@ -275,7 +275,7 @@ export function ProfileWorkPanel({
         {projects === null ? (
           <Loading label="Lecture des projets" />
         ) : projects.length === 0 ? (
-          <p className="border-t border-line-2 py-3 text-[12.5px] text-chalk-3">
+          <p className="border-t border-line-2 py-3 text-sm text-chalk-3">
             Aucun dépôt DevNet pour le moment.
           </p>
         ) : (
@@ -325,7 +325,7 @@ export function ProfileWorkPanel({
         {groups === null ? (
           <Loading label="Lecture des groupes" />
         ) : groups.length === 0 ? (
-          <p className="border-t border-line-2 py-3 text-[12.5px] text-chalk-3">
+          <p className="border-t border-line-2 py-3 text-sm text-chalk-3">
             Aucun groupe rejoint.
           </p>
         ) : (
@@ -361,7 +361,7 @@ export function ProfileWorkPanel({
           <h2 id="profile-github-title" className="mt-1 font-display text-[17px] font-bold">
             GitHub
           </h2>
-          <p className="mt-1 text-[12.5px] leading-[1.5] text-chalk-3">
+          <p className="mt-1 text-sm leading-[1.5] text-chalk-3">
             Relie ton compte GitHub pour rattacher tes dépôts publics à ton profil et montrer ton travail réel.
           </p>
         </div>
@@ -428,7 +428,7 @@ export function ProfileWorkPanel({
           </div>
         ) : (
           <div className="flex flex-wrap items-center justify-between gap-3 border-y border-line-2 py-3">
-            <p className="text-[12.5px] text-chalk-3">
+            <p className="text-sm text-chalk-3">
               Relie tes dépôts à tes projets.
             </p>
             <button

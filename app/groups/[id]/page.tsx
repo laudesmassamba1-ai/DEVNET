@@ -9,12 +9,14 @@ import { Avatar, EmptyState, Loading, PrimaryButton } from "@/components/Avatar"
 import { Sheet } from "@/components/Sheet";
 import { GroupReceipt } from "@/components/Receipt";
 import { MessageExtras, ReplyQuote } from "@/components/MessageExtras";
+import { MessageAttachmentButtons, MessageAttachmentView } from "@/components/MessageAttachments";
 import { TypingLine } from "@/components/TypingDots";
 import { ChatComposer, ComposerBar } from "@/components/ChatComposer";
 import { useToast } from "@/components/Toast";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { badgeFor, xpOf } from "@/lib/verification";
 import { supabase } from "@/lib/supabase/client";
+import { uploadMedia } from "@/lib/media";
 import { useSession } from "@/hooks/useSession";
 import { useTyping } from "@/hooks/useTyping";
 import { messagePoints } from "@/lib/gamification";
@@ -41,6 +43,8 @@ import {
   type ReactionSummary,
 } from "@/lib/messages";
 import type { Group, GroupMessage, GroupRole, Project } from "@/lib/types";
+import { canSendMessage, attachmentColumns, type MessageAttachment } from "@/lib/message-media";
+import { fetchStickers, type StickerRowView } from "@/lib/stickers";
 import { fetchProjectsForGroup } from "@/lib/repo";
 
 const CHANNEL_KEY = "c";
@@ -60,6 +64,10 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   const [text, setText] = useState("");
   const [asCode, setAsCode] = useState(false);
   const [sending, setSending] = useState(false);
+  /** Fichier en cours de téléversement avant l'envoi du message. */
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  /** Catalogue des stickers : la bulle ne stocke qu'un identifiant. */
+  const [stickerCatalog, setStickerCatalog] = useState<Map<string, StickerRowView>>(new Map());
   const [openNew, setOpenNew] = useState(false);
   const [newName, setNewName] = useState("");
   const [newTopic, setNewTopic] = useState("");
@@ -98,6 +106,17 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   const scrollDown = useCallback(() => {
     const wall = endRef.current?.parentElement;
     if (wall) wall.scrollTo({ top: wall.scrollHeight, behavior: "smooth" });
+  }, []);
+
+  // Catalogue des stickers, chargé une fois pour toutes les bulles.
+  useEffect(() => {
+    let alive = true;
+    void fetchStickers().then((rows) => {
+      if (alive) setStickerCatalog(new Map(rows.map((row) => [row.id, row])));
+    });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   // ── Chargement ──
@@ -390,10 +409,12 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     }
   }
 
-  async function send() {
+  async function send(attachment?: MessageAttachment) {
     if (!profile || !active) return;
     const body = text.trim();
-    if (!body) return;
+    // Mêmes règles que le privé : média seul accepté, URL filtrée.
+    if (!canSendMessage(body, attachment)) return;
+    const media = attachmentColumns(attachment);
 
     setSending(true);
     const { error } = await supabase.from("group_messages").insert({
@@ -404,6 +425,11 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
       author_color: profile.avatar_color,
       text: body,
       is_code: asCode,
+      gif_url: media.gif_url,
+      gif_alt: media.gif_alt,
+      sticker_id: media.sticker_id,
+      media_url: media.media_url,
+      media_type: media.media_type,
       reply_to_id: replyTo?.id ?? null,
     });
 
@@ -414,6 +440,15 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     // On annonce le gain, sans toast d'erreur : répondre dans un groupe
     // fait progresser, et l'utilisateur doit le voir.
     toast(`Envoyé · +${messagePoints(asCode)} pts`);
+  }
+
+  /** Envoyer une photo ou une vidéo dans le canal courant. */
+  async function sendMedia(file: File) {
+    setUploadingMedia(true);
+    const result = await uploadMedia(file);
+    setUploadingMedia(false);
+    if (!result.ok) return toast(result.error, "err");
+    await send({ kind: "media", url: result.media.url, mediaType: result.media.kind });
   }
 
   /**
@@ -566,7 +601,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                 {repos.map((r) => (
                   <Link key={r.id} href={`/projects/${r.id}`} title={`Ouvrir ${r.name}`}
                     className="flex w-full items-center gap-1.5 rounded-[var(--radius-chip)]
-                      px-2.5 py-2 text-left text-[12.5px] text-chalk-3 transition-colors
+                      px-2.5 py-2 text-left text-sm text-chalk-3 transition-colors
                       hover:bg-surface-2/60 hover:text-signal">
                     <span aria-hidden="true" className="shrink-0 leading-none text-signal-d">
                       <Icon name={asIconName(r.emoji, "layers")} size={12} strokeWidth={1.8} />
@@ -635,7 +670,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   <button key={c.id} type="button" onClick={() => setActiveSlug(c.slug)}
                     aria-current={on ? "true" : undefined}
                     className={`relative flex shrink-0 items-center gap-1.5
-                      rounded-[var(--radius-chip)] px-2.5 py-1.5 text-[12.5px] transition-colors
+                      rounded-[var(--radius-chip)] px-2.5 py-1.5 text-sm transition-colors
                       ${on ? "bg-surface-2 font-semibold text-signal"
                            : "text-chalk-3 hover:bg-surface-2/60 hover:text-chalk"}`}>
                     <Icon name={c.is_private ? "lock" : "hash"} size={11} strokeWidth={2}
@@ -646,7 +681,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
               })}
               <button type="button" onClick={() => setOpenNew(true)}
                 className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-chip)]
-                  px-2.5 py-1.5 text-[12.5px] text-chalk-4 transition-colors
+                  px-2.5 py-1.5 text-sm text-chalk-4 transition-colors
                   hover:bg-surface-2/60 hover:text-chalk">
                 <Icon name="plus" size={11} strokeWidth={2} />
                 Nouveau
@@ -730,6 +765,15 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                             ? "border-signal/60 glass-flat text-chalk"
                             : "border-line-2 glass-flat text-chalk-2"}`}
                     >
+                      <MessageAttachmentView
+                        gifUrl={m.gif_url}
+                        gifAlt={m.gif_alt}
+                        mediaUrl={m.media_url}
+                        mediaType={m.media_type}
+                        sticker={
+                          m.sticker_id ? stickerCatalog.get(m.sticker_id) ?? null : null
+                        }
+                      />
                       {m.text}
                     </div>
                     <span className="px-0.5 text-[10px] tracking-wider text-chalk-4">
@@ -816,7 +860,14 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
               id="composer-channel"
               value={text}
               onValueChange={setText}
-              onSend={send}
+              onSend={() => void send()}
+              attachments={
+                <MessageAttachmentButtons
+                  disabled={!active || sending || uploadingMedia}
+                  onGif={(gif) => void send({ kind: "gif", gif })}
+                  onMedia={(file) => void sendMedia(file)}
+                />
+              }
               onTyping={notifyTyping}
               sending={sending}
               disabled={!active}
@@ -833,12 +884,13 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         <div className="mb-3">
           <label className="label mb-1.5 block text-chalk">Nom</label>
           <input
+            aria-label="Nom du canal"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="développement"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
-              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
-              placeholder:text-chalk-4 focus:shadow-[3px_3px_0_#FF8A3D]"
+              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
+              placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
           {/* Aperçu du slug : le nom affiché et le nom tapé diffèrent, et
               c'est le second qui finit dans l'URL. Better vaut le montrer
@@ -857,12 +909,13 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         <div className="mb-4">
           <label className="label mb-1.5 block text-chalk">Sujet (facultatif)</label>
           <input
+            aria-label="Sujet du canal"
             value={newTopic}
             onChange={(e) => setNewTopic(e.target.value)}
             placeholder="À quoi sert ce canal ?"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
-              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
-              placeholder:text-chalk-4 focus:shadow-[3px_3px_0_#FF8A3D]"
+              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
+              placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
         </div>
 

@@ -235,13 +235,13 @@ export function LoadingLogo({
 
         {/* Le flood : la vitre, déversée du bord gauche */}
         <g clipPath="url(#ll-win)">
-          <rect className="ll-flood" x="5.4" y="9.4" width="53.2" height="45.2" fill="#221610" />
+          <rect className="ll-flood" x="5.4" y="9.4" width="53.2" height="45.2" fill="var(--color-page-end)" />
         </g>
 
         {/* Ombres dures posées après le flood */}
         <g clipPath="url(#ll-win)">
           <g className="ll-cut">
-            <rect x="33.6" y="9.4" width="25" height="45.2" fill="#150C07" />
+            <rect x="33.6" y="9.4" width="25" height="45.2" fill="var(--color-page)" />
             <rect x="5.4" y="9.4" width="53.2" height="4.2" fill="#2E1E12" />
           </g>
         </g>
@@ -249,7 +249,7 @@ export function LoadingLogo({
         {/* Barre de titre tirée */}
         <g clipPath="url(#ll-win)">
           <line className="ll-line" x1="5.4" y1="19" x2="58.6" y2="19"
-            pathLength="100" stroke="#FF8A3D" strokeWidth="2.2" />
+            pathLength="100" stroke="var(--color-signal)" strokeWidth="2.2" />
         </g>
 
         {/* Pastilles tamponnées */}
@@ -259,18 +259,18 @@ export function LoadingLogo({
           { x: 23, o: .45 },
         ].map((d, i) => (
           <g key={i} className="ll-dot" style={{ "--i": i } as CSSProperties}>
-            <rect x={d.x} y="11" width="4.4" height="4.4" fill="#FF8A3D" opacity={d.o} />
+            <rect x={d.x} y="11" width="4.4" height="4.4" fill="var(--color-signal)" opacity={d.o} />
             <rect x={d.x} y="11" width="1.7" height="1.7" fill="#FFD2B0" opacity={d.o} />
           </g>
         ))}
 
         {/* Cadre : encre, aplat orange, face droite à l'ombre */}
         <g fill="none" strokeLinejoin="miter">
-          <rect x="3" y="7" width="58" height="50" rx="2" stroke="#200F04" strokeWidth="5.2" />
-          <rect x="3" y="7" width="58" height="50" rx="2" stroke="#FF8A3D" strokeWidth="3.2" />
+          <rect x="3" y="7" width="58" height="50" rx="7" stroke="var(--color-void)" strokeWidth="5.2" />
+          <rect x="3" y="7" width="58" height="50" rx="7" stroke="var(--color-signal)" strokeWidth="3.2" />
           <g clipPath="url(#ll-shade)">
             <g className="ll-cut">
-              <rect x="3" y="7" width="58" height="50" rx="2" stroke="#B8541C" strokeWidth="3.2" />
+              <rect x="3" y="7" width="58" height="50" rx="7" stroke="var(--color-signal-d)" strokeWidth="3.2" />
             </g>
           </g>
         </g>
@@ -278,19 +278,19 @@ export function LoadingLogo({
         {/* Le chevron, tracé puis frappé (le « boah » porte le groupe) */}
         <g className="ll-impact" fill="none" strokeLinecap="butt" strokeLinejoin="miter">
           <path className="ll-chv" d="M14.6 28.6 L26.4 38 L14.6 47.4" pathLength="100"
-            stroke="#200F04" strokeWidth="7.4" />
+            stroke="var(--color-void)" strokeWidth="7.4" />
           <path className="ll-chv" d="M14.6 28.6 L26.4 38 L14.6 47.4" pathLength="100"
-            stroke="#FF8A3D" strokeWidth="4.6" />
+            stroke="var(--color-signal)" strokeWidth="4.6" />
           <g clipPath="url(#ll-shade)">
             <g className="ll-cut">
               <path d="M14.6 28.6 L26.4 38 L14.6 47.4" pathLength="100"
-                stroke="#B8541C" strokeWidth="4.6" />
+                stroke="var(--color-signal-d)" strokeWidth="4.6" />
             </g>
           </g>
         </g>
 
         {/* Les rayures d'étoile au moment de la frappe */}
-        <g className="ll-rays" stroke="#FFC68E" strokeWidth="1.5" strokeLinecap="round" fill="none">
+        <g className="ll-rays" stroke="var(--color-signal-soft)" strokeWidth="1.5" strokeLinecap="round" fill="none">
           {[
             "M33 38 L39 38", "M30.95 42.95 L35.19 47.19", "M26 45 L26 51",
             "M21.05 42.95 L16.81 47.19", "M19 38 L13 38", "M21.05 33.05 L16.81 28.81",
@@ -303,9 +303,9 @@ export function LoadingLogo({
         {/* Curseur phosphor : tampon au dehors, clignotement au dedans */}
         <g className="ll-cur">
           <g className="ll-blinker">
-            <rect x="32" y="42.6" width="14" height="5.6" fill="#8FFF5C" />
-            <rect x="39" y="42.6" width="7" height="5.6" fill="#5CA83A" />
-            <rect x="32" y="42.6" width="14" height="1.7" fill="#D8FFB4" />
+            <rect x="32" y="42.6" width="14" height="5.6" fill="var(--color-phosphor)" />
+            <rect x="39" y="42.6" width="7" height="5.6" fill="var(--color-phosphor-d)" />
+            <rect x="32" y="42.6" width="14" height="1.7" fill="var(--color-chalk)" />
           </g>
         </g>
       </svg>

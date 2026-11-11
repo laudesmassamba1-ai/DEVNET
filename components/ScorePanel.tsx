@@ -124,7 +124,7 @@ export function ScorePanel({
   if (files.length === 0) {
     return (
       <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2 p-4">
-        <p className="text-[12.5px] leading-snug text-chalk-3">
+        <p className="text-sm leading-snug text-chalk-3">
           Aucun fichier à noter.
         </p>
       </div>
@@ -154,7 +154,6 @@ function ScoreHeader({ repo }: { repo: RepoScore }) {
   return (
     <section className="relative overflow-hidden rounded-[var(--radius-card)] border
       border-line-2 bg-surface-2 p-4 shadow-sh-2">
-      <div className="adinkra-motif pointer-events-none absolute inset-0 opacity-[0.08]" />
 
       <div className="relative grid gap-4 sm:grid-cols-2">
         <BigScore

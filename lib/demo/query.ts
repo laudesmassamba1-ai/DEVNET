@@ -165,6 +165,12 @@ const CLIENT_CANT_WRITE = new Set<string>([]);
 const UPDATE_ALLOWED_COLUMNS: Record<string, string[]> = {
   conversation_members: ["last_read_at"],
   channel_members: ["last_read_at"],
+  // 041 : un message privé se corrige, il ne se déplace pas. Le `revoke
+  // update (…)` de la migration ferme `conversation_id`, `author_id` et
+  // `created_at` ; cette liste est le même contrat côté démo. Sans elle,
+  // un message qu'on édite pourrait changer de fil — et l'écran
+  // afficherait dans un privé un contenu qui appartient à un autre.
+  direct_messages: ["text", "is_code", "edited_at"],
 };
 
 /**
@@ -560,6 +566,11 @@ const UPDATE_ROW_RULES: Record<string, (row: Row, me: string, store: DemoStore) 
   // autre sur la place de marché.
   extensions: (row: Row, me: string): boolean => row.owner_id === me,
 
+  // `dm_update` (005) : l'auteur corrige son propre message. La politique
+  // existe depuis la 005 ; c'est la borne de colonnes de la 041 qui empêche
+  // d'en faire autre chose qu'une correction.
+  direct_messages: (row: Row, me: string): boolean => row.author_id === me,
+
   // `pm_update` réécrite en 027 : seuls propriétaire et mainteneurs
   // règlent les rôles. Un editor écrit du code, il n'administre pas.
   project_members: (row: Row, me: string, store: DemoStore): boolean =>
@@ -753,7 +764,7 @@ const ENUM_CHECKS: Record<string, Record<string, string[]>> = {
   // catégorie que l'écran ne sait pas ranger ni rendre (un onglet fantôme),
   // et que Postgres refuserait à la bascule.
   extensions: {
-    category: ["theme", "snippets", "language", "tool", "ai", "other"],
+    category: ["theme", "snippets", "language", "tool", "other"],
   },
   // Même liste que le `check` de la 030. Un état libre serait un état que
   // l'écran ne sait pas rendre — donc « active » ou « en erreur » selon la
@@ -886,6 +897,19 @@ const DERIVED_AFTER_INSERT: Record<string, (row: Row) => void> = {
   },
   project_ratings: (row) => {
     row.created_at ??= new Date().toISOString();
+  },
+  /**
+   * Les valeurs par défaut de la migration 041 (`direct_messages`).
+   *
+   * Sans ce rejeu, un message envoyé sans `is_code` naîtrait avec la
+   * colonne absente : l'écran le lirait comme faux (donc juste), mais la
+   * ligne ne serait pas identique à celle que Postgres renvoie. La
+   * différence deviendrait visible le jour où un tri ou un filtre
+   * porterait sur la colonne.
+   */
+  direct_messages: (row) => {
+    row.is_code ??= false;
+    row.edited_at ??= null;
   },
   /**
    * Les valeurs par défaut de la migration 028 (`communities`).

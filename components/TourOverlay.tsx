@@ -297,7 +297,7 @@ export function TourOverlay({
               type="button"
               onClick={onSkipIntro}
               className="ml-auto rounded-[var(--radius-input)] border border-transparent px-3
-                text-[12.5px] font-bold text-chalk-3 transition-colors hover:text-chalk"
+                text-sm font-bold text-chalk-3 transition-colors hover:text-chalk"
             >
               Passer
             </button>
@@ -307,7 +307,7 @@ export function TourOverlay({
                 type="button"
                 onClick={onPrev}
                 className="mo-press rounded-[var(--radius-input)] border border-line-3 px-4
-                  text-[12.5px] font-bold text-chalk transition-colors hover:border-signal hover:text-signal"
+                  text-sm font-bold text-chalk transition-colors hover:border-signal hover:text-signal"
               >
                 Précédent
               </button>
@@ -318,7 +318,7 @@ export function TourOverlay({
               ref={primaryRef}
               onClick={onNext}
               className="mo-press flex h-[var(--h-tap)] items-center gap-2 rounded-[var(--radius-input)]
-                border border-signal bg-signal px-4 text-[12.5px] font-bold text-void shadow-sh-2"
+                border border-signal bg-signal px-4 text-sm font-bold text-void shadow-sh-2"
             >
               {last ? "Commencer la visite" : "Suivant"}
               <Icon name="chevron-right" size={12} strokeWidth={2.4} />
@@ -352,8 +352,11 @@ export function TourOverlay({
               height: rect.height + PAD * 2,
               borderRadius: 16,
               boxShadow: `0 0 0 3px var(--color-signal), 0 0 0 9999px ${VEIL}`,
-              transition:
-                "left var(--d-slow) var(--ease-spring), top var(--d-slow) var(--ease-spring), width var(--d-slow) var(--ease-spring), height var(--d-slow) var(--ease-spring)",
+              // Pas de transition : la mise en évidence saute d'une cible à
+              // l'autre. Animer `left/top/width/height` déclenche une mise en
+              // page par image (MO-02) ; un déplacement FLIP serait possible,
+              // il ajouterait une mécanique pour un halo qui n'a pas besoin
+              // d'inertie.
             }}
           />
         ) : (
@@ -367,7 +370,7 @@ export function TourOverlay({
             left: bulbStyle?.left,
             top: bulbStyle?.top,
             width: bulbStyle?.width,
-            transition: "left var(--d-slow) var(--ease-spring), top var(--d-slow) var(--ease-spring)",
+            // Idem : la bulle se pose, elle ne glisse pas à travers l'écran.
           }}
           className="depth-panel overlay-panel rounded-[var(--radius-card)] border border-edge
             p-4 shadow-[var(--shadow-drop-lg)]"

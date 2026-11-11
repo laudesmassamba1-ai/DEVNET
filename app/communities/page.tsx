@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { AppShell, IconButton } from "@/components/AppShell";
+import { Field } from "@/components/Field";
 import { Icon, asIconName } from "@/components/Icon";
 import { EmptyState, Loading } from "@/components/Avatar";
 import { Sheet } from "@/components/Sheet";
@@ -125,11 +126,12 @@ export default function CommunitiesPage() {
         </div>
 
         <input
+          aria-label="Rechercher une communauté"
           value={query} onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher une communauté…"
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         {communities === null && <Loading />}
@@ -160,21 +162,21 @@ export default function CommunitiesPage() {
           <input value={name} onChange={(e) => setName(e.target.value)}
             placeholder="ex: Rust & systèmes"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <Field label="Description">
           <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2}
             placeholder="À quoi sert cette communauté ?"
             className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <Field label="Règlement intérieur">
           <textarea value={rules} onChange={(e) => setRules(e.target.value)} rows={3}
             placeholder="Une règle par ligne. Affiché en tête du fil."
             className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <Field label="Visibilité">
@@ -198,6 +200,7 @@ export default function CommunitiesPage() {
           <div className="grid grid-cols-5 gap-2">
             {ICONS.map((k) => (
               <button key={k} type="button" onClick={() => setIcon(k)}
+                aria-label={`Icône ${k}`} aria-pressed={icon === k}
                 className="flex aspect-square items-center justify-center rounded-[var(--radius-input)]
                   border border-line-3 transition-colors"
                 data-active={icon === k ? "true" : "false"}
@@ -234,15 +237,6 @@ function SectionLabel({ children, top }: { children: React.ReactNode; top?: bool
       ${top ? "pt-4" : "pt-2"}`}>
       {children}
       <span className="h-0.5 flex-1 bg-surface/85" />
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="mb-4">
-      <label className="label mb-1.5 block text-chalk">{label}</label>
-      {children}
     </div>
   );
 }

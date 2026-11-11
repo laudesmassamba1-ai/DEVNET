@@ -1,3 +1,4 @@
+import { EXAMPLE_EXTENSION } from "../example-extension";
 import type {
   Community, CommunityMember, Conversation, DirectMessage, Extension,
   ExtensionInstall, Group, GroupMessage, Post, User,
@@ -61,7 +62,7 @@ function admin(a: {
     followers: 51,
     following: 42,
     created_at: ago(700 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   };
 }
 
@@ -88,7 +89,7 @@ export const DEMO_USERS: User[] = [
     followers: 128,
     following: 94,
     created_at: ago(90 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-aminata",
@@ -108,7 +109,7 @@ export const DEMO_USERS: User[] = [
     followers: 842,
     following: 213,
     created_at: ago(400 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-thabo",
@@ -131,7 +132,7 @@ export const DEMO_USERS: User[] = [
     followers: 341,
     following: 176,
     created_at: ago(150 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-chioma",
@@ -151,7 +152,7 @@ export const DEMO_USERS: User[] = [
     followers: 1204,
     following: 388,
     created_at: ago(620 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-youssef",
@@ -171,7 +172,7 @@ export const DEMO_USERS: User[] = [
     followers: 567,
     following: 141,
     created_at: ago(300 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-zainab",
@@ -190,7 +191,7 @@ export const DEMO_USERS: User[] = [
     followers: 89,
     following: 233,
     created_at: ago(70 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
   {
     id: "u-marcus",
@@ -209,7 +210,7 @@ export const DEMO_USERS: User[] = [
     followers: 204,
     following: 158,
     created_at: ago(110 * 24 * HOUR),
-    theme: "liquid-bleu",
+    theme: "dark",
   },
 
   /* ── Administration ──────────────────────────────────────────────
@@ -883,7 +884,10 @@ export const DEMO_DIRECT_MESSAGES: DirectMessage[] = [
     conversation_id: "conv-thabo-koffi",
     author_id: "u-koffi",
     author_name: "Koffi",
-    text: "Oui carrément. Je te réponds dans la journée.",
+    text: "Oui carrément, je bloque deux heures samedi. Tu as le dépôt du challenge ?",
+    // Une correction assumée : l'écran doit dire « modifié » au lieu de
+    // faire passer la dernière version pour le texte d'origine.
+    edited_at: ago(3.1 * HOUR),
     created_at: ago(3.2 * HOUR),
   },
   {
@@ -891,7 +895,8 @@ export const DEMO_DIRECT_MESSAGES: DirectMessage[] = [
     conversation_id: "conv-thabo-koffi",
     author_id: "u-thabo",
     author_name: "Thabo",
-    text: "Je t'envoie le script du challenge dans 10 minutes.",
+    text: "Voilà le script du challenge :\n\nimport hashlib\n\ndef proof(seed: str) -> str:\n    return hashlib.sha256(seed.encode()).hexdigest()[:8]\n\nprint(proof('devnet'))",
+    is_code: true,
     created_at: ago(3 * HOUR),
   },
   {
@@ -991,15 +996,23 @@ export const DEMO_EXTENSIONS: Extension[] = [
   {
     id: "e-4",
     slug: "assistant-explications",
-    name: "Assistant Explications",
-    description: "Un agent qui explique le fichier ouvert : rôle des fonctions, points de vigilance, pistes de tests.",
+    name: "Invites de revue",
+    description: "Des invites de revue prêtes à insérer dans le fichier pour l'assistant de votre choix : explication, tests, cas limites.",
     version: "0.4.0",
     icon: "bolt",
-    category: "ai",
+    category: "snippets",
     manifest: {
       commands: [
-        { id: "explain-file", title: "Expliquer le fichier ouvert" },
-        { id: "suggest-tests", title: "Suggérer des tests" },
+        {
+          id: "explain-file",
+          title: "Insérer une demande d'explication",
+          body: "// Explique ce fichier : rôle des fonctions, points de vigilance, cas limites.\n",
+        },
+        {
+          id: "suggest-tests",
+          title: "Insérer une demande de tests",
+          body: "// Propose des tests pour ce fichier, cas limites et erreurs compris.\n",
+        },
       ],
       settings: [
         { key: "tone", label: "Ton des réponses", type: "string", default: "concis" },
@@ -1010,19 +1023,16 @@ export const DEMO_EXTENSIONS: Extension[] = [
     created_at: ago(12 * 24 * HOUR),
   },
   {
+    // L’exemple canonique : défini dans `lib/example-extension.ts` pour que
+    // la démo, l’interface et les tests parlent du même manifeste.
     id: "e-5",
-    slug: "python-linter",
-    name: "Python Linter",
-    description: "Analyse statique légère et suggestions de style (PEP 8) sur le fichier courant.",
-    version: "1.2.1",
-    icon: "terminal",
-    category: "tool",
-    manifest: {
-      commands: [{ id: "lint-file", title: "Analyser le fichier (PEP 8)" }],
-      settings: [
-        { key: "maxLineLength", label: "Longueur de ligne maximale", type: "number", default: 88 },
-      ],
-    },
+    slug: EXAMPLE_EXTENSION.slug,
+    name: EXAMPLE_EXTENSION.name,
+    description: EXAMPLE_EXTENSION.description,
+    version: EXAMPLE_EXTENSION.version,
+    icon: EXAMPLE_EXTENSION.icon,
+    category: EXAMPLE_EXTENSION.category,
+    manifest: EXAMPLE_EXTENSION.manifest,
     owner_id: "u-thabo",
     installs: 0,
     created_at: ago(8 * 24 * HOUR),
@@ -1032,9 +1042,11 @@ export const DEMO_EXTENSIONS: Extension[] = [
 /**
  * Les installations de démonstration.
  *
- * Le compte courant (`u-koffi`) a installé deux extensions : le thème, qu'il
- * garde actif, et l'assistant IA, qu'il a **désactivé** sans le désinstaller.
- * C'est le cas qui illustre la distinction `enabled` / installé.
+ * Le compte courant (`u-koffi`) a installé trois extensions : le thème et
+ * les conventions Python, qu'il garde actifs, et les invites de revue, qu'il
+ * a **désactivées** sans les désinstaller. C'est le cas qui illustre la
+ * distinction `enabled` / installé — et la commande Python est là pour
+ * qu'une démonstration montre la palette `F1` sans passer par la boutique.
  */
 export const DEMO_EXTENSION_INSTALLS: ExtensionInstall[] = [
   {
@@ -1050,6 +1062,13 @@ export const DEMO_EXTENSION_INSTALLS: ExtensionInstall[] = [
     enabled: false,
     settings: { tone: "concis" },
     installed_at: ago(10 * 24 * HOUR),
+  },
+  {
+    extension_id: "e-5",
+    user_id: "u-koffi",
+    enabled: true,
+    settings: { maxLineLength: 99 },
+    installed_at: ago(7 * 24 * HOUR),
   },
   {
     extension_id: "e-2",

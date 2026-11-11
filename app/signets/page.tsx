@@ -93,7 +93,7 @@ export default function BookmarksPage() {
             <h1 className="font-display text-[1.375rem] font-bold tracking-[-0.02em]">
               Signets
             </h1>
-            <p className="mt-1.5 max-w-[46ch] text-[12.5px] leading-relaxed text-chalk-3">
+            <p className="mt-1.5 max-w-[46ch] text-sm leading-relaxed text-chalk-3">
               Vos publications gardées, privées.
             </p>
           </header>
@@ -115,12 +115,11 @@ export default function BookmarksPage() {
           </Motion>
         )}
 
-        {rows?.map((p, i) => (
+        {rows?.map((p) => (
           <PostCard
             key={p.id}
             post={p}
             meId={profile?.id ?? null}
-            index={i}
             liked={false}
             bookmarked
             onBookmark={onBookmark}

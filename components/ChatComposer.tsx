@@ -36,6 +36,7 @@ export function ChatComposer({
   sending = false,
   code,
   onToggleCode,
+  attachments,
 }: {
   id: string;
   value: string;
@@ -45,9 +46,20 @@ export function ChatComposer({
   placeholder: string;
   disabled?: boolean;
   sending?: boolean;
-  /** Présent seulement là où coller du code a un sens (canaux de groupe). */
+  /**
+   * Présent là où coller du code a un sens : canaux de groupe et messages
+   * privés (migration 041). Le drapeau ne change que le rendu — le texte
+   * reste du texte, jamais interprété.
+   */
   code?: boolean;
   onToggleCode?: () => void;
+  /**
+   * Boutons de pièces jointes (GIF, sticker), rendus à gauche du champ.
+   * Le composeur ne sait pas ce qu'ils envoient : il ouvre la place, les
+   * écrans décident. Un GIF ou un sticker part **au choix**, sans étape
+   * de confirmation : c'est le geste d'une messagerie, pas d'un e-mail.
+   */
+  attachments?: React.ReactNode;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
 
@@ -68,6 +80,8 @@ export function ChatComposer({
           d'icônes, pas des émoticônes. Le champ n'a rien perdu : la
           frappe suffit. */}
 
+      {attachments}
+
       <textarea
         id={id}
         ref={ref}
@@ -87,7 +101,7 @@ export function ChatComposer({
         placeholder={placeholder}
         className="max-h-[132px] min-h-[var(--h-input)] flex-1 resize-none
           rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-          py-[10px] text-[14px] leading-[1.5] outline-none
+          py-[10px] text-[14px] leading-[1.5] outline
           placeholder:text-chalk-4 focus:border-signal
           disabled:opacity-50"
       />

@@ -10,6 +10,7 @@ import { Icon } from "@/components/Icon";
 import { Receipt } from "@/components/Receipt";
 import { TypingLine } from "@/components/TypingDots";
 import { MessageExtras, ReplyQuote } from "@/components/MessageExtras";
+import { MessageAttachmentButtons, MessageAttachmentView } from "@/components/MessageAttachments";
 import { DMContext } from "@/components/DMContext";
 import { ChatComposer, ComposerBar } from "@/components/ChatComposer";
 import { useToast } from "@/components/Toast";
@@ -17,10 +18,17 @@ import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { badgeFor, xpOf } from "@/lib/verification";
 import { loadAuthorXp } from "@/lib/author-xp";
 import { supabase } from "@/lib/supabase/client";
+import { uploadMedia } from "@/lib/media";
 import { useSession } from "@/hooks/useSession";
 import { useTyping } from "@/hooks/useTyping";
 import { clockTime } from "@/lib/utils";
 import { splitContent } from "@/lib/text";
+import {
+  mergeMessage,
+  setMessageDeliveryStatus,
+  sortMessages,
+  type MessageRow,
+} from "@/lib/message-delivery";
 import {
   fetchUnreadConversations,
   markConversationRead,
@@ -39,7 +47,10 @@ import {
   type ReactionsByMessage,
   type ReactionSummary,
 } from "@/lib/messages";
+import { cascade } from "@/components/Motion";
 import type { Conversation, DirectMessage, UserLite } from "@/lib/types";
+import { canSendMessage, attachmentColumns, type MessageAttachment } from "@/lib/message-media";
+import { fetchStickers, type StickerRowView } from "@/lib/stickers";
 
 type Peer = { conv: Conversation; other: (UserLite & { xp?: number }) | null };
 
@@ -49,17 +60,6 @@ function convKey(a: string, b: string): string {
 }
 
 /** Ajoute un message reçu à la liste affichée, sans doublon. */
-function mergeMessage(list: DirectMessage[], msg: DirectMessage): DirectMessage[] {
-  return list.some((x) => x.id === msg.id) ? list : [...list, msg];
-}
-
-/** Tri ascendant par date — l'ordre de lecture d'une conversation. */
-function sortMessages(list: DirectMessage[]): DirectMessage[] {
-  return [...list].sort((a, b) =>
-    a.created_at < b.created_at ? -1 : a.created_at > b.created_at ? 1 : 0,
-  );
-}
-
 export default function MessagesPage() {
   const { profile } = useSession();
   const toast = useToast();
@@ -67,9 +67,8 @@ export default function MessagesPage() {
 
   const [convs, setConvs] = useState<Peer[] | null>(null);
   const [active, setActive] = useState<Peer | null>(null);
-  const [messages, setMessages] = useState<DirectMessage[] | null>(null);
+  const [messages, setMessages] = useState<MessageRow[] | null>(null);
   const [text, setText] = useState("");
-  const [sending, setSending] = useState(false);
   const [openNew, setOpenNew] = useState(false);
   /** Recherche dans la **liste** des conversations : filtre d'affichage. */
   const [search, setSearch] = useState("");
@@ -104,6 +103,18 @@ export default function MessagesPage() {
   const [pins, setPins] = useState<Set<string>>(new Set());
   /** Le message auquel la prochaine envoi répondra. */
   const [replyTo, setReplyTo] = useState<DirectMessage | null>(null);
+  /** Le message en cours de correction — `null` quand on écrit du neuf. */
+  const [editing, setEditing] = useState<DirectMessage | null>(null);
+  /** Le prochain message part comme bloc de code (migration 041). */
+  const [asCode, setAsCode] = useState(false);
+  /**
+   * Catalogue des stickers, indexé par identifiant : un message ne
+   * stocke que `sticker_id`, et la bulle a besoin du glyphe. Une seule
+   * requête pour tout l'écran, refaite jamais — le catalogue change
+   * rarement, et un sticker retiré laisse simplement une bulle sans
+   * image plutôt qu'un écran en erreur.
+   */
+  const [stickerCatalog, setStickerCatalog] = useState<Map<string, StickerRowView>>(new Map());
 
   // Message dont la suppression attend confirmation. Une suppression est
   // irréversible : on ne la déclenche pas sur un clic, surtout que la
@@ -114,6 +125,12 @@ export default function MessagesPage() {
   const loadStateRef = useRef<{ cid: string; ready: boolean } | null>(null);
   /** Messages reçus pendant le chargement, rejoués quand il se termine. */
   const pendingRef = useRef<DirectMessage[]>([]);
+  /** Messages locaux gardés jusqu'à confirmation du serveur, par conversation. */
+  const pendingOutgoingRef = useRef(new Map<string, Map<string, MessageRow>>());
+
+  const sending = messages?.some((message) => message.deliveryStatus === "sending") ?? false;
+  /** Un fichier est en cours de téléversement : le composeur reste bloqué. */
+  const [uploadingMedia, setUploadingMedia] = useState(false);
 
   const profileId = profile?.id;
 
@@ -154,7 +171,7 @@ export default function MessagesPage() {
       if (!otherId) return { conv, other: null };
       const { data: u } = await supabase
         .from("users")
-        .select("id, prenom, pseudo, avatar_color, account_type, verified")
+        .select("id, prenom, pseudo, avatar_color, account_type, verified, dm_media")
         .eq("id", otherId)
         .single();
       return { conv, other: (u as UserLite) ?? null };
@@ -242,9 +259,27 @@ export default function MessagesPage() {
       //-dessus, dédupliqués, et l'ensemble est trié.
       const pending = pendingRef.current;
       pendingRef.current = [];
-      setMessages(sortMessages([...rows, ...pending]));
+      const outgoing = pendingOutgoingRef.current.get(cid);
+      for (const message of [...rows, ...pending]) outgoing?.delete(message.id);
+      const merged = [...(outgoing?.values() ?? []), ...rows, ...pending]
+        .reduce<MessageRow[]>((result, message) => mergeMessage(result, message), []);
+      if (outgoing) {
+        for (const [id, message] of outgoing) {
+          if (!message.deliveryStatus) outgoing.delete(id);
+        }
+      }
+      if (outgoing?.size === 0) pendingOutgoingRef.current.delete(cid);
+      setMessages(sortMessages(merged));
       loadStateRef.current = { cid, ready: true };
       setReplyTo(null);
+      // Un brouillon de correction appartient au fil qu'on vient de
+      // quitter : le garder l'appliquerait au message d'un autre fil.
+      // Le champ est vidé pour la même raison — un texte commencé ici ne
+      // doit pas partir dans la conversation suivante sans qu'on l'ait
+      // demandé.
+      setEditing(null);
+      setAsCode(false);
+      setText("");
 
       // Réactions et épingles en **deux requêtes** pour toute la
       // conversation : une par bulle rendrait l'ouverture de l'écran
@@ -292,6 +327,9 @@ export default function MessagesPage() {
             if (st?.cid === cid) pendingRef.current.push(msg);
             return;
           }
+          const outgoing = pendingOutgoingRef.current.get(cid);
+          outgoing?.delete(msg.id);
+          if (outgoing?.size === 0) pendingOutgoingRef.current.delete(cid);
           setMessages((prev) => (prev === null ? prev : mergeMessage(prev, msg)));
 
           if (profileId && msg.author_id !== profileId) {
@@ -300,6 +338,18 @@ export default function MessagesPage() {
             setReadMarks((prev) => ({ ...prev, [profileId]: new Date().toISOString() }));
             void refresh();
           }
+        })
+      // Une correction arrive comme un **UPDATE**, pas comme un INSERT :
+      // sans cette liaison, le texte corrigé ne s'afficherait qu'au
+      // rechargement — et deux personnes dans la conversation liraient
+      // deux versions différentes du même message.
+      .on("postgres_changes",
+        { event: "UPDATE", schema: "public", table: "direct_messages",
+          filter: `conversation_id=eq.${cid}` },
+        ({ new: m }: { new: DirectMessage }) => {
+          const st = loadStateRef.current;
+          if (st?.cid !== cid || !st.ready) return;
+          setMessages((prev) => (prev === null ? prev : mergeMessage(prev, m)));
         })
       .subscribe();
 
@@ -536,6 +586,16 @@ export default function MessagesPage() {
     }
   }
 
+  /** Copier un bloc de code — le geste qui suit immédiatement l'envoi. */
+  async function copyCode(code: string) {
+    try {
+      await navigator.clipboard.writeText(code);
+      toast("Code copié");
+    } catch {
+      toast("Le presse-papiers est indisponible ici", "err");
+    }
+  }
+
   async function togglePin(messageId: string) {
     if (!profile) return;
     const wasPinned = pins.has(messageId);
@@ -577,37 +637,288 @@ export default function MessagesPage() {
     toast("Message supprimé");
   }
 
-  async function send() {
-    if (!profile || !active) return;
+  /**
+   * Cartes de story attachées aux messages privés.
+   *
+   * `null` = story introuvable ou expirée : le message a été écrit, la story
+   * a vécu 24 h. On le dit au lieu de laisser un cadre vide.
+   */
+  // Le catalogue est chargé une fois, même si aucun message n'a de
+  // sticker : la requête est petite, et l'alternative — la déclencher
+  // au premier sticker rencontré — rendrait la première bulle vide
+  // pendant un aller-retour.
+  useEffect(() => {
+    let alive = true;
+    void fetchStickers().then((rows) => {
+      if (alive) setStickerCatalog(new Map(rows.map((row) => [row.id, row])));
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  const [storyCards, setStoryCards] = useState<Record<string, { caption: string } | null>>({});
+
+  useEffect(() => {
+    const ids = [
+      ...new Set(
+        (messages ?? [])
+          .map((message) => message.story_id)
+          .filter((id): id is string => Boolean(id)),
+      ),
+    ].filter((id) => !(id in storyCards));
+    if (ids.length === 0) return;
+
+    let alive = true;
+    void (async () => {
+      const { data } = await supabase.from("stories").select("id, caption").in("id", ids);
+      if (!alive) return;
+      const rows = (data as { id: string; caption: string }[] | null) ?? [];
+      setStoryCards((previous) => {
+        const next = { ...previous };
+        for (const id of ids) next[id] = rows.find((row) => row.id === id) ?? null;
+        return next;
+      });
+    })();
+
+    return () => {
+      alive = false;
+    };
+  }, [messages, storyCards]);
+
+  async function persistMessage(message: MessageRow) {
+    let confirmed: DirectMessage | null = null;
+    try {
+      const { data, error } = await supabase
+        .from("direct_messages")
+        .insert({
+          id: message.id,
+          conversation_id: message.conversation_id,
+          author_id: message.author_id,
+          author_name: message.author_name,
+          text: message.text,
+          is_code: message.is_code ?? false,
+          gif_url: message.gif_url ?? "",
+          gif_alt: message.gif_alt ?? "",
+          sticker_id: message.sticker_id ?? null,
+          media_url: message.media_url ?? "",
+          media_type: message.media_type ?? "",
+          reply_to_id: message.reply_to_id ?? null,
+        })
+        .select("*")
+        .single();
+
+      confirmed = error ? null : data as DirectMessage | null;
+      if (!confirmed) {
+        const { data: existing, error: lookupError } = await supabase
+          .from("direct_messages")
+          .select("*")
+          .eq("id", message.id)
+          .maybeSingle();
+        if (lookupError) throw lookupError;
+        confirmed = existing as DirectMessage | null;
+      }
+    } catch {
+      const outgoing = pendingOutgoingRef.current.get(message.conversation_id);
+      if (!outgoing?.has(message.id)) return;
+      outgoing.set(message.id, { ...message, deliveryStatus: "failed" });
+      if (loadStateRef.current?.cid === message.conversation_id) {
+        setMessages((current) => setMessageDeliveryStatus(current, message.id, "failed"));
+      }
+      toast("Envoi interrompu. Réessaie quand la connexion sera rétablie.", "err");
+      return;
+    }
+
+    if (!confirmed) {
+      const outgoing = pendingOutgoingRef.current.get(message.conversation_id);
+      if (!outgoing?.has(message.id)) return;
+      outgoing.set(message.id, { ...message, deliveryStatus: "failed" });
+      if (loadStateRef.current?.cid === message.conversation_id) {
+        setMessages((current) => setMessageDeliveryStatus(current, message.id, "failed"));
+      }
+      toast("Message non envoyé. Tu peux réessayer depuis la conversation.", "err");
+      return;
+    }
+
+    const loadState = loadStateRef.current;
+    const outgoing = pendingOutgoingRef.current.get(message.conversation_id);
+    if (loadState?.cid === message.conversation_id && !loadState.ready) {
+      outgoing?.set(message.id, confirmed);
+    } else {
+      outgoing?.delete(message.id);
+      if (outgoing?.size === 0) pendingOutgoingRef.current.delete(message.conversation_id);
+      if (loadState?.cid === message.conversation_id) {
+        setMessages((current) => current ? mergeMessage(current, confirmed) : current);
+      }
+    }
+    try {
+      const { error } = await supabase.from("conversations").update({
+        last_message: confirmed.text,
+        last_message_at: confirmed.created_at,
+      }).eq("id", confirmed.conversation_id);
+      if (error) toast("Message envoyé, mais l’aperçu de la conversation n’a pas été actualisé.", "err");
+    } catch {
+      toast("Message envoyé, mais l’aperçu de la conversation n’a pas été actualisé.", "err");
+    }
+    void refresh();
+  }
+
+  async function retryMessage(messageId: string) {
+    const conversationId = active?.conv.id;
+    if (!conversationId) return;
+    const message = pendingOutgoingRef.current.get(conversationId)?.get(messageId);
+    if (!message || message.deliveryStatus !== "failed") return;
+    const sendingMessage = { ...message, deliveryStatus: "sending" as const };
+    pendingOutgoingRef.current.get(conversationId)?.set(messageId, sendingMessage);
+    setMessages((current) => setMessageDeliveryStatus(current, messageId, "sending"));
+    await persistMessage(sendingMessage);
+  }
+
+  /**
+   * Corriger un message déjà envoyé.
+   *
+   * `edited_at` est la seule trace de la correction : le texte précédent
+   * n'est conservé nulle part, et c'est assumé — un privé n'est pas un
+   * journal d'audit. En revanche l'écran le dit, pour que personne ne
+   * prenne la version corrigée pour le texte d'origine.
+   */
+  async function saveEdit() {
+    if (!profile || !editing) return;
     const body = text.trim();
     if (!body) return;
 
-    setSending(true);
-    const { error } = await supabase.from("direct_messages").insert({
+    // Rien n'a changé : corriger n'est pas réécrire. On sort sans toast,
+    // parce qu'un accusé « corrigé » sur un texte identique serait faux.
+    if (body === editing.text && asCode === Boolean(editing.is_code)) {
+      cancelEdit();
+      return;
+    }
+
+    const target = editing;
+    const before = messages;
+    const corrected = {
+      text: body,
+      is_code: asCode,
+      edited_at: new Date().toISOString(),
+    };
+
+    setMessages((prev) =>
+      prev
+        ? prev.map((m) => (m.id === target.id ? { ...m, ...corrected } : m))
+        : prev,
+    );
+    setEditing(null);
+    setText("");
+    setAsCode(false);
+
+    const { error } = await supabase
+      .from("direct_messages")
+      .update(corrected)
+      .eq("id", target.id);
+
+    if (error) {
+      setMessages(before);
+      toast("Correction refusée", "err");
+      return;
+    }
+
+    // L'aperçu de la liste vient de `conversations.last_message`, pas de
+    // la table des messages. Corriger le dernier message sans le mettre à
+    // jour laisserait dans la colonne de gauche la version d'avant — un
+    // texte qu'on ne retrouve nulle part en ouvrant le fil.
+    if (before && before[before.length - 1]?.id === target.id && active) {
+      const { error: previewError } = await supabase
+        .from("conversations")
+        .update({ last_message: body })
+        .eq("id", active.conv.id);
+
+      if (!previewError) {
+        setConvs((prev) =>
+          prev?.map((p) =>
+            p.conv.id === active.conv.id
+              ? { ...p, conv: { ...p.conv, last_message: body } }
+              : p,
+          ) ?? prev,
+        );
+      }
+    }
+
+    toast("Message corrigé");
+  }
+
+  function cancelEdit() {
+    setEditing(null);
+    setText("");
+    setAsCode(false);
+  }
+
+  function startEdit(message: DirectMessage) {
+    setEditing(message);
+    setText(message.text);
+    setAsCode(Boolean(message.is_code));
+    setReplyTo(null);
+  }
+
+  async function send(attachment?: MessageAttachment) {
+    if (editing) {
+      await saveEdit();
+      return;
+    }
+    if (!profile || !active) return;
+    const body = text.trim();
+    // Un sticker ou un GIF tient lieu de texte : le message est complet
+    // sans un mot. `canSendMessage` est la même règle que le canal de
+    // groupe, et elle refuse un GIF dont l'URL n'est pas sûre.
+    if (!canSendMessage(body, attachment) || sending) return;
+    const media = attachmentColumns(attachment);
+
+    const message: MessageRow = {
+      id: crypto.randomUUID(),
       conversation_id: active.conv.id,
       author_id: profile.id,
       author_name: profile.prenom,
       text: body,
+      is_code: asCode,
+      gif_url: media.gif_url,
+      gif_alt: media.gif_alt,
+      sticker_id: media.sticker_id,
+      media_url: media.media_url,
+      media_type: media.media_type,
       reply_to_id: replyTo?.id ?? null,
-    });
+      created_at: new Date().toISOString(),
+      deliveryStatus: "sending",
+    };
+    const outgoing = pendingOutgoingRef.current.get(message.conversation_id) ?? new Map();
+    outgoing.set(message.id, message);
+    pendingOutgoingRef.current.set(message.conversation_id, outgoing);
+    setMessages((current) => sortMessages([...(current ?? []), message]));
+    stopTyping();
+    setText("");
+    setReplyTo(null);
+    // Le drapeau de code ne survit pas à l'envoi : le garder ferait partir
+    // la phrase suivante en bloc monospace sans que personne l'ait demandé.
+    setAsCode(false);
+    await persistMessage(message);
+  }
 
-    if (!error) {
-      await supabase.from("conversations").update({
-        last_message: body,
-        last_message_at: new Date().toISOString(),
-      }).eq("id", active.conv.id);
-
-      // Le signal de frappe tombe à l'envoi : l'autre côté verrait «
-      // écrit… » pendant six secondes alors que le message est déjà
-      // parti — pour rien.
-      stopTyping();
-      setText("");
-      setReplyTo(null);
-      refresh();
-    } else {
-      toast(`Erreur : ${error.message}`, "err");
+  /**
+   * Envoyer une photo ou une vidéo.
+   *
+   * Le refus du destinataire se lit **avant** le téléversement : mettre
+   * le fichier en ligne pour qu'il ne parte pas serait un gaspillage et
+   * une fausse promesse. La préférence est un droit de réception, pas
+   * une censure (le texte continue de passer).
+   */
+  async function sendMedia(file: File) {
+    if (!profile || !active) return;
+    if (active.other?.dm_media === false) {
+      return toast("Ce contact n'accepte pas les photos et vidéos.", "err");
     }
-    setSending(false);
+    setUploadingMedia(true);
+    const result = await uploadMedia(file);
+    setUploadingMedia(false);
+    if (!result.ok) return toast(result.error, "err");
+    await send({ kind: "media", url: result.media.url, mediaType: result.media.kind });
   }
 
   const peer = active?.other;
@@ -693,11 +1004,12 @@ export default function MessagesPage() {
                   <Icon name="search" size={14} className="shrink-0 text-chalk-4" />
                   <input
                     autoFocus
+                    aria-label="Rechercher dans la conversation"
                     value={find}
                     onChange={(e) => setFind(e.target.value)}
                     placeholder={`Chercher dans les échanges avec ${peer.prenom}…`}
-                    className="h-[30px] w-full border-none bg-transparent text-[12.5px] text-chalk
-                      outline-none placeholder:text-chalk-4"
+                    className="h-[30px] w-full border-none bg-transparent text-sm text-chalk
+                      placeholder:text-chalk-4"
                   />
                   <button
                     type="button" aria-label="Fermer la recherche"
@@ -762,11 +1074,53 @@ export default function MessagesPage() {
                       )}
                       <div className={`max-w-[78%] rounded-[var(--radius-input)] border px-3.5 py-2.5
                         text-[13.5px] leading-[1.55] break-words whitespace-pre-wrap
-                        ${mine
-                          ? "border-signal/60 glass-flat text-chalk"
-                          : "border-line-2 glass-flat text-chalk-2"}`}
+                        ${m.is_code
+                          ? "border-l-[5px] border-line-2 border-l-signal glass-flat font-mono text-[12px] leading-[1.6] text-chalk-2"
+                          : mine
+                            ? "border-signal/60 glass-flat text-chalk"
+                            : "border-line-2 glass-flat text-chalk-2"}`}
                       >
-                        {splitContent(m.text).map((segment, j) =>
+                        {/* Carte de la story d'origine — le contexte du message. */}
+                        {m.story_id && (
+                          <div
+                            className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-chip)]
+                              border border-line-2 bg-surface-2/60 px-2.5 py-1.5"
+                          >
+                            <Icon name="spark" size={11} strokeWidth={2.2} className="shrink-0 text-signal-d" />
+                            <span className="label-micro shrink-0 text-chalk-3">Story</span>
+                            <span className="min-w-0 truncate text-[11.5px] text-chalk-2">
+                              {storyCards[m.story_id] === null
+                                ? "Story expirée"
+                                : storyCards[m.story_id]?.caption?.trim() || "Story"}
+                            </span>
+                          </div>
+                        )}
+
+                        <MessageAttachmentView
+                          gifUrl={m.gif_url}
+                          gifAlt={m.gif_alt}
+                          mediaUrl={m.media_url}
+                          mediaType={m.media_type}
+                          sticker={
+                            m.sticker_id ? stickerCatalog.get(m.sticker_id) ?? null : null
+                          }
+                        />
+
+                        {m.is_code && (
+                          <button
+                            type="button"
+                            onClick={() => void copyCode(m.text)}
+                            className="mb-1 flex items-center gap-1 font-mono text-[10px] font-bold
+                              uppercase tracking-[0.12em] text-chalk-4 transition-colors
+                              hover:text-signal"
+                          >
+                            <Icon name="copy" size={11} />
+                            copier
+                          </button>
+                        )}
+                        {m.is_code ? (
+                          <span>{m.text}</span>
+                        ) : splitContent(m.text).map((segment, j) =>
                           segment.tag ? (
                             <button
                               key={j}
@@ -793,7 +1147,30 @@ export default function MessagesPage() {
                         )}
                         <div className={`mt-1 text-[10px] ${mine ? "text-chalk/60" : "text-chalk-4"}`}>
                           {clockTime(m.created_at)}
-                          {receipt && <Receipt state={receipt.state} isLatest={isLatest} />}
+                          {m.edited_at && (
+                            <span
+                              className="ml-1.5"
+                              title={`Corrigé le ${new Date(m.edited_at).toLocaleString("fr-FR")}`}
+                            >
+                              · modifié
+                            </span>
+                          )}
+                          {m.deliveryStatus === "sending" && (
+                            <span className="ml-1.5" role="status">Envoi…</span>
+                          )}
+                          {m.deliveryStatus === "failed" && (
+                            <button
+                              type="button"
+                              onClick={() => void retryMessage(m.id)}
+                              aria-label="Réessayer l’envoi du message"
+                              className="ml-1.5 font-semibold text-danger underline underline-offset-2"
+                            >
+                              Échec · Réessayer
+                            </button>
+                          )}
+                          {!m.deliveryStatus && receipt && (
+                            <Receipt state={receipt.state} isLatest={isLatest} />
+                          )}
                         </div>
                       </div>
                       <MessageExtras
@@ -801,8 +1178,15 @@ export default function MessagesPage() {
                         pinned={pins.has(m.id)}
                         align={mine ? "right" : "left"}
                         onToggleReaction={(emoji) => void toggleReaction(m.id, emoji)}
-                        onReply={() => setReplyTo(m)}
+                        onReply={() => {
+                          // Répondre pendant une correction abandonne le
+                          // brouillon : sans cela, le texte corrigé partirait
+                          // comme réponse à un autre message.
+                          if (editing) cancelEdit();
+                          setReplyTo(m);
+                        }}
                         onTogglePin={() => void togglePin(m.id)}
+                        onEdit={mine && !m.deliveryStatus ? () => startEdit(m) : undefined}
                         onDelete={mine ? () => setPendingDelete(m.id) : undefined}
                       />
                       {pendingDelete === m.id && (
@@ -855,6 +1239,23 @@ export default function MessagesPage() {
 
               </div>
               <ComposerBar>
+                {editing && (
+                  <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
+                    border border-signal/50 bg-signal/10 px-2.5 py-1.5 text-[11.5px] text-chalk-3">
+                    <Icon name="edit" size={12} className="shrink-0 text-signal" />
+                    <span className="min-w-0 flex-1 truncate">
+                      Correction du message…
+                    </span>
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      aria-label="Annuler la correction"
+                      className="shrink-0 text-chalk-4 transition-colors hover:text-danger"
+                    >
+                      <Icon name="close" size={12} />
+                    </button>
+                  </div>
+                )}
                 {replyTo && (
                   <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
                     border border-line-2 bg-surface px-2.5 py-1.5 text-[11.5px] text-chalk-3">
@@ -877,10 +1278,25 @@ export default function MessagesPage() {
                   id="dm-composer"
                   value={text}
                   onValueChange={setText}
-                  onSend={send}
+                  onSend={() => void send()}
+                  attachments={
+                    <MessageAttachmentButtons
+                      disabled={!active || sending || uploadingMedia}
+                      onGif={(gif) => void send({ kind: "gif", gif })}
+                      onMedia={(file) => void sendMedia(file)}
+                    />
+                  }
                   onTyping={notifyTyping}
                   sending={sending}
-                  placeholder="Écris un message…"
+                  code={asCode}
+                  onToggleCode={() => setAsCode((v) => !v)}
+                  placeholder={
+                    editing
+                      ? "Corrige ton message…"
+                      : asCode
+                        ? "Colle le code à envoyer…"
+                        : "Écris un message…"
+                  }
                 />
               </ComposerBar>
             </div>
@@ -888,7 +1304,7 @@ export default function MessagesPage() {
             <div className="hidden h-full flex-col items-center justify-center gap-3
               border-l border-line-2 text-chalk-4 shell:flex">
               <Icon name="messages" size={24} strokeWidth={1.3} />
-              <p className="text-[12.5px]">Choisis une conversation</p>
+              <p className="text-sm">Choisis une conversation</p>
             </div>
           )}
         </section>
@@ -900,10 +1316,11 @@ export default function MessagesPage() {
           shell:overflow-y-auto`}>
           <div className="px-(--gutter) pt-3 shell:px-3 shell:pt-2">
         <input value={search} onChange={(e) => setSearch(e.target.value)}
+          aria-label="Rechercher une conversation"
           placeholder="Rechercher…"
             className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-              px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
-              focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]" />
+              px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
+              focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]" />
 
           {visibleConvs === null && <Loading />}
 
@@ -914,15 +1331,16 @@ export default function MessagesPage() {
             />
           )}
 
-{visibleConvs?.map((peer) => {
+{visibleConvs?.map((peer, i) => {
             const { conv, other } = peer;
             const unread = unreadConvs[conv.id] ?? 0;
 
             return (
             <button key={conv.id} type="button" onClick={() => void openConversation(peer)}
-              className={`depth-card mb-[9px] flex w-full items-center gap-3.5
+              className={`depth-card mo-rise mb-[9px] flex w-full items-center gap-3.5
                 rounded-[var(--radius-card)] border glass-flat p-3.5 text-left
-                ${unread > 0 ? "border-signal/60" : "border-line-2/60"}`}>
+                ${unread > 0 ? "border-signal" : "border-line-2/60"}`}
+              style={{ animationDelay: `${cascade(i)}ms` }}>
               <Avatar name={other?.prenom} color={other?.avatar_color} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
@@ -957,13 +1375,13 @@ export default function MessagesPage() {
       </div>
 
       <Sheet open={openNew} onClose={() => setOpenNew(false)} title="Nouvelle conversation">
-        <input value={userSearch} onChange={(e) => setUserSearch(e.target.value)}
+        <input value={userSearch} aria-label="Rechercher un pseudo" onChange={(e) => setUserSearch(e.target.value)}
           placeholder="Rechercher un pseudo…"
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
 
         {users.length === 0 && (
-          <p className="py-6 text-center text-[12.5px] text-chalk-3">Aucun membre trouvé</p>
+          <p className="py-6 text-center text-sm text-chalk-3">Aucun membre trouvé</p>
         )}
 
         {users.map((u) => (

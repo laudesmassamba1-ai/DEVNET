@@ -1,0 +1,57 @@
+# Environnement local reproductible (Phase 2).
+#
+#   docker compose up -d db                       base seule (5 min chrono avec npm ci)
+#   npm run db:migrate -- --apply                 compatibilité + 44 migrations
+#   npm run db:migrate                            simulation, sans écriture
+#   docker compose --profile full up app          application + base
+#
+# `docker-compose` v1 lit le même fichier : le champ `version` est là
+# pour lui, Compose v2 l'ignore en affichant un avertissement bénin.
+version: "3.9"
+
+services:
+  db:
+    # Même version majeure que la cible distante mesurée (Systalink, 2026-11-08).
+    image: postgres:18.3-alpine
+    container_name: devnet-db
+    environment:
+      POSTGRES_USER: devnet
+      POSTGRES_PASSWORD: devnet
+      POSTGRES_DB: devnet
+      # Collation C : tris déterministes, identiques en local et ailleurs.
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    ports:
+      # 5433 en façade : le Supabase local occupe déjà 5432 sur cette machine.
+      - "5433:5432"
+    volumes:
+      # Volume neuf : PG18 range ses données dans un sous-dossier de version.
+      - devnet-db-data-v18:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U devnet -d devnet"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Application conteneurisée : pratique pour vérifier une install neuve,
+  # inutile au quotidien (npm run dev sur l'hôte est plus rapide).
+  app:
+    profiles: ["full"]
+    image: node:22-alpine
+    working_dir: /app
+    volumes:
+      - .:/app
+      - devnet-node-modules:/app/node_modules
+    command: sh -c "npm ci && npm run dev -- -H 0.0.0.0"
+    environment:
+      DATABASE_URL: postgres://devnet:devnet@db:5432/devnet
+      NEXT_TELEMETRY_DISABLED: "1"
+      NEXT_PUBLIC_FORCE_DEMO: "false"
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  devnet-db-data-v18:
+  devnet-node-modules:

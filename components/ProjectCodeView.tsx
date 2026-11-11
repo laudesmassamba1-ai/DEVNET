@@ -585,10 +585,10 @@ afficherait une promesse permanente pour une action momentanée. */}
                 placeholder="Ce que ce changement fait, en une ligne."
                 className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                   border border-line-3 bg-surface-2 px-3.5 font-mono text-[13px]
-                  outline-none transition-[transform,box-shadow]
+                  outline transition-[transform,box-shadow]
                   duration-[var(--d-base)] ease-[var(--ease-spring)]
                   placeholder:text-chalk-4 focus:-translate-x-px
-                  focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                  focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
               />
 
               <button
@@ -646,7 +646,7 @@ afficherait une promesse permanente pour une action momentanée. */}
                     <span className="tnum shrink-0 font-mono text-[11.5px] text-signal">
                       {c.sha.slice(0, 7)}
                     </span>
-                    <span className="min-w-0 flex-1 truncate font-mono text-[12.5px] text-chalk">
+                    <span className="min-w-0 flex-1 truncate font-mono text-sm text-chalk">
                       {c.message}
                     </span>
                   </span>

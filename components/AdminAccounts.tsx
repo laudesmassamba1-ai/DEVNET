@@ -41,6 +41,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
   const toast = useToast();
 
   const [page, setPage] = useState<AccountPage | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [busyId, setBusyId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
@@ -51,13 +52,15 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
   const [pseudo, setPseudo] = useState("");
   const [password, setPassword] = useState("");
   const [accountType, setAccountType] = useState<AccountType>("student");
-  const [giveRole, setGiveRole] = useState(true);
+  const [giveRole, setGiveRole] = useState(false);
 
   const load = useCallback(async () => {
     try {
       setPage(await fetchAccounts(search));
-    } catch {
-      setPage({ accounts: [], capped: false });
+      setLoadError(null);
+    } catch (error) {
+      setPage(null);
+      setLoadError(error instanceof Error ? error.message : "Lecture de l'annuaire impossible.");
     }
   }, [search]);
 
@@ -134,9 +137,9 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
 
   const inputCls =
     "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 " +
-    "bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none transition-[transform,box-shadow] " +
+    "bg-surface px-3.5 text-[14px] shadow-sh-1 transition-[transform,box-shadow] " +
     "placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px " +
-    "focus:shadow-[3px_3px_0_#FF8A3D]";
+    "focus:shadow-[3px_3px_0_var(--color-signal)]";
 
   return (
     <div>
@@ -200,8 +203,8 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
             <div className="flex gap-2">
               <input
                 id="new-password"
-                type="text"
-                autoComplete="off"
+                type="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="six caractères au moins"
@@ -234,7 +237,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                   aria-pressed={accountType === value}
                   onClick={() => setAccountType(value)}
                   className={`h-[var(--h-input)] rounded-[var(--radius-input)] border
-                    text-[12.5px] font-bold transition-[background-color,border-color]
+                    text-sm font-bold transition-[background-color,border-color]
                     duration-[var(--d-fast)] ${accountType === value
                       ? "border-signal bg-signal/10 text-chalk"
                       : "border-line-2 bg-surface hover:border-line-3 hover:bg-surface-2"}`}
@@ -252,7 +255,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
               aria-pressed={giveRole}
               onClick={() => setGiveRole((v) => !v)}
               className={`flex h-[var(--h-input)] w-full items-center justify-center gap-2
-                rounded-[var(--radius-input)] border text-[12.5px] font-bold
+                rounded-[var(--radius-input)] border text-sm font-bold
                 transition-[background-color,border-color] duration-[var(--d-fast)] ${giveRole
                   ? "border-signal bg-signal/10 text-chalk"
                   : "border-line-2 bg-surface text-chalk-3 hover:border-line-3"}`}
@@ -268,8 +271,9 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
             type="button"
             disabled={creating}
             onClick={() => void submitNew()}
-            className="mo-press inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-              border border-signal bg-signal/10 px-3.5 py-2 font-mono text-[11px]
+            className="mo-press inline-flex min-h-[var(--h-tap)] items-center gap-1.5
+              rounded-[var(--radius-chip)] border border-signal bg-signal/10 px-3.5
+              font-mono text-[11px]
               font-bold uppercase tracking-[0.1em] text-signal disabled:opacity-40"
           >
             <Icon name="plus" size={12} strokeWidth={2.4} />
@@ -278,8 +282,8 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
 
           <p className="font-mono text-[11px] text-chalk-4">
             {giveRole
-              ? "le compte portera le cachet de base et la file des demandes lui sera ouverte"
-              : "le compte s'ouvrira comme un membre ordinaire"}
+              ? "Rôle administrateur : accès complet à la console."
+              : "Par défaut, le compte s'ouvrira comme membre ordinaire."}
           </p>
         </div>
 
@@ -309,6 +313,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
               <Icon name="search" size={14} />
             </span>
             <input
+              aria-label="Rechercher un compte"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="pseudo, prénom ou email"
@@ -329,7 +334,21 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
           )}
         </div>
 
-        {page === null && <Loading label="Lecture de l'annuaire" />}
+        {page === null && !loadError && <Loading label="Lecture de l'annuaire" />}
+
+        {page === null && loadError && (
+          <div role="alert" className="my-4 border-l-2 border-danger bg-danger/8 p-4">
+            <p className="text-[13px] text-danger">{loadError}</p>
+            <button
+              type="button"
+              onClick={() => void load()}
+              className="mt-3 min-h-[var(--h-tap)] rounded-[var(--radius-input)]
+                border border-danger px-3 text-[13px] text-danger"
+            >
+              Réessayer
+            </button>
+          </div>
+        )}
 
         {page !== null && page.accounts.length === 0 && (
           <div className="py-6">
@@ -359,7 +378,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                     )}
                   </p>
                   <p className="truncate font-mono text-[11px] text-chalk-4">
-                    @{a.pseudo} · {a.email}
+                    @{a.pseudo} · {maskEmail(a.email)}
                   </p>
                   <p className="mt-1 flex flex-wrap items-center gap-2">
                     <span className="label-micro text-chalk-4">
@@ -382,8 +401,9 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                       type="button"
                       disabled={busyId === a.id}
                       onClick={() => void toggleRole(a)}
-                      className={`mo-press inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-                        border px-3 py-1.5 font-mono text-[10.5px] font-bold uppercase
+                      className={`mo-press inline-flex min-h-[var(--h-tap)] items-center
+                        gap-1.5 rounded-[var(--radius-chip)] border px-3 font-mono
+                        text-[10.5px] font-bold uppercase
                         tracking-[0.1em] disabled:opacity-40 ${a.is_admin
                           ? "border-danger bg-danger/8 text-danger"
                           : "border-line-3 text-chalk-3 hover:border-signal hover:text-signal"}`}
@@ -406,6 +426,12 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
       </section>
     </div>
   );
+}
+
+function maskEmail(email: string): string {
+  const [local = "", domain = ""] = email.split("@");
+  if (!local || !domain) return "adresse masquée";
+  return `${local[0]}•••@${domain}`;
 }
 
 /**

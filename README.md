@@ -9,7 +9,8 @@
 | Framework | **Next.js 16** (App Router, Turbopack) |
 | Langage | **TypeScript** strict |
 | Styles | **Tailwind CSS v4** (tokens CSS-first via `@theme`) |
-| Base de données | **Supabase** (PostgreSQL) |
+| Base actuelle | **Supabase** (compatibilité en transition) |
+| Cible | PostgreSQL **18.3** chez Systalink (mesuré le 2026-11-08) ; miroir local PostgreSQL 18.3 |
 | Auth | Supabase Auth (email + mot de passe) |
 | Temps réel | Supabase Realtime (`postgres_changes`) |
 | Polices | `next/font` — Fraunces, Space Grotesk, JetBrains Mono |
@@ -43,6 +44,36 @@ Limite assumée : le temps réel local est un bus en mémoire, donc **un seul on
 
 ## Base de données
 
+La connexion applicative actuelle utilise encore la compatibilité Supabase.
+La cible PostgreSQL directe chez Systalink est mesurée et **migrée** :
+PostgreSQL 18.3, TLS 1.3, 52 migrations appliquées le 2026-11-09, rôles RLS
+créés, `search_path` effectif. Le mot de passe exposé a été renouvelé. La base
+distante contient le schéma, pas encore les données applicatives ; la bascule
+de l'application reste à faire. Ne lancez aucune migration distante sans le
+runbook et sans confirmation.
+
+- [`docs/ops/db-capabilities.md`](docs/ops/db-capabilities.md) — mesures locales et distantes
+- [`docs/ops/runbook.md`](docs/ops/runbook.md) — reconstruction locale, migrations, exploitation distante
+- [`docs/ops/incidents.md`](docs/ops/incidents.md) — diagnostic, rotation et ticket Systalink
+- [`docs/ops/backups.md`](docs/ops/backups.md) — sauvegarde, restauration, dérive
+- [`docs/ops/exit-plan.md`](docs/ops/exit-plan.md) — changer de PostgreSQL en moins d'un jour
+
+Commandes locales :
+
+```bash
+npm run db:guard                 # cible masquée + garde-fous
+npm run db:migrate               # simulation par défaut
+npm run db:migrate -- --apply    # écrit réellement
+npm run db:probe:remote          # sonde distante, lecture seule
+npm run db:migrate:remote        # simulation distante
+npm run db:backup:remote         # dump chiffré GPG, lecture seule
+npm run test:db-rls              # RLS et identité, base locale requise
+```
+
+> Les migrations ne s'exécutent pas à la main dans l'éditeur Supabase : pour
+> PostgreSQL direct, `scripts/db/migrate.ts` lit `supabase/001…051` et applique
+> les fichiers dans l'ordre, avec sommes de contrôle.
+
 Dans Supabase → SQL Editor, exécuter dans l'ordre :
 
 1. `supabase/001_schema.sql` — tables, RLS, realtime, trigger de création de profil
@@ -59,6 +90,10 @@ reposts), `017_read_receipts` (accusés de lecture), `018_social_depth`
 `019_presence` (présence et divergence du dépôt), puis `020` à `029`
 (`025` forks et notation, `026` liens de profil, `027` réglages de projet,
 `028` communautés, `029` la table des notes).
+
+> Cette énumération manuelle s'arrête à `029` et ne remplace pas l'exécuteur.
+> La source à jour est `supabase/001…051` ; `npm run db:migrate` en simulation
+> liste l'ordre exact sans rien écrire.
 
 ### Migration 025 — forks et notation par les pairs
 
@@ -143,7 +178,7 @@ prolonge sans les renier.
 Aucun angle droit — contrôles, glyphes et images arrondis par la couche de base.
 - **Symboles Adinkra** conservés en filigrane à 10 % d'opacité — jamais sur du texte.
 
-Voir `DESIGN.md` pour le système complet (tokens, typo, mise en page, icônes).
+Voir `docs/design-log.md` pour les décisions de design et les captures.
 
 ## Structure
 
@@ -186,8 +221,8 @@ supabase/             migrations SQL
 scripts/              suites de tests
 ```
 
-Deux documents de référence : `DESIGN.md` (système de design) et `ROADMAP.md`
-(diagnostic produit + plan de fonctionnalités).
+Un document de référence : `ROADMAP.md` (état du produit et plan de
+fonctionnalités).
 
 ## Scripts
 
@@ -228,7 +263,7 @@ code. Jamais un bouton.
 
 - `/preview-code` — banc d'essai, montre les deux variantes et le jeu d'icônes
 
-Voir `DESIGN.md` pour le système complet (tokens, typo, mise en page, icônes).
+Voir `docs/design-log.md` pour les décisions de design et les captures.
 
 ## Progression : score, séries, paliers
 

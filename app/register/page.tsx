@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Logo } from "@/components/Logo";
 import { Icon } from "@/components/Icon";
 import { Spinner } from "@/components/Avatar";
-import { Motion, Tilt } from "@/components/Motion";
+import { Motion } from "@/components/Motion";
 import { rearmSplash } from "@/components/SplashScreen";
 import { supabase } from "@/lib/supabase/client";
 import { useSession } from "@/hooks/useSession";
@@ -124,63 +124,40 @@ export default function Register() {
 
   const inputCls =
     "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
-    "shadow-sh-1 outline-none transition-[transform,box-shadow] placeholder:text-chalk-4 " +
-    "focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]";
+    "outline transition-[transform,box-shadow] placeholder:text-chalk-4 " +
+    "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
   return (
-    <div className="relative flex min-h-dvh flex-col items-center justify-start
-      overflow-hidden px-6 pt-10 pb-10">
-      {/* ── Bulle décorative animée : respiration d'une pastille ok. ── */}
-      {/* La pastille décorative ne pulse pas : elle respire. Une pulsation
-          d'opacité irait vers l'alerte ; une respiration dit « en
-          cours », et l'inscription est bien en cours. */}
-      <span className="mo-breathe absolute -top-[70px] -right-[70px] size-[200px]
-        rounded-full bg-ok opacity-12" />
+    <main className="relative flex min-h-dvh flex-col items-center overflow-hidden
+      px-4 py-8 sm:px-6 sm:py-12">
+      <div className="relative z-1 w-full max-w-[520px]">
+        <Motion role="fade" className="mb-6 flex items-center justify-center gap-3">
+          <Logo size={46} className="shrink-0" />
+          <div>
+            <h1 className="font-display text-[1.65rem] font-bold leading-none
+              tracking-[-0.05em] text-chalk">
+              DevNet<span className="text-signal">.</span>
+            </h1>
+            <p className="mt-1.5 text-[13px] text-chalk-3">
+              Deux étapes pour créer ton compte DevNet.
+            </p>
+          </div>
+        </Motion>
 
-      <div className="relative z-1 w-full max-w-[400px]">
-        {/* ── Header : marque + titre, entrée coordonnée. ── */}
-        <div className="mb-4 text-center">
-          <Motion role="rotate" className="mx-auto block w-fit">
-            <Logo size={58} className="rounded-[var(--radius-card)] border border-line-3" />
-          </Motion>
+        <div className="mb-5 flex items-center justify-between text-[12px] text-chalk-3">
+          <span>Création du compte</span>
+          <span className="font-mono tabular-nums">Étape {step} sur 2</span>
         </div>
-
-        <h1 className="mb-4 text-center font-mono text-[2.2rem] font-bold
-          uppercase tracking-[0.2em] leading-none">
-          {"DevNet".split("").map((letter, i) => (
-            <Motion key={`${letter}-${i}`} role="rise" delay={160 + i * 45}
-              as="span" className="inline-block">
-              {letter}
-            </Motion>
-          ))}
-          <Motion role="pop" delay={160 + 6 * 45} as="span"
-            className="inline-block text-signal">
-            .
-          </Motion>
-          <Motion role="fade" delay={160 + 6 * 45 + 140} as="span"
-            className="caret !ml-1 !h-[0.58em] !w-[0.34em]"
-            style={{ verticalAlign: "0.02em" }} />
-        </h1>
-
-        {/* ── Barre de progression ──
-            Un « buffer » de chargement, mais honnête : il indique un cran
-            réel de l'inscription, pas une fausse progression. Le motif
-            hachuré rappelle la trame d'un terminal qui attend. */}
         <div className="mb-5 flex h-2 gap-1" role="progressbar"
           aria-valuemin={1} aria-valuemax={2} aria-valuenow={step}
           aria-label="Progression de l'inscription">
           {[0, 1].map((i) => (
             <span key={i} className="h-full flex-1 overflow-hidden rounded-full border
               border-line-3 bg-surface-3">
-              <Motion
-                role="slide"
-                delay={i === step - 1 ? 420 : 0}
-                className="block h-full origin-left bg-signal"
-                style={{
-                  transform: i === step - 1 ? "scaleX(1)" : "scaleX(0)",
-                  backgroundImage:
-                    "repeating-linear-gradient(90deg, transparent 0 5px, rgba(7,10,15,.45) 5px 7px)",
-                }}
+              <span
+                className="block h-full origin-left bg-signal transition-transform
+                  duration-[var(--d-base)] ease-[var(--ease-spring)]"
+                style={{ transform: i < step ? "scaleX(1)" : "scaleX(0)" }}
               />
             </span>
           ))}
@@ -191,7 +168,7 @@ export default function Register() {
             <div
               role="alert"
               className="rounded-[var(--radius-input)] border
-                border-danger bg-danger/12 px-3.5 py-2.5 text-[12.5px] font-medium text-danger"
+                border-danger bg-danger/12 px-3.5 py-2.5 text-sm font-medium text-danger"
             >
               {error}
             </div>
@@ -202,13 +179,12 @@ export default function Register() {
             entre par son propre bord, comme deux volets d'un même tiroir.
             Le sens du geste se lit donc avant même le contenu. ── */}
         {step === 1 && (
-          <Tilt max={4}>
           <Motion
             key="etape-1"
             role="slide"
             delay={460}
-            className="rounded-[var(--radius-card)] border border-line-3
-              bg-surface p-[1.6rem] shadow-sh-3"
+            className="rounded-[var(--radius-card)] border border-edge bg-surface
+              p-5 sm:p-7"
           >
             <h2 className="mb-1 font-display text-[1.5rem] font-bold tracking-[-0.03em]">
               Informations
@@ -234,7 +210,7 @@ export default function Register() {
                           ? "border-signal bg-signal/10"
                           : "border-line-2 bg-surface hover:border-line-3 hover:bg-surface-2"}`}
                     >
-                      <span className="block text-[12.5px] font-bold">{label}</span>
+                      <span className="block text-sm font-bold">{label}</span>
                     </button>
                   </Motion>
                 ))}
@@ -300,17 +276,15 @@ export default function Register() {
               </button>
             </Motion>
           </Motion>
-          </Tilt>
         )}
 
         {/* ── Étape 2 : le profil technique — la carte s'incline aussi :
             mêmes gestes qu'à la connexion, même surface unique. ── */}
         {step === 2 && (
-          <Tilt max={4}>
           <Motion key="etape-2" role="rise" delay={120} as="form"
             onSubmit={submit}
-            className="rounded-[var(--radius-card)] border border-line-3
-              bg-surface p-[1.6rem] shadow-sh-3"
+            className="rounded-[var(--radius-card)] border border-edge glass-strong
+              p-5 shadow-sh-3 sm:p-7"
           >
             <h2 className="mb-1 font-display text-[1.5rem] font-bold tracking-[-0.03em]">
               Profil technique
@@ -400,11 +374,10 @@ export default function Register() {
               </Motion>
             </div>
           </Motion>
-          </Tilt>
         )}
 
         <Motion role="fade" delay={760}>
-          <p className="mt-5 text-center text-[12.5px] text-chalk-3">
+          <p className="mt-5 text-center text-sm text-chalk-3">
             Déjà inscrit ?{" "}
             <Link href="/login" className="font-bold text-signal underline-sweep">
               Se connecter
@@ -420,7 +393,7 @@ export default function Register() {
             <Link href="/cgu" className="hover:text-chalk-2">CGU</Link>
           </p>
         </Motion>
-      </div>
     </div>
+    </main>
   );
 }

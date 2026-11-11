@@ -12,18 +12,19 @@
  * dans le navigateur. La borne est explicite :
  *
  *   · ce route ne lit **aucune** donnée applicative ;
- *   · il ne connaît l'utilisateur que par `?u=`, que le
- *     callback recoupe avec l'identité GitHub réelle ;
+ *   · l'utilisateur de `?u=` doit correspondre à la session
+ *     Supabase vérifiée côté serveur ;
  *   · il n'écrit qu'un cookie.
  *
- * Il n'y a donc rien à autoriser ici. La seule décision
- * qu'il prend est de refuser une configuration absente
- * plutôt que de rediriger vers une impasse.
+ * Une configuration absente ne doit jamais provoquer une
+ * redirection de succès.
  */
 
 import { NextResponse } from "next/server";
 import { hasVaultKey } from "@/lib/github/crypto";
+import { getOrCreateServerClient } from "@/lib/supabase/server";
 import {
+  authenticatedUserMatchesRequest,
   authorizeUrl,
   isRelativePath,
   publicOrigin,
@@ -55,7 +56,35 @@ export async function GET(request: Request) {
   if (!clientId || !hasVaultKey()) {
     const destination = new URL(next, publicOrigin(request));
     destination.searchParams.set("gh", "unconfigured");
-    return NextResponse.redirect(destination);
+    const response = NextResponse.redirect(destination);
+    response.headers.set("cache-control", "no-store");
+    return response;
+  }
+
+  const sessionClient = await getOrCreateServerClient();
+  if (!sessionClient) {
+    return NextResponse.json(
+      { error: "Authentification indisponible." },
+      { status: 503, headers: { "cache-control": "no-store" } },
+    );
+  }
+
+  const { data: auth, error: authError } = await sessionClient.auth.getUser();
+  if (authError) {
+    const status = authError.status === 401 ? 401 : 503;
+    return NextResponse.json(
+      { error: status === 401 ? "Session invalide." : "Authentification indisponible." },
+      { status, headers: { "cache-control": "no-store" } },
+    );
+  }
+  if (!authenticatedUserMatchesRequest(user, auth.user?.id ?? null)) {
+    return NextResponse.json(
+      { error: "Session invalide." },
+      {
+        status: auth.user ? 403 : 401,
+        headers: { "cache-control": "no-store" },
+      },
+    );
   }
 
   const origin = publicOrigin(request);
@@ -69,6 +98,7 @@ export async function GET(request: Request) {
       state,
     }),
   );
+  response.headers.set("cache-control", "no-store");
 
   response.cookies.set(STATE_COOKIE, state, {
     httpOnly: true,

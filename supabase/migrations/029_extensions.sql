@@ -2,7 +2,7 @@
 --
 -- Une extension est un **paquet** qu'on publie et que d'autres installent :
 -- un thème, un jeu de snippets, un support de langage, un outil, ou un
--- assistant IA. On ne livre pas du code exécutable — c'est un **manifeste**
+-- c'est un **manifeste**
 -- (JSON) que l'IDE d'ici interprète : des snippets à compléter, des
 -- commandes à exposer, des réglages à présenter. C'est la différence entre
 -- étendre DevNet et exécuter n'importe quoi chez l'utilisateur.
@@ -29,7 +29,7 @@ create table if not exists public.extensions (
   version      text not null default '0.0.1',
   icon         text default 'package',
   category     text not null default 'other'
-                 check (category in ('theme', 'snippets', 'language', 'tool', 'ai', 'other')),
+                 check (category in ('theme', 'snippets', 'language', 'tool', 'other')),
   -- Le manifeste : snippets, commandes, réglages, thème. En `jsonb` et non
   -- en tables dédiées — un manifeste se lit toujours d'un bloc, on ne
   -- requête jamais « tous les snippets dont le préfixe… » à travers la place

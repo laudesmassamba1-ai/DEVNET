@@ -7,8 +7,8 @@ import { Logo } from "@/components/Logo";
 
 const inputCls =
   "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
-  "shadow-sh-1 outline-none transition-[transform,box-shadow] placeholder:text-chalk-4 " +
-  "focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]";
+  "shadow-sh-1 transition-[transform,box-shadow] placeholder:text-chalk-4 " +
+  "focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");

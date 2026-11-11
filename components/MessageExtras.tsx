@@ -70,6 +70,7 @@ export function MessageExtras({
   onToggleReaction,
   onReply,
   onTogglePin,
+  onEdit,
   onDelete,
 }: {
   summary: ReactionSummary[];
@@ -78,6 +79,12 @@ export function MessageExtras({
   onToggleReaction: (emoji: string) => void;
   onReply: () => void;
   onTogglePin: () => void;
+  /**
+   * Corriger son propre message (migration 041). Absent là où la
+   * correction n'a pas de sens : message en cours d'envoi, ou d'un autre
+   * auteur. Le bouton suit la même règle que la RLS, sans la doubler.
+   */
+  onEdit?: () => void;
   /**
    * Supprimer le message. **Absent** quand l'écran sait que l'action
    * échouerait : l'auteur supprime le sien, l'équipe du groupe
@@ -169,6 +176,17 @@ export function MessageExtras({
         >
           <Icon name="pin" size={12} fill={pinned ? "currentColor" : "none"} />
         </button>
+        {onEdit && (
+          <button
+            type="button"
+            onClick={onEdit}
+            aria-label="Corriger ce message"
+            className="mo-press flex size-[32px] items-center justify-center rounded-[var(--radius-chip)]
+              text-chalk-4 transition-colors hover:text-signal"
+          >
+            <Icon name="edit" size={12} />
+          </button>
+        )}
         {onDelete && (
           <button
             type="button"

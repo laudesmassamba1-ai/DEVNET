@@ -73,8 +73,9 @@ export function ReactionPicker({
           if (!wrap.current?.contains(e.relatedTarget as Node)) hideSoon();
         }}
         onClick={() => (disabled ? undefined : setOpen((v) => !v))}
-        className={`inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-          border-[var(--bw-thin)] px-2.5 py-2 min-h-[var(--h-action)] max-sm:min-h-[var(--h-tap)]
+        className={`inline-flex min-h-[var(--h-tap)] min-w-[var(--h-tap)] items-center
+          justify-center gap-1.5 rounded-[var(--radius-chip)]
+          border-[var(--bw-thin)] px-2.5 py-2
           font-mono text-[12px] font-medium
           transition-[color,border-color,background-color,transform]
           duration-[var(--d-fast)]

@@ -28,7 +28,7 @@ export function Avatar({
       aria-hidden="true"
       className={`flex shrink-0 items-center justify-center rounded-[var(--radius-input)] border font-display font-bold
         ${SIZE[size]} ${avatarClass(color as AvatarColor)} ${className}`}
-      style={size === "lg" ? { boxShadow: "0 0 0 2px var(--color-void), 0 0 0 4px var(--color-line-2), 0 0 14px 2px rgba(255,138,61,0.15)" } : {}}
+      style={size === "lg" ? { boxShadow: "var(--shadow-avatar-ring)" } : {}}
     >
       {initials(name)}
     </div>
@@ -139,7 +139,7 @@ export function PrimaryButton({
       onClick={onClick}
       className="mo-press inline-flex h-[var(--h-tap)] items-center justify-center gap-2
         rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
-        text-[12.5px] font-bold text-void shadow-sh-1
+        text-sm font-bold text-void shadow-sh-1
         hover:border-signal hover:shadow-sh-2"
     >
       {icon && <Icon name={icon} size={14} strokeWidth={2.2} />}

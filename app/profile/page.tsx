@@ -9,6 +9,7 @@ import { ProfileWorkPanel } from "@/components/ProfileWorkPanel";
 import { useToast } from "@/components/Toast";
 import { Icon } from "@/components/Icon";
 import { useTour } from "@/components/TourProvider";
+import { WovenBand } from "@/components/WovenBand";
 import { ProgressPanel } from "@/components/ProgressPanel";
 import { ChallengePanel } from "@/components/ChallengePanel";
 import { AchievementsPanel } from "@/components/AchievementsPanel";
@@ -28,7 +29,7 @@ import { fetchConnection } from "@/lib/github/connect";
 import { fetchProjectsByUser, summarizeRepoScores } from "@/lib/repo";
 import { supabase } from "@/lib/supabase/client";
 import { updateProfile } from "@/lib/supabase/profile";
-import { applyTheme, broadcastTheme } from "@/lib/theme";
+import { applyTheme, broadcastTheme, DEFAULT_THEME, LIGHT_THEME } from "@/lib/theme";
 import { useSession } from "@/hooks/useSession";
 import { useProgress } from "@/hooks/useProgress";
 import { loadLeaderboard, type LeaderEntry } from "@/lib/progress";
@@ -39,10 +40,10 @@ import {
   type AccountType, type AvatarColor, type Post, type ProfileLink, type User,
 } from "@/lib/types";
 
-/** Thèmes disponibles — pour l'instant un thème de base, extensible pour dark mode. */
+/** Thèmes disponibles : le sombre est le défaut, le clair le second. */
 const THEMES = [
-  { id: "liquid-bleu", label: "Bleu Liquid", icon: "droplet" },
-  { id: "light", label: "Claire", icon: "sun" },
+  { id: DEFAULT_THEME, label: "Sombre", icon: "moon" },
+  { id: LIGHT_THEME, label: "Clair", icon: "sun" },
 ] as const;
 
 type Tab = "posts" | "work" | "progress" | "infos" | "settings";
@@ -117,7 +118,7 @@ function WeeklyGoalCard({ profileId }: { profileId: string }) {
           ))}
         </select>
       </div>
-      <p className="mb-3 text-[12.5px] leading-[1.5] text-chalk-3">
+      <p className="mb-3 text-sm leading-[1.5] text-chalk-3">
         {reached
           ? "Objectif atteint. Le fil t&apos;attend pour la suite."
           : "Ajoutez encore un post pour tenir votre semaine."}
@@ -507,7 +508,7 @@ export default function ProfilePage() {
               </div>
               <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2/80 p-3">
                 <div className="label-micro text-chalk-4">Niveau</div>
-                <div className="mt-1 text-[12.5px] font-bold leading-tight text-signal">
+                <div className="mt-1 text-sm font-bold leading-tight text-signal">
                   {progress ? levelFor(progress.stats.xp).title : "Nouveau"}
                 </div>
               </div>
@@ -550,6 +551,8 @@ export default function ProfilePage() {
                 </div>
               </div>
             </div>
+
+            <WovenBand tone="phosphor" className="mt-4" />
 
             <div role="tablist" aria-label="Contenu du profil" data-tour="profile-tabs" className="flex border-b border-line-3">
               {TABS.map((t) => (
@@ -728,7 +731,7 @@ export default function ProfilePage() {
               <div className="mo-slide space-y-3 py-4">
                 <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="mb-1 text-[13.5px] font-bold">Compte</div>
-                  <div className="mb-4 text-[12.5px] text-chalk-3">{profile.email}</div>
+                  <div className="mb-4 text-sm text-chalk-3">{profile.email}</div>
                   <button type="button" onClick={logout}
                     className="flex h-[var(--h-tap)] w-full items-center justify-center gap-2
                       rounded-[var(--radius-input)] border border-danger bg-transparent
@@ -741,7 +744,7 @@ export default function ProfilePage() {
 
                 <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="mb-1 text-[13.5px] font-bold">Type de compte</div>
-                  <p className="mb-3 text-[12.5px] leading-[1.5] text-chalk-3">
+                  <p className="mb-3 text-sm leading-[1.5] text-chalk-3">
                     Le type de compte décrit qui vous êtes ; il ne vérifie rien. Le
                     cachet se demande plus bas, et il s&apos;obtient après examen.
                   </p>
@@ -785,7 +788,7 @@ export default function ProfilePage() {
                     </span>
                   </div>
 
-                  <p className="mb-3 text-[12.5px] leading-[1.5] text-chalk-3">
+                  <p className="mb-3 text-sm leading-[1.5] text-chalk-3">
                     {verifyStatus === "none" &&
                       "Le cachet atteste du nom affiché. Une demande, un examen : il ne s'obtient pas seul."}
                     {verifyStatus === "attente" &&
@@ -805,6 +808,7 @@ export default function ProfilePage() {
 
                   {verifyStatus !== "acceptee" && verifyStatus !== "attente" && (
                     <textarea
+                      aria-label="Note de vérification"
                       value={verifyNote}
                       onChange={(e) => setVerifyNote(e.target.value)}
                       rows={3}
@@ -812,7 +816,7 @@ export default function ProfilePage() {
                       placeholder="Nom réel, lien GitHub ou professionnel, pourquoi ce cachet…"
                       className="mb-2 w-full resize-none rounded-[var(--radius-input)]
                         border border-line-2 bg-base px-3 py-2 text-[13px] text-chalk
-                        placeholder:text-chalk-4 focus:border-signal focus:outline-none"
+                        placeholder:text-chalk-4 focus:border-signal"
                     />
                   )}
 
@@ -886,7 +890,7 @@ export default function ProfilePage() {
 
                 <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="mb-1 text-[13.5px] font-bold">Mes données</div>
-                  <p className="mb-3 text-[12.5px] leading-[1.5] text-chalk-3">
+                  <p className="mb-3 text-sm leading-[1.5] text-chalk-3">
                     Toutes vos données en un fichier JSON.
                   </p>
                   <button type="button" disabled={exporting} onClick={exportData}
@@ -928,7 +932,7 @@ function EditForm({
   const [pays, setPays] = useState(profile.pays ?? "");
   const [langages, setLangages] = useState<string[]>(profile.langages ?? []);
   const [color, setColor] = useState<AvatarColor>(profile.avatar_color);
-  const [theme, setTheme] = useState(profile.theme ?? "liquid-bleu");
+  const [theme, setTheme] = useState(profile.theme ?? DEFAULT_THEME);
   const [links, setLinks] = useState<ProfileLink[]>(profile.links ?? []);
   const [saving, setSaving] = useState(false);
 
@@ -982,7 +986,7 @@ function EditForm({
   // posés côte à côte (lignes de liens), et `inputCls` pleine largeur.
   const inputBox =
     "h-[var(--h-input)] rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
-    "shadow-sh-1 outline-none placeholder:text-chalk-4";
+    "shadow-sh-1 placeholder:text-chalk-4";
   const inputCls = `w-full ${inputBox}`;
   const label = "label mb-1.5 block text-chalk";
 
@@ -1002,7 +1006,7 @@ function EditForm({
           <p className="truncate font-display text-[15px] font-bold text-chalk">
             {prenom.trim() || "Sans prénom"}
           </p>
-          <p className="truncate text-[12.5px] text-chalk-3">
+          <p className="truncate text-sm text-chalk-3">
             @{profile.pseudo} · {accountLabel(profile.account_type)}
           </p>
         </div>
@@ -1056,6 +1060,7 @@ function EditForm({
       <div className="mb-4">
         <label className={label}>Prénom</label>
         <input
+          aria-label="Prénom"
           value={prenom}
           onChange={(e) => setPrenom(e.target.value)}
           placeholder="Ton prénom"
@@ -1065,7 +1070,7 @@ function EditForm({
 
       <div className="mb-4">
         <label className={label}>Pseudo</label>
-        <input value={profile.pseudo} disabled className={`${inputCls} cursor-not-allowed opacity-60`} />
+        <input value={profile.pseudo} aria-label="Pseudonyme" disabled className={`${inputCls} cursor-not-allowed opacity-60`} />
         <p className="mt-1.5 text-[11.5px] text-chalk-4">
           Identifiant public (URL, mentions) — non modifiable.
         </p>
@@ -1079,26 +1084,27 @@ function EditForm({
           </span>
         </div>
         <textarea
+          aria-label="Bio"
           value={bio}
           onChange={(e) => setBio(e.target.value)}
           rows={3}
           placeholder="Une ligne sur vous…"
           className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4"
+            text-[14px] shadow-sh-1 placeholder:text-chalk-4"
         />
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div>
           <label className={label}>Filière</label>
-          <select value={filiere} onChange={(e) => setFiliere(e.target.value)}
+          <select value={filiere} aria-label="Filière" onChange={(e) => setFiliere(e.target.value)}
             className={`${inputCls} cursor-pointer`}>
             {FILIERES.map((f) => <option key={f}>{f}</option>)}
           </select>
         </div>
         <div>
           <label className={label}>Niveau</label>
-          <select value={niveau} onChange={(e) => setNiveau(e.target.value)}
+          <select value={niveau} aria-label="Niveau" onChange={(e) => setNiveau(e.target.value)}
             className={`${inputCls} cursor-pointer`}>
             {NIVEAUX.map((n) => <option key={n}>{n}</option>)}
           </select>
@@ -1108,12 +1114,12 @@ function EditForm({
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div>
           <label className={label}>Ville</label>
-          <input value={ville} onChange={(e) => setVille(e.target.value)}
+          <input value={ville} aria-label="Ville" onChange={(e) => setVille(e.target.value)}
             placeholder="Abidjan" className={inputCls} />
         </div>
         <div>
           <label className={label}>Pays</label>
-          <input value={pays} onChange={(e) => setPays(e.target.value)}
+          <input value={pays} aria-label="Pays" onChange={(e) => setPays(e.target.value)}
             placeholder="Côte d'Ivoire" className={inputCls} />
         </div>
       </div>
@@ -1129,7 +1135,7 @@ function EditForm({
                 type="button"
                 onClick={() => toggleLang(l)}
                 aria-pressed={on}
-                className={`rounded-[var(--radius-chip)] border px-3 py-1.5 text-[12.5px] font-semibold
+                className={`rounded-[var(--radius-chip)] border px-3 py-1.5 text-sm font-semibold
                   transition-colors ${
                     on
                       ? "border-signal bg-signal/12 text-chalk"
@@ -1149,12 +1155,14 @@ function EditForm({
           {links.map((l, i) => (
             <div key={i} className="flex gap-2">
               <input
+                aria-label="Libellé du lien"
                 value={l.label}
                 onChange={(e) => setLink(i, { label: e.target.value })}
                 placeholder="GitHub"
                 className={`${inputBox} w-[38%]`}
               />
               <input
+                aria-label="URL du lien"
                 value={l.url}
                 onChange={(e) => setLink(i, { url: e.target.value })}
                 placeholder="github.com/vous"

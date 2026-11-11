@@ -5,6 +5,19 @@ on:
   pull_request:
     branches: [main]
 jobs:
+  secrets:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   build:
     runs-on: ubuntu-latest
     steps:
@@ -14,5 +27,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run verify:ui
+      - run: npx playwright install --with-deps chromium
+      - run: npm run verify:ui:browser
       - run: npm run lint
       - run: npm run build

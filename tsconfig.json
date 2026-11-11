@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@devnet/plugin-sdk": ["./shared/plugin-sdk/index.ts"]
     }
   },
   "include": [

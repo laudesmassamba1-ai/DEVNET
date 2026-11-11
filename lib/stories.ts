@@ -1,5 +1,19 @@
 import { supabase } from "@/lib/supabase/client";
 import type { StoryWithAuthor } from "@/lib/types";
+import { STORY_REPLY_MAX } from "@/modules/stories";
+import type {
+  PlacedSticker,
+  PlaceStickerInput,
+  StickerCatalogEntry,
+  StoryEntry,
+} from "@/modules/stories";
+
+export type {
+  PlacedSticker,
+  PlaceStickerInput,
+  StickerCatalogEntry,
+  StoryEntry,
+};
 
 /**
  * Les stories — « ce que le réseau a publié dans les dernières 24 h ».
@@ -93,8 +107,181 @@ export async function publishStory(
   return { error: error?.message ?? null };
 }
 
+/**
+ * Publie un statut média : image, GIF ou vidéo.
+ *
+ * Le fichier monte en data URL ; le serveur le re-encode (WebP borné,
+ * MP4 15 s) et rend l'identifiant de la story. Rien de ce qui part d'ici
+ * n'est publié tel quel.
+ */
+export function publishStoryMedia(
+  caption: string,
+  file: File,
+): Promise<{ id: string | null; error: string | null }> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onerror = () => resolve({ id: null, error: "Lecture du fichier impossible" });
+    reader.onload = async () => {
+      if (typeof reader.result !== "string") {
+        resolve({ id: null, error: "Fichier illisible" });
+        return;
+      }
+      try {
+        const response = await fetch("/api/stories/media", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ caption: caption.trim(), dataUrl: reader.result }),
+        });
+        const body = (await response.json().catch(() => null)) as
+          | { id?: string; error?: string }
+          | null;
+        if (!response.ok) {
+          resolve({ id: null, error: body?.error ?? `Erreur ${response.status}` });
+          return;
+        }
+        resolve({ id: body?.id ?? null, error: null });
+      } catch {
+        resolve({ id: null, error: "Réseau indisponible" });
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/** URL des octets du média d'un statut. */
+export function storyMediaUrl(storyId: string): string {
+  return `/api/stories/${encodeURIComponent(storyId)}/media`;
+}
+
 /** Retire une story — la sienne, la RLS n'autorisant rien d'autre. */
 export async function deleteStory(id: string): Promise<{ error: string | null }> {
   const { error } = await supabase.from("stories").delete().eq("id", id);
   return { error: error?.message ?? null };
+}
+
+/* ── Interactions : likes, vues, réponses, stickers ──────────────────
+
+   Tout passe par `/api/stories`. Le lecteur ne filtre plus sur
+   l'identifiant qu'il croit être le sien : la route lit la session, et la
+   RLS décide. Deux conséquences voulues : le compteur de likes n'arrive
+   que chez l'auteur, et une réponse est écrite au nom de la session, pas
+   au nom d'un identifiant envoyé par le client.                              */
+
+export interface StoryFeedResponse {
+  stories: StoryEntry[];
+  catalog: StickerCatalogEntry[];
+}
+
+const STORIES_API = "/api/stories";
+
+async function failure(response: Response): Promise<string> {
+  try {
+    const body = (await response.json()) as { error?: string };
+    return body.error ?? `Erreur ${response.status}`;
+  } catch {
+    return `Erreur ${response.status}`;
+  }
+}
+
+/**
+ * Le fil des stories vivantes, l'état du lecteur et le catalogue.
+ *
+ * `null` signifie « indisponible » — mode démonstration sans base, ou
+ * panne. Le lecteur garde alors ce qu'il affiche au lieu de croire que
+ * plus rien n'existe.
+ */
+export async function fetchStoryFeed(): Promise<StoryFeedResponse | null> {
+  try {
+    const response = await fetch(STORIES_API, {
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: { accept: "application/json" },
+    });
+    if (!response.ok) return null;
+    return (await response.json()) as StoryFeedResponse;
+  } catch {
+    return null;
+  }
+}
+
+export type StoryActionResult<T> = ({ ok: true } & T) | { ok: false; error: string };
+
+async function postStory<T>(payload: Record<string, unknown>): Promise<StoryActionResult<T>> {
+  try {
+    const response = await fetch(STORIES_API, {
+      method: "POST",
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) return { ok: false, error: await failure(response) };
+    return { ok: true, ...((await response.json()) as T) };
+  } catch {
+    return { ok: false, error: "Réseau indisponible" };
+  }
+}
+
+/** Aime ou retire le like. Le compteur n'est renseigné que pour l'auteur. */
+export function toggleStoryLike(
+  storyId: string,
+): Promise<StoryActionResult<{ liked: boolean; likes: number }>> {
+  return postStory<{ liked: boolean; likes: number }>({ action: "like", storyId });
+}
+
+/** Marque la story comme vue — silencieux : une vue n'est pas une action. */
+export async function markStorySeen(storyId: string): Promise<void> {
+  await postStory<Record<string, never>>({ action: "view", storyId }).catch(() => undefined);
+}
+
+/**
+ * Réponse privée à l'auteur de la story.
+ *
+ * Elle arrive dans la conversation privée : la route écrit le message et
+ * rend l'identifiant du fil, pour qu'un futur écran puisse l'ouvrir.
+ */
+export function replyToStory(
+  storyId: string,
+  body: string,
+): Promise<StoryActionResult<{ id: string; conversationId: string; messageId: string }>> {
+  const clean = body.trim();
+  if (!clean) return Promise.resolve({ ok: false, error: "réponse vide" });
+  if (clean.length > STORY_REPLY_MAX) {
+    return Promise.resolve({ ok: false, error: `${STORY_REPLY_MAX} caractères maximum` });
+  }
+  return postStory<{ id: string; conversationId: string; messageId: string }>({
+    action: "reply",
+    storyId,
+    body: clean,
+  });
+}
+
+/** Déplace, tourne et redimensionne un sticker posé — par son auteur seul. */
+export function moveStorySticker(
+  storyId: string,
+  placedId: string,
+  input: Omit<PlaceStickerInput, "stickerId">,
+): Promise<StoryActionResult<{ sticker: PlacedSticker }>> {
+  return postStory<{ sticker: PlacedSticker }>({
+    action: "move-sticker",
+    storyId,
+    placedId,
+    ...input,
+  });
+}
+
+/** Retire un sticker posé. La story reste. */
+export function removeStorySticker(
+  storyId: string,
+  placedId: string,
+): Promise<StoryActionResult<Record<string, never>>> {
+  return postStory<Record<string, never>>({ action: "remove-sticker", storyId, placedId });
+}
+
+/** Pose un sticker aux coordonnées normalisées (0–1). */
+export function placeStorySticker(
+  storyId: string,
+  input: PlaceStickerInput,
+): Promise<StoryActionResult<{ sticker: PlacedSticker }>> {
+  return postStory<{ sticker: PlacedSticker }>({ action: "sticker", storyId, ...input });
 }

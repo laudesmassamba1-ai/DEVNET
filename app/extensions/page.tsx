@@ -4,6 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AppShell, IconButton } from "@/components/AppShell";
 import { Icon, asIconName } from "@/components/Icon";
 import { EmptyState, Loading } from "@/components/Avatar";
+import { ExtensionSlot } from "@/components/ExtensionSlot";
+import { Field } from "@/components/Field";
+import { ExtensionStudio } from "@/components/ExtensionStudio";
 import { Sheet } from "@/components/Sheet";
 import { useToast } from "@/components/Toast";
 import { useSession } from "@/hooks/useSession";
@@ -12,12 +15,13 @@ import {
   fetchExtensions, fetchMyInstalls, installExtension, setExtensionEnabled,
   setExtensionSettings, uninstallExtension,
 } from "@/lib/extensions";
+import { EXAMPLE_EXTENSION, EXAMPLE_EXTENSION_SLUG } from "@/lib/example-extension";
 import type {
   ExtensionCategory, ExtensionInstall, ExtensionSetting, ExtensionSnippet,
   ExtensionWithAuthor,
 } from "@/lib/types";
 
-const ICONS = ["grid", "package", "star", "bolt", "terminal",
+const ICONS = ["grid", "package", "star", "bolt",  "terminal",
   "code", "layers", "server", "lock", "globe"] as const;
 
 const SNIPPET_LANGS = ["*", "javascript", "typescript", "python", "json", "html", "css"] as const;
@@ -45,6 +49,8 @@ export default function ExtensionsPage() {
   const [icon, setIcon] = useState<(typeof ICONS)[number]>(ICONS[0]);
   const [snippets, setSnippets] = useState<ExtensionSnippet[]>([{ ...BLANK_SNIPPET }]);
   const [settingRows, setSettingRows] = useState<ExtensionSetting[]>([]);
+  /** Les commandes : un titre lisible et le texte inséré dans l'éditeur. */
+  const [commandRows, setCommandRows] = useState<{ title: string; body: string }[]>([]);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -134,12 +140,22 @@ export default function ExtensionsPage() {
 
     const cleanSnippets = snippets.filter((s) => s.prefix.trim() && s.body.trim());
     const cleanSettings = settingRows.filter((s) => s.key.trim() && s.label.trim());
+    // Une commande sans titre ou sans corps ne fait rien : on ne la publie
+    // pas. L'`id` est stable dans le manifeste et n'est pas destiné à
+    // l'écran — le titre est ce que la palette affiche.
+    const cleanCommands = commandRows
+      .filter((c) => c.title.trim() && c.body.trim())
+      .map((c, i) => ({ id: `cmd-${i + 1}`, title: c.title.trim(), body: c.body }));
 
     setBusy(true);
     const { error } = await createExtension(
       {
         name, description: desc, version, icon, category,
-        manifest: { snippets: cleanSnippets, settings: cleanSettings },
+        manifest: {
+          snippets: cleanSnippets,
+          commands: cleanCommands,
+          settings: cleanSettings,
+        },
       },
       profile.id,
     );
@@ -155,6 +171,38 @@ export default function ExtensionsPage() {
   function resetDraft() {
     setName(""); setDesc(""); setVersion("0.1.0"); setCategory("snippets");
     setIcon(ICONS[0]); setSnippets([{ ...BLANK_SNIPPET }]); setSettingRows([]);
+    setCommandRows([]);
+  }
+
+  /**
+   * Publier l’exemple sur le backend courant, puis l’installer.
+   *
+   * Sur backend réel, aucune migration n’est nécessaire : c’est un insert
+   * ordinaire, soumis à la RLS de `029`, avec l’utilisateur comme auteur.
+   * En démonstration, l’exemple existe déjà (fixture `e-5`).
+   */
+  async function publishExample() {
+    if (!profile) return;
+    if (extensions?.some((e) => e.slug === EXAMPLE_EXTENSION_SLUG)) {
+      return toast("L’exemple est déjà publié", "err");
+    }
+
+    setBusy(true);
+    const { extension, error } = await createExtension(EXAMPLE_EXTENSION, profile.id);
+    if (error || !extension) {
+      setBusy(false);
+      return toast(`Erreur : ${error ?? "publication impossible"}`, "err");
+    }
+
+    const { error: installError } = await installExtension(extension.id, profile.id);
+    setBusy(false);
+    if (installError) {
+      return toast(`Publiée, mais installation impossible : ${installError}`, "err");
+    }
+
+    await load();
+    await loadMine();
+    toast("Exemple publié et installé");
   }
 
   async function remove(e: ExtensionWithAuthor) {
@@ -173,6 +221,8 @@ export default function ExtensionsPage() {
     () => [...installs.values()].filter((i) => i.enabled).length,
     [installs],
   );
+  const example = (extensions ?? []).find((e) => e.slug === EXAMPLE_EXTENSION_SLUG) ?? null;
+  const exampleInstall = example ? installs.get(example.id) : undefined;
 
   return (
     <AppShell
@@ -182,19 +232,34 @@ export default function ExtensionsPage() {
     >
       <div className="px-(--gutter) pt-3" data-tour="extensions-list">
         <div className="mb-4 rounded-[var(--radius-input)] border border-line-3 bg-surface-2 px-3.5 py-3
-          text-[12px] leading-relaxed text-chalk-2">
+          text-sm leading-relaxed text-chalk-2">
           Une extension DevNet est un <span className="font-bold text-chalk">manifeste</span>, pas
           du code exécuté : des <span className="font-bold text-chalk">extraits</span> de saisie,
           des <span className="font-bold text-chalk">commandes</span> et des réglages que l&apos;IDE
           interprète. {activeCount > 0 && <span>{activeCount} active{activeCount > 1 ? "s" : ""}.</span>}
         </div>
 
+        <ExtensionStudio
+          example={example}
+          install={exampleInstall}
+          signedIn={Boolean(profile)}
+          onPublish={() => void publishExample()}
+          onInstall={() => { if (example) void install(example); }}
+          onToggle={() => { if (example) void toggle(example); }}
+          onSettings={() => { if (example) setSettingsFor(example); }}
+        />
+
+        <div className="mb-3">
+          <ExtensionSlot slot="extensions.page" title="Vos extensions actives" />
+        </div>
+
         <input
           value={query} onChange={(e) => setQuery(e.target.value)}
+          aria-label="Rechercher une extension"
           placeholder="Rechercher une extension…"
           className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         <div className="mb-4 flex flex-wrap gap-2">
@@ -226,13 +291,13 @@ export default function ExtensionsPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="truncate font-bold">{e.name}</span>
-                    <span className="text-[10px] font-bold text-chalk-4">v{e.version}</span>
+                    <span className="text-sm font-bold text-chalk-4">v{e.version}</span>
                     <span className="shrink-0 rounded-[var(--radius-chip)] border border-line-3 px-1.5 py-0.5
-                      text-[9px] font-bold uppercase tracking-[0.1em] text-chalk-3">
+                      text-sm font-bold uppercase tracking-[0.1em] text-chalk-3">
                       {CATEGORY_LABELS[e.category]}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-[12px] leading-relaxed text-chalk-4">{e.description}</p>
+                  <p className="mt-0.5 text-sm leading-relaxed text-chalk-4">{e.description}</p>
                   <p className="mt-1 text-[10.5px] text-chalk-4">
                     {e.author?.pseudo ? `@${e.author.pseudo} · ` : ""}
                     {e.installs || 0} installation{(e.installs || 0) === 1 ? "" : "s"}
@@ -250,7 +315,7 @@ export default function ExtensionsPage() {
                 {!installed && (
                   <button type="button" onClick={() => install(e)}
                     className="mo-press rounded-[var(--radius-chip)] border border-line-3 bg-signal px-3.5
-                      py-1.5 text-[11.5px] font-bold text-void shadow-sh-1">
+                      py-1.5 text-sm font-bold text-void shadow-sh-1">
                     Installer
                   </button>
                 )}
@@ -259,7 +324,7 @@ export default function ExtensionsPage() {
                   <>
                     <button type="button" onClick={() => toggle(e)}
                       className="mo-press flex items-center gap-1.5 rounded-[var(--radius-chip)] border
-                        px-3 py-1.5 text-[11.5px] font-bold"
+                        px-3 py-1.5 text-sm font-bold"
                       style={installed.enabled
                         ? { borderColor: "var(--color-line-3)", background: "var(--color-surface)", color: "var(--color-chalk)" }
                         : { borderColor: "var(--color-line-3)", background: "var(--color-surface-2)", color: "var(--color-chalk-4)" }}>
@@ -270,13 +335,13 @@ export default function ExtensionsPage() {
                     {!!e.manifest.settings?.length && (
                       <button type="button" onClick={() => setSettingsFor(e)}
                         className="mo-press rounded-[var(--radius-chip)] border border-line-3 px-3.5
-                          py-1.5 text-[11.5px] font-bold text-chalk-2 hover:bg-surface-2">
+                          py-1.5 text-sm font-bold text-chalk-2 hover:bg-surface-2">
                         Réglages
                       </button>
                     )}
 
                     <button type="button" onClick={() => uninstall(e)}
-                      className="rounded-[var(--radius-chip)] px-2 py-1.5 text-[11.5px] font-bold
+                      className="rounded-[var(--radius-chip)] px-2 py-1.5 text-sm font-bold
                         text-chalk-4 hover:text-signal">
                       Désinstaller
                     </button>
@@ -285,7 +350,7 @@ export default function ExtensionsPage() {
 
                 {mine && (
                   <button type="button" onClick={() => remove(e)}
-                    className="ml-auto rounded-[var(--radius-chip)] px-2 py-1.5 text-[11.5px] font-bold
+                    className="ml-auto rounded-[var(--radius-chip)] px-2 py-1.5 text-sm font-bold
                       text-chalk-4 hover:text-[var(--color-err,var(--color-signal))]">
                     Retirer la mienne
                   </button>
@@ -302,26 +367,26 @@ export default function ExtensionsPage() {
           <input value={name} onChange={(e) => setName(e.target.value)}
             placeholder="ex: Extraits Rust"
             className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <Field label="Description">
           <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2}
             placeholder="À quoi sert cette extension ?"
             className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-              text-[14px] shadow-sh-1 outline-none placeholder:text-chalk-4" />
+              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <div className="mb-4 grid grid-cols-2 gap-3">
           <Field label="Version" tight>
             <input value={version} onChange={(e) => setVersion(e.target.value)}
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-                text-[14px] shadow-sh-1 outline-none" />
+                text-[14px] shadow-sh-1" />
           </Field>
           <Field label="Catégorie" tight>
             <select value={category} onChange={(e) => setCategory(e.target.value as ExtensionCategory)}
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3
-                text-[14px] shadow-sh-1 outline-none">
+                text-[14px] shadow-sh-1">
               {CATEGORY_ORDER.map((c) => (
                 <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
               ))}
@@ -333,6 +398,7 @@ export default function ExtensionsPage() {
           <div className="grid grid-cols-5 gap-2">
             {ICONS.map((k) => (
               <button key={k} type="button" onClick={() => setIcon(k)}
+                aria-label={`Icône ${k}`} aria-pressed={icon === k}
                 className="flex aspect-square items-center justify-center rounded-[var(--radius-input)]
                   border border-line-3 transition-colors"
                 data-active={icon === k ? "true" : "false"}
@@ -349,57 +415,92 @@ export default function ExtensionsPage() {
           {snippets.map((s, i) => (
             <div key={i} className="mb-2 rounded-[var(--radius-input)] border border-line-3 bg-surface-2 p-2.5">
               <div className="mb-2 flex gap-2">
-                <select value={s.language}
+                <select value={s.language} aria-label={`Langage de l'extrait ${i + 1}`}
                   onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, language: e.target.value } : x))}
-                  className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-[12px] outline-none">
+                  className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-sm ">
                   {SNIPPET_LANGS.map((l) => <option key={l} value={l}>{l === "*" ? "tous" : l}</option>)}
                 </select>
-                <input value={s.prefix}
+                <input value={s.prefix} aria-label={`Préfixe de l'extrait ${i + 1}`}
                   onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, prefix: e.target.value } : x))}
                   placeholder="préfixe"
-                  className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
+                  className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-sm " />
                 {snippets.length > 1 && (
                   <button type="button"
                     onClick={() => setSnippets((prev) => prev.filter((_, j) => j !== i))}
+                    aria-label={`Supprimer l'extrait ${i + 1}`}
                     className="flex size-9 items-center justify-center rounded-[var(--radius-chip)] text-chalk-4 hover:text-signal">
                     <Icon name="close" size={14} />
                   </button>
                 )}
               </div>
-              <textarea value={s.body} rows={2}
+              <textarea value={s.body} aria-label={`Corps de l'extrait ${i + 1}`} rows={2}
                 onChange={(e) => setSnippets((prev) => prev.map((x, j) => j === i ? { ...x, body: e.target.value } : x))}
                 placeholder={"Corps inséré. ${1}, ${2}… marquent les tabulations."}
                 className="w-full rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 py-2
-                  font-mono text-[12px] outline-none" />
+                  font-mono text-sm " />
             </div>
           ))}
           <button type="button" onClick={() => setSnippets((prev) => [...prev, { ...BLANK_SNIPPET }])}
-            className="text-[12px] font-bold text-signal">
+            className="text-sm font-bold text-signal">
             + Ajouter un extrait
+          </button>
+        </Field>
+
+        <Field label="Commandes de l'éditeur">
+          <p className="mb-2 text-sm leading-relaxed text-chalk-4">
+            Chaque commande apparaît dans la palette de l&apos;IDE (F1) et insère
+            son corps au curseur.
+          </p>
+          {commandRows.map((c, i) => (
+            <div key={i} className="mb-2 rounded-[var(--radius-input)] border border-line-3 bg-surface-2 p-2.5">
+              <div className="mb-2 flex gap-2">
+                <input value={c.title} aria-label={`Titre de la commande ${i + 1}`}
+                  onChange={(e) => setCommandRows((prev) => prev.map((x, j) => j === i ? { ...x, title: e.target.value } : x))}
+                  placeholder="Titre de la commande"
+                  className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-sm " />
+                <button type="button"
+                  onClick={() => setCommandRows((prev) => prev.filter((_, j) => j !== i))}
+                  aria-label="Retirer la commande"
+                  className="flex size-9 items-center justify-center rounded-[var(--radius-chip)] text-chalk-4 hover:text-signal">
+                  <Icon name="close" size={14} />
+                </button>
+              </div>
+              <textarea value={c.body} aria-label={`Corps de la commande ${i + 1}`} rows={2}
+                onChange={(e) => setCommandRows((prev) => prev.map((x, j) => j === i ? { ...x, body: e.target.value } : x))}
+                placeholder="Texte inséré au curseur"
+                className="w-full rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 py-2
+                  font-mono text-sm " />
+            </div>
+          ))}
+          <button type="button"
+            onClick={() => setCommandRows((prev) => [...prev, { title: "", body: "" }])}
+            className="text-sm font-bold text-signal">
+            + Ajouter une commande
           </button>
         </Field>
 
         <Field label="Réglages">
           {settingRows.map((s, i) => (
             <div key={i} className="mb-2 flex gap-2">
-              <input value={s.key}
+              <input value={s.key} aria-label={`Clé du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i ? { ...x, key: e.target.value } : x))}
                 placeholder="clé"
-                className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
-              <input value={s.label}
+                className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-sm " />
+              <input value={s.label} aria-label={`Libellé du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i ? { ...x, label: e.target.value } : x))}
                 placeholder="libellé"
-                className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-[12px] outline-none" />
-              <select value={s.type}
+                className="h-9 flex-1 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-3 text-sm " />
+              <select value={s.type} aria-label={`Type du réglage ${i + 1}`}
                 onChange={(e) => setSettingRows((prev) => prev.map((x, j) => j === i
                   ? { ...x, type: e.target.value as ExtensionSetting["type"] } : x))}
-                className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-[12px] outline-none">
+                className="h-9 rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 text-sm ">
                 <option value="string">texte</option>
                 <option value="number">nombre</option>
                 <option value="boolean">booléen</option>
               </select>
               <button type="button"
                 onClick={() => setSettingRows((prev) => prev.filter((_, j) => j !== i))}
+                aria-label={`Supprimer le réglage ${i + 1}`}
                 className="flex size-9 items-center justify-center rounded-[var(--radius-chip)] text-chalk-4 hover:text-signal">
                 <Icon name="close" size={14} />
               </button>
@@ -407,7 +508,7 @@ export default function ExtensionsPage() {
           ))}
           <button type="button"
             onClick={() => setSettingRows((prev) => [...prev, { key: "", label: "", type: "string", default: "" }])}
-            className="text-[12px] font-bold text-signal">
+            className="text-sm font-bold text-signal">
             + Ajouter un réglage
           </button>
         </Field>
@@ -477,7 +578,7 @@ function SettingsSheet({ e, install, onClose, onSave }: {
                 [f.key]: f.type === "number" ? Number(ev.target.value) : ev.target.value,
               }))}
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-                text-[14px] shadow-sh-1 outline-none"
+                text-[14px] shadow-sh-1"
             />
           )}
         </Field>
@@ -506,25 +607,12 @@ function Chip({ active, onClick, children }: {
 }) {
   return (
     <button type="button" onClick={onClick}
-      className="mo-press rounded-[var(--radius-chip)] border px-3 py-1.5 text-[11.5px] font-bold
+      className="mo-press rounded-[var(--radius-chip)] border px-3 py-1.5 text-sm font-bold
         transition-colors"
       style={active
         ? { borderColor: "var(--color-line-3)", background: "var(--color-signal)", color: "var(--color-void)" }
         : { borderColor: "var(--color-line-3)", background: "var(--color-surface)", color: "var(--color-chalk-2)" }}>
       {children}
     </button>
-  );
-}
-
-function Field({ label, children, tight }: {
-  label: string;
-  children: React.ReactNode;
-  tight?: boolean;
-}) {
-  return (
-    <div className={tight ? "" : "mb-4"}>
-      <label className="label mb-1.5 block text-chalk">{label}</label>
-      {children}
-    </div>
   );
 }

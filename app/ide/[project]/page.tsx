@@ -14,12 +14,12 @@ import { CursorLayer } from "@/components/collab/CursorLayer";
 import { TeamChat } from "@/components/collab/TeamChat";
 import { useSession } from "@/hooks/useSession";
 import { useCollab } from "@/lib/collab/useCollab";
-import { fetchActiveSnippets } from "@/lib/extensions";
+import { fetchActiveContributions } from "@/lib/extensions";
 import { IDLE, runFile, type RunOutcome } from "@/lib/execution/runner";
 import { DEFAULT_BRANCH, branchErrorText, validateBranchName } from "@/lib/git/refs";
 import { buildTree, looksBinary, type FileNode } from "@/lib/git/paths";
 import { DEFAULT_EXTENSIONS, devcontainerJson, recommendedExtensions } from "@/lib/vscode/bridge";
-import type { ExtensionSnippet, GitRef, Project } from "@/lib/types";
+import type { ExtensionCommand, ExtensionSnippet, GitRef, Project } from "@/lib/types";
 import {
   commitRepo,
   createBranch,
@@ -189,19 +189,23 @@ export default function IdePage() {
   const [outcome, setOutcome] = useState<RunOutcome>(IDLE);
   const abortRef = useRef<(() => void) | null>(null);
 
-  // Les extraits des extensions **activées** : on les charge une fois par
-  // session et on les remet à Monaco, qui les propose en complétion. Une
-  // extension désactivée ne contribue rien.
+  // Les contributions des extensions **activées** : extraits pour la
+  // complétion, commandes pour la palette (`F1`). Une seule lecture, une
+  // fois par session ; une extension désactivée ne contribue rien.
   const [snippets, setSnippets] = useState<ExtensionSnippet[]>([]);
+  const [commands, setCommands] = useState<ExtensionCommand[]>([]);
   useEffect(() => {
     if (!profile?.id) {
     // eslint-disable-next-line react-hooks/set-state-in-effect
       setSnippets([]);
+      setCommands([]);
       return;
     }
     let alive = true;
-    fetchActiveSnippets(profile.id).then((rows) => {
-      if (alive) setSnippets(rows);
+    fetchActiveContributions(profile.id).then((active) => {
+      if (!alive) return;
+      setSnippets(active.snippets);
+      setCommands(active.commands);
     });
     return () => {
       alive = false;
@@ -638,6 +642,7 @@ export default function IdePage() {
               <div className="flex items-center gap-1.5">
                 <select
                   value={branch}
+                  aria-label="Branche"
                   onChange={(e) => switchBranch(e.target.value)}
                   className="mo-press h-[32px] rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 font-mono text-[11px] text-chalk-2"
                 >
@@ -749,6 +754,7 @@ export default function IdePage() {
                   onSelectionChange={(sel) => sendCursor(sel.anchor, sel.head)}
                   onScrollChange={setScrollTop}
                   snippets={snippets}
+                  commands={commands}
                   fill
                 />
               ) : (
@@ -789,15 +795,16 @@ export default function IdePage() {
         title="Nouvelle branche"
       >
         <div className="space-y-4 p-4">
-          <p className="text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="text-sm leading-relaxed text-chalk-3">
             Créer depuis <span className="font-mono text-chalk-2">{branch}</span>
           </p>
           <div className="space-y-2">
             <label className="label block text-chalk-2">Nom de la branche</label>
             <input
+              aria-label="Nom de la nouvelle branche"
               value={branchName}
               onChange={(e) => setBranchName(e.target.value)}
-              className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-[12.5px] text-chalk outline-none"
+              className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-sm text-chalk"
               placeholder="feature/ide"
               spellCheck={false}
             />
@@ -828,7 +835,7 @@ export default function IdePage() {
         title="Supprimer la branche"
       >
         <div className="space-y-4 p-4">
-          <p className="text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="text-sm leading-relaxed text-chalk-3">
             Confirmer la suppression de <span className="font-mono text-danger">{dropping}</span>
           </p>
           <div className="flex justify-end gap-2">
@@ -857,17 +864,18 @@ export default function IdePage() {
         title="Enregistrer (commit)"
       >
         <div className="space-y-4 p-4">
-          <p className="text-[12.5px] leading-relaxed text-chalk-3">
+          <p className="text-sm leading-relaxed text-chalk-3">
             Branche <span className="font-mono text-chalk-2">{branch}</span>
           </p>
           <div className="space-y-2">
             <label className="label block text-chalk-2">Message du commit</label>
             <textarea
+              aria-label="Message du commit"
               value={commitMsg}
               onChange={(e) => setCommitMsg(e.target.value)}
               rows={3}
               spellCheck={false}
-              className="w-full resize-y rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-[12.5px] leading-relaxed text-chalk outline-none"
+              className="w-full resize-y rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-sm leading-relaxed text-chalk"
               placeholder="fix: corriger l’éditeur"
             />
           </div>

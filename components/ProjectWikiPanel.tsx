@@ -243,7 +243,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                     size={11}
                     className={active ? "shrink-0 text-signal" : "shrink-0 text-chalk-4"}
                   />
-                  <span className="truncate text-[12.5px] font-semibold">{page.title}</span>
+                  <span className="truncate text-sm font-semibold">{page.title}</span>
                 </button>
               </Motion>
             );
@@ -263,7 +263,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
               placeholder="titre de la page"
               className="mb-3 h-[var(--h-input)] w-full border border-line-2
                 bg-surface-2 px-3 font-display text-[15px] font-bold text-chalk
-                outline-none focus:border-signal"
+                outline focus:border-signal"
             />
 
             <label className="mb-1 block font-mono text-[11px] text-chalk-3">
@@ -277,7 +277,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
               spellCheck={false}
               placeholder={"# Démarrage\n\nComment lancer le projet…"}
               className="mb-3 w-full resize-y border border-line-2 bg-surface-2 p-3
-                font-mono text-[12.5px] leading-relaxed text-chalk outline-none
+                font-mono text-sm leading-relaxed text-chalk outline
                 focus:border-signal"
             />
 
@@ -346,7 +346,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
             {confirmDelete && (
               <Motion role="rise" className="mb-3 flex flex-wrap items-center gap-2
                 border border-danger/60 bg-danger/10 px-3 py-2">
-                <p className="flex-1 text-[12.5px] text-chalk-2">
+                <p className="flex-1 text-sm text-chalk-2">
                   Supprimer « {open.title} » ? C’est définitif.
                 </p>
                 <button
@@ -462,7 +462,6 @@ function Document({ body }: { body: string }) {
                 code={block.code}
                 lang={block.lang || null}
                 variant="terminal"
-                instant
               />
             );
         }

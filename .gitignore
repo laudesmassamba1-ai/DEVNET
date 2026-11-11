@@ -32,6 +32,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!.env.local.example
 
 # vercel
 .vercel
@@ -57,3 +59,29 @@ dev-server.log
 tunnel-url.txt
 __pycache__/
 *.pyc
+
+# Exploitation locale : ne remonte jamais au dépôt
+/goose-*
+/alphacode/
+/*.log
+/*.pid
+/tunnel-url.txt
+/docs-technique.pdf
+/Capture*.png
+/parcours-*.png
+
+# Ignorer les fichiers de documentation markdown pour le dépôt
+*.md
+
+# Outils de développement locaux : recréés par les éditeurs, jamais versionnés
+AGENTS.md
+CLAUDE.md
+.agents/
+.claude/
+.freebuff/
+
+# Portes navigateur : artefacts Playwright (traces, rapports)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

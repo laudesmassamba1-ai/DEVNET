@@ -1,0 +1,37 @@
+# Configuration gitleaks de DevNet.
+#
+# Les règles par défaut restent actives. Les seules exceptions sont :
+#  · les identifiants de développement local (`devnet:devnet`) des gabarits
+#    et de docker-compose, qui ne donnent accès à rien de réel ;
+#  · les fichiers locaux ignorés par Git (état Supabase, seed local) ;
+#  · deux fixtures qui imitent volontairement une clé AWS pour tester le
+#    détecteur de secrets du produit.
+#
+# Aucune exception ne couvre un fichier d'environnement réel.
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Identifiants de développement local uniquement"
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)\.env\.local\.example$''',
+  '''(^|/)docker-compose\.yml$''',
+]
+regexes = ['''postgres(ql)?://devnet:devnet@''']
+
+[[allowlists]]
+description = "État local Supabase ignoré par Git"
+paths = [
+  '''(^|/)supabase/\.temp/''',
+  '''(^|/)supabase/seed\.sql$''',
+]
+
+[[allowlists]]
+description = "Fixtures de test du détecteur de secrets (fausse clé AWS)"
+paths = [
+  '''(^|/)lib/scoring/corpus\.ts$''',
+  '''(^|/)scripts/test-scoring\.ts$''',
+]
+regexes = ['''AKIA3XQ7ZPLMN2VWRTYB''']

@@ -146,7 +146,7 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
                     >
                       <Icon name={asEmoji(c.emoji)} size={9} />
                     </span>
-                    <span className="min-w-0 flex-1 truncate text-[12.5px] font-bold">{c.name}</span>
+                    <span className="min-w-0 flex-1 truncate text-sm font-bold">{c.name}</span>
                     <span className="shrink-0 font-mono text-[10px] text-chalk-4">{timeAgo(c.created_at)}</span>
                   </button>
                 </li>

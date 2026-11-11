@@ -4,6 +4,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getSupabaseUrl } from "@/lib/backend";
+import { AUTH_COOKIE_NAME } from "./auth-cookie";
 
 const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -19,6 +20,7 @@ export async function getOrCreateServerClient() {
   const cookieStore = await cookies();
 
   const client = createServerClient(url, anonKey, {
+    cookieOptions: { name: AUTH_COOKIE_NAME },
     cookies: {
       get(name: string) {
         return cookieStore.get(name)?.value;
@@ -41,4 +43,18 @@ export async function getOrCreateServerClient() {
   });
 
   return client;
+}
+
+/**
+ * Identité de la session en cours, ou `null` sans session.
+ *
+ * Pont temporaire : la session vit encore dans Supabase, alors que le fil lit
+ * PostgreSQL direct. Quand l'authentification passera sur PostgreSQL, seule
+ * cette fonction changera.
+ */
+export async function currentUserId(): Promise<string | null> {
+  const client = await getOrCreateServerClient();
+  if (!client) return null;
+  const { data } = await client.auth.getUser();
+  return data.user?.id ?? null;
 }

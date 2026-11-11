@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AppShell, IconButton } from "@/components/AppShell";
-import { Avatar, EmptyState, Loading, PrimaryButton, Spinner } from "@/components/Avatar";
+import { EmptyState, Loading, PrimaryButton, Spinner } from "@/components/Avatar";
 import { CodeBlock } from "@/components/CodeBlock";
 import { CommentsPanel } from "@/components/CommentsPanel";
+import { GifPicker } from "@/components/GifPicker";
 import { Icon, asIconName } from "@/components/Icon";
 import { Motion } from "@/components/Motion";
 import { PostCard } from "@/components/PostCard";
@@ -13,23 +14,19 @@ import { PostOwnerTools } from "@/components/PostOwnerTools";
 import { Sheet } from "@/components/Sheet";
 import { groupStoriesByAuthor, StoryRail, StoryViewer } from "@/components/StoryRail";
 import { useToast } from "@/components/Toast";
+import { StoryStudio } from "@/components/StoryStudio";
+import { WovenBand } from "@/components/WovenBand";
 import { supabase } from "@/lib/supabase/client";
 import { useSession } from "@/hooks/useSession";
-import { createPortal } from "react-dom";
 import { postPoints } from "@/lib/gamification";
+import { deleteStory, fetchLiveStories } from "@/lib/stories";
 import {
-  deleteStory,
-  fetchLiveStories,
-  publishStory,
-  STORY_MAX,
-} from "@/lib/stories";
-import {
-  fetchFeedPageCached as fetchFeedPage, fetchLikedPostIdsCached as fetchLikedPostIds,
-  fetchMyReactionsCached as fetchMyReactions, fetchRepostIdsCached as fetchRepostIds,
+  fetchFeedHydrationCached as fetchFeedHydration,
+  fetchFeedPageCached as fetchFeedPage,
   setReaction, toggleLike, toggleRepost, type FeedScope,
   invalidatePostCache,
 } from "@/lib/social";
-import { fetchBookmarkedPostIdsCached as fetchBookmarkedPostIds, toggleBookmark } from "@/lib/signets";
+import { toggleBookmark } from "@/lib/signets";
 import { usePostActions } from "@/hooks/usePostActions";
 import {
   fetchProjects,
@@ -38,7 +35,11 @@ import {
 } from "@/lib/repo";
 import { removeSamplePosts, seedSamplePosts, SAMPLE_MARK } from "@/lib/seed";
 import { fetchCommunityFeed } from "@/lib/communities";
-import type { PostWithAuthor, StoryWithAuthor, UserLite } from "@/lib/types";
+import type { PostWithAuthor, StoryWithAuthor } from "@/lib/types";
+import type { Gif } from "@/lib/gifs";
+import { OPEN_POST_COMPOSER_EVENT } from "@/lib/ui-events";
+import { FEED_DENSITY_KEY, type FeedDensity } from "@/lib/ui-preferences";
+import { FeedRepositoryError } from "@/modules/feed";
 
 const LANG_OPTIONS = [
   "", "Python", "JavaScript", "TypeScript", "Java", "C / C++",
@@ -54,7 +55,6 @@ const LANG_OPTIONS = [
  * post envoyé est un post parti.
  */
 const DRAFT_KEY = "devnet:compose";
-
 type ComposerDraft = { text: string; code: string; lang: string; isCode: boolean };
 
 const EMPTY_DRAFT: ComposerDraft = { text: "", code: "", lang: "", isCode: false };
@@ -75,13 +75,6 @@ function readDraft(): ComposerDraft {
     return EMPTY_DRAFT;
   }
 }
-
-// `filiere` et `niveau` font partie de la jointure, et non des colonnes
-// copiées du post : ces dernières sont figées à l'insertion, donc changer
-// sa filière laisserait l'ancienne affichée sur tous ses anciens posts.
-// Le fil lit l'auteur, il ne lit jamais une copie de l'auteur.
-const AUTHOR_COLUMNS =
-  "id, prenom, pseudo, avatar_color, account_type, verified, filiere, niveau";
 
 /**
  * Fusionne une page relue avec la liste affichée, sans casser le défilement.
@@ -108,24 +101,24 @@ export default function FeedPage() {
   const router = useRouter();
 
   const [posts, setPosts] = useState<PostWithAuthor[] | null>(null);
+  const [feedError, setFeedError] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [text, setText] = useState<string>(() => readDraft().text);
   const [code, setCode] = useState<string>(() => readDraft().code);
   const [lang, setLang] = useState<string>(() => readDraft().lang);
   const [isCode, setIsCode] = useState<boolean>(() => readDraft().isCode);
+  /** GIF joint à la publication en cours — un lien, pas un fichier. */
+  const [gif, setGif] = useState<Gif | null>(null);
+  const [gifOpen, setGifOpen] = useState(false);
+  const [density, setDensity] = useState<FeedDensity>("comfortable");
+  const [densityReady, setDensityReady] = useState(false);
   const [busy, setBusy] = useState(false);
-  /** La bulle de rédaction est portée dans `document.body` : elle doit
-      échapper aux `transform`/`backdrop-filter` des ancêtres, qui créent
-      un bloc conteneur et casseraient son `position: fixed`. On ne la
-      monte qu'après hydratation, sinon le portail n'a pas de cible. */
-  const [fabReady, setFabReady] = useState(false);
   /** Auteur dont on regarde la série de stories. */
   const [storyOpen, setStoryOpen] = useState<string | null>(null);
   /** Les stories vivantes, lues dans la table — pas déduites du fil. */
   const [stories, setStories] = useState<StoryWithAuthor[] | null>(null);
   /** Feuille de publication d'une story. */
   const [openStoryCompose, setOpenStoryCompose] = useState(false);
-  const [storyText, setStoryText] = useState("");
   const [seeding, setSeeding] = useState(false);
   /** Ids des posts aimés par l'utilisateur courant — lus à part, en une requête. */
   const [likedIds, setLikedIds] = useState<string[]>([]);
@@ -143,7 +136,31 @@ export default function FeedPage() {
   /** Post dont on ouvre le fil de commentaires. */
   const [commentsFor, setCommentsFor] = useState<string | null>(null);
 
-  useEffect(() => setFabReady(true), []); // eslint-disable-line react-hooks/set-state-in-effect -- posé après le premier paint, c'est le signal d'animation
+  useEffect(() => {
+    const openComposer = () => setOpen(true);
+    window.addEventListener(OPEN_POST_COMPOSER_EVENT, openComposer);
+
+    if (new URLSearchParams(window.location.search).get("compose") === "1") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- action lancée depuis la navigation mobile
+      setOpen(true);
+      router.replace("/feed");
+    }
+
+    return () => window.removeEventListener(OPEN_POST_COMPOSER_EVENT, openComposer);
+  }, [router]);
+
+  useEffect(() => {
+    const savedDensity = window.localStorage.getItem(FEED_DENSITY_KEY);
+    if (savedDensity === "compact" || savedDensity === "comfortable") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- préférence locale lue après hydratation
+      setDensity(savedDensity);
+    }
+    setDensityReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (densityReady) window.localStorage.setItem(FEED_DENSITY_KEY, density);
+  }, [density, densityReady]);
 
   /** Portée du fil : tout le monde, les abonnements, ou les communautés. */
   const [scope, setScope] = useState<FeedScope | "communities">("all");
@@ -182,19 +199,25 @@ export default function FeedPage() {
    */
   const refresh = useCallback(async () => {
     invalidatePostCache();
+    setFeedError(null);
+    try {
     // L'onglet Communautés a sa propre lecture : il ne lit que les posts
     // rattachés à une communauté publique ou restreinte, sans pagination.
-    if (scope === "communities") {
-      const rows = await fetchCommunityFeed();
-      setEmptyScope(false);
-      setPosts(rows);
-      setHasMore(false);
-      return;
+      if (scope === "communities") {
+        const rows = await fetchCommunityFeed();
+        setEmptyScope(false);
+        setPosts(rows);
+        setHasMore(false);
+        return;
+      }
+      const page = await fetchFeedPage({ scope, me: profile?.id });
+      setEmptyScope(page.emptyScope);
+      setPosts((prev) => mergePosts(prev, page.rows));
+      setHasMore(page.more);
+    } catch (error) {
+      if (!(error instanceof FeedRepositoryError)) throw error;
+      setFeedError(error.message);
     }
-    const page = await fetchFeedPage({ scope, me: profile?.id });
-    setEmptyScope(page.emptyScope);
-    setPosts((prev) => mergePosts(prev, page.rows));
-    setHasMore(page.more);
   }, [scope, profile]);
 
   /**
@@ -210,8 +233,17 @@ export default function FeedPage() {
     const gen = genRef.current;
 
     setLoadingMore(true);
-    const page = await fetchFeedPage({ scope, me: profile?.id, before: cursor });
-    setLoadingMore(false);
+    setFeedError(null);
+    let page;
+    try {
+      page = await fetchFeedPage({ scope, me: profile?.id, before: cursor });
+    } catch (error) {
+      if (!(error instanceof FeedRepositoryError)) throw error;
+      setFeedError(error.message);
+      return;
+    } finally {
+      setLoadingMore(false);
+    }
     if (genRef.current !== gen) return;
 
     setPosts((prev) => (prev === null ? prev : [...prev, ...page.rows]));
@@ -223,17 +255,16 @@ export default function FeedPage() {
     // sans aucun état d'interaction — comme si on n'avait jamais rien aimé.
     const added = page.rows.map((r) => r.id);
     if (profile) {
-      const [ids, reposts, mine, marks] = await Promise.all([
-        fetchLikedPostIds(profile.id, added),
-        fetchRepostIds(profile.id, added),
-        fetchMyReactions(profile.id, added),
-        fetchBookmarkedPostIds(profile.id, added),
-      ]);
+      // Une seule lecture pour les quatre états d'interaction : la route
+      // serveur les rend ensemble, sous l'identité de la session.
+      const hydration = await fetchFeedHydration(added);
       if (genRef.current !== gen) return;
-      setLikedIds((prev) => [...new Set([...prev, ...ids])]);
-      setRepostedIds((prev) => [...new Set([...prev, ...reposts])]);
-      setReactions((prev) => ({ ...prev, ...mine }));
-      setBookmarkedIds((prev) => [...new Set([...prev, ...marks])]);
+      if (hydration) {
+        setLikedIds((prev) => [...new Set([...prev, ...hydration.likedPostIds])]);
+        setRepostedIds((prev) => [...new Set([...prev, ...hydration.repostedPostIds])]);
+        setReactions((prev) => ({ ...prev, ...hydration.reactions }));
+        setBookmarkedIds((prev) => [...new Set([...prev, ...hydration.bookmarkedPostIds])]);
+      }
     }
 
     const projects = await fetchProjectsForPosts(added);
@@ -368,18 +399,17 @@ export default function FeedPage() {
       // plus servir : le like est une ligne dans `post_likes`, et il
       // appartient à celui qui regarde, pas au post.
       if (profile) {
-        const pageIds = rows.map((r) => r.id);
-        const [ids, reposts, mine, marks] = await Promise.all([
-          fetchLikedPostIds(profile.id, pageIds),
-          fetchRepostIds(profile.id, pageIds),
-          fetchMyReactions(profile.id, pageIds),
-          fetchBookmarkedPostIds(profile.id, pageIds),
-        ]);
+        // Les likes, reposts, réactions et signets du lecteur arrivent
+        // ensemble par `/api/feed/hydration` : le navigateur n'interroge
+        // plus la base pour savoir ce qu'il a déjà aimé.
+        const hydration = await fetchFeedHydration(rows.map((r) => r.id));
         if (!alive || genRef.current !== gen) return;
-        setLikedIds(ids);
-        setRepostedIds(reposts);
-        setReactions(mine);
-        setBookmarkedIds(marks);
+        if (hydration) {
+          setLikedIds(hydration.likedPostIds);
+          setRepostedIds(hydration.repostedPostIds);
+          setReactions(hydration.reactions);
+          setBookmarkedIds(hydration.bookmarkedPostIds);
+        }
       }
       // Les projets des publications sont lus dans la foulée : une
       // requête pour tout le fil, jamais une par carte.
@@ -393,6 +423,10 @@ export default function FeedPage() {
           ]),
         ),
       );
+    }).catch((error: unknown) => {
+      if (!alive || genRef.current !== gen) return;
+      if (!(error instanceof FeedRepositoryError)) throw error;
+      setFeedError(error.message);
     });
     return () => {
       alive = false;
@@ -405,22 +439,17 @@ export default function FeedPage() {
       .channel("feed")
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "posts" },
-        async ({ new: p }: { new: PostWithAuthor }) => {
+        () => {
           // Le temps réel n'annonce un post que s'il appartient à la
           // portée active : sous « Abonnements », un post d'un inconnu
           // n'a rien à faire dans le fil — l'afficher contredirait le
           // filtre que le lecteur vient de poser.
           if (scope !== "all") return;
-          const { data: author } = await supabase
-            .from("users")
-            .select(AUTHOR_COLUMNS)
-            .eq("id", p.author_id)
-            .single();
-
-          setPosts((prev) =>
-            prev === null ? prev : [{ ...(p as PostWithAuthor), author: author as UserLite },
-              ...prev.filter((x: PostWithAuthor) => x.id !== p.id)],
-          );
+          // La charge temps réel ne porte pas l'auteur, et le navigateur ne
+          // va plus le chercher dans `users` : on relit la première page par
+          // `/api/feed`, qui arrive complète. Le canal ne sert plus qu'à
+          // signaler « quelque chose a changé ».
+          void refresh();
         })
       .on("postgres_changes",
         { event: "UPDATE", schema: "public", table: "posts" },
@@ -438,7 +467,7 @@ export default function FeedPage() {
       // l'instance déjà abonnée — `.on()` lèverait alors.
       void supabase.removeChannel(channel);
     };
-  }, [scope]);
+  }, [scope, refresh]);
 
   /**
    * Les stories.
@@ -537,6 +566,7 @@ export default function FeedPage() {
     setCode("");
     setLang("");
     setIsCode(false);
+    setGif(null);
     // Le projet choisi ne survit pas à la publication : le rattachement
     // est une décision par publication, pas une préférence. Le garder
     // ferait rattacher par automatisme des publications sans rapport.
@@ -546,7 +576,9 @@ export default function FeedPage() {
   async function publish() {
     if (!profile) return;
     const body = text.trim();
-    if (!body) return toast("Écris quelque chose", "err");
+    // Un GIF peut tenir lieu de texte : envoyer un GIF seul est un geste
+    // complet, comme une image dans une messagerie.
+    if (!body && !gif) return toast("Écris quelque chose ou choisis un GIF", "err");
 
     setBusy(true);
     // On relit la ligne insérée : il faut son identifiant pour la
@@ -564,6 +596,10 @@ export default function FeedPage() {
         has_code: isCode && code.trim().length > 0,
         code: isCode ? code.trim() : "",
         lang: isCode ? lang : "",
+        // Le GIF est un lien filtré côté serveur à la recherche, et
+        // re-vérifié par la contrainte `posts_gif_url_https` en base.
+        gif_url: gif?.url ?? "",
+        gif_alt: gif?.alt ?? "",
       })
       .select("id")
       .single();
@@ -750,12 +786,53 @@ export default function FeedPage() {
         <IconButton label="Mon profil" name="profile" onClick={() => router.push("/profile")} />
       }
     >
-      {/* ── Scène du fil : quatre plans, quatre retards. ──
-          Le rail de contributions, la zone de rédaction, le bandeau
-          d'exemple puis les cartes. L'ordre suit l'ordre de lecture :
-          on voit QUI est actif, puis ce qu'on peut écrire, puis ce qui
-          a été écrit. Le fil lui-même est produit par la cascade du PostCard. */}
-      <div className="px-(--gutter) pt-3">
+      <div className="px-(--gutter) pt-3" data-feed-density={density}>
+        <div className="mb-3 flex min-h-11 items-center justify-between gap-3">
+          <h1 className="font-display text-[22px] font-semibold tracking-[-0.03em]">
+            Fil
+          </h1>
+          <div className="flex items-center gap-2">
+            <div
+              role="group"
+              aria-label="Densité des publications"
+              className="flex items-center rounded-[var(--radius-input)] border border-line-2 p-0.5"
+            >
+              {([
+                ["comfortable", "Confortable"],
+                ["compact", "Compacte"],
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  aria-pressed={density === value}
+                  onClick={() => setDensity(value)}
+                  className={`min-h-[var(--h-tap)] rounded-[var(--radius-chip)] px-2.5 text-[12px]
+                    transition-colors duration-[var(--d-fast)]
+                    ${density === value
+                      ? "bg-surface-3 text-chalk"
+                      : "text-chalk-3 hover:text-chalk"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              aria-label="Publier une publication"
+              data-tour="composer"
+              className="inline-flex min-h-[var(--h-tap)] min-w-[var(--h-tap)]
+                items-center justify-center gap-2 rounded-[var(--radius-input)]
+                border border-signal bg-signal px-3 text-void hover:opacity-90"
+            >
+              <Icon name="edit" size={16} />
+              <span className="hidden text-[12px] font-semibold sm:inline">
+                Publier
+              </span>
+            </button>
+          </div>
+        </div>
+
         <Motion role="slide" delay={60} attrs={{ "data-tour": "feed-stories" }}>
           <StoryRail
             stories={stories ?? []}
@@ -765,11 +842,11 @@ export default function FeedPage() {
           />
         </Motion>
 
-        {/* ── Zone de rédaction ──
-            Le composeur ne vit plus dans le flux du fil : il est devenu
-            une **bulle de verre flottante** (`BulleRédaction`, plus bas),
-            toujours visible pendant le défilement. La feuille « Nouveau
-            post » reste le lieu où l'on écrit — texte, code et projet. */}
+        {/* La trame sépare le fil de son en-tête : deux zones, pas deux
+            cartes. Le tissu prend la couleur de l'action. */}
+        <WovenBand tone="signal" className="mb-3" />
+
+        {/* La publication s'ouvre dans la feuille depuis l'action en tête du fil. */}
 
         {posts !== null && hasSamples && (
           <Motion
@@ -828,7 +905,25 @@ export default function FeedPage() {
           </div>
         </Motion>
 
-        {posts === null && <Loading label="Chargement du fil" />}
+        {posts === null && !feedError && <Loading label="Chargement du fil" />}
+        {feedError && (
+          <div
+            role="alert"
+            className="my-3 flex flex-wrap items-center justify-between gap-3
+              border border-line-2 px-4 py-3 text-[13px] text-chalk-2"
+          >
+            <span>{feedError}</span>
+            <button
+              type="button"
+              onClick={() => void refresh()}
+              className="min-h-[var(--h-tap)] px-3 font-bold text-signal
+                hover:underline focus-visible:outline-2
+                focus-visible:outline-offset-2 focus-visible:outline-signal"
+            >
+              Réessayer
+            </button>
+          </div>
+        )}
 
         {/* Filtre actif mais personne suivi : ce n'est pas un fil vide,
             c'est un fil qu'on ne peut pas encore remplir. L'écran doit
@@ -865,7 +960,7 @@ export default function FeedPage() {
                     disabled={seeding}
                     className="inline-flex h-[var(--h-tap)] items-center gap-2
                       rounded-[var(--radius-input)] border border-line-2 px-4
-                      text-[12.5px] font-bold text-chalk-3 transition-colors
+                      text-sm font-bold text-chalk-3 transition-colors
                       hover:border-signal hover:text-signal disabled:opacity-40"
                   >
                     <Icon name="package" size={14} strokeWidth={2} />
@@ -880,42 +975,12 @@ export default function FeedPage() {
           </Motion>
         )}
 
-        {/* Charger la suite. Un bouton explicite plutôt qu'un défilement
-            infini : ici, le fil est un **dossier** qu'on parcourt, pas un
-            mur qu'on défile. Un défilement automatique continuerait de
-            consummer du réseau sans que le lecteur l'ait demandé, et
-            sur ce plan de travail le contexte compte plus que la fluidité. */}
-        {posts && posts.length > 0 && hasMore && (
-          <Motion role="fade">
-            <div className="mt-2 flex justify-center">
-              <button
-                type="button"
-                onClick={loadMore}
-                disabled={loadingMore}                  className="inline-flex h-[var(--h-tap)] items-center gap-2
-                    rounded-[var(--radius-input)] border border-line-2
-                    px-4 font-mono text-[11.5px] font-bold uppercase
-                    tracking-[0.12em] text-chalk-3 transition-colors
-                    duration-[var(--d-fast)]
-                    hover:border-signal hover:text-signal disabled:opacity-40"
-              >
-                <span aria-hidden={loadingMore || undefined}>
-                  {loadingMore ? <Spinner /> : null}
-                </span>
-                {loadingMore ? null : "Charger plus"}
-              </button>
-            </div>
-          </Motion>
-        )}
-
-        {/* Le fil : cascade plafonnée. Chaque carte porte son rang, et le
-            retard est calculé dans PostCard pour que la logique reste avec
-            l'élément qu'elle anime. */}
-        {posts?.map((p, i) => (
+        {/* Chaque publication est séparée par un filet, sans défilement infini. */}
+        {posts?.map((p) => (
           <PostCard
             key={p.id}
             post={p}
             meId={profile?.id ?? null}
-            index={i}
             liked={likedIds.includes(p.id)}
             reaction={reactions[p.id] ?? null}
             onReact={onReact}
@@ -932,6 +997,36 @@ export default function FeedPage() {
             {...postActions.cardProps}
           />
         ))}
+
+        {/* Charger la suite, **après** les publications déjà lues.
+
+            Il était rendu au-dessus du fil : l'écran proposait donc d'ajouter
+            des posts avant d'avoir montré les premiers, et le bouton séparait
+            les onglets de la première publication. Un bouton explicite plutôt
+            qu'un défilement infini : ici, le fil est un dossier qu'on
+            parcourt, pas un mur qu'on défile. */}
+        {posts && posts.length > 0 && hasMore && (
+          <Motion role="fade">
+            <div className="mt-6 flex justify-center">
+              <button
+                type="button"
+                onClick={loadMore}
+                disabled={loadingMore}
+                className="inline-flex h-[var(--h-tap)] items-center gap-2
+                  rounded-[var(--radius-input)] border border-line-2
+                  px-4 font-mono text-[11.5px] font-bold uppercase
+                  tracking-[0.12em] text-chalk-3 transition-colors
+                  duration-[var(--d-fast)]
+                  hover:border-signal hover:text-signal disabled:opacity-40"
+              >
+                <span aria-hidden={loadingMore || undefined}>
+                  {loadingMore ? <Spinner /> : null}
+                </span>
+                {loadingMore ? null : "Charger plus"}
+              </button>
+            </div>
+          </Motion>
+        )}
 
       <PostOwnerTools actions={postActions} />
 
@@ -950,14 +1045,58 @@ export default function FeedPage() {
       <Sheet open={open} onClose={resetSheet} title="Nouveau post">
         <textarea
           value={text} onChange={(e) => setText(e.target.value)}
-          rows={4} placeholder="Rédigez votre publication"
+          rows={Math.min(12, Math.max(4, text.split("\n").length))}
+          aria-label="Texte de la publication"
+          placeholder="Partage une question, un extrait ou une avancée."
           className="mb-3 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] leading-[1.6] shadow-sh-1 outline-none
-            transition-[transform,box-shadow] placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            text-[14px] leading-[1.6] placeholder:text-chalk-4"
         />
 
-        <label className="mb-3 flex cursor-pointer items-center gap-2 text-[12.5px] text-chalk-3">
+        {/* Le GIF se choisit dans une feuille à part : la grille a besoin
+            de place, et le composeur doit rester lisible. */}
+        <div className="mb-3 flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setGifOpen(true)}
+            aria-haspopup="dialog"
+            className="inline-flex min-h-[var(--h-tap)] items-center gap-1.5
+              rounded-[var(--radius-chip)] border border-line-3 px-3 font-mono
+              text-[12px] font-bold uppercase tracking-[0.08em] text-chalk-3
+              transition-colors duration-[var(--d-fast)]
+              hover:border-signal hover:text-signal"
+          >
+            <Icon name="gif" size={16} />
+            {gif ? "Changer le GIF" : "Ajouter un GIF"}
+          </button>
+        </div>
+
+        {gif && (
+          <Motion role="scale" className="mb-3">
+            <div className="relative overflow-hidden rounded-[var(--radius-input)] border border-line-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={gif.preview}
+                alt={gif.alt}
+                className="max-h-[220px] w-full object-contain bg-surface-2"
+              />
+              <button
+                type="button"
+                onClick={() => setGif(null)}
+                aria-label="Retirer le GIF"
+                className="absolute right-2 top-2 inline-flex size-11 items-center
+                  justify-center rounded-full border border-line-3 bg-void/80
+                  text-chalk shadow-sh-1 backdrop-blur transition-colors
+                  hover:border-danger hover:text-danger"
+              >
+                <Icon name="close" size={14} />
+              </button>
+            </div>
+          </Motion>
+        )}
+
+        <GifPicker open={gifOpen} onClose={() => setGifOpen(false)} onPick={setGif} />
+
+        <label className="mb-3 flex cursor-pointer items-center gap-2 text-sm text-chalk-3">
           <input
             type="checkbox" checked={isCode}
             onChange={(e) => setIsCode(e.target.checked)}
@@ -971,10 +1110,11 @@ export default function FeedPage() {
             <div className="mb-4">
               <label className="label mb-1.5 block text-chalk">Langage</label>
               <select
+                aria-label="Langage du code"
                 value={lang} onChange={(e) => setLang(e.target.value)}
                 className="h-[var(--h-input)] w-full cursor-pointer
                   rounded-[var(--radius-input)] border border-line-3 bg-surface
-                  px-3.5 text-[14px] shadow-sh-1 outline-none"
+                  px-3.5 text-[14px] shadow-sh-1"
               >
                 {LANG_OPTIONS.map((l) => (
                   <option key={l} value={l}>{l || "Sélectionner…"}</option>
@@ -990,11 +1130,12 @@ export default function FeedPage() {
                 </div>
               )}
               <textarea
+                aria-label="Code à publier"
                 value={code} onChange={(e) => setCode(e.target.value)} rows={7}
                 placeholder="// Ton code ici…"
                 className="w-full rounded-[var(--radius-input)] border border-line-3
                   bg-surface-2 px-3.5 py-3 font-mono text-[var(--text-code)]
-                  leading-[var(--lh-code)] shadow-sh-1 outline-none
+                  leading-[var(--lh-code)] shadow-sh-1
                   placeholder:text-chalk-4"
               />
             </div>
@@ -1070,82 +1211,22 @@ export default function FeedPage() {
       </Sheet>
 
 
-      {/* ── Publier une story ── */}
-      <Sheet
+      {/* ── Studio de story : on compose ce qu'on verra. ── */}
+      <StoryStudio
         open={openStoryCompose}
         onClose={() => setOpenStoryCompose(false)}
-        title="Nouvelle story"
-      >
-        {/* Qui publie. Une story est un visage avant d'être un texte : on
-            montre l'auteur et l'échéance sur la même ligne, avant le champ. */}
-        <div className="mb-3.5 flex items-center gap-2.5">
-          <span
-            className="flex size-[42px] shrink-0 items-center justify-center rounded-full p-[2px]"
-            style={{ background: "var(--story-ring-gradient)" }}
-          >
-            <span className="flex size-full items-center justify-center rounded-full bg-page">
-              <Avatar
-                name={profile?.prenom ?? "moi"}
-                color={profile?.avatar_color}
-                className="size-[34px] border-0 text-[13px]"
-              />
-            </span>
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-[13px] font-bold text-chalk">
-              @{profile?.pseudo ?? "moi"}
-            </p>
-            <p className="label-micro text-chalk-4">Disparaît dans 24 h</p>
-          </div>
-        </div>
-
-        {/* On écrit **dans** le cadre de la story. L'anneau de marque
-            encadre le texte exactement comme il l'encadrera dans le
-            lecteur : on compose ce qu'on voit, et non un champ dont on
-            découvrirait le rendu après publication. */}
-        <div
-          className="rounded-[calc(var(--radius-card)+4px)] p-[2px]"
-          style={{ background: "var(--story-ring-gradient)" }}
-        >
-          <div className="min-h-[180px] rounded-[var(--radius-card)] bg-page px-4 py-3.5">
-            <textarea
-              value={storyText}
-              onChange={(e) => setStoryText(e.target.value)}
-              rows={5}
-              maxLength={STORY_MAX}
-              autoFocus
-              placeholder="Ta story en un texte court…"
-              className="w-full resize-none border-0 bg-transparent p-0 text-[16px]
-                leading-[1.55] text-chalk outline-none placeholder:text-chalk-4"
-            />
-          </div>
-        </div>
-
-        <div className="mt-4 flex items-center justify-between gap-3">
-          <span className="tnum font-mono text-[10.5px] text-chalk-4">
-            {storyText.length}/{STORY_MAX}
-          </span>
-          <button
-            type="button"
-            disabled={!profile || !storyText.trim()}
-            onClick={async () => {
-              if (!profile) return;
-              const { error } = await publishStory(profile.id, storyText);
-              if (error) return toast(`Story non publiée : ${error}`, "err");
-              setStoryText("");
-              setOpenStoryCompose(false);
-              await refreshStories();
-              toast("Story publiée · 24 h");
-            }}
-            className="mo-press h-[var(--h-input)] rounded-[var(--radius-chip)] border
-              border-signal bg-signal px-5 font-mono text-[12px] font-bold
-              tracking-[0.1em] text-void uppercase shadow-sh-1
-              disabled:opacity-40"
-          >
-            Publier
-          </button>
-        </div>
-      </Sheet>
+        profile={
+          profile
+            ? {
+                id: profile.id,
+                prenom: profile.prenom,
+                pseudo: profile.pseudo,
+                avatar_color: profile.avatar_color,
+              }
+            : null
+        }
+        onPublished={refreshStories}
+      />
 
       {openStories.length > 0 && (
         <StoryViewer
@@ -1162,31 +1243,6 @@ export default function FeedPage() {
         />
       )}
 
-      {/* ── Bulle de rédaction ──
-          Un bouton flottant en verre, **toujours visible** pendant le
-          défilement. Il ouvre la feuille de composition : on écrit dans
-          un espace dédié, pas dans une barre écrasée entre deux posts.
-          Porté dans `document.body` pour échapper aux `transform` et
-          `backdrop-filter` des ancêtres (qui créeraient un bloc conteneur
-          et figeraient le `position: fixed`). */}
-      {fabReady &&
-        createPortal(
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            aria-label="Écrire une publication"
-            data-tour="composer"
-            className="glass-lens fixed right-4 bottom-[calc(var(--h-bottomnav)+var(--h-status)+1.1rem)]
-              z-[var(--z-composer)] flex size-14 items-center justify-center rounded-full
-              text-signal
-              transition-transform duration-[var(--d-base)] ease-[var(--ease-spring)]
-              hover:scale-105 active:scale-95
-              shell:right-6 shell:bottom-6"
-          >
-            <Icon name="edit" size={20} strokeWidth={2} />
-          </button>,
-          document.body,
-        )}
     </AppShell>
   );
 }

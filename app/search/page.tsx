@@ -220,7 +220,7 @@ function SearchScreen() {
           <div className="relative mb-3">              <span
               aria-hidden="true"
               className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 font-mono text-signal"
-              style={{ textShadow: "0 0 12px rgba(255,138,61,0.5)" }}
+              style={{ textShadow: "var(--glow-signal)" }}
             >
               $
             </span>
@@ -236,10 +236,10 @@ function SearchScreen() {
               data-tour="search-input"
               autoFocus
               className="h-[var(--h-tap)] w-full rounded-[var(--radius-input)] border
-                border-line-3 bg-surface pr-10 pl-8 text-[14px] shadow-sh-1 outline-none
+                border-line-3 bg-surface pr-10 pl-8 text-[14px] shadow-sh-1
                 transition-[transform,box-shadow] duration-[var(--d-base)]
                 ease-[var(--ease-spring)] placeholder:text-chalk-4
-                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
             {(query || tag) && (
               <button
@@ -393,12 +393,11 @@ function SearchScreen() {
           />
         )}
 
-        {tab === "posts" && !postsError && posts.map((p, i) => (
+        {tab === "posts" && !postsError && posts.map((p) => (
             <PostCard
               key={p.id}
               post={p}
               meId={profile?.id ?? null}
-              index={i}
               liked={likedIds.includes(p.id)}
               onOpenComments={setCommentsFor}
               onOpenProfile={(pseudo) => router.push(`/u/${pseudo}`)}

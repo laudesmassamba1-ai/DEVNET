@@ -81,14 +81,15 @@ export function PostOwnerTools({
           pis-aller. */}
       <Sheet open={editing !== null} onClose={cancelEdit} title="Modifier le post">
         <textarea
+          aria-label="Texte du post"
           value={editText}
           onChange={(e) => setEditText(e.target.value)}
           rows={5}
           placeholder="Le texte du post…"
           className="mb-3 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] leading-[1.6] shadow-sh-1 outline-none
+            text-[14px] leading-[1.6] shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         <div className="flex gap-2">

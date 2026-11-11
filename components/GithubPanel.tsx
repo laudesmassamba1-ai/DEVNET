@@ -331,7 +331,7 @@ export function GithubPanel({
 
         {connection === null ? (
           <>
-            <p className="mb-3 max-w-[62ch] text-[12.5px] leading-relaxed text-chalk-3">
+            <p className="mb-3 max-w-[62ch] text-sm leading-relaxed text-chalk-3">
               Copie vers GitHub ; DevNet reste la source. Jeton propre à votre compte.
             </p>
             <div className="flex flex-wrap items-end gap-2">
@@ -345,8 +345,8 @@ export function GithubPanel({
                   placeholder="koffi-devnet"
                   className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                     border border-line-3 bg-surface px-3 font-mono text-[13px]
-                    shadow-sh-1 outline-none placeholder:text-chalk-4
-                    focus:shadow-[3px_3px_0_#FF8A3D]"
+                    shadow-sh-1 placeholder:text-chalk-4
+                    focus:shadow-[3px_3px_0_var(--color-signal)]"
                 />
               </label>
               <button
@@ -369,7 +369,7 @@ export function GithubPanel({
               <div className="font-mono text-[13px] font-bold text-chalk">
                 @{connection.login}
               </div>
-              <div className="text-[11px] text-chalk-4">
+              <div className="text-sm text-chalk-4">
                 connecté {timeAgo(connection.connected_at)} · scopes{" "}
                 {connection.scopes.join(", ") || "aucun"}
               </div>
@@ -383,7 +383,7 @@ export function GithubPanel({
                 setLink(null);
                 toast("GitHub déconnecté");
               }}
-              className="font-mono text-[10.5px] font-bold tracking-[0.08em]
+              className="font-mono text-sm font-bold tracking-[0.08em]
                 text-chalk-3 uppercase transition-colors hover:text-danger"
             >
               Déconnecter
@@ -401,7 +401,7 @@ export function GithubPanel({
             <Loading label="Lecture du lien" />
           ) : link === null ? (
             <>
-              <p className="mb-3 max-w-[62ch] text-[12.5px] leading-relaxed text-chalk-3">
+              <p className="mb-3 max-w-[62ch] text-sm leading-relaxed text-chalk-3">
                 URL GitHub ou <span className="font-mono">propriétaire/dépôt</span>.
               </p>
               <RepoPicker
@@ -412,16 +412,17 @@ export function GithubPanel({
               />
               <div className="flex flex-col gap-2.5">
                 <input
+                  aria-label="URL du dépôt GitHub"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://github.com/koffi-devnet/cooperative"
                   className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                     border border-line-3 bg-surface px-3 font-mono text-[13px]
-                    shadow-sh-1 outline-none placeholder:text-chalk-4
-                    focus:shadow-[3px_3px_0_#FF8A3D]"
+                    shadow-sh-1 placeholder:text-chalk-4
+                    focus:shadow-[3px_3px_0_var(--color-signal)]"
                 />
                 {parsed && !parsed.ok && (
-                  <p className="text-[11.5px] text-danger">{LINK_ERROR_TEXT[parsed.reason]}</p>
+                  <p className="text-sm text-danger">{LINK_ERROR_TEXT[parsed.reason]}</p>
                 )}
                 <ModeChoice value={mode} onChange={setMode} ownedByViewer={ownedByViewer} />
                 <div>
@@ -548,7 +549,7 @@ function ConnectionsSection({ me }: { me: string }) {
   return (
     <section className="rounded-[var(--radius-card)] border border-line-2/60 bg-surface p-4">
       <h3 className="prompt-label mb-2 text-chalk-2">Autres connexions</h3>
-      <p className="mb-3 max-w-[62ch] text-[12.5px] leading-relaxed text-chalk-3">
+      <p className="mb-3 max-w-[62ch] text-sm leading-relaxed text-chalk-3">
         Un tunnel VS Code, une API à prévenir. Le secret de chaque destination
         vit au coffre : on n&apos;en garde ici que le nom.
       </p>
@@ -567,7 +568,7 @@ function ConnectionsSection({ me }: { me: string }) {
             >
               <div className="mb-2 flex items-center gap-2">
                 <Icon name={asIconName(p.icon, "server")} size={14} />
-                <span className="font-mono text-[12.5px] font-bold text-chalk">{p.label}</span>
+                <span className="font-mono text-sm font-bold text-chalk">{p.label}</span>
                 {conn && (
                   <StatusChip status={conn.status} />
                 )}
@@ -576,7 +577,7 @@ function ConnectionsSection({ me }: { me: string }) {
               {conn ? (
                 <div className="flex items-center gap-3">
                   <div className="min-w-0 flex-1">
-                    <div className="font-mono text-[12.5px] font-bold text-chalk">
+                    <div className="font-mono text-sm font-bold text-chalk">
                       {conn.login}
                     </div>
                     {conn.endpoint && (
@@ -584,12 +585,12 @@ function ConnectionsSection({ me }: { me: string }) {
                         href={conn.endpoint}
                         target="_blank"
                         rel="noreferrer"
-                        className="block truncate font-mono text-[11px] text-chalk-4 hover:text-signal"
+                        className="block truncate font-mono text-sm text-chalk-4 hover:text-signal"
                       >
                         {conn.endpoint}
                       </a>
                     )}
-                    <div className="text-[11px] text-chalk-4">
+                    <div className="text-sm text-chalk-4">
                       {conn.used_at
                         ? `utilisée ${timeAgo(conn.used_at)}`
                         : "jamais utilisée"}
@@ -600,7 +601,7 @@ function ConnectionsSection({ me }: { me: string }) {
                     disabled={busyId === conn.id}
                     onClick={() => void doTouch(conn.id)}
                     className="h-[var(--h-action)] rounded-[var(--radius-chip)] border
-                      border-line-3 px-3 font-mono text-[10.5px] font-bold tracking-[0.08em]
+                      border-line-3 px-3 font-mono text-sm font-bold tracking-[0.08em]
                       text-chalk uppercase transition-colors hover:border-signal hover:text-signal
                       disabled:opacity-40"
                   >
@@ -614,7 +615,7 @@ function ConnectionsSection({ me }: { me: string }) {
                       await load();
                       toast(`${p.label} déconnecté`);
                     }}
-                    className="font-mono text-[10.5px] font-bold tracking-[0.08em]
+                    className="font-mono text-sm font-bold tracking-[0.08em]
                       text-chalk-3 uppercase transition-colors hover:text-danger"
                   >
                     Déconnecter
@@ -622,8 +623,9 @@ function ConnectionsSection({ me }: { me: string }) {
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
-                  <p className="text-[11.5px] leading-snug text-chalk-3">{p.hint}</p>
+                  <p className="text-sm leading-snug text-chalk-3">{p.hint}</p>
                   <input
+                    aria-label="Identifiant de la preuve"
                     value={draft.login}
                     onChange={(e) =>
                       setDrafts((d) => ({ ...d, [p.id]: { ...draft, login: e.target.value } }))
@@ -631,11 +633,12 @@ function ConnectionsSection({ me }: { me: string }) {
                     placeholder={p.identityPlaceholder}
                     className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                       border border-line-3 bg-surface px-3 font-mono text-[13px]
-                      shadow-sh-1 outline-none placeholder:text-chalk-4
-                      focus:shadow-[3px_3px_0_#FF8A3D]"
+                      shadow-sh-1 placeholder:text-chalk-4
+                      focus:shadow-[3px_3px_0_var(--color-signal)]"
                   />
                   {p.needsEndpoint && (
                     <input
+                      aria-label="Point de contrôle de la preuve"
                       value={draft.endpoint}
                       onChange={(e) =>
                         setDrafts((d) => ({ ...d, [p.id]: { ...draft, endpoint: e.target.value } }))
@@ -643,18 +646,18 @@ function ConnectionsSection({ me }: { me: string }) {
                       placeholder={p.endpointPlaceholder}
                       className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
                         border border-line-3 bg-surface px-3 font-mono text-[13px]
-                        shadow-sh-1 outline-none placeholder:text-chalk-4
-                        focus:shadow-[3px_3px_0_#FF8A3D]"
+                        shadow-sh-1 placeholder:text-chalk-4
+                        focus:shadow-[3px_3px_0_var(--color-signal)]"
                     />
                   )}
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[11px] text-chalk-4">{p.effect}</span>
+                    <span className="text-sm text-chalk-4">{p.effect}</span>
                     <button
                       type="button"
                       onClick={() => void doConnect(p)}
                       disabled={busyId === p.id || !canConnect}
                       className="h-[var(--h-input)] shrink-0 rounded-[var(--radius-chip)] border
-                        border-signal bg-signal px-4 font-mono text-[11px] font-bold
+                        border-signal bg-signal px-4 font-mono text-sm font-bold
                         tracking-[0.1em] text-void uppercase shadow-sh-1 disabled:opacity-40"
                     >
                       Connecter
@@ -722,7 +725,7 @@ function ModeChoice({
                 <span className="block font-mono text-[12px] font-bold text-chalk">
                   {m.label}
                 </span>
-                <span className="block text-[11px] leading-snug text-chalk-4">{m.hint}</span>
+                <span className="block text-sm leading-snug text-chalk-4">{m.hint}</span>
               </span>
             </button>
           );
@@ -768,7 +771,7 @@ function LinkedView({
         <span className="font-mono text-[13px] font-bold text-chalk">
           {repoSlug({ owner: link.owner, repo: link.repo })}
         </span>
-        <span className="font-mono text-[11px] text-chalk-4">
+        <span className="font-mono text-sm text-chalk-4">
           branche {link.default_branch}
         </span>
         <span className="label-micro text-chalk-3">
@@ -777,14 +780,14 @@ function LinkedView({
       </div>
 
       {link.last_synced_at && (
-        <p className="font-mono text-[11px] text-chalk-4">
+        <p className="font-mono text-sm text-chalk-4">
           dernière synchro {timeAgo(link.last_synced_at)}
           {link.last_push_sha ? ` · ${link.last_push_sha.slice(0, 7)}` : ""}
         </p>
       )}
 
       {stale && (
-        <p className="flex items-center gap-1.5 text-[11.5px] text-warn">
+        <p className="flex items-center gap-1.5 text-sm text-warn">
           <Icon name="info" size={12} />
           Lien non rafraîchi depuis 30 jours.
         </p>
@@ -793,12 +796,12 @@ function LinkedView({
       {/* Le plan, dit avant toute action — c'est tout l'intérêt. */}
       {plan && (
         <div className="border-l-2 border-signal bg-surface-2 px-3 py-2">
-          <div className="font-mono text-[11.5px] font-bold text-signal">
+          <div className="font-mono text-sm font-bold text-signal">
             {ACTION_TEXT[plan.action] ?? plan.action}
           </div>
-          <div className="mt-0.5 text-[11.5px] leading-snug text-chalk-3">{plan.reason}</div>
+          <div className="mt-0.5 text-sm leading-snug text-chalk-3">{plan.reason}</div>
           {headSha && (
-            <div className="tnum mt-1 font-mono text-[10.5px] text-chalk-4">
+            <div className="tnum mt-1 font-mono text-sm text-chalk-4">
               tête locale · {headSha.slice(0, 7)}
             </div>
           )}
@@ -816,21 +819,21 @@ function LinkedView({
         <div className="border border-line-2 bg-surface-2 px-3 py-2">
           <div className="flex flex-wrap items-center gap-2">
             <span className={`size-1.5 rounded-full ${liveTone(live?.status)}`} />
-            <span className="font-mono text-[11.5px] font-bold text-chalk">
+            <span className="font-mono text-sm font-bold text-chalk">
               Synchro live
             </span>
-            <span className="text-[11px] text-chalk-4">
+            <span className="text-sm text-chalk-4">
               {live ? LIVE_STATUS_TEXT[live.status] : "en veille"}
             </span>
             {live?.lastCheck && (
-              <span className="tnum ml-auto font-mono text-[10.5px] text-chalk-4">
+              <span className="tnum ml-auto font-mono text-sm text-chalk-4">
                 {timeAgo(live.lastCheck)}
               </span>
             )}
           </div>
 
           {live?.message && (
-            <p className="mt-1 text-[11px] leading-snug text-chalk-3">{live.message}</p>
+            <p className="mt-1 text-sm leading-snug text-chalk-3">{live.message}</p>
           )}
 
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -851,7 +854,7 @@ function LinkedView({
                     disabled={busy}
                     onClick={() => onChangeInterval(seconds)}
                     className={`h-[var(--h-action)] rounded-[var(--radius-chip)] border px-2
-                      font-mono text-[11px] disabled:opacity-40
+                      font-mono text-sm disabled:opacity-40
                       ${selected
                         ? "border-signal bg-signal/10 text-signal"
                         : "border-line-3 text-chalk-3 hover:border-chalk-3"}`}
@@ -866,7 +869,7 @@ function LinkedView({
               onClick={() => live?.checkNow()}
               disabled={busy}
               className="ml-auto h-[var(--h-action)] rounded-[var(--radius-chip)]
-                border border-line-3 px-3 font-mono text-[11px] font-bold text-chalk-3
+                border border-line-3 px-3 font-mono text-sm font-bold text-chalk-3
                 hover:border-chalk-3 disabled:opacity-40"
             >
               Vérifier maintenant
@@ -875,7 +878,7 @@ function LinkedView({
         </div>
       )}
 
-      <p className="max-w-[62ch] text-[11px] leading-relaxed text-chalk-4">
+      <p className="max-w-[62ch] text-sm leading-relaxed text-chalk-4">
         La poussée copie les fichiers de la branche locale vers GitHub. Si GitHub
         a avancé depuis la dernière synchro, elle est refusée — DevNet
         n&apos;écrase pas.
@@ -887,7 +890,7 @@ function LinkedView({
           onClick={onPush}
           disabled={busy || !canPush}
           className="h-[var(--h-action)] rounded-[var(--radius-chip)] border
-            border-signal bg-signal px-3 font-mono text-[11px] font-bold
+            border-signal bg-signal px-3 font-mono text-sm font-bold
             tracking-[0.08em] text-void uppercase shadow-sh-1
             disabled:opacity-40"
         >
@@ -898,7 +901,7 @@ function LinkedView({
           onClick={onMarkSynced}
           disabled={busy || !headSha}
           className="h-[var(--h-action)] rounded-[var(--radius-chip)] border
-            border-line-2 px-3 font-mono text-[11px] font-bold tracking-[0.08em]
+            border-line-2 px-3 font-mono text-sm font-bold tracking-[0.08em]
             text-chalk-3 uppercase transition-colors hover:border-signal hover:text-signal
             disabled:opacity-40"
         >
@@ -909,7 +912,7 @@ function LinkedView({
           onClick={onUnlink}
           disabled={busy}
           className="h-[var(--h-action)] rounded-[var(--radius-chip)] border
-            border-line-2 px-3 font-mono text-[11px] font-bold tracking-[0.08em]
+            border-line-2 px-3 font-mono text-sm font-bold tracking-[0.08em]
             text-chalk-4 uppercase transition-colors hover:border-danger hover:text-danger
             disabled:opacity-40"
         >
@@ -998,7 +1001,7 @@ function RepoPicker({
           placeholder="Filtrer…"
           className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
             border-line-3 bg-surface px-3 font-mono text-[13px] shadow-sh-1
-            outline-none placeholder:text-chalk-4 focus:shadow-[3px_3px_0_#FF8A3D]"
+            placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
       </label>
       <ul className="max-h-60 overflow-auto p-1">
@@ -1020,7 +1023,7 @@ function RepoPicker({
                   {r.full_name}
                 </span>
                 {r.language && (
-                  <span className="shrink-0 text-[11px] text-chalk-4">{r.language}</span>
+                  <span className="shrink-0 text-sm text-chalk-4">{r.language}</span>
                 )}
               </button>
             </li>

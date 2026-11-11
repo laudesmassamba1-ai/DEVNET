@@ -72,7 +72,7 @@ export function ProjectCard({
           </span>
 
           {project.description && (
-            <span className="mt-0.5 line-clamp-2 block text-[12.5px] leading-snug text-chalk-3">
+            <span className="mt-0.5 line-clamp-2 block text-sm leading-snug text-chalk-3">
               {project.description}
             </span>
           )}

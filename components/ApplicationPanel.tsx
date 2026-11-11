@@ -109,7 +109,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
             <span className={`rounded-[var(--radius-chip)] border px-2 py-0.5 font-mono text-[10.5px] ${STATUS[mine.status].className}`}>
               {STATUS[mine.status].label}
             </span>
-            <span className="text-[12.5px] text-chalk-3">
+            <span className="text-sm text-chalk-3">
               {roleLabel(mine.role)} — envoyée {timeAgo(mine.created_at)}
             </span>
           </div>

@@ -369,7 +369,7 @@ export default function ProjectsPage() {
                       </span>
 
                       {p.description && (
-                        <span className="mt-0.5 line-clamp-2 block text-[12.5px] leading-snug text-chalk-3">
+                        <span className="mt-0.5 line-clamp-2 block text-sm leading-snug text-chalk-3">
                           {p.description}
                         </span>
                       )}
@@ -454,10 +454,10 @@ export default function ProjectsPage() {
           placeholder="registre-cooperatives"
           autoFocus
           className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-            border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
+            border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
             transition-[transform,box-shadow] duration-[var(--d-base)]
             ease-[var(--ease-spring)] placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         <label htmlFor="proj-desc" className="prompt-label mb-1.5 block text-chalk-2">
@@ -470,9 +470,9 @@ export default function ProjectsPage() {
           rows={2}
           placeholder="Ce que ce dépôt fait, en une phrase."
           className="mb-4 w-full rounded-[var(--radius-input)] border border-line-3
-            bg-surface px-3.5 py-3 text-[14px] shadow-sh-1 outline-none
+            bg-surface px-3.5 py-3 text-[14px] shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
-            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+            focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
         <div className="mb-4 grid grid-cols-2 gap-2">
@@ -486,9 +486,9 @@ export default function ProjectsPage() {
               onChange={(e) => setLanguage(e.target.value)}
               placeholder="Python"
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
+                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
-                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
           </div>
           <div>
@@ -500,8 +500,8 @@ export default function ProjectsPage() {
               value={stage}
               onChange={(e) => setStage(e.target.value as ProjectStage)}
               className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1 outline-none
-                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1
+                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             >
               {PROJECT_STAGES.map((s) => (
                 <option key={s.id} value={s.id}>{s.label}</option>
@@ -516,7 +516,7 @@ export default function ProjectsPage() {
             type="checkbox"
             checked={seeking}
             onChange={(e) => setSeeking(e.target.checked)}
-            className="size-4 accent-[#FF8A3D]"
+            className="size-4 accent-[var(--color-signal)]"
           />
           Ce projet recrute.
         </label>
@@ -532,9 +532,9 @@ export default function ProjectsPage() {
               onChange={(e) => setDemandLanguages(e.target.value)}
               placeholder="Python, SQL"
               className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1 outline-none
+                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
-                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
 
             <span className="mb-1.5 block prompt-label text-chalk-2">rôles recherchés</span>
@@ -597,7 +597,7 @@ export default function ProjectsPage() {
       >
         {applyTo && (
           <>
-            <p className="mb-4 text-[12.5px] leading-relaxed text-chalk-3">
+            <p className="mb-4 text-sm leading-relaxed text-chalk-3">
               {applyTo.demand_languages.length > 0 || applyTo.demand_roles.length > 0
                 ? "Ce projet cherche : " +
                   [...applyTo.demand_languages, ...applyTo.demand_roles.map(roleLabel)].join(", ")
@@ -612,8 +612,8 @@ export default function ProjectsPage() {
               value={applyRole}
               onChange={(e) => setApplyRole(e.target.value)}
               className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1 outline-none
-                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1
+                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             >
               {(applyTo.demand_roles.length > 0
                 ? applyTo.demand_roles
@@ -633,9 +633,9 @@ export default function ProjectsPage() {
               rows={3}
               placeholder="Ce que vous apportez, en deux phrases."
               className="mb-5 w-full rounded-[var(--radius-input)] border border-line-3
-                bg-surface px-3.5 py-3 text-[14px] shadow-sh-1 outline-none
+                bg-surface px-3.5 py-3 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
-                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_#FF8A3D]"
+                focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
 
             <div className="flex gap-2">
@@ -688,7 +688,7 @@ function FilterBar({
 }) {
   const selectClass =
     "h-[34px] rounded-[var(--radius-chip)] border border-line-2 bg-surface px-2.5 " +
-    "font-mono text-[11.5px] text-chalk-2 shadow-sh-1 outline-none focus:border-signal";
+    "font-mono text-[11.5px] text-chalk-2 shadow-sh-1 focus:border-signal";
 
   return (
     <Motion role="slide" delay={80}>

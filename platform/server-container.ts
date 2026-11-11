@@ -1,0 +1,139 @@
+/**
+ * Composition réservée au serveur.
+ *
+ * `platform/container.ts` est importé par des modules qui vivent aussi dans le
+ * navigateur : y ajouter `pg` enverrait le driver dans le bundle client. Ce
+ * fichier-ci n'est importé que par des routes serveur et ne doit jamais
+ * l'être depuis un composant.
+ */
+import { createEventDispatcher, type EventDispatcher } from "@/modules/events";
+import { PostgresEventOutboxRepository } from "@/modules/events/infrastructure/postgres/postgres-event-outbox-repository";
+import { PostgresAuthRepository } from "@/modules/auth/infrastructure/postgres/postgres-auth-repository";
+import type { AuthRepository } from "@/modules/auth/ports/auth-repository";
+import { PostgresFeedRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-repository";
+import { PostgresFeedHydrationRepository } from "@/modules/feed/infrastructure/postgres/postgres-feed-hydration-repository";
+import { PostgresStoriesRepository } from "@/modules/stories/infrastructure/postgres/postgres-stories-repository";
+import {
+  encodeStoryMedia,
+  mediaKind,
+} from "@/modules/stories/infrastructure/media/story-media";
+import type { StoriesRepository } from "@/modules/stories/ports/stories-repository";
+
+export { encodeStoryMedia, mediaKind };
+import { PostgresStickersRepository } from "@/modules/stickers/infrastructure/postgres/postgres-stickers-repository";
+import type { StickersRepository } from "@/modules/stickers/ports/stickers-repository";
+import { reencodeSticker } from "@/modules/stickers/infrastructure/image/reencode";
+import type { FeedRepository } from "@/modules/feed/ports/feed-repository";
+import type { FeedHydrationRepository } from "@/modules/feed/ports/feed-hydration-repository";
+import { withUser } from "./infrastructure/postgres/with-user";
+import {
+  getPostgresPool,
+  hasDatabaseUrl,
+} from "./infrastructure/postgres/pool";
+import {
+  createPluginRuntime,
+  type PluginRuntime,
+  type PluginStateRepository,
+} from "./plugin-runtime";
+import { PostgresPluginStateRepository } from "./plugin-runtime/infrastructure/postgres/postgres-plugin-state-repository";
+import { SupabasePluginStateRepository } from "./plugin-runtime/supabase-plugin-state-repository";
+import { REGISTERED_PLUGINS } from "./registry.generated";
+
+let runtime: PluginRuntime | null = null;
+let dispatcher: EventDispatcher | null = null;
+
+function pluginStateRepository(): PluginStateRepository {
+  if (hasDatabaseUrl()) {
+    return new PostgresPluginStateRepository(getPostgresPool());
+  }
+  return new SupabasePluginStateRepository();
+}
+
+export function getPluginRuntime(): PluginRuntime {
+  runtime ??= createPluginRuntime({
+    registry: REGISTERED_PLUGINS,
+    repository: pluginStateRepository(),
+    globalDisabled: process.env.PLUGINS_DISABLED === "true",
+    logger: {
+      info: (message, meta) => console.info(message, meta ?? ""),
+      warn: (message, meta) => console.warn(message, meta ?? ""),
+      error: (message, meta) => console.error(message, meta ?? ""),
+    },
+  });
+  return runtime;
+}
+
+/**
+ * Fil servi par PostgreSQL direct.
+ *
+ * Composé **ici** et pas dans `platform/container.ts` : ce dernier est aussi
+ * chargé par le navigateur, et y importer `pg` enverrait le pilote dans le
+ * bundle client. L'identité vient de `withUser`, donc la RLS reste la seule
+ * juge de ce qui est lisible.
+ */
+export function getServerFeedRepository(): FeedRepository {
+  return new PostgresFeedRepository({
+    asUser: (userId, run) => withUser(userId, run),
+  });
+}
+
+/**
+ * Hydratation du fil (likes, reposts, réactions, signets du lecteur).
+ *
+ * Même composition que le fil : l'identité vient de `withUser`, donc la RLS
+ * décide, et non la requête, de ce que le lecteur voit de lui-même.
+ */
+export function getServerFeedHydrationRepository(): FeedHydrationRepository {
+  return new PostgresFeedHydrationRepository({
+    asUser: (userId, run) => withUser(userId, run),
+  });
+}
+
+/**
+ * Stories et interactions (likes, vues, réponses, stickers).
+ *
+ * Même composition que le fil : l'exécution passe par `withUser`, donc la
+ * RLS décide de ce que le lecteur voit, et les compteurs ne remontent à
+ * l'écran que pour l'auteur.
+ */
+export function getServerStoriesRepository(): StoriesRepository {
+  return new PostgresStoriesRepository({
+    asUser: (userId, run) => withUser(userId, run),
+  });
+}
+
+/**
+ * Stickers personnels — catalogue, création, octets.
+ *
+ * Le re-encodage d'image est injecté ici : c'est la seule chose que
+ * l'adaptateur ne sait pas faire seul, et c'est ce qui garantit qu'un
+ * fichier client n'est jamais publié tel quel.
+ */
+export function getServerStickersRepository(): StickersRepository {
+  return new PostgresStickersRepository({
+    asUser: (userId, run) => withUser(userId, run),
+    reencode: reencodeSticker,
+  });
+}
+
+/**
+ * Authentification servie par PostgreSQL direct.
+ *
+ * L'exécuteur est la connexion propriétaire : les deux tables d'auth n'ont
+ * aucune politique RLS, une identité d'utilisateur n'y verrait rien. Voir
+ * `supabase/046_auth_sessions.sql` pour la raison de ce choix.
+ */
+export function getServerAuthRepository(): AuthRepository {
+  return new PostgresAuthRepository({
+    query: async (sql, values) => (await getPostgresPool().query(sql, values)).rows,
+  });
+}
+
+export function getEventDispatcher(): EventDispatcher | null {
+  if (!hasDatabaseUrl()) return null;
+  dispatcher ??= createEventDispatcher({
+    repository: new PostgresEventOutboxRepository(getPostgresPool()),
+    runtime: getPluginRuntime(),
+  });
+  return dispatcher;
+}
