@@ -14,14 +14,13 @@ import { PostOwnerTools } from "@/components/PostOwnerTools";
 import { Sheet } from "@/components/Sheet";
 import { groupStoriesByAuthor, StoryRail, StoryViewer } from "@/components/StoryRail";
 import { useToast } from "@/components/Toast";
-import { StoryStudio } from "@/components/StoryStudio";
 import { WovenBand } from "@/components/WovenBand";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/hooks/useSession";
 import { StudioEditor } from "@/components/studio/StudioEditor";
 import { postPoints } from "@/lib/gamification";
 import { uploadMedia } from "@/lib/media";
-import { deleteStory, fetchLiveStories } from "@/lib/stories";
+import { deleteStory, fetchLiveStories, publishStoryMedia } from "@/lib/stories";
 import {
   fetchFeedHydrationCached as fetchFeedHydration,
   fetchFeedPageCached as fetchFeedPage,
@@ -118,6 +117,15 @@ export default function FeedPage() {
   const [mediaBusy, setMediaBusy] = useState(false);
   /** Atelier visuel ouvert par-dessus la feuille de publication. */
   const [studioOpen, setStudioOpen] = useState(false);
+  /** Média importé, encore local : il devient le fond de l'atelier. */
+  const [studioSource, setStudioSource] = useState<{
+    file: File;
+    url: string;
+    kind: "image" | "video";
+    name: string;
+  } | null>(null);
+  /** Texte des calques du statut en cours d'édition. */
+  const [storyText, setStoryText] = useState("");
   const [density, setDensity] = useState<FeedDensity>("comfortable");
   const [densityReady, setDensityReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -571,6 +579,7 @@ export default function FeedPage() {
   function resetSheet() {
     setOpen(false);
     setStudioOpen(false);
+    clearStudioSource();
     setText("");
     setCode("");
     setLang("");
@@ -582,6 +591,47 @@ export default function FeedPage() {
     // est une décision par publication, pas une préférence. Le garder
     // ferait rattacher par automatisme des publications sans rapport.
     setProjectId(null);
+  }
+
+  /** Libère l'URL locale du média importé. */
+  function clearStudioSource() {
+    setStudioSource((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return null;
+    });
+  }
+
+  function closeStudio() {
+    clearStudioSource();
+    setStudioOpen(false);
+  }
+
+  /**
+   * Importer un média ouvre l'atelier immédiatement. Le fichier n'est pas
+   * encore téléversé : l'export de l'atelier décidera de ce qui part.
+   */
+  function openStudioWith(file: File) {
+    const kind = file.type.startsWith("video/")
+      ? "video"
+      : file.type.startsWith("image/")
+        ? "image"
+        : null;
+    if (!kind) return toast("Choisis une photo ou une vidéo.", "err");
+    const url = URL.createObjectURL(file);
+    setStudioSource((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return { file, url, kind, name: file.name };
+    });
+    setStudioOpen(true);
+  }
+
+  /** Publie le dessin de l'atelier comme statut de 24 h. */
+  async function publishStoryFromStudio(file: File) {
+    const { id, error } = await publishStoryMedia(storyText, file);
+    if (error || !id) return toast(error ?? "Publication du statut impossible", "err");
+    setStoryText("");
+    await refreshStories();
+    toast("Statut publié · 24 h");
   }
 
   async function attachMedia(file: File) {
@@ -1074,16 +1124,24 @@ export default function FeedPage() {
 
       <Sheet
         open={open}
-        onClose={() => (studioOpen ? setStudioOpen(false) : resetSheet())}
+        onClose={() => (studioOpen ? closeStudio() : resetSheet())}
         title="Nouveau post"
       >
         <StudioEditor
           open={studioOpen}
-          onClose={() => setStudioOpen(false)}
-          initialMedia={media}
+          onClose={closeStudio}
+          initialMedia={
+            studioSource
+              ? { url: studioSource.url, kind: studioSource.kind, name: studioSource.name }
+              : media
+          }
+          sourceFile={studioSource?.file ?? null}
           onLayersChange={setText}
           owner={profile?.pseudo ?? ""}
           onUse={(file) => {
+            void attachMedia(file);
+          }}
+          onUseSource={(file) => {
             void attachMedia(file);
           }}
         />
@@ -1163,7 +1221,7 @@ export default function FeedPage() {
               const file = event.target.files?.[0];
               // Reset : choisir deux fois le même fichier doit fonctionner.
               event.target.value = "";
-              if (file) void attachMedia(file);
+              if (file) openStudioWith(file);
             }}
             className="sr-only"
           />
@@ -1323,21 +1381,18 @@ export default function FeedPage() {
       </Sheet>
 
 
-      {/* ── Studio de story : on compose ce qu'on verra. ── */}
-      <StoryStudio
+      {/* ── Statut : l'atelier est le brouillon, et publie ce qu'on voit. ── */}
+      <StudioEditor
         open={openStoryCompose}
-        onClose={() => setOpenStoryCompose(false)}
-        profile={
-          profile
-            ? {
-                id: profile.id,
-                prenom: profile.prenom,
-                pseudo: profile.pseudo,
-                avatar_color: profile.avatar_color,
-              }
-            : null
-        }
-        onPublished={refreshStories}
+        onClose={() => {
+          setOpenStoryCompose(false);
+          setStoryText("");
+        }}
+        owner={profile?.pseudo ?? ""}
+        onLayersChange={setStoryText}
+        onUse={(file) => {
+          void publishStoryFromStudio(file);
+        }}
       />
 
       {openStories.length > 0 && (

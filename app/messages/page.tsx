@@ -71,6 +71,13 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<MessageRow[] | null>(null);
   const [text, setText] = useState("");
   const [studioOpen, setStudioOpen] = useState(false);
+  /** Média importé, encore local : il ouvre l'atelier avant tout envoi. */
+  const [studioSource, setStudioSource] = useState<{
+    file: File;
+    url: string;
+    kind: "image" | "video";
+    name: string;
+  } | null>(null);
   const [openNew, setOpenNew] = useState(false);
   /** Recherche dans la **liste** des conversations : filtre d'affichage. */
   const [search, setSearch] = useState("");
@@ -911,6 +918,34 @@ export default function MessagesPage() {
    * une fausse promesse. La préférence est un droit de réception, pas
    * une censure (le texte continue de passer).
    */
+  function closeStudio() {
+    setStudioSource((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return null;
+    });
+    setStudioOpen(false);
+  }
+
+  /** Importer un média ouvre l'atelier ; l'envoi part à l'export. */
+  function openStudioWith(file: File) {
+    if (!profile || !active) return;
+    if (active.other?.dm_media === false) {
+      return toast("Ce contact n'accepte pas les photos et vidéos.", "err");
+    }
+    const kind = file.type.startsWith("video/")
+      ? "video"
+      : file.type.startsWith("image/")
+        ? "image"
+        : null;
+    if (!kind) return toast("Choisis une photo ou une vidéo.", "err");
+    const url = URL.createObjectURL(file);
+    setStudioSource((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return { file, url, kind, name: file.name };
+    });
+    setStudioOpen(true);
+  }
+
   async function sendMedia(file: File) {
     if (!profile || !active) return;
     if (active.other?.dm_media === false) {
@@ -1242,10 +1277,19 @@ export default function MessagesPage() {
               </div>
               <StudioEditor
                 open={studioOpen}
-                onClose={() => setStudioOpen(false)}
+                onClose={closeStudio}
                 owner={profile?.pseudo ?? ""}
+                initialMedia={
+                  studioSource
+                    ? { url: studioSource.url, kind: studioSource.kind, name: studioSource.name }
+                    : null
+                }
+                sourceFile={studioSource?.file ?? null}
                 onLayersChange={setText}
                 onUse={(file) => {
+                  void sendMedia(file);
+                }}
+                onUseSource={(file) => {
                   void sendMedia(file);
                 }}
               />
@@ -1295,7 +1339,7 @@ export default function MessagesPage() {
                       <MessageAttachmentButtons
                         disabled={!active || sending || uploadingMedia}
                         onGif={(gif) => void send({ kind: "gif", gif })}
-                        onMedia={(file) => void sendMedia(file)}
+                        onMedia={(file) => openStudioWith(file)}
                       />
                       <button
                         type="button"

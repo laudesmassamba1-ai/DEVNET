@@ -61,6 +61,8 @@ export function StudioEditor({
   open,
   onClose,
   onUse,
+  onUseSource,
+  sourceFile = null,
   owner,
   onLayersChange,
   initialMedia = null,
@@ -68,6 +70,10 @@ export function StudioEditor({
   open: boolean;
   onClose: () => void;
   onUse: (file: File) => void;
+  /** Fichier importé avant l'ouverture : permet d'envoyer la vidéo d'origine. */
+  sourceFile?: File | null;
+  /** Envoie le fichier d'origine au lieu de l'export image. */
+  onUseSource?: (file: File) => void;
   owner: string;
   onLayersChange?: (text: string) => void;
   /** Média déjà joint au brouillon, chargé comme calque de fond. */
@@ -394,6 +400,20 @@ export function StudioEditor({
           <span role="alert" className="text-xs text-danger">
             {error}
           </span>
+        )}
+        {sourceFile?.type.startsWith("video/") && onUseSource && (
+          <button
+            type="button"
+            onClick={() => {
+              onUseSource(sourceFile);
+              onClose();
+            }}
+            disabled={busy}
+            className="mo-press flex items-center gap-1.5 rounded-md border border-line-2 px-3 py-2 text-xs font-semibold text-chalk-2 hover:border-signal hover:text-signal disabled:opacity-40"
+          >
+            <Icon name="video" size={14} />
+            Vidéo d&apos;origine
+          </button>
         )}
         <button
           type="button"

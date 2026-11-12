@@ -64,6 +64,13 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   const [loaded, setLoaded] = useState<{ channelId: string; rows: GroupMessage[] } | null>(null);
   const [text, setText] = useState("");
   const [studioOpen, setStudioOpen] = useState(false);
+  /** Média importé, encore local : il ouvre l'atelier avant tout envoi. */
+  const [studioSource, setStudioSource] = useState<{
+    file: File;
+    url: string;
+    kind: "image" | "video";
+    name: string;
+  } | null>(null);
   const [asCode, setAsCode] = useState(false);
   const [sending, setSending] = useState(false);
   /** Fichier en cours de téléversement avant l'envoi du message. */
@@ -442,6 +449,31 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     // On annonce le gain, sans toast d'erreur : répondre dans un groupe
     // fait progresser, et l'utilisateur doit le voir.
     toast(`Envoyé · +${messagePoints(asCode)} pts`);
+  }
+
+  function closeStudio() {
+    setStudioSource((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return null;
+    });
+    setStudioOpen(false);
+  }
+
+  /** Importer un média ouvre l'atelier ; l'envoi part à l'export. */
+  function openStudioWith(file: File) {
+    if (!active) return;
+    const kind = file.type.startsWith("video/")
+      ? "video"
+      : file.type.startsWith("image/")
+        ? "image"
+        : null;
+    if (!kind) return toast("Choisis une photo ou une vidéo.", "err");
+    const url = URL.createObjectURL(file);
+    setStudioSource((current) => {
+      if (current) URL.revokeObjectURL(current.url);
+      return { file, url, kind, name: file.name };
+    });
+    setStudioOpen(true);
   }
 
   /** Envoyer une photo ou une vidéo dans le canal courant. */
@@ -844,10 +876,19 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
           </div>
           <StudioEditor
             open={studioOpen}
-            onClose={() => setStudioOpen(false)}
+            onClose={closeStudio}
             owner={profile?.pseudo ?? ""}
+            initialMedia={
+              studioSource
+                ? { url: studioSource.url, kind: studioSource.kind, name: studioSource.name }
+                : null
+            }
+            sourceFile={studioSource?.file ?? null}
             onLayersChange={setText}
             onUse={(file) => {
+              void sendMedia(file);
+            }}
+            onUseSource={(file) => {
               void sendMedia(file);
             }}
           />
@@ -877,7 +918,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   <MessageAttachmentButtons
                     disabled={!active || sending || uploadingMedia}
                     onGif={(gif) => void send({ kind: "gif", gif })}
-                    onMedia={(file) => void sendMedia(file)}
+                    onMedia={(file) => openStudioWith(file)}
                   />
                   <button
                     type="button"
