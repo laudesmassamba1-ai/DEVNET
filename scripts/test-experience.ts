@@ -125,6 +125,7 @@ const BRAND_ALLOWED = new Set([
   "components/AnimatedLogo.tsx",
   "components/SplashScreen.tsx",
   "components/LoadingLogo.tsx",
+  "components/BrandIcons.tsx",
 ]);
 
 const HEX = /#[0-9A-Fa-f]{3}(?:[0-9A-Fa-f]{3})?(?:[0-9A-Fa-f]{2})?\b/;

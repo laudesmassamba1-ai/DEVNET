@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 
 import { Logo } from "@/components/Logo";
+import { GitHubMark, GoogleMark } from "@/components/BrandIcons";
 import { Icon } from "@/components/Icon";
 import { Avatar, Spinner } from "@/components/Avatar";
 import { Motion } from "@/components/Motion";
@@ -202,7 +203,7 @@ function LoginForm() {
                       text-[13px] font-semibold text-chalk shadow-sh-2
                       transition-colors hover:border-signal aria-disabled:opacity-40"
                   >
-                    <Icon name={provider === "google" ? "globe" : "code"} size={16} />
+                    {provider === "google" ? <GoogleMark /> : <GitHubMark />}
                     <span>
                       Continuer avec {provider === "google" ? "Google" : "GitHub"}
                     </span>
