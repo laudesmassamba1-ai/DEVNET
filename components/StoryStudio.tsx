@@ -15,7 +15,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Avatar } from "./Avatar";
 import { Icon } from "./Icon";
-import { Motion } from "./Motion";
 import { Sheet } from "./Sheet";
 import { useToast } from "./Toast";
 import { publishStory, publishStoryMedia, STORY_MAX } from "@/lib/stories";

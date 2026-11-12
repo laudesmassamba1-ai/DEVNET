@@ -417,7 +417,7 @@ export default function SettingsPage() {
                   Accepter les photos et vidéos
                 </span>
                 <span className="mt-1 block text-[12px] text-chalk-4">
-                  Quand c'est désactivé, vos contacts ne peuvent plus vous en envoyer en privé.
+                  Quand c&apos;est désactivé, vos contacts ne peuvent plus vous en envoyer en privé.
                   Le texte reste possible.
                 </span>
               </span>
