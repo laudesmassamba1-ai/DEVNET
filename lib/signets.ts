@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { Bookmark, PostWithAuthor } from "@/lib/types";
 import { cachedQuery } from "@/lib/queryCache";
 
@@ -38,7 +38,7 @@ export async function toggleBookmark(
 ): Promise<{ bookmarked: boolean; error: string | null }> {
   if (!me) return { bookmarked: false, error: "Non connecté" };
 
-  const { error: insertError } = await supabase
+  const { error: insertError } = await api
     .from("bookmarks")
     .insert({ post_id: postId, user_id: me });
 
@@ -47,7 +47,7 @@ export async function toggleBookmark(
   const isDuplicate = /duplicate key|23505/i.test(insertError.message);
   if (!isDuplicate) return { bookmarked: false, error: insertError.message };
 
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await api
     .from("bookmarks")
     .delete()
     .eq("post_id", postId)
@@ -64,7 +64,7 @@ export async function fetchBookmarkedPostIds(
 ): Promise<string[]> {
   if (!me || postIds.length === 0) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("bookmarks")
     .select("post_id")
     .eq("user_id", me)
@@ -88,7 +88,7 @@ export async function fetchBookmarks(
 ): Promise<{ rows: PostWithAuthor[]; empty: boolean }> {
   if (!me) return { rows: [], empty: true };
 
-  const { data: links, error } = await supabase
+  const { data: links, error } = await api
     .from("bookmarks")
     .select("post_id, created_at")
     .eq("user_id", me)
@@ -99,7 +99,7 @@ export async function fetchBookmarks(
   const rows = (links as Bookmark[] | null) ?? [];
   if (rows.length === 0) return { rows: [], empty: true };
 
-  const { data: posts } = await supabase
+  const { data: posts } = await api
     .from("posts")
     .select(`*, author:users!posts_author_id_fkey(${POST_AUTHOR})`)
     .in(
@@ -127,7 +127,7 @@ export async function fetchBookmarks(
 export async function fetchBookmarkCount(postId: string): Promise<number> {
   if (!postId) return 0;
 
-  const { count } = await supabase
+  const { count } = await api
     .from("bookmarks")
     .select("post_id", { count: "exact", head: true })
     .eq("post_id", postId);

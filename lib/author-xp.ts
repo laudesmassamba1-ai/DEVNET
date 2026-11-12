@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { xpByAuthor, type XpActivityRow } from "@/lib/xp-by-author";
 import type { AuthorWithBadge } from "@/lib/types";
 
@@ -17,13 +17,13 @@ export async function loadAuthorXp(
   if (unique.length === 0) return new Map();
 
   const [posts, messages] = await Promise.all([
-    supabase
+    api
       .from("posts")
       .select("id, author_id, has_code, likes, created_at")
       .in("author_id", unique)
       .order("created_at", { ascending: false })
       .limit(AUTHOR_ACTIVITY_LIMIT),
-    supabase
+    api
       .from("group_messages")
       .select("id, author_id, is_code, created_at")
       .in("author_id", unique)

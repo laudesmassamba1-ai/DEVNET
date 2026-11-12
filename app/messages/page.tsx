@@ -17,8 +17,9 @@ import { useToast } from "@/components/Toast";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { badgeFor, xpOf } from "@/lib/verification";
 import { loadAuthorXp } from "@/lib/author-xp";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { uploadMedia } from "@/lib/media";
+import { StudioEditor } from "@/components/studio/StudioEditor";
 import { useSession } from "@/hooks/useSession";
 import { useTyping } from "@/hooks/useTyping";
 import { clockTime } from "@/lib/utils";
@@ -69,6 +70,7 @@ export default function MessagesPage() {
   const [active, setActive] = useState<Peer | null>(null);
   const [messages, setMessages] = useState<MessageRow[] | null>(null);
   const [text, setText] = useState("");
+  const [studioOpen, setStudioOpen] = useState(false);
   const [openNew, setOpenNew] = useState(false);
   /** Recherche dans la **liste** des conversations : filtre d'affichage. */
   const [search, setSearch] = useState("");
@@ -136,7 +138,7 @@ export default function MessagesPage() {
 
   /*
    * La frappe (« X écrit… ») passe par un canal `broadcast` **distinct**
-   * de celui des messages : `supabase.channel()` réutilise l'instance
+   * de celui des messages : `api.channel()` réutilise l'instance
    * d'un topic déjà existant, et ajouter une liaison à un canal déjà
    * abonné lève « cannot add `postgres_changes` callbacks after
    * `subscribe()` ». Deux topics, donc deux canaux — un pour la donnée
@@ -159,7 +161,7 @@ export default function MessagesPage() {
   const fetchConvs = useCallback(async (): Promise<Peer[]> => {
     if (!profileId) return [];
 
-    const { data } = await supabase
+    const { data } = await api
       .from("conversations")
       .select("*")
       .contains("participants", [profileId])
@@ -169,7 +171,7 @@ export default function MessagesPage() {
     const peers = await Promise.all(rows.map(async (conv) => {
       const otherId = conv.participants.find((p) => p !== profileId);
       if (!otherId) return { conv, other: null };
-      const { data: u } = await supabase
+      const { data: u } = await api
         .from("users")
         .select("id, prenom, pseudo, avatar_color, account_type, verified, dm_media")
         .eq("id", otherId)
@@ -247,7 +249,7 @@ export default function MessagesPage() {
       // Du plus récent au plus ancien, puis retourné : on charge les
       // **derniers** 100 messages, jamais les 100 premiers d'une
       // conversation qui en a mille.
-      const { data } = await supabase
+      const { data } = await api
         .from("direct_messages").select("*").eq("conversation_id", cid)
         .order("created_at", { ascending: false }).limit(100);
       const rows = ((data as DirectMessage[]) ?? []).reverse();
@@ -315,7 +317,7 @@ export default function MessagesPage() {
       }
     })();
 
-    const channel = supabase
+    const channel = api
       .channel(`dm-${cid}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "direct_messages",
@@ -358,7 +360,7 @@ export default function MessagesPage() {
       // `removeChannel` ferme **et** retire le canal du client : sans le
       // retrait, rouvrir la même conversation retrouverait l'ancienne
       // instance, déjà abonnée, et `.on()` lèverait à nouveau.
-      void supabase.removeChannel(channel);
+      void api.removeChannel(channel);
     };
   }, [active, profileId, refresh]);
 
@@ -375,7 +377,7 @@ export default function MessagesPage() {
 
     let alive = true;
     (async () => {
-      const { data } = await supabase
+      const { data } = await api
         .from("users")
         .select("id, prenom")
         .in("id", typingPeers.map((p) => p.userId));
@@ -408,7 +410,7 @@ export default function MessagesPage() {
 
     (async () => {
       const q = userSearch.trim();
-      let query = supabase
+      let query = api
         .from("users")
         .select("id, prenom, pseudo, avatar_color, account_type, verified")
         .neq("id", profileId!)
@@ -438,7 +440,7 @@ export default function MessagesPage() {
     if (!profile) return;
     const id = convKey(profile.id, other.id);
 
-    const { data } = await supabase
+    const { data } = await api
       .from("conversations").select("*").eq("id", id).maybeSingle();
 
     let conv = data as Conversation | null;
@@ -450,7 +452,7 @@ export default function MessagesPage() {
         last_message: "",
         last_message_at: new Date().toISOString(),
       };
-      const { data: ins } = await supabase
+      const { data: ins } = await api
         .from("conversations").insert(row).select().single();
       conv = (ins as Conversation) ?? row;
     }
@@ -515,7 +517,7 @@ export default function MessagesPage() {
 
     let alive = true;
     (async () => {
-      const { data } = await supabase
+      const { data } = await api
         .from("users")
         .select("id, prenom, pseudo, avatar_color, account_type, verified")
         .ilike("pseudo", target)
@@ -671,7 +673,7 @@ export default function MessagesPage() {
 
     let alive = true;
     void (async () => {
-      const { data } = await supabase.from("stories").select("id, caption").in("id", ids);
+      const { data } = await api.from("stories").select("id, caption").in("id", ids);
       if (!alive) return;
       const rows = (data as { id: string; caption: string }[] | null) ?? [];
       setStoryCards((previous) => {
@@ -689,7 +691,7 @@ export default function MessagesPage() {
   async function persistMessage(message: MessageRow) {
     let confirmed: DirectMessage | null = null;
     try {
-      const { data, error } = await supabase
+      const { data, error } = await api
         .from("direct_messages")
         .insert({
           id: message.id,
@@ -710,7 +712,7 @@ export default function MessagesPage() {
 
       confirmed = error ? null : data as DirectMessage | null;
       if (!confirmed) {
-        const { data: existing, error: lookupError } = await supabase
+        const { data: existing, error: lookupError } = await api
           .from("direct_messages")
           .select("*")
           .eq("id", message.id)
@@ -752,7 +754,7 @@ export default function MessagesPage() {
       }
     }
     try {
-      const { error } = await supabase.from("conversations").update({
+      const { error } = await api.from("conversations").update({
         last_message: confirmed.text,
         last_message_at: confirmed.created_at,
       }).eq("id", confirmed.conversation_id);
@@ -811,7 +813,7 @@ export default function MessagesPage() {
     setText("");
     setAsCode(false);
 
-    const { error } = await supabase
+    const { error } = await api
       .from("direct_messages")
       .update(corrected)
       .eq("id", target.id);
@@ -827,7 +829,7 @@ export default function MessagesPage() {
     // jour laisserait dans la colonne de gauche la version d'avant — un
     // texte qu'on ne retrouve nulle part en ouvrant le fil.
     if (before && before[before.length - 1]?.id === target.id && active) {
-      const { error: previewError } = await supabase
+      const { error: previewError } = await api
         .from("conversations")
         .update({ last_message: body })
         .eq("id", active.conv.id);
@@ -1238,6 +1240,15 @@ export default function MessagesPage() {
                 <div ref={endRef} />
 
               </div>
+              <StudioEditor
+                open={studioOpen}
+                onClose={() => setStudioOpen(false)}
+                owner={profile?.pseudo ?? ""}
+                onLayersChange={setText}
+                onUse={(file) => {
+                  void sendMedia(file);
+                }}
+              />
               <ComposerBar>
                 {editing && (
                   <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
@@ -1280,11 +1291,25 @@ export default function MessagesPage() {
                   onValueChange={setText}
                   onSend={() => void send()}
                   attachments={
-                    <MessageAttachmentButtons
-                      disabled={!active || sending || uploadingMedia}
-                      onGif={(gif) => void send({ kind: "gif", gif })}
-                      onMedia={(file) => void sendMedia(file)}
-                    />
+                    <>
+                      <MessageAttachmentButtons
+                        disabled={!active || sending || uploadingMedia}
+                        onGif={(gif) => void send({ kind: "gif", gif })}
+                        onMedia={(file) => void sendMedia(file)}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setStudioOpen(true)}
+                        disabled={!active || sending || uploadingMedia}
+                        aria-label="Ouvrir l'atelier"
+                        title="Ouvrir l'atelier"
+                        className="mo-press flex size-[var(--h-input)] shrink-0 items-center
+                          justify-center rounded-full border border-line-3 bg-surface
+                          text-chalk-4 transition-colors hover:text-signal disabled:opacity-40"
+                      >
+                        <Icon name="spark" size={18} strokeWidth={1.8} />
+                      </button>
+                    </>
                   }
                   onTyping={notifyTyping}
                   sending={sending}

@@ -25,11 +25,11 @@ défaut. **Backend** : `existe`, `partiel`, `absent`, `statique`.
 |---|---|---|---|---|---|---|
 | A1 | Landing publique | absente | P0 | statique | Visiteur | `/` redirige vers `/feed` ou `/login` ; aucune proposition de valeur ni page indexable. |
 | A2 | Inscription | partielle | P0 | existe | Visiteur | 2 étapes (type de compte, identité, pseudo, email, mot de passe, filière/niveau, langages, CGU). Pas de ville, centres d'intérêt, import GitHub, suggestions, première publication. |
-| A3 | Connexion | partielle | P0 | existe | Visiteur | Email/mot de passe + comptes de démo. Pas de GitHub OAuth, lien magique ni message de compte suspendu. |
+| A3 | Connexion | partielle | P0 | existe | Visiteur | Email/mot de passe, Google et GitHub OAuth, comptes de démo. Pas de lien magique ni message de compte suspendu. |
 | A4 | Mot de passe oublié / réinitialisation | complète | P0 | existe | Visiteur | Envoi, lien de récupération, nouveau mot de passe et confirmation. |
 | A5 | Vérification de l'e-mail | complète | P0 | existe | Visiteur | `/auth/confirmer` gère succès, lien expiré et mode démo. |
 | A6 | MFA | absente | P1 | absent | Membre | Aucun second facteur, aucun code de secours. |
-| A7 | Connexion avec GitHub | partielle | P1 | partiel | Membre | La liaison GitHub sert à lister/importer des dépôts ; elle ne sert pas à se connecter. |
+| A7 | Connexion avec GitHub | partielle | P1 | existe | Visiteur | Bouton sur `/login`, callback dédié et compte créé ou relié par email vérifié. La liaison de dépôts reste un flux OAuth séparé. Configuration d'une OAuth App requise. |
 | A8 | Onboarding guidé | partielle | P0 | partiel | Membre | Langages choisis à l'inscription + visite guidée. Pas de ville, centres d'intérêt, import, suggestions à suivre ni première publication guidée. |
 | A9 | États de compte | absente | P0 | absent | Membre | Pas de page compte suspendu/banni/verrouillé, ni motif, durée ou contestation ; session expirée non traitée. |
 | A10 | Consentements CGU / confidentialité | partielle | P0 | statique | Visiteur | Case CGU à l'inscription et deux pages légales. Pas d'historique de consentement ni de porte d'âge. |
@@ -43,8 +43,8 @@ défaut. **Backend** : `existe`, `partiel`, `absent`, `statique`.
 | B1 | Accueil / fil | partielle | P0 | existe | Membre | Fil paginé, densité, stories texte, composeur, réactions, commentaires, signets, partage, signalement. Pas de médias, sondage, visibilité, programme, CW ni aperçu complet. |
 | B2 | Portées du fil | partielle | P0 | existe | Membre | Tout / Abonnements / Communautés. Pas de « Pour toi » algorithmique, « Par langage » ni « Ma ville ». |
 | B3 | Actualisation et nouveaux posts | partielle | P1 | existe | Membre | Temps réel Supabase et « Charger plus ». Pas de tirer-pour-rafraîchir ni compteur « nouveaux posts ». |
-| B4 | Compositeur | partielle | P0 | existe | Membre | Texte, bloc de code, langage, rattachement projet, brouillon local. Pas de mentions, hashtags, aperçu global ni récupération après perte réseau. |
-| B5 | Images et pièces jointes du post | absente | P1 | absent | Membre | Nécessite stockage, validation serveur, aperçu et modération. |
+| B4 | Compositeur | partielle | P0 | existe | Membre | Texte, bloc de code, langage, rattachement projet, brouillon local, GIF, photo/vidéo et atelier visuel. Pas de mentions, hashtags, aperçu global ni récupération après perte réseau. |
+| B5 | Images et pièces jointes du post | partielle | P1 | existe | Membre | Photo/vidéo : stockage `media_files`, validation MIME/taille, lecture `/api/media/<chemin>`, aperçu et atelier de composition. Parcours ouvert → export PNG → préchargement du média → `Échap` vérifié sous Playwright. Pas encore de modération ni de transcodage image. |
 | B6 | Sondage | absente | P2 | absent | Membre | Aucun modèle, vote ni résultat. |
 | B7 | Visibilité du post | absente | P1 | absent | Membre | Pas de public / abonnés / groupe / privé ; le modèle de confidentialité n'existe pas. |
 | B8 | Brouillons | partielle | P1 | partiel | Membre | Un brouillon local unique (`devnet:compose`). Pas de liste, nommage, synchronisation multi-appareil. |
@@ -300,13 +300,13 @@ défaut. **Backend** : `existe`, `partiel`, `absent`, `statique`.
 
 ## Bilan
 
-**199 surfaces recensées** : 24 complètes, 72 partielles, 99 absentes,
+**199 surfaces recensées** : 24 complètes, 73 partielles, 98 absentes,
 4 écartées.
 
 | Priorité | Total | Complètes | Partielles | Absentes | Écartées |
 |---|---:|---:|---:|---:|---:|
 | P0 | 68 | 16 | 30 | 22 | 0 |
-| P1 | 95 | 8 | 38 | 49 | 0 |
+| P1 | 95 | 8 | 39 | 48 | 0 |
 | P2 | 32 | 0 | 3 | 28 | 1 |
 | P3 | 4 | 0 | 1 | 0 | 3 |
 

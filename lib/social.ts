@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { CommentWithAuthor, PostWithAuthor, PublicProfile } from "@/lib/types";
 import { invalidateCache } from "@/lib/queryCache";
 import { fetchBookmarkedPostIds } from "@/lib/signets";
@@ -97,7 +97,7 @@ export async function updatePost(
   postId: string,
   patch: { text: string; code?: string; lang?: string; has_code?: boolean },
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("posts")
     .update({
       text: patch.text,
@@ -115,7 +115,7 @@ export async function updatePost(
  * donc un échec ici signifie « pas le vôtre », pas « le réseau est tombé ».
  */
 export async function deletePost(postId: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("posts").delete().eq("id", postId);
+  const { error } = await api.from("posts").delete().eq("id", postId);
   return { error: error?.message ?? null };
 }
 
@@ -161,7 +161,7 @@ export async function setReaction(
   // remontée telle quelle quand une nouvelle réaction suit — une
   // réaction de remplacement qui échoue se voit tout de suite, alors
   // qu'un retrait qui échoue ne se verrait qu'en relisant le fil.
-  const { error: delError } = await supabase
+  const { error: delError } = await api
     .from("reactions")
     .delete()
     .eq("post_id", postId)
@@ -169,7 +169,7 @@ export async function setReaction(
 
   if (!emoji) return { reaction: null, error: delError?.message ?? null };
 
-  const { error: insError } = await supabase
+  const { error: insError } = await api
     .from("reactions")
     .insert({ post_id: postId, user_id: me, emoji });
 
@@ -195,7 +195,7 @@ export async function fetchMyReaction(
 ): Promise<string | null> {
   if (!me) return null;
 
-  const { data } = await supabase
+  const { data } = await api
     .from("reactions")
     .select("emoji")
     .eq("post_id", postId)
@@ -218,7 +218,7 @@ export async function fetchMyReactions(
 ): Promise<Record<string, string>> {
   if (!me || postIds.length === 0) return {};
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("reactions")
     .select("post_id, emoji")
     .eq("user_id", me)
@@ -244,7 +244,7 @@ export async function fetchReactionCounts(
 ): Promise<Record<string, number>> {
   if (!postId) return {};
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("reactions")
     .select("emoji")
     .eq("post_id", postId);
@@ -276,7 +276,7 @@ export async function toggleRepost(
   // justifié : le like se déduit de l'échec d'insertion, alors que le
   // retrait du repost n'a aucun « échec » à exploitable — il réussit
   // toujours, qu'il y ait une ligne ou non.
-  const { data: existing, error: readError } = await supabase
+  const { data: existing, error: readError } = await api
     .from("reposts")
     .select("post_id")
     .eq("post_id", postId)
@@ -286,7 +286,7 @@ export async function toggleRepost(
   if (readError) return { reposted: false, error: readError.message };
 
   if (existing) {
-    const { error } = await supabase
+    const { error } = await api
       .from("reposts")
       .delete()
       .eq("post_id", postId)
@@ -297,7 +297,7 @@ export async function toggleRepost(
       : { reposted: false, error: null };
   }
 
-  const { error } = await supabase
+  const { error } = await api
     .from("reposts")
     .insert({ post_id: postId, user_id: me });
 
@@ -322,7 +322,7 @@ export async function toggleRepost(
 export async function fetchLikedPostIds(me: string, postIds: string[]): Promise<string[]> {
   if (postIds.length === 0 || !me) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("post_likes")
     .select("post_id")
     .eq("user_id", me)
@@ -336,7 +336,7 @@ export async function fetchLikedPostIds(me: string, postIds: string[]): Promise<
 export async function fetchRepostIds(me: string, postIds: string[]): Promise<string[]> {
   if (postIds.length === 0 || !me) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("reposts")
     .select("post_id")
     .eq("user_id", me)
@@ -379,7 +379,7 @@ export async function fetchFeedHydration(postIds: string[]): Promise<FeedHydrati
 export async function isFollowing(me: string, target: string): Promise<boolean> {
   if (!me || !target || me === target) return false;
 
-  const { data } = await supabase
+  const { data } = await api
     .from("follows")
     .select("follower_id")
     .eq("follower_id", me)
@@ -401,7 +401,7 @@ export async function toggleFollow(
     return { following: false, error: "Impossible de se suivre soi-même" };
   }
 
-  const { error: insertError } = await supabase
+  const { error: insertError } = await api
     .from("follows")
     .insert({ follower_id: me, followee_id: target });
 
@@ -411,7 +411,7 @@ export async function toggleFollow(
     return { following: false, error: insertError.message };
   }
 
-  const { error: deleteError } = await supabase
+  const { error: deleteError } = await api
     .from("follows")
     .delete()
     .eq("follower_id", me)
@@ -434,7 +434,7 @@ export async function toggleFollow(
  * habillage qui s'y superpose.
  */
 export async function fetchComments(postId: string): Promise<CommentWithAuthor[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("comments")
     .select(`*, author:users(${COMMENT_AUTHOR_COLUMNS})`)
     .eq("post_id", postId)
@@ -472,7 +472,7 @@ export async function addComment(
   if (clean.length > 1000) return { error: "1000 caractères maximum" };
   const media = attachmentColumns(attachment);
 
-  const { error } = await supabase
+  const { error } = await api
     .from("comments")
     .insert({
       post_id: postId,
@@ -489,7 +489,7 @@ export async function addComment(
 
 /** Supprime un commentaire — le sien, ou l'un de son post. */
 export async function deleteComment(commentId: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("comments").delete().eq("id", commentId);
+  const { error } = await api.from("comments").delete().eq("id", commentId);
   return { error: error?.message ?? null };
 }
 
@@ -535,7 +535,7 @@ export function fetchFeedPage(options: FetchFeedPageOptions = {}): Promise<FeedP
 export async function fetchPostById(id: string): Promise<PostWithAuthor | null> {
   if (!id) return null;
 
-  const { data } = await supabase
+  const { data } = await api
     .from("posts")
     .select(`*, author:${POST_AUTHOR_COLUMNS}`)
     .eq("id", id)
@@ -551,7 +551,7 @@ export async function fetchPostById(id: string): Promise<PostWithAuthor | null> 
 export async function fetchProfileByPseudo(
   pseudo: string,
 ): Promise<{ user: PublicProfile | null; posts: PostWithAuthor[]; more: boolean }> {
-  const { data: user } = await supabase
+  const { data: user } = await api
     .from("users")
     .select(PROFILE_COLUMNS)
     .ilike("pseudo", pseudo)
@@ -559,7 +559,7 @@ export async function fetchProfileByPseudo(
 
   if (!user) return { user: null, posts: [], more: false };
 
-  const { data: posts } = await supabase
+  const { data: posts } = await api
     .from("posts")
     .select(`*, author:${POST_AUTHOR_COLUMNS}`)
     .eq("author_id", (user as PublicProfile).id)
@@ -610,7 +610,7 @@ export async function fetchFollowList(
   const filter = kind === "followers" ? "followee_id" : "follower_id";
   const wanted = kind === "followers" ? "follower_id" : "followee_id";
 
-  const { data: links } = await supabase
+  const { data: links } = await api
     .from("follows")
     .select(`created_at, ${wanted}`)
     .eq(filter, targetId)
@@ -620,7 +620,7 @@ export async function fetchFollowList(
   const ids = rows.map((r) => r[wanted]).filter(Boolean);
   if (ids.length === 0) return [];
 
-  const { data: profiles } = await supabase
+  const { data: profiles } = await api
     .from("users")
     .select(PROFILE_COLUMNS)
     .in("id", ids);

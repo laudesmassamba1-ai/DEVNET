@@ -1,15 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
 import { Logo } from "@/components/Logo";
 import { Icon } from "@/components/Icon";
 import { Avatar, Spinner } from "@/components/Avatar";
 import { Motion } from "@/components/Motion";
 import { rearmSplash } from "@/components/SplashScreen";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { authErrorMessage } from "@/lib/utils";
 import { useSession } from "@/hooks/useSession";
 import { useBackend } from "@/hooks/useBackend";
@@ -17,9 +17,35 @@ import { DEMO_ADMINS, DEMO_ME, DEMO_USERS } from "@/lib/demo/data";
 import { accountLabel } from "@/lib/utils";
 import type { User } from "@/lib/types";
 
+const OAUTH_ERRORS: Record<string, string> = {
+  denied: "Connexion annulée ou refusée par le fournisseur.",
+  unconfigured:
+    "Connexion Google/GitHub indisponible : la configuration serveur est incomplète.",
+  state: "La tentative de connexion a expiré. Réessaie.",
+  email:
+    "Aucune adresse email vérifiée n'a été fournie. Vérifie ton compte chez le fournisseur.",
+  failed: "Connexion impossible. Réessaie dans un instant.",
+};
+
+
 export default function Login() {
+  return (
+    <Suspense
+      fallback={
+        <main className="relative isolate flex min-h-dvh items-center justify-center px-5">
+          <Logo size={48} />
+        </main>
+      }
+    >
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const { session, loading } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const backend = useBackend();
 
   const [email, setEmail] = useState("");
@@ -30,6 +56,9 @@ export default function Login() {
   const [demoPick, setDemoPick] = useState<User | null>(null);
 
   const isDemo = backend.state === "offline";
+  const oauthKind = searchParams.get("oauth");
+  const oauthError = oauthKind ? OAUTH_ERRORS[oauthKind] ?? OAUTH_ERRORS.failed : "";
+  const message = error || oauthError;
 
   /**
    * Destination après connexion.
@@ -39,10 +68,9 @@ export default function Login() {
    * ouverte. Sans `next`, on revient au fil.
    */
   const destination = useCallback(() => {
-    if (typeof window === "undefined") return "/feed";
-    const raw = new URLSearchParams(window.location.search).get("next");
+    const raw = searchParams.get("next");
     return raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : "/feed";
-  }, []);
+  }, [searchParams]);
 
   useEffect(() => {
     if (!loading && session) router.replace(destination());
@@ -53,7 +81,7 @@ export default function Login() {
       setBusy(true);
       setError("");
       try {
-        const result = await supabase.auth.signInWithPassword({
+        const result = await api.auth.signInWithPassword({
           email: emailToUse,
           password,
         });
@@ -157,6 +185,37 @@ export default function Login() {
           <p className="mt-1 mb-5 text-[13px] text-chalk-3">
             Accède à ton fil, tes projets et tes messages.
           </p>
+
+          {!isDemo && (
+            <Motion role="rise" className="mb-5">
+              <div className="grid gap-2 sm:grid-cols-2">
+                {(["google", "github"] as const).map((provider) => (
+                  <a
+                    key={provider}
+                    href={`/api/auth/oauth/${provider}/start?next=${encodeURIComponent(destination())}`}
+                    aria-disabled={busy}
+                    onClick={(event) => {
+                      if (busy) event.preventDefault();
+                    }}
+                    className="lift-press flex h-[var(--h-tap)] items-center justify-center gap-2
+                      rounded-[var(--radius-input)] border border-line-3 bg-surface px-3
+                      text-[13px] font-semibold text-chalk shadow-sh-2
+                      transition-colors hover:border-signal aria-disabled:opacity-40"
+                  >
+                    <Icon name={provider === "google" ? "globe" : "code"} size={16} />
+                    <span>
+                      Continuer avec {provider === "google" ? "Google" : "GitHub"}
+                    </span>
+                  </a>
+                ))}
+              </div>
+              <div className="mt-4 flex items-center gap-3">
+                <span className="h-px flex-1 bg-line-2" />
+                <span className="label-micro text-chalk-4">ou</span>
+                <span className="h-px flex-1 bg-line-2" />
+              </div>
+            </Motion>
+          )}
           {/* ── Choix du compte en démo ──
               Quand un profil est choisi, on l'affiche et on propose de
               revenir au choix par défaut. Ce n'est pas un écran à part :
@@ -290,14 +349,14 @@ export default function Login() {
             </div>
           )}
 
-          {error && (
+          {message && (
             <Motion role="rise" className="mb-3.5">
               <div
                 role="alert"
                 className="rounded-[var(--radius-input)] border
                   border-danger bg-danger/12 px-3.5 py-2.5 text-sm font-medium text-danger"
               >
-                {error}
+                {message}
               </div>
             </Motion>
           )}

@@ -20,8 +20,8 @@
  * En mode démo, il n'y a pas de route : `createAccount` insère directement
  * dans le store, qui n'a pas de `auth.users` séparé à tenir à jour.
  */
-import { supabase, usingDemoData } from "./supabase/client";
-import { uniquePseudo } from "./supabase/profile";
+import { api, usingDemoData } from "./api/client";
+import { uniquePseudo } from "./api/profile";
 import { AVATARS, type AccountType, type AvatarColor } from "./types";
 import { asVerificationStatus, type VerificationStatus } from "./verification";
 
@@ -103,7 +103,7 @@ export async function fetchAccounts(search = ""): Promise<AccountPage> {
   // complet après avoir vérifié `is_admin()`.
   const { data, error } = usingDemoData()
     ? await (() => {
-        let query = supabase
+        let query = api
           .from("users")
           .select(ACCOUNT_FIELDS)
           .limit(LIST_LIMIT);
@@ -114,7 +114,7 @@ export async function fetchAccounts(search = ""): Promise<AccountPage> {
         }
         return query;
       })()
-    : await supabase.rpc("admin_search_accounts", { term });
+    : await api.rpc("admin_search_accounts", { term });
 
   if (error) throw error;
 
@@ -150,7 +150,7 @@ export async function setAdminRole(
     throw new Error("retire le rôle à quelqu'un d'autre — pas à toi-même");
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .update({ is_admin: isAdmin })
     .eq("id", userId)
@@ -223,7 +223,7 @@ export async function createAccount(
   // dessus. On la vérifie donc ici, pour que la démo et le mode réel
   // répondent la même chose — un doublon créé en démo serait un compte
   // qui n'existerait pas en production.
-  const { data: clash } = await supabase
+  const { data: clash } = await api
     .from("users")
     .select("id")
     .eq("email", email)
@@ -275,7 +275,7 @@ export async function createAccount(
     password: input.password,
   };
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .insert(row)
     .select(ACCOUNT_FIELDS);

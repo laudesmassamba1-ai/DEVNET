@@ -5,6 +5,7 @@ import { GifPicker } from "./GifPicker";
 import { Icon } from "./Icon";
 import { StickerFace } from "./StickerFace";
 import type { Gif } from "@/lib/gifs";
+import type { StickerRowView } from "@/lib/stickers";
 
 /**
  * Pièces jointes d'un message : GIF.

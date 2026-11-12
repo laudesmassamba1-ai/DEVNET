@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 
 /**
  * Les pages de wiki d'un dépôt.
@@ -56,7 +56,7 @@ const PAGE_COLUMNS = `*, author:users(${AUTHOR})`;
  * successives pourraient rendre deux ordres différents.
  */
 export async function fetchProjectPages(projectId: string): Promise<ProjectPage[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("project_pages")
     .select(PAGE_COLUMNS)
     .eq("project_id", projectId)
@@ -80,7 +80,7 @@ export async function createProjectPage(options: {
     return { page: null, error: "Le titre ne peut pas dépasser 120 caractères." };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("project_pages")
     .insert({
       project_id: options.projectId,
@@ -125,7 +125,7 @@ export async function updateProjectPage(
 
   if (Object.keys(clean).length === 0) return { error: null };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("project_pages")
     .update(clean)
     .eq("id", pageId);
@@ -135,6 +135,6 @@ export async function updateProjectPage(
 
 /** Retire une page. */
 export async function deleteProjectPage(pageId: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("project_pages").delete().eq("id", pageId);
+  const { error } = await api.from("project_pages").delete().eq("id", pageId);
   return { error: error?.message ?? null };
 }

@@ -1,15 +1,17 @@
 /**
- * Authentification PostgreSQL — test d'intégration sur la base **locale**.
+ * Authentification PostgreSQL — test d'intégration sur une base migrée.
  *
- * Exécuter avec : `npm run test:auth-postgres` (base locale migrée requise).
+ * Exécuter avec : `npm run test:auth-postgres` (base locale migrée requise), ou
+ * `CONFIRM_REMOTE=devnet npm run test:auth-postgres` pour la cible distante
+ * explicitement confirmée.
  *
  * Ce que ce test prouve, qu'un test de contrat ne peut pas prouver :
  * l'empreinte scrypt est bien celle qui est relue, le jeton n'est stocké que
  * haché, une session expirée disparaît, et la RLS rend les deux tables
  * invisibles à une identité d'utilisateur.
  *
- * Il **écrit** : il refuse donc toute cible distante et nettoie dans
- * `finally`.
+ * Il **écrit** : il refuse toute cible distante sans confirmation explicite
+ * et nettoie dans `finally`.
  */
 import { randomUUID } from "node:crypto";
 import { Client } from "pg";
@@ -21,13 +23,16 @@ import {
 } from "../modules/auth";
 import { PostgresAuthRepository } from "../modules/auth/infrastructure/postgres/postgres-auth-repository";
 import { closePostgresPool } from "../platform/infrastructure/postgres/pool";
+import { resolvePostgresConnection } from "../platform/infrastructure/postgres/tls";
 import { withUser } from "../platform/infrastructure/postgres/with-user";
-import { parseEndpoint } from "./db/guard";
+import { assertSafeTarget, parseEndpoint, readTarget } from "./db/guard";
 import { isLocalHost, loadEnvFiles, resolveDatabaseUrl } from "./db/lib";
 
 const PASSWORD = "mot-de-passe-de-test-046";
 const alice = randomUUID();
 const bob = randomUUID();
+const createdUserIds: string[] = [alice, bob];
+let oauthUserId: string | null = null;
 
 let passed = 0;
 const failures: string[] = [];
@@ -59,23 +64,37 @@ async function seed(client: Client): Promise<void> {
 }
 
 async function cleanup(client: Client): Promise<void> {
-  // `auth.users` cascade vers public.users puis credentials et sessions.
-  await client.query("delete from auth.users where id = any($1::uuid[])", [[alice, bob]]);
+  // `auth.users` cascade vers public.users puis credentials, sessions et identités.
+  await client.query("delete from auth.users where id = any($1::uuid[])", [
+    [...new Set(createdUserIds)],
+  ]);
 }
 
 async function main(): Promise<void> {
   loadEnvFiles();
   const databaseUrl = resolveDatabaseUrl();
   const { host } = parseEndpoint(databaseUrl);
-  if (!isLocalHost(host)) {
+  const target = readTarget();
+  const description = assertSafeTarget({
+    databaseUrl,
+    target,
+    operation: "write",
+    confirmRemote: process.env.CONFIRM_REMOTE,
+  });
+  if (!isLocalHost(host) && target !== "remote") {
     console.error(
-      "Refus : ce test écrit des lignes, il n'est autorisé que sur une base locale (127.0.0.1 / db).",
+      `Refus : ce test écrit des lignes ; sur un hôte distant il exige DB_TARGET=remote et CONFIRM_REMOTE=${description.split("base=")[1] ?? "<base>"}.`,
     );
     process.exitCode = 2;
     return;
   }
 
-  const client = new Client({ connectionString: databaseUrl, application_name: "devnet-test-auth" });
+  const connection = resolvePostgresConnection(databaseUrl);
+  const client = new Client({
+    connectionString: connection.connectionString,
+    ssl: connection.ssl,
+    application_name: "devnet-test-auth",
+  });
   await client.connect();
 
   const repository = new PostgresAuthRepository({
@@ -200,6 +219,92 @@ async function main(): Promise<void> {
     // 10. Une empreinte corrompue est un refus, pas un plantage.
     check("empreinte invalide refusée", (await verifyPassword(PASSWORD, "bcrypt$x$y")) === false);
     check("empreinte sans sel refusée", (await verifyPassword(PASSWORD, "scrypt$16384$8$1$$")) === false);
+
+    // 11. OAuth : création, retour, liaison par email vérifié, refus non vérifié.
+    const oauthEmail = `oauth-${randomUUID().slice(0, 8)}@probe.local`;
+    const oauthSubject = `google-${randomUUID()}`;
+    const firstOAuth = await service.signInWithExternalIdentity({
+      provider: "google",
+      subject: oauthSubject,
+      email: oauthEmail,
+      emailVerified: true,
+      metadata: { prenom: "OAuth", full_name: "OAuth Probe" },
+      userAgent: "probe-oauth",
+    });
+    check("OAuth : première connexion acceptée", firstOAuth.ok === true, firstOAuth);
+    if (firstOAuth.ok) {
+      oauthUserId = firstOAuth.userId;
+      createdUserIds.push(firstOAuth.userId);
+      check("OAuth : compte créé", firstOAuth.accountCreated === true);
+      check("OAuth : session ouverte", (await service.resolveSession(firstOAuth.token))?.userId === firstOAuth.userId);
+
+      const profile = await client.query<{ pseudo: string; prenom: string }>(
+        "select pseudo, prenom from public.users where id = $1",
+        [firstOAuth.userId],
+      );
+      check("OAuth : profil créé", profile.rows.length === 1, profile.rows.length);
+      check("OAuth : prénom importé", profile.rows[0]?.prenom === "OAuth", profile.rows[0]?.prenom);
+
+      const noPassword = await client.query<{ n: string }>(
+        "select count(*)::text as n from public.user_credentials where user_id = $1",
+        [firstOAuth.userId],
+      );
+      check("OAuth : aucun mot de passe inventé", noPassword.rows[0]?.n === "0", noPassword.rows[0]?.n);
+
+      const firstPassword = await service.changePassword({
+        token: firstOAuth.token,
+        newPassword: PASSWORD,
+      });
+      check("OAuth : premier mot de passe accepté", firstPassword.ok === true, firstPassword);
+      const passwordLogin = await service.signIn({
+        email: oauthEmail,
+        password: PASSWORD,
+      });
+      check("OAuth : connexion par mot de passe ensuite", passwordLogin.ok === true, passwordLogin);
+    }
+
+    const secondOAuth = await service.signInWithExternalIdentity({
+      provider: "google",
+      subject: oauthSubject,
+      email: oauthEmail,
+      emailVerified: true,
+    });
+    check("OAuth : retour sur le même compte", secondOAuth.ok && secondOAuth.userId === oauthUserId, secondOAuth);
+    check("OAuth : pas de doublon", secondOAuth.ok && secondOAuth.accountCreated === false, secondOAuth);
+
+    const linked = await service.signInWithExternalIdentity({
+      provider: "github",
+      subject: `github-${randomUUID()}`,
+      email: `ALICE-${alice.slice(0, 8)}@PROBE.LOCAL`,
+      emailVerified: true,
+    });
+    check("OAuth : email existant relié", linked.ok && linked.userId === alice, linked);
+
+    const unverified = await service.signInWithExternalIdentity({
+      provider: "github",
+      subject: `github-${randomUUID()}`,
+      email: `unverified-${randomUUID().slice(0, 8)}@probe.local`,
+      emailVerified: false,
+    });
+    check("OAuth : email non vérifié refusé", unverified.ok === false && unverified.reason === "email-unverified", unverified);
+
+    const identities = await client.query<{ provider: string; n: string }>(
+      `select provider, count(*)::text as n
+         from public.user_identities
+        where subject = $1
+        group by provider`,
+      [oauthSubject],
+    );
+    check("OAuth : une seule identité", identities.rows[0]?.n === "1", identities.rows);
+
+    const hiddenIdentities = await withUser(alice, (query) =>
+      query<{ n: string }>("select count(*)::text as n from public.user_identities"),
+    ).catch(() => [{ n: "refus" }]);
+    check(
+      "RLS : identités OAuth invisibles",
+      hiddenIdentities[0]?.n === "0" || hiddenIdentities[0]?.n === "refus",
+      hiddenIdentities[0]?.n,
+    );
   } finally {
     await cleanup(client).catch((error: unknown) => {
       console.error("Nettoyage impossible :", error);

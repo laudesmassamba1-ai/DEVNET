@@ -15,7 +15,7 @@ import {
   type HistorySnapshot,
   type UserLiteForRepo,
 } from "@/lib/repo";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { GithubImportPayload, Project } from "@/lib/types";
 import type { GithubReadError } from "@/lib/github/read";
 
@@ -31,7 +31,7 @@ async function findImportedProject(
   repo: string,
   userId: string,
 ): Promise<Project | null> {
-  const { data } = await supabase
+  const { data } = await api
     .from("project_links")
     .select("project_id")
     .eq("user_id", userId)
@@ -175,7 +175,7 @@ export async function importGithubRepo(options: {
 
   // On raccorde d'emblée le projet à son dépôt : c'est ce qui permet de
   // reconnaître l'import au prochain clic, et de pousser plus tard.
-  await supabase.from("project_links").insert({
+  await api.from("project_links").insert({
     project_id: created.project.id,
     user_id: options.owner_.id,
     owner: options.owner,

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 
 /**
  * Accusés de lecture et état de conversation.
@@ -121,7 +121,7 @@ export async function fetchConversationReadMarks(
 ): Promise<Record<string, string | null>> {
   if (!conversationId) return {};
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("conversation_members")
     .select("user_id, last_read_at")
     .eq("conversation_id", conversationId);
@@ -141,7 +141,7 @@ export async function fetchChannelReadMarks(
 ): Promise<{ userId: string; readAt: string | null }[]> {
   if (!channelId) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("channel_members")
     .select("user_id, last_read_at")
     .eq("channel_id", channelId);
@@ -171,7 +171,7 @@ export async function markConversationRead(
 ): Promise<{ error: string | null }> {
   if (!conversationId || !me) return { error: null };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("conversation_members")
     .update({ last_read_at: at })
     .eq("conversation_id", conversationId)
@@ -188,7 +188,7 @@ export async function markChannelRead(
 ): Promise<{ error: string | null }> {
   if (!channelId || !me) return { error: null };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("channel_members")
     .update({ last_read_at: at })
     .eq("channel_id", channelId)
@@ -206,7 +206,7 @@ export async function markChannelRead(
 export async function fetchChannelReaders(channelId: string): Promise<string[]> {
   if (!channelId) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("channel_members")
     .select("user_id")
     .eq("channel_id", channelId);

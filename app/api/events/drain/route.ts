@@ -13,7 +13,7 @@
  */
 import { timingSafeEqual } from "node:crypto";
 import { after, NextRequest, NextResponse } from "next/server";
-import { getOrCreateServerClient } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import { getEventDispatcher } from "@/platform/server-container";
 
 export const runtime = "nodejs";
@@ -35,10 +35,11 @@ function hasDrainSecret(request: NextRequest): boolean {
 async function isAuthorized(request: NextRequest): Promise<boolean> {
   if (hasDrainSecret(request)) return true;
 
-  const client = await getOrCreateServerClient();
-  if (!client) return false;
-  const { data } = await client.auth.getUser();
-  return Boolean(data.user);
+  try {
+    return Boolean(await currentUserId());
+  } catch {
+    return false;
+  }
 }
 
 async function handle(request: NextRequest): Promise<NextResponse> {

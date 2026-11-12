@@ -17,7 +17,7 @@
  * puisse les retirer d'un coup.
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { User } from "@/lib/types";
 
 const MARK = "[exemple]";
@@ -110,14 +110,14 @@ export async function seedSamplePosts(profile: User): Promise<number> {
     created_at: new Date(Date.now() - s.ago * 86_400_000).toISOString(),
   }));
 
-  const { data, error } = await supabase.from("posts").insert(rows).select("id");
+  const { data, error } = await api.from("posts").insert(rows).select("id");
   if (error) throw new Error(error.message);
   return data?.length ?? 0;
 }
 
 /** Retire les exemples publiés par ce compte. */
 export async function removeSamplePosts(profile: User): Promise<number> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("posts")
     .delete()
     .eq("author_id", profile.id)
@@ -129,7 +129,7 @@ export async function removeSamplePosts(profile: User): Promise<number> {
 
 /** Le compte possède-t-il encore des exemples ? */
 export async function hasSamplePosts(profile: User): Promise<boolean> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("posts")
     .select("id")
     .eq("author_id", profile.id)

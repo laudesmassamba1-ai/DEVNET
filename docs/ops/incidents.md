@@ -92,12 +92,16 @@ Ne jamais inclure l'URL complète, le mot de passe, une clé ou un dump.
 
 | Date | Secret | Canal | Rotation |
 |---|---|---|---|
-| 2026-11-08 | mot de passe du rôle `devnet_u` | collé en clair dans une conversation, plusieurs fois | **faite le 2026-11-09** — `ALTER ROLE devnet_u` ; ancien mot de passe invalide, nouvelle valeur uniquement dans `.env.remote` (`600`, ignoré par Git) |
+| 2026-11-08 | mot de passe du rôle `devnet_u` | collé en clair dans une conversation et dans le PDF d'état, plusieurs fois | rotation du 2026-11-09 insuffisante : voir l'entrée du 2026-11-12 |
+| 2026-11-12 | mot de passe du rôle `devnet_u` | support Systalink : `LOGIN` était déjà actif, le secret a été réaligné sur la valeur du tableau de bord — la même que celle déjà exposée | **à faire via la console** (« Nouvelles informations d'identification »), pas par `ALTER ROLE`, puis retester `/api/ready` et la sonde `verify-full` |
 
-La rotation est faite et vérifiée : la connexion avec le nouveau secret
-fonctionne. L'ancien secret ne doit plus être utilisé. La base reste accessible
-depuis `0.0.0.0/0` : aucune donnée réelle d'utilisateur ne doit y être déposée
-avant la revue de ce point et la mise en place d'une sauvegarde chiffrée.
+Le support a écarté l'hypothèse `NOLOGIN` : le privilège de connexion était
+actif, seul le mot de passe ne correspondait plus à celui du tableau de bord.
+Le secret actif est donc **compromis** puisqu'il a circulé dans la conversation
+et dans un PDF. Le PDF a été retiré et les documents ne contiennent plus sa
+valeur. La base reste accessible depuis `0.0.0.0/0` : aucune donnée réelle
+d'utilisateur ne doit y être déposée avant la rotation, la revue de ce point et
+la mise en place d'une sauvegarde chiffrée.
 
 ## 7. Après l'incident
 

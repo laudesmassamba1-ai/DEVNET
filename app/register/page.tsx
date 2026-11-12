@@ -8,7 +8,7 @@ import { Icon } from "@/components/Icon";
 import { Spinner } from "@/components/Avatar";
 import { Motion } from "@/components/Motion";
 import { rearmSplash } from "@/components/SplashScreen";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { useSession } from "@/hooks/useSession";
 import { AVATARS, FILIERES, LANGAGES, NIVEAUX, type AccountType } from "@/lib/types";
 
@@ -71,7 +71,7 @@ export default function Register() {
     const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
     const termsAcceptedAt = new Date().toISOString();
 
-    const { data, error: err } = await supabase.auth.signUp({
+    const { data, error: err } = await api.auth.signUp({
       email,
       password: pw,
       options: {
@@ -99,7 +99,7 @@ export default function Register() {
     }
 
     if (data.user) {
-      await supabase.from("users").upsert({
+      await api.from("users").upsert({
         id: data.user.id,
         prenom,
         pseudo: cleanPseudo,
@@ -113,7 +113,7 @@ export default function Register() {
       }, { onConflict: "id" });
     }
 
-    const { data: sess } = await supabase.auth.getSession();
+    const { data: sess } = await api.auth.getSession();
     if (sess.session) {
       // La session vient de s'ouvrir : l'écran de lancement se rejoue
       // au prochain chargement complet (voir `rearmSplash`).

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import {
   appendChat,
   decodeChat,
@@ -78,7 +78,7 @@ export function useCollab({ room, self }: UseCollabOptions): UseCollab {
   const [messages, setMessages] = useState<CollabChatMessage[]>([]);
 
   /** Le canal courant, pour émettre sans le repasser à l'appel. */
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelRef = useRef<ReturnType<typeof api.channel> | null>(null);
   /** Dernier curseur reçu, par personne — sert à l'expiration. */
   const seen = useRef(new Map<string, number>());
   /** Les curseurs vivants, en `Map` pour un remplacement sans balayage. */
@@ -114,7 +114,7 @@ export function useCollab({ room, self }: UseCollabOptions): UseCollab {
     seen.current = table;
     byUser.current = users;
 
-    const channel = supabase
+    const channel = api
       .channel(room)
       .on("broadcast", { event: CURSOR_EVENT }, (message: unknown) => {
         const cursor = decodeCursor(unwrapBroadcast(message));
@@ -135,7 +135,7 @@ export function useCollab({ room, self }: UseCollabOptions): UseCollab {
     channelRef.current = channel;
 
     return () => {
-      void supabase.removeChannel(channel);
+      void api.removeChannel(channel);
       if (channelRef.current === channel) channelRef.current = null;
       users.clear();
       table.clear();

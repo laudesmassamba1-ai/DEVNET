@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { AppShell } from "@/components/AppShell";
 import { useSession } from "@/hooks/useSession";
 import { Icon } from "@/components/Icon";
@@ -51,7 +51,7 @@ export default function SettingsPage() {
     setDmMediaBusy(true);
     setDmMediaMessage("");
     setDmMediaError("");
-    const { error } = await supabase
+    const { error } = await api
       .from("users")
       .update({ dm_media: enabled })
       .eq("id", profile?.id ?? "");
@@ -103,7 +103,7 @@ export default function SettingsPage() {
 
     setThemeBusy(true);
     try {
-      const { error } = await supabase
+      const { error } = await api
         .from("users")
         .update({ theme: next })
         .eq("id", profile.id);
@@ -159,7 +159,7 @@ export default function SettingsPage() {
     }
     setPwBusy(true);
     try {
-      const { error } = await supabase.auth.updateUser({ password: pw });
+      const { error } = await api.auth.updateUser({ password: pw });
       if (error) {
         setPwErr(error.message);
         setPwBusy(false);
@@ -177,7 +177,7 @@ export default function SettingsPage() {
   async function signOut() {
     setSignOutError("");
     try {
-      const { error } = await supabase.auth.signOut();
+      const { error } = await api.auth.signOut();
       if (error) {
         setSignOutError(`Déconnexion impossible : ${error.message}`);
         return;

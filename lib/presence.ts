@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { UserLite } from "@/lib/types";
 
 /**
@@ -71,7 +71,7 @@ export async function fetchPresence(
   me: string,
   now: number = Date.now(),
 ): Promise<PresenceEntry[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("project_sessions")
     .select(PRESENCE_COLUMNS)
     .eq("project_id", projectId)
@@ -100,7 +100,7 @@ export async function heartbeatSession(options: {
 }): Promise<{ error: string | null }> {
   const { projectId, userId, filePath } = options;
 
-  const { data: existing } = await supabase
+  const { data: existing } = await api
     .from("project_sessions")
     .select("user_id")
     .eq("project_id", projectId)
@@ -114,12 +114,12 @@ export async function heartbeatSession(options: {
   };
 
   const { error } = existing
-    ? await supabase
+    ? await api
         .from("project_sessions")
         .update(patch)
         .eq("project_id", projectId)
         .eq("user_id", userId)
-    : await supabase
+    : await api
         .from("project_sessions")
         .insert({ project_id: projectId, user_id: userId, ...patch });
 

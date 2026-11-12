@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase, usingDemoData } from "@/lib/supabase/client";
+import { api, usingDemoData } from "@/lib/api/client";
 import { Logo } from "@/components/Logo";
 
 const inputCls =
@@ -38,12 +38,12 @@ export default function ResetPasswordPage() {
 
         if (code) {
           try {
-            await supabase.auth.exchangeCodeForSession(code);
+            await api.auth.exchangeCodeForSession(code);
           } catch {
             // essai alternatif via verifyOtp si ce type est renvoyé
             if (tokenHash && type) {
               try {
-                await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as "recovery" });
+                await api.auth.verifyOtp({ token_hash: tokenHash, type: type as "recovery" });
               } catch {
                 setInvalid(true);
                 setChecking(false);
@@ -61,7 +61,7 @@ export default function ResetPasswordPage() {
 
         if (tokenHash && type) {
           try {
-            await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as "recovery" });
+            await api.auth.verifyOtp({ token_hash: tokenHash, type: type as "recovery" });
             setChecking(false);
             return;
           } catch {
@@ -72,7 +72,7 @@ export default function ResetPasswordPage() {
         }
 
         // aucun paramètre ; on vérifie si une session de récupération existe
-        const { data: sess } = await supabase.auth.getSession();
+        const { data: sess } = await api.auth.getSession();
         if (!sess.session) {
           setInvalid(true);
           setChecking(false);
@@ -106,7 +106,7 @@ export default function ResetPasswordPage() {
 
     setBusy(true);
     try {
-      const res = await supabase.auth.updateUser({ password: pw });
+      const res = await api.auth.updateUser({ password: pw });
       if (res.error) {
         setBusy(false);
         setError(res.error.message);

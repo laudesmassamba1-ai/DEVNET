@@ -1,7 +1,9 @@
 /**
- * Tests RLS et du verrou `is_admin()` sur une base PostgreSQL locale.
+ * Tests RLS et du verrou `is_admin()` sur une base PostgreSQL migrée.
  *
- * Exécuter avec : `npm run test:db-rls` (base locale migrée requise).
+ * Exécuter avec : `npm run test:db-rls` (base locale migrée requise), ou
+ * `CONFIRM_REMOTE=devnet npm run test:db-rls` pour la cible distante
+ * explicitement confirmée.
  *
  * Ce que ces tests prouvent, et que les tests de démonstration ne peuvent
  * pas prouver :
@@ -18,6 +20,7 @@ import {
   closePostgresPool,
   getPostgresPool,
 } from "../platform/infrastructure/postgres/pool";
+import { resolvePostgresConnection } from "../platform/infrastructure/postgres/tls";
 import { withUser } from "../platform/infrastructure/postgres/with-user";
 import { assertSafeTarget, readTarget } from "./db/guard";
 import { isLocalHost, loadEnvFiles, resolveDatabaseUrl } from "./db/lib";
@@ -131,10 +134,19 @@ async function main(): Promise<void> {
     confirmRemote: process.env.CONFIRM_REMOTE,
   });
   const host = new URL(databaseUrl).hostname;
-  if (!isLocalHost(host)) throw new Error(`Refus : test:db-rls écrit uniquement en local (${description}).`);
+  if (!isLocalHost(host) && target !== "remote") {
+    throw new Error(
+      `Refus : test:db-rls écrit des lignes ; sur un hôte distant il exige DB_TARGET=remote et CONFIRM_REMOTE=${description.split("base=")[1] ?? "<base>"}.`,
+    );
+  }
   console.log(`Tests RLS — ${description}`);
 
-  const client = new Client({ connectionString: databaseUrl, application_name: "devnet-test-rls" });
+  const connection = resolvePostgresConnection(databaseUrl);
+  const client = new Client({
+    connectionString: connection.connectionString,
+    ssl: connection.ssl,
+    application_name: "devnet-test-rls",
+  });
   await client.connect();
 
   const adminId = randomUUID();

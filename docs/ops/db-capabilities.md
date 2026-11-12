@@ -1,9 +1,9 @@
 # Capacités de la base — mesures et état
 
 - **Dernière mesure locale** : 2026-11-09 (PostgreSQL 18.3)
-- **Dernière mesure distante** : 2026-11-09 (PostgreSQL 18.3, après migration)
+- **Dernière mesure distante** : 2026-11-12 (PostgreSQL 18.3, sonde `verify-full`)
 - **Cible distante** : `postgres-dbaas-postgres-devnet-devnet.systalinkdatabases.com:33072`, base `devnet`, rôle `devnet_u`
-- **Statut distant** : **52 migrations appliquées**, rôles RLS créés, `search_path` effectif, mot de passe renouvelé ; l'application n'est pas encore basculée sur cette base
+- **Statut distant** : **52 migrations appliquées**, rôles RLS créés, `search_path` effectif, TLS `verify-full` validé ; le mot de passe a été réaligné par le support sur la valeur exposée, sa rotation par la console reste à faire ; l'application n'est pas encore basculée sur cette base
 - **Sauvegarde** : dump chiffré GPG du 2026-11-09 restauré en local (52/58/178/90/35/14, RLS et stories verts) ; clé encore locale, copie hors site à faire
 
 ## 1. Miroir local mesuré
@@ -68,9 +68,9 @@ migrations et rotation du mot de passe.
 | Déclencheurs `public` | **35** |
 | Tables temps réel | **14** |
 | TLS serveur | `ssl = on`, TLSv1.3, `TLS_AES_256_GCM_SHA384` |
-| Certificat | chaîne auto-signée (`pool-postgres-15-ca`) ; `verify-full` échoue sans `root.crt` |
-| Chiffrement retenu | `sslmode=require` — chiffré, **sans vérification du certificat**. Côté `pg`, `sslmode=require` est traité comme `verify-full` : voir `platform/infrastructure/postgres/tls.ts` |
-| Mot de passe | `scram-sha-256`, **renouvelé le 2026-11-09** |
+| Certificat | chaîne fournie par Systalink ; `verify-full` **réussi le 2026-11-12** avec `devnet-root.crt` (empreinte SHA-256 `A5:02:EF:C2:C8:AE:00:7E:EF:6F:94:42:2D:00:BB:7F:0C:68:2E:ED:03:71:A3:F9:A7:30:66:B2:B0:3B:93:05`) |
+| Chiffrement | sonde en `verify-full` : TLSv1.3 / `TLS_AES_256_GCM_SHA384`, identité du serveur vérifiée. L'application lit encore `sslmode=require` dans `.env.local` ; basculer vers `verify-full` après la rotation |
+| Mot de passe | `scram-sha-256`, **réaligné par le support le 2026-11-12** sur la valeur du tableau de bord déjà exposée ; **rotation console requise** |
 | Latence | **~211 ms** médiane après rotation (mesures antérieures : 162–175 ms) |
 | Données applicatives | **aucune** : le schéma est en place, les données réelles restent à migrer |
 
@@ -130,13 +130,15 @@ publication. Elle termine par la latence médiane. Rien n'est écrit sur la base
 
 ### Sécurité
 
-- Le mot de passe du rôle `devnet_u` a été exposé dans une conversation le
-  2026-11-08 ; il a été **renouvelé le 2026-11-09**. L'ancien mot de passe est
-  invalide. La nouvelle valeur n'existe que dans `.env.remote`, ignoré par Git
-  et en permissions `600`. Aucune valeur de secret n'est écrite dans ce
+- Le mot de passe du rôle `devnet_u` a été exposé dans une conversation et un
+  PDF le 2026-11-08. Le support Systalink a confirmé le 2026-11-12 que `LOGIN`
+  était déjà actif : le problème venait d'un mot de passe désaligné. Il l'a
+  réaligné sur la valeur du tableau de bord — **la même que celle déjà
+  exposée**. Cette valeur est donc compromise et doit être renouvelée via la
+  console, jamais par SQL. Aucune valeur de secret n'est écrite dans ce
   document.
-- `verify-full` nécessite le CA Systalink ; en attendant, `require` est le
-  maximum disponible. `disable` reste interdit.
+- `verify-full` fonctionne avec `devnet-root.crt` et vérifie bien la chaîne et
+  le nom d'hôte ; il a été validé le 2026-11-12. `disable` reste interdit.
 - Les rôles `anon`, `authenticated`, `service_role` sont créés et accordés ;
   ils ne doivent pas devenir `LOGIN` pour autant.
 - La base reste accessible depuis `0.0.0.0/0` : aucune donnée réelle

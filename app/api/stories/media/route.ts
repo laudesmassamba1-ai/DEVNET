@@ -7,7 +7,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { STORY_MAX } from "@/lib/stories";
-import { currentUserId } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import {
   encodeStoryMedia,
   getServerStoriesRepository,

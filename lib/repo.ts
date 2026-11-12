@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { hashBlob, NULL_SHA } from "@/lib/git/objects";
 import {
   ancestorsOf,
@@ -75,12 +75,12 @@ export const PROJECT_FIELDS =
  */
 export async function fetchProjects(userId: string): Promise<Project[]> {
   const [{ data: created }, { data: memberships }] = await Promise.all([
-    supabase
+    api
       .from("projects")
       .select(PROJECT_FIELDS)
       .eq("created_by", userId)
       .order("created_at", { ascending: false }),
-    supabase
+    api
       .from("project_members")
       .select("project_id")
       .eq("user_id", userId),
@@ -89,7 +89,7 @@ export async function fetchProjects(userId: string): Promise<Project[]> {
   const ids = ((memberships as { project_id: string }[]) ?? []).map((m) => m.project_id);
   if (ids.length === 0) return (created as Project[]) ?? [];
 
-  const { data: joined } = await supabase
+  const { data: joined } = await api
     .from("projects")
     .select(PROJECT_FIELDS)
     .in("id", ids);
@@ -103,7 +103,7 @@ export async function fetchProjects(userId: string): Promise<Project[]> {
 
 /** Un projet par identifiant. */
 export async function fetchProject(id: string): Promise<Project | null> {
-  const { data } = await supabase
+  const { data } = await api
     .from("projects")
     .select(PROJECT_FIELDS)
     .eq("id", id)
@@ -122,7 +122,7 @@ export async function fetchProject(id: string): Promise<Project | null> {
  * autorise : les projets publics, et ceux des groupes dont on est membre.
  */
 export async function fetchDiscoverProjects(): Promise<Project[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("projects")
     .select(PROJECT_FIELDS)
     .order("created_at", { ascending: false })
@@ -140,7 +140,7 @@ export async function fetchDiscoverProjects(): Promise<Project[]> {
  * un serveur Discord, et le code s'y écrit dans la même pièce.
  */
 export async function fetchProjectsForGroup(groupId: string): Promise<Project[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("projects")
     .select(PROJECT_FIELDS)
     .eq("group_id", groupId)
@@ -176,7 +176,7 @@ export async function createProject(options: {
   const slug = slugify(name);
   const branch = "main";
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("projects")
     .insert({
       name,
@@ -199,13 +199,13 @@ export async function createProject(options: {
   const project = data as Project;
 
   // L'auteur est membre à part entière du projet qu'il vient de créer.
-  await supabase
+  await api
     .from("project_members")
     .insert({ project_id: project.id, user_id: options.owner.id, role: "owner" });
 
   // La branche `main` existe avant tout commit : elle pointe sur l'arbre
   // vide, comme une branche qui n'a encore rien.
-  await supabase
+  await api
     .from("git_refs")
     .insert({ project_id: project.id, name: branch, kind: "branch", sha: "" });
 
@@ -258,7 +258,7 @@ export async function updateProject(
   if (clean.description !== undefined) clean.description = clean.description.trim();
   if (clean.language !== undefined) clean.language = clean.language.trim();
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("projects")
     .update(clean)
     .eq("id", id)
@@ -280,7 +280,7 @@ export async function updateProject(
  * créateur.
  */
 export async function deleteProject(id: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("projects").delete().eq("id", id);
+  const { error } = await api.from("projects").delete().eq("id", id);
   return { error: error?.message ?? null };
 }
 
@@ -293,7 +293,7 @@ export async function setProjectMemberRole(
   userId: string,
   role: ProjectRole,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("project_members")
     .update({ role })
     .eq("project_id", projectId)
@@ -307,7 +307,7 @@ export async function removeProjectMember(
   projectId: string,
   userId: string,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("project_members")
     .delete()
     .eq("project_id", projectId)
@@ -322,7 +322,7 @@ export async function addProjectMember(
   userId: string,
   role: ProjectRole = "editor",
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("project_members")
     .insert({ project_id: projectId, user_id: userId, role });
 
@@ -342,7 +342,7 @@ export async function findUserByPseudo(
   const value = pseudo.trim().replace(/^@/, "");
   if (!value) return { user: null, error: null };
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .select(MEMBER_USER_COLUMNS)
     .ilike("pseudo", value)
@@ -374,7 +374,7 @@ export async function fetchRepoFiles(
   projectId: string,
   branch: string = DEFAULT_BRANCH,
 ): Promise<RepoFileState[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("git_files")
     .select("path, content, blob_sha, updated_at")
     .eq("project_id", projectId)
@@ -450,7 +450,7 @@ export async function saveRepoFile(options: {
   const size = new TextEncoder().encode(content).length;
 
   if (options.expectedSha !== undefined) {
-    const { data: current } = await supabase
+    const { data: current } = await api
       .from("git_files")
       .select("blob_sha")
       .eq("project_id", options.projectId)
@@ -483,7 +483,7 @@ export async function saveRepoFile(options: {
   // La clé de conflit porte les **trois** colonnes. Avec les deux
   // anciennes, écrire le même chemin sur deux branches écrasait l'une
   // par l'autre : le dépôt perdait un fichier, en silence.
-  const { error } = await supabase.from("git_files").upsert(
+  const { error } = await api.from("git_files").upsert(
     {
       project_id: options.projectId,
       branch: options.branch ?? DEFAULT_BRANCH,
@@ -505,7 +505,7 @@ export async function deleteRepoFile(options: {
   path: string;
   branch?: string;
 }): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("git_files")
     .delete()
     .eq("project_id", options.projectId)
@@ -552,7 +552,7 @@ export async function createBranch(options: {
   // La comparaison se fait sur le nom **validé** : sans cela, ` main` et
   // `main` passeraient tous deux, et le second créerait un doublon que
   // la base refuse avec un message incompréhensible.
-  const { data: existing } = await supabase
+  const { data: existing } = await api
     .from("git_refs")
     .select("project_id, name, kind, sha, updated_at")
     .eq("project_id", options.projectId)
@@ -561,7 +561,7 @@ export async function createBranch(options: {
 
   if (existing) return { error: `La branche « ${name} » existe déjà.` };
 
-  const { data: files } = await supabase
+  const { data: files } = await api
     .from("git_files")
     .select("path, content, blob_sha, size, updated_by, updated_at")
     .eq("project_id", options.projectId)
@@ -588,7 +588,7 @@ export async function createBranch(options: {
   }));
 
   if (copied.length > 0) {
-    const { error } = await supabase
+    const { error } = await api
       .from("git_files")
       .upsert(copied, { onConflict: "project_id,branch,path" });
     if (error) return { error: error.message };
@@ -596,14 +596,14 @@ export async function createBranch(options: {
 
   // La nouvelle branche démarre sur le **même commit** que celle dont
   // elle part : c'est ce qui fait d'elle une branche et non un projet.
-  const { data: parentRef } = await supabase
+  const { data: parentRef } = await api
     .from("git_refs")
     .select("project_id, name, kind, sha, updated_at")
     .eq("project_id", options.projectId)
     .eq("name", from)
     .maybeSingle();
 
-  const { error } = await supabase.from("git_refs").insert({
+  const { error } = await api.from("git_refs").insert({
     project_id: options.projectId,
     name,
     kind: "branch",
@@ -638,13 +638,13 @@ export async function deleteBranch(options: {
   if (!allowed.ok) return { error: allowed.reason ?? "Suppression impossible." };
 
   // Fichiers d'abord, référence ensuite — même raison que la création.
-  await supabase
+  await api
     .from("git_files")
     .delete()
     .eq("project_id", options.projectId)
     .eq("branch", options.name);
 
-  const { error } = await supabase
+  const { error } = await api
     .from("git_refs")
     .delete()
     .eq("project_id", options.projectId)
@@ -682,7 +682,7 @@ export async function fetchCommits(
   branch: string = DEFAULT_BRANCH,
 ): Promise<Commit[]> {
   const [{ data }, head] = await Promise.all([
-    supabase
+    api
       .from("git_commits")
       .select(PROJECT_COLUMNS)
       .eq("project_id", projectId),
@@ -698,7 +698,7 @@ export async function fetchCommits(
 
 /** Les branches d'un projet. */
 export async function fetchBranches(projectId: string): Promise<GitRef[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("git_refs")
     .select("project_id, name, kind, sha, updated_at")
     .eq("project_id", projectId)
@@ -712,7 +712,7 @@ export async function fetchBranches(projectId: string): Promise<GitRef[]> {
 async function fetchCommitFiles(projectId: string, sha: string): Promise<RepoFile[]> {
   if (!sha || sha === NULL_SHA) return [];
 
-  const { data } = await supabase
+  const { data } = await api
     .from("git_commit_files")
     .select("path, content, blob_sha")
     .eq("project_id", projectId)
@@ -732,7 +732,7 @@ async function fetchCommitFiles(projectId: string, sha: string): Promise<RepoFil
 
 /** Le commit de sommet d'une branche, s'il existe. */
 async function headCommit(projectId: string, branch: string): Promise<Commit | null> {
-  const { data: ref } = await supabase
+  const { data: ref } = await api
     .from("git_refs")
     .select("project_id, name, kind, sha, updated_at")
     .eq("project_id", projectId)
@@ -742,7 +742,7 @@ async function headCommit(projectId: string, branch: string): Promise<Commit | n
   const sha = (ref as GitRef | null)?.sha ?? "";
   if (!sha) return null;
 
-  const { data } = await supabase
+  const { data } = await api
     .from("git_commits")
     .select(PROJECT_COLUMNS)
     .eq("sha", sha)
@@ -838,7 +838,7 @@ export async function commitRepo(options: {
     project_id: options.projectId,
   };
 
-  const { error: snapshotError } = await supabase.from("git_commit_files").upsert(
+  const { error: snapshotError } = await api.from("git_commit_files").upsert(
     files.map((f) => ({
       project_id: options.projectId,
       sha: commit.sha,
@@ -853,13 +853,13 @@ export async function commitRepo(options: {
     return { commit: null, error: snapshotError.message };
   }
 
-  const { error: commitError } = await supabase
+  const { error: commitError } = await api
     .from("git_commits")
     .insert(row as unknown as Record<string, unknown>);
 
   if (commitError) return { commit: null, error: commitError.message };
 
-  const { error: refError } = await supabase
+  const { error: refError } = await api
     .from("git_refs")
     .upsert(
       {
@@ -961,7 +961,7 @@ export async function importRepoHistory(options: {
       source: "github",
     };
 
-    const snapshot = await supabase.from("git_commit_files").upsert(
+    const snapshot = await api.from("git_commit_files").upsert(
       files.map((f) => ({
         project_id: options.projectId,
         sha: commit.sha,
@@ -979,7 +979,7 @@ export async function importRepoHistory(options: {
     // déjà copié retrouve les mêmes commits, et les réécrire serait une
     // erreur. `ignoreDuplicates` rend le rejeu idempotent — la référence
     // et l'instantané suffisent alors à rattacher la branche.
-    const commitWrite = await supabase
+    const commitWrite = await api
       .from("git_commits")
       .upsert(row as unknown as Record<string, unknown>, {
         onConflict: "sha",
@@ -989,7 +989,7 @@ export async function importRepoHistory(options: {
       return { imported, skipped, error: commitWrite.error.message };
     }
 
-    const refWrite = await supabase.from("git_refs").upsert(
+    const refWrite = await api.from("git_refs").upsert(
       { project_id: options.projectId, name: branch, kind: "branch", sha: commit.sha },
       { onConflict: "project_id,name" },
     );
@@ -1004,14 +1004,14 @@ export async function importRepoHistory(options: {
 
   // L'état de travail doit refléter la tête importée : on remplace les
   // fichiers de la branche par ceux du dernier instantané retenu.
-  await supabase
+  await api
     .from("git_files")
     .delete()
     .eq("project_id", options.projectId)
     .eq("branch", branch);
 
   if (parentFiles.length > 0) {
-    const { error } = await supabase.from("git_files").insert(
+    const { error } = await api.from("git_files").insert(
       parentFiles.map((f) => ({
         project_id: options.projectId,
         branch,
@@ -1161,12 +1161,12 @@ export async function fetchProjectsWithCounts(userId: string): Promise<ProjectCa
   const ids = projects.map((p) => p.id);
 
   const [links, commits, refs] = await Promise.all([
-    supabase.from("post_projects").select("project_id").in("project_id", ids),
-    supabase.from("git_commits")
+    api.from("post_projects").select("project_id").in("project_id", ids),
+    api.from("git_commits")
       .select(PROJECT_COLUMNS)
       .in("project_id", ids)
       .order("created_at", { ascending: false }),
-    supabase.from("git_refs").select("project_id, name, kind, sha, updated_at")
+    api.from("git_refs").select("project_id, name, kind, sha, updated_at")
       .eq("kind", "branch").in("project_id", ids),
   ]);
 
@@ -1363,7 +1363,7 @@ export async function summarizeRepoScores(
 
 /** Le projet d'une publication, s'il y en a un. */
 export async function fetchProjectForPost(postId: string): Promise<Project | null> {
-  const { data: link } = await supabase
+  const { data: link } = await api
     .from("post_projects")
     .select("project_id")
     .eq("post_id", postId)
@@ -1387,11 +1387,11 @@ export async function linkPostToProject(
   postId: string,
   projectId: string | null,
 ): Promise<{ error: string | null }> {
-  await supabase.from("post_projects").delete().eq("post_id", postId);
+  await api.from("post_projects").delete().eq("post_id", postId);
 
   if (!projectId) return { error: null };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("post_projects")
     .insert({ post_id: postId, project_id: projectId });
 
@@ -1400,7 +1400,7 @@ export async function linkPostToProject(
 
 /** Les publications rattachées à un projet. */
 export async function fetchPostsForProject(projectId: string): Promise<PostWithAuthor[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("post_projects")
     .select("post_id")
     .eq("project_id", projectId);
@@ -1408,7 +1408,7 @@ export async function fetchPostsForProject(projectId: string): Promise<PostWithA
   const ids = ((data as PostProject[]) ?? []).map((l) => l.post_id);
   if (ids.length === 0) return [];
 
-  const { data: posts } = await supabase
+  const { data: posts } = await api
     .from("posts")
     .select("*, author:users!posts_author_id_fkey(id, prenom, pseudo, avatar_color, account_type, verified, filiere, niveau)")
     .in("id", ids)
@@ -1445,7 +1445,7 @@ export async function fetchProjectsForPosts(
   const byPost = new Map<string, Project>();
   if (postIds.length === 0) return byPost;
 
-  const { data: links } = await supabase
+  const { data: links } = await api
     .from("post_projects")
     .select("post_id, project_id")
     .in("post_id", postIds);
@@ -1454,7 +1454,7 @@ export async function fetchProjectsForPosts(
   const projectIds = [...new Set(rows.map((r) => r.project_id))];
   if (projectIds.length === 0) return byPost;
 
-  const { data: projects } = await supabase
+  const { data: projects } = await api
     .from("projects")
     .select(PROJECT_FIELDS)
     .in("id", projectIds);

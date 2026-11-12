@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Icon, asIconName } from "@/components/Icon";
 import { useToast } from "@/components/Toast";
 import { fetchForksOf } from "@/lib/fork";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { timeAgo } from "@/lib/utils";
 import type { ForkRelation } from "@/lib/fork";
 
@@ -44,7 +44,7 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
     void (async () => {
       try {
         // La relation de ce projet : est-il lui-même un fork ?
-        const { data: forkRow } = await supabase
+        const { data: forkRow } = await api
           .from("project_forks")
           .select("id, fork_id, source_id, root_project_id, source_branch, source_sha, forked_by, forked_at")
           .eq("fork_id", projectId)
@@ -55,7 +55,7 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
 
         // Le parent direct, pour la ligne d'origine.
         if (rel) {
-          const { data: src } = await supabase
+          const { data: src } = await api
             .from("projects")
             .select("id, name, emoji")
             .eq("id", rel.source_id)
@@ -71,7 +71,7 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
           return;
         }
         const ids = kids.map((k) => k.fork_id);
-        const { data: rows } = await supabase
+        const { data: rows } = await api
           .from("projects")
           .select("id, name, emoji, language, created_at")
           .in("id", ids);

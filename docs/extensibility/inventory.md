@@ -102,14 +102,14 @@ l’ambiguïté des dossiers doit être tranchée avant la Phase 2 (sinon
 
 ## 6. Contraintes mesurées qui pèsent sur la conception
 
-1. **Pas de clé de service dans l’environnement réel.** `POST` de création
-   de compte admin renvoie un refus explicite mentionnant
-   `SUPABASE_SERVICE_ROLE_KEY` (503) : l’UI ne simule pas un succès. Toute
-   écriture de plugin devra passer par la session utilisateur + RLS, pas par
-   un rôle serveur absent.
-2. **Session partagée navigateur/serveur** (`lib/supabase/auth-cookie.ts`) :
-   sans nom de cookie fixe, le serveur ne voyait pas la session et `/admin`
-   répondait 404. Un slot rendu côté serveur devra utiliser le même client.
+1. **Pas de clé de service dans l’environnement réel.** La création d’un
+   compte admin passe par la session de l’administrateur, `withUser`, la RLS
+   et le déclencheur `guard_account_roles` ; aucune clé de service n’est
+   requise.
+2. **Session partagée navigateur/serveur** (`modules/auth/http/session-cookie.ts`) :
+   le cookie httpOnly `devnet_session` porte le jeton, le serveur le hache et
+   le compare à `public.sessions`. Un slot rendu côté serveur doit utiliser
+   `currentUserId()` et la même source.
 3. **Frontières testées** : les nouvelles dépendances (SDK de plugin, bus
    d’événements) doivent entrer par `platform/container.ts` et un port, ou
    `test:boundaries` échouera.

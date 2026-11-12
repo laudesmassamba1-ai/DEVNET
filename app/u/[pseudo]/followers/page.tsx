@@ -39,8 +39,8 @@ export default function FollowersPage({
   // duplique la logique pour le montage — c'est une seule requête par
   // élément affiché, et la liste reste courte.
   async function isFollowingFn(me: string, target: string): Promise<boolean> {
-    const { supabase } = await import("@/lib/supabase/client");
-    const { data } = await supabase
+    const { api } = await import("@/lib/api/client");
+    const { data } = await api
       .from("follows")
       .select("follower_id")
       .eq("follower_id", me)

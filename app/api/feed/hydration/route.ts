@@ -10,7 +10,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { FeedHydrationError, emptyHydration, readHydrationQuery } from "@/modules/feed";
-import { currentUserId } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import { getServerFeedHydrationRepository } from "@/platform/server-container";
 
 export const runtime = "nodejs";

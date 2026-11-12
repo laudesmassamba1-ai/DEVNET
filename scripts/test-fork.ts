@@ -51,7 +51,7 @@ check("icône du fork = fork", PROOF_KINDS.fork.icon === "fork");
 /* 3. Le contrat SQL (025_forks.sql)                                  */
 /* ------------------------------------------------------------------ */
 
-const sql = readFileSync(new URL("../supabase/025_forks.sql", import.meta.url), "utf8");
+const sql = readFileSync(new URL("../db/migrations/025_forks.sql", import.meta.url), "utf8");
 check("la table project_forks existe", sql.includes("create table if not exists public.project_forks"));
 check("fork_id unique", sql.includes("fork_id         uuid not null unique"));
 check("RLS activé", sql.includes("enable row level security"));

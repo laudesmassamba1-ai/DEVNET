@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { currentUserId } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import {
   executeRest,
   executeRpc,
@@ -89,9 +89,9 @@ async function handle(
 
   const prefer = request.headers.get("prefer") ?? "";
   const accept = request.headers.get("accept") ?? "";
-  const callerId = await currentUserId();
 
   try {
+    const callerId = await currentUserId();
     const run = (query: RestQuery) => {
       if (path[0] === "rpc") {
         if (path.length !== 2) {

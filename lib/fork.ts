@@ -25,7 +25,7 @@
 
 import { createProject, fetchRepoFiles, type UserLiteForRepo } from "./repo";
 import type { Project } from "./types";
-import { supabase } from "./supabase/client";
+import { api } from "./api/client";
 import { makeProof } from "./proofs";
 
 /**
@@ -35,7 +35,7 @@ import { makeProof } from "./proofs";
  * erreur bloquante.
  */
 async function safeUpdateForkedFrom(forkId: string, sourceId: string): Promise<void> {
-  const { error } = await supabase
+  const { error } = await api
     .from("projects")
     .update({ forked_from: sourceId })
     .eq("id", forkId);
@@ -137,7 +137,7 @@ export async function forkProject(options: {
       blob_sha: f.blob_sha,
       updated_by: options.owner.id,
     }));
-    const { error: copyError } = await supabase.from("git_files").insert(rows);
+    const { error: copyError } = await api.from("git_files").insert(rows);
     if (copyError) {
       return { project, relation: null, error: `Fork créé, mais copie incomplète : ${copyError.message}` };
     }
@@ -151,7 +151,7 @@ export async function forkProject(options: {
     source_sha: "",
     forked_by: options.owner.id,
   };
-  const { data: relData, error: relError } = await supabase
+  const { data: relData, error: relError } = await api
     .from("project_forks")
     .insert(relationPayload)
     .select("id, fork_id, source_id, root_project_id, source_branch, source_sha, forked_by, forked_at")
@@ -172,7 +172,7 @@ export async function forkProject(options: {
 
 /** Recharge la relation de fork d'un projet, s'il en a une. */
 export async function fetchForkOf(projectId: string): Promise<ForkRelation | null> {
-  const { data } = await supabase
+  const { data } = await api
     .from("project_forks")
     .select("id, fork_id, source_id, root_project_id, source_branch, source_sha, forked_by, forked_at")
     .eq("fork_id", projectId)
@@ -182,7 +182,7 @@ export async function fetchForkOf(projectId: string): Promise<ForkRelation | nul
 
 /** Les forks d'un projet — ses enfants directs, les plus récents d'abord. */
 export async function fetchForksOf(sourceId: string): Promise<ForkRelation[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("project_forks")
     .select("id, fork_id, source_id, root_project_id, source_branch, source_sha, forked_by, forked_at")
     .eq("source_id", sourceId)

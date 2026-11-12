@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { AvatarColor, GroupMember, GroupRole } from "@/lib/types";
 import { loadAuthorXp } from "@/lib/author-xp";
 
@@ -48,7 +48,7 @@ export function isStaff(role: GroupRole | null | undefined): boolean {
 
 /** La liste des membres d'un groupe, profils joints. */
 export async function fetchMembers(groupId: string): Promise<MemberRow[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("group_members")
     .select(
       "group_id, user_id, role, joined_at, " +
@@ -93,7 +93,7 @@ export async function setMemberRole(
   userId: string,
   role: GroupRole,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("group_members")
     .update({ role })
     .eq("group_id", groupId)
@@ -110,7 +110,7 @@ export async function removeMember(
   groupId: string,
   userId: string,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("group_members")
     .delete()
     .eq("group_id", groupId)
@@ -130,7 +130,7 @@ export async function removeMember(
 export async function deleteGroupMessage(
   messageId: string,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("group_messages")
     .delete()
     .eq("id", messageId);

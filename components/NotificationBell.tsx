@@ -3,7 +3,7 @@
 import { useRouter, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Icon } from "./Icon";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { fetchUnreadSummary } from "@/lib/notifications";
 import { useSession } from "@/hooks/useSession";
 import type { UnreadSummary } from "@/lib/notifications";
@@ -74,7 +74,7 @@ export function NotificationBell() {
   useEffect(() => {
     if (!me) return;
 
-    const channel = supabase
+    const channel = api
       .channel(`notifications-${me}`)
       .on(
         "postgres_changes",
@@ -91,7 +91,7 @@ export function NotificationBell() {
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      void api.removeChannel(channel);
     };
   }, [me, load]);
 

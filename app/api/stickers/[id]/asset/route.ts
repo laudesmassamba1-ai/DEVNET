@@ -8,7 +8,7 @@
  */
 import { NextResponse } from "next/server";
 import { StickersRepositoryError } from "@/modules/stickers";
-import { currentUserId } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import { getServerStickersRepository } from "@/platform/server-container";
 
 export const runtime = "nodejs";

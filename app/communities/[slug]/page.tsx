@@ -11,7 +11,7 @@ import { PostCard } from "@/components/PostCard";
 import { PostOwnerTools } from "@/components/PostOwnerTools";
 import { Sheet } from "@/components/Sheet";
 import { useToast } from "@/components/Toast";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { useSession } from "@/hooks/useSession";
 import { usePostActions } from "@/hooks/usePostActions";
 import { fetchLikedPostIds, toggleLike } from "@/lib/social";
@@ -119,7 +119,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     if (!draft.trim()) return toast("Écris quelque chose", "err");
 
     setBusy(true);
-    const { error } = await supabase.from("posts").insert({
+    const { error } = await api.from("posts").insert({
       author_id: profile.id,
       text: draft.trim(),
       has_code: false,
@@ -380,7 +380,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     if (!target) return;
     const { user } = await findUserByPseudo(target);
     if (!user) return toast("Aucun compte trouvé", "err");
-    const { error } = await supabase
+    const { error } = await api
       .from("community_members")
       .insert({ community_id: community.id, user_id: user.id, role: "member" });
     if (error) return toast(`Erreur : ${error.message}`, "err");

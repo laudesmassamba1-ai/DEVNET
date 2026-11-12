@@ -12,7 +12,7 @@
  *   · `project_forks`   — pour le compte de forks reçus.
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { rateProject, type RatingResult, type RatingVote } from "./rating";
 
 /** Un vote en base : il porte l'identité de l'électeur et son langage. */
@@ -27,7 +27,7 @@ interface RatingRow {
 /** Lit toutes les étoiles d'un projet, prêtes pour `rateProject`. */
 export async function fetchVotes(projectId: string): Promise<RatingVote[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await api
       .from("project_ratings")
       .select("project_id, voter_id, stars, voter_lang, created_at")
       .eq("project_id", projectId);
@@ -67,7 +67,7 @@ export async function fetchRating(projectId: string): Promise<RatingResult> {
 /** Tous les votes de la plateforme (plafonné, la démo en compte peu). */
 export async function fetchAllVotes(): Promise<(RatingVote & { project_id: string })[]> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await api
       .from("project_ratings")
       .select("project_id, voter_id, stars, voter_lang, created_at")
       .limit(2000);
@@ -87,7 +87,7 @@ export async function fetchAllVotes(): Promise<(RatingVote & { project_id: strin
 /** Mon vote sur ce projet, pour savoir si l'écran affiche le vote ou le bouton. */
 export async function fetchMyVote(projectId: string, voterId: string): Promise<number | null> {
   try {
-    const { data } = await supabase
+    const { data } = await api
       .from("project_ratings")
       .select("stars")
       .eq("project_id", projectId)
@@ -126,7 +126,7 @@ export async function castRating(options: {
   }
 
   try {
-    const { error } = await supabase
+    const { error } = await api
       .from("project_ratings")
       .upsert(
         {
@@ -153,7 +153,7 @@ export async function castRating(options: {
 /** Le nombre de forks reçus d'un projet — la réputation d'héritage. */
 export async function fetchForkCount(sourceId: string): Promise<number> {
   try {
-    const { count, error } = await supabase
+    const { count, error } = await api
       .from("project_forks")
       .select("id", { count: "exact", head: true })
       .eq("source_id", sourceId);

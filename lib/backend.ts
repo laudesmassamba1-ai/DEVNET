@@ -1,12 +1,10 @@
 /**
  * Détection de la disponibilité du backend.
  *
- * Un projet Supabase supprimé ne provoque pas une erreur franche : son nom
- * de domaine cesse simplement de résoudre, et le client web affiche « Failed to
- * fetch » partout, indistinctement d'un mot de passe faux. On sonde donc
- * explicitement l'API REST avant de laisser l'application tenter quoi que ce
- * soit, afin de basculer en mode démo avec un message honnête plutôt qu'un
- * écran vide.
+ * Le navigateur ne parle plus à un service externe : le backend est l'API
+ * maison, adossée à PostgreSQL. Une base arrêtée ou un `DATABASE_URL` absent
+ * se traduit par une sonde serveur en échec, et l'application bascule en mode
+ * démonstration avec un message honnête plutôt qu'un écran vide.
  */
 
 export type BackendState = "unknown" | "checking" | "online" | "offline";
@@ -51,20 +49,6 @@ function set(next: Partial<BackendProbe>): BackendProbe {
   return state;
 }
 
-export function getSupabaseUrl(): string | null {
-  const envUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  if (!envUrl) return null;
-  if (typeof window !== "undefined") {
-    // Si accédé depuis un tunnel HTTPS (ex: Cloudflare trycloudflare) ou un client distant,
-    // et que l'URL configurée pointe vers localhost/127.0.0.1,
-    // on utilise l'origine courante relayée par les rewrites Next.js pour éviter le Mixed Content.
-    if (envUrl.includes("localhost") || envUrl.includes("127.0.0.1")) {
-      return window.location.origin;
-    }
-  }
-  return envUrl;
-}
-
 /**
  * Sonde le backend. Renvoie l'état courant.
  *
@@ -82,21 +66,10 @@ export async function probeBackend(force = false): Promise<BackendProbe> {
     });
   }
 
-  const url = getSupabaseUrl();
-
-  if (!url) {
-    return set({
-      state: "offline",
-      url: null,
-      reason: "NEXT_PUBLIC_SUPABASE_URL n'est pas défini dans .env.local",
-      checkedAt: Date.now(),
-    });
-  }
-
   const fresh = state.checkedAt !== null && Date.now() - state.checkedAt < CACHE_MS;
   if (!force && fresh) return state;
 
-  set({ state: "checking", url, reason: null });
+  set({ state: "checking", url: null, reason: null });
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), PROBE_TIMEOUT_MS);
@@ -114,7 +87,7 @@ export async function probeBackend(force = false): Promise<BackendProbe> {
     if (!res.ok) {
       return set({
         state: "offline",
-        url,
+        url: null,
         reason: `La sonde serveur répond ${res.status}.`,
         checkedAt: Date.now(),
       });
@@ -123,21 +96,18 @@ export async function probeBackend(force = false): Promise<BackendProbe> {
     if (verdict.state === "offline") {
       return set({
         state: "offline",
-        url,
+        url: null,
         reason: verdict.reason ?? "Le backend est injoignable.",
         checkedAt: Date.now(),
       });
     }
-    return set({ state: "online", url, reason: null, checkedAt: Date.now() });
+    return set({ state: "online", url: null, reason: null, checkedAt: Date.now() });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
-    const dns = /resolve|ENOTFOUND|nxdomain|getaddrinfo/i.test(msg);
     return set({
       state: "offline",
-      url,
-      reason: dns
-        ? `Le nom de domaine du projet ne résout plus (${url}). Le projet a probablement été supprimé ou mis en pause longue durée.`
-        : `Le backend ne répond pas (${msg}).`,
+      url: null,
+      reason: `Le backend ne répond pas (${msg}).`,
       checkedAt: Date.now(),
     });
   } finally {
@@ -159,7 +129,18 @@ export function isDemoAllowed(): boolean {
   );
 }
 
-/** Vrai si l'application doit afficher les données de démonstration. */
+/**
+ * Vrai si l'application doit afficher les données de démonstration.
+ *
+ * Côté serveur (tests, scripts, rendu initial), l'absence de `DATABASE_URL`
+ * est connue immédiatement : inutile d'attendre une sonde réseau. Côté
+ * navigateur, `DATABASE_URL` n'est jamais exposée ; c'est la sonde
+ * `/api/backend-check` qui décide.
+ */
 export function isDemoMode(): boolean {
+  if (process.env.NEXT_PUBLIC_FORCE_DEMO === "true") return true;
+  if (typeof window === "undefined" && !process.env.DATABASE_URL?.trim()) {
+    return isDemoAllowed();
+  }
   return state.state === "offline" && isDemoAllowed();
 }

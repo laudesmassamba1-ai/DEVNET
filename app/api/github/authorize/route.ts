@@ -22,7 +22,7 @@
 
 import { NextResponse } from "next/server";
 import { hasVaultKey } from "@/lib/github/crypto";
-import { getOrCreateServerClient } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import {
   authenticatedUserMatchesRequest,
   authorizeUrl,
@@ -61,27 +61,21 @@ export async function GET(request: Request) {
     return response;
   }
 
-  const sessionClient = await getOrCreateServerClient();
-  if (!sessionClient) {
+  let sessionUserId: string | null;
+  try {
+    sessionUserId = await currentUserId();
+  } catch (error) {
+    console.error("[github] session lookup failed", error);
     return NextResponse.json(
       { error: "Authentification indisponible." },
       { status: 503, headers: { "cache-control": "no-store" } },
     );
   }
-
-  const { data: auth, error: authError } = await sessionClient.auth.getUser();
-  if (authError) {
-    const status = authError.status === 401 ? 401 : 503;
-    return NextResponse.json(
-      { error: status === 401 ? "Session invalide." : "Authentification indisponible." },
-      { status, headers: { "cache-control": "no-store" } },
-    );
-  }
-  if (!authenticatedUserMatchesRequest(user, auth.user?.id ?? null)) {
+  if (!authenticatedUserMatchesRequest(user, sessionUserId)) {
     return NextResponse.json(
       { error: "Session invalide." },
       {
-        status: auth.user ? 403 : 401,
+        status: sessionUserId ? 403 : 401,
         headers: { "cache-control": "no-store" },
       },
     );

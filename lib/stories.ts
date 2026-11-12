@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { StoryWithAuthor } from "@/lib/types";
 import { STORY_REPLY_MAX } from "@/modules/stories";
 import type {
@@ -70,7 +70,7 @@ export const STORY_MAX = 500;
  * filtre mort dans un cas et faux dans l'autre.
  */
 export async function fetchLiveStories(): Promise<StoryWithAuthor[]> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("stories")
     .select(`*, author:users(${AUTHOR_COLUMNS})`)
     .order("created_at", { ascending: false });
@@ -100,7 +100,7 @@ export async function publishStory(
   if (!clean) return { error: "Une story sans texte ne dit rien" };
   if (clean.length > STORY_MAX) return { error: `${STORY_MAX} caractères maximum` };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("stories")
     .insert({ author_id: authorId, caption: clean });
 
@@ -155,7 +155,7 @@ export function storyMediaUrl(storyId: string): string {
 
 /** Retire une story — la sienne, la RLS n'autorisant rien d'autre. */
 export async function deleteStory(id: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("stories").delete().eq("id", id);
+  const { error } = await api.from("stories").delete().eq("id", id);
   return { error: error?.message ?? null };
 }
 

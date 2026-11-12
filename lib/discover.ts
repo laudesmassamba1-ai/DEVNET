@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { withAuthorXp, loadAuthorXp } from "@/lib/author-xp";
 import { AUTHOR_COLUMNS } from "@/lib/social";
 import { fetchCommunities, fetchMyCommunityIds } from "@/lib/communities";
@@ -29,13 +29,13 @@ export async function fetchDiscover(me: User | null): Promise<Discover> {
   const since = new Date(Date.now() - WEEK).toISOString();
 
   const [proofsRes, countRes, projects, communities, joined, rising] = await Promise.all([
-    supabase
+    api
       .from("posts")
       .select(PROOF_COLUMNS)
       .eq("has_code", true)
       .order("created_at", { ascending: false })
       .limit(18),
-    supabase
+    api
       .from("posts")
       .select("id", { count: "exact", head: true })
       .eq("has_code", true)

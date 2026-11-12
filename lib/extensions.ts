@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { AUTHOR_COLUMNS } from "@/lib/social";
 import { slugify, uniqueSlug } from "@/lib/groups/channels";
 import type {
@@ -146,7 +146,7 @@ function withManifest(row: Extension): Extension {
 
 /** Toutes les extensions de la place de marché, les plus installées d'abord. */
 export async function fetchExtensions(): Promise<ExtensionWithAuthor[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("extensions")
     .select(`*, author:users!extensions_owner_id_fkey(${AUTHOR_COLUMNS})`)
     .order("installs", { ascending: false })
@@ -162,7 +162,7 @@ export async function fetchExtensions(): Promise<ExtensionWithAuthor[]> {
 export async function fetchExtensionBySlug(
   slug: string,
 ): Promise<ExtensionWithAuthor | null> {
-  const { data } = await supabase
+  const { data } = await api
     .from("extensions")
     .select(`*, author:users!extensions_owner_id_fkey(${AUTHOR_COLUMNS})`)
     .eq("slug", slug)
@@ -182,7 +182,7 @@ export async function fetchExtensionBySlug(
 export async function fetchMyInstalls(
   userId: string,
 ): Promise<Map<string, ExtensionInstall>> {
-  const { data } = await supabase
+  const { data } = await api
     .from("extension_installs")
     .select("extension_id, user_id, enabled, settings, installed_at")
     .eq("user_id", userId);
@@ -263,7 +263,7 @@ export async function createExtension(
   const taken = await fetchExtensions();
   const slug = uniqueSlug(slugify(input.name), taken.map((e) => e.slug));
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("extensions")
     .insert({
       slug,
@@ -291,13 +291,13 @@ export async function updateExtension(
   const body = { ...patch };
   if (patch.manifest) body.manifest = normalizeManifest(patch.manifest);
 
-  const { error } = await supabase.from("extensions").update(body).eq("id", id);
+  const { error } = await api.from("extensions").update(body).eq("id", id);
   return { error: error?.message ?? null };
 }
 
 /** Supprimer une extension — l'auteur seul (`029`). */
 export async function deleteExtension(id: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("extensions").delete().eq("id", id);
+  const { error } = await api.from("extensions").delete().eq("id", id);
   return { error: error?.message ?? null };
 }
 
@@ -310,7 +310,7 @@ export async function installExtension(
   userId: string,
   settings: Record<string, string | boolean | number> = {},
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("extension_installs")
     .insert({ extension_id: extensionId, user_id: userId, enabled: true, settings });
 
@@ -322,7 +322,7 @@ export async function uninstallExtension(
   extensionId: string,
   userId: string,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("extension_installs")
     .delete()
     .eq("extension_id", extensionId)
@@ -337,7 +337,7 @@ export async function setExtensionEnabled(
   userId: string,
   enabled: boolean,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("extension_installs")
     .update({ enabled })
     .eq("extension_id", extensionId)
@@ -352,7 +352,7 @@ export async function setExtensionSettings(
   userId: string,
   settings: Record<string, string | boolean | number>,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("extension_installs")
     .update({ settings })
     .eq("extension_id", extensionId)

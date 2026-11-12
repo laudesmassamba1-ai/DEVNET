@@ -13,12 +13,13 @@ flowchart TD
     UI["app/ + components/"] --> Hooks["hooks/"]
     UI --> Services["lib/ services et domaines"]
     Hooks --> Services
-    Services --> Proxy["lib/supabase/client.ts"]
+    Services --> Proxy["lib/rest/client.ts (façade lib/supabase/client.ts)"]
+    Proxy --> Rest["app/api/rest + app/api/auth"]
     Proxy --> Probe["lib/backend.ts"]
-    Probe --> Live["Supabase navigateur (@supabase/ssr)"]
+    Probe --> Live["PostgreSQL direct (withUser/withAnon)"]
     Probe --> Demo["lib/demo/ (mémoire + localStorage)"]
     Routes["app/api/"] --> ServerClient["lib/supabase/server.ts"]
-    ServerClient --> Auth["Supabase Auth via cookies"]
+    ServerClient --> Auth["Sessions httpOnly + tables auth/sessions"]
     Services --> Pure["Règles métier pures dans lib/"]
     Routes --> Github["lib/github/ (OAuth et API GitHub)"]
 ```
@@ -30,12 +31,12 @@ flowchart TD
   d'usage migrés :
     `app/feed` → `lib/social.ts` (façade de compatibilité) →
     `platform/container.ts` → port `FeedRepository` → adaptateur.
-- `lib/backend.ts` sonde le backend. Le proxy navigateur choisit le client
-  Supabase ou `lib/demo/client.ts`; le backend de démo conserve ses données
+- `lib/backend.ts` sonde `/api/backend-check`. Le proxy navigateur choisit le
+  client REST ou `lib/demo/client.ts`; le backend de démo conserve ses données
   localement et reproduit une partie de l'API utilisée par l'application.
-- Les routes API créent leur propre client serveur à partir des cookies HTTP.
-  Ce chemin n'est pas le client mémoire du navigateur et peut être indisponible
-  sans configuration Supabase.
+- Les routes API lisent la session dans le cookie httpOnly, puis exécutent les
+  requêtes PostgreSQL avec `withUser` (RLS) ou `withAnon`. Aucun SDK externe
+  n'est requis.
 - L'intégration GitHub est isolée sous `lib/github/` et `app/api/github/`.
   Son flux OAuth utilise un état scellé, un cookie httpOnly et un jeton chiffré.
   Les secrets restent côté serveur.
@@ -47,7 +48,7 @@ flowchart TD
 
 - Le proxy de compatibilité et le backend de démo facilitent le fonctionnement
   en mode démo, mais ne constituent pas encore des ports/adaptateurs formels.
-- La logique des services et des vues demeure couplée à l'API Supabase dans
+- La logique des services et des vues demeure couplée au contrat PostgREST dans
   plusieurs domaines. Le mode mémoire n'est donc pas encore une preuve que
   toutes les fonctions serveur peuvent tourner sans service externe.
 - Le mode démo est local au navigateur (notamment `localStorage`) et son bus

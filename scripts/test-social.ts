@@ -8,7 +8,7 @@
  * raisonnement de sécurité de la migration 005 repose là-dessus. Si le
  * moteur de démonstration s'en écarte, la démo enseigne le contraire
  * du produit — c'est déjà arrivé avec la messagerie (voir
- * `supabase/006_messaging.sql`), où un bug invisible en démo bloquait la
+ * `db/migrations/006_messaging.sql`), où un bug invisible en démo bloquait la
  * production.
  *
  * Chaque test porte donc sur un invariant qui doit être vrai dans les

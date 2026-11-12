@@ -6,7 +6,7 @@
  *
  * ## Deux modes, un seul point d'entrée
  *
- * Le client importé est `@/lib/supabase/client`, qui renvoie déjà
+ * Le client importé est `@/lib/api/client`, qui renvoie déjà
  * Supabase **ou** le client de démonstration selon l'état du backend
  * (`lib/backend.ts`). Il n'y a donc pas de `if (demo)` dans ce fichier :
  * ajouter une bifurcation ici, c'est se garantir deux comportements à
@@ -21,7 +21,7 @@
  * neuf doit afficher.
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import {
   makeProof, proofsForProject, proofsOf, replayAll, reputationByLanguage,
   type LanguageReputation, type Proof, type ReplayReport,
@@ -56,7 +56,7 @@ const PROOF_COLUMNS =
 /** Toutes les preuves d'une personne, les plus récentes d'abord. */
 export async function loadProofsForUser(userId: string): Promise<Proof[]> {
   const rows = await safe(
-    supabase.from("proofs").select(PROOF_COLUMNS)
+    api.from("proofs").select(PROOF_COLUMNS)
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .limit(500),
@@ -68,7 +68,7 @@ export async function loadProofsForUser(userId: string): Promise<Proof[]> {
 /** Les preuves rattachées à un projet — qui a fait quoi, ici. */
 export async function loadProofsForProject(projectId: string): Promise<Proof[]> {
   const rows = await safe(
-    supabase.from("proofs").select(PROOF_COLUMNS)
+    api.from("proofs").select(PROOF_COLUMNS)
       .eq("project_id", projectId)
       .order("created_at", { ascending: false })
       .limit(500),
@@ -116,7 +116,7 @@ export async function recordExecutionProof(input: {
   });
 
   try {
-    const { error } = await supabase.from("proofs").insert({
+    const { error } = await api.from("proofs").insert({
       id: proof.id,
       user_id: proof.user_id,
       kind: proof.kind,
@@ -177,7 +177,7 @@ export function candidateFrom(
 const SNIPPET_COLUMNS = "id, author_id, title, language, code, output, ran_at, created_at";
 
 export async function loadSnippets(options: { authorId?: string; limit?: number } = {}): Promise<Snippet[]> {
-  let query = supabase.from("snippets").select(SNIPPET_COLUMNS)
+  let query = api.from("snippets").select(SNIPPET_COLUMNS)
     .order("created_at", { ascending: false })
     .limit(options.limit ?? 40);
   if (options.authorId) query = query.eq("author_id", options.authorId);
@@ -199,7 +199,7 @@ export async function publishSnippet(input: {
   ranAt: string | null;
 }): Promise<{ id: string | null; error: string | null }> {
   try {
-    const { data, error } = await supabase.from("snippets").insert({
+    const { data, error } = await api.from("snippets").insert({
       id: cryptoRandomId(),
       author_id: input.authorId,
       title: input.title.trim(),
@@ -223,7 +223,7 @@ const CORRECTION_COLUMNS =
   "id, project_id, path, line_no, original, proposed, language, author_id, status, comment, decided_by, decided_at, created_at";
 
 export async function loadCorrections(projectId: string, path?: string): Promise<ReviewCorrection[]> {
-  let query = supabase.from("review_corrections").select(CORRECTION_COLUMNS)
+  let query = api.from("review_corrections").select(CORRECTION_COLUMNS)
     .eq("project_id", projectId)
     .order("created_at", { ascending: false })
     .limit(200);
@@ -242,7 +242,7 @@ export async function proposeCorrection(input: {
   comment: string;
 }): Promise<{ error: string | null }> {
   try {
-    const { error } = await supabase.from("review_corrections").insert({
+    const { error } = await api.from("review_corrections").insert({
       id: cryptoRandomId(),
       project_id: input.projectId,
       path: input.path,
@@ -273,7 +273,7 @@ export async function decideCorrection(input: {
   deciderId: string;
 }): Promise<{ error: string | null }> {
   try {
-    const { error } = await supabase.from("review_corrections").update({
+    const { error } = await api.from("review_corrections").update({
       status: input.accept ? "acceptee" : "refusee",
       decided_by: input.deciderId,
       decided_at: new Date().toISOString(),
@@ -293,7 +293,7 @@ const TASK_COLUMNS =
 
 export async function loadTasks(projectId: string): Promise<ProjectTask[]> {
   const rows = await safe(
-    supabase.from("project_tasks").select(TASK_COLUMNS)
+    api.from("project_tasks").select(TASK_COLUMNS)
       .eq("project_id", projectId)
       .order("position", { ascending: true })
       .limit(300),
@@ -311,7 +311,7 @@ export async function createTask(input: {
   status?: ProjectTask["status"];
 }): Promise<{ error: string | null }> {
   try {
-    const { error } = await supabase.from("project_tasks").insert({
+    const { error } = await api.from("project_tasks").insert({
       id: cryptoRandomId(),
       project_id: input.projectId,
       title: input.title.trim(),
@@ -343,7 +343,7 @@ export async function moveTask(input: {
   const patch: Record<string, unknown> = { status: input.status };
   if (input.status === "done") patch.done_at = new Date().toISOString();
   try {
-    const { error } = await supabase.from("project_tasks").update(patch).eq("id", input.id);
+    const { error } = await api.from("project_tasks").update(patch).eq("id", input.id);
     return { error: error ? message(error) : null };
   } catch (err) {
     return { error: message(err) };
@@ -358,7 +358,7 @@ export async function assignTask(input: {
   try {
     const patch: Record<string, unknown> = { assignee: input.assignee };
     if (input.language !== undefined) patch.language = input.language;
-    const { error } = await supabase.from("project_tasks").update(patch).eq("id", input.id);
+    const { error } = await api.from("project_tasks").update(patch).eq("id", input.id);
     return { error: error ? message(error) : null };
   } catch (err) {
     return { error: message(err) };
@@ -368,7 +368,7 @@ export async function assignTask(input: {
 /** Retire une tâche — le créateur seul, ou l'équipe (RLS). */
 export async function deleteTask(id: string): Promise<{ error: string | null }> {
   try {
-    const { error } = await supabase.from("project_tasks").delete().eq("id", id);
+    const { error } = await api.from("project_tasks").delete().eq("id", id);
     return { error: error ? message(error) : null };
   } catch (err) {
     return { error: message(err) };
@@ -388,7 +388,7 @@ export async function editTask(input: {
     if (input.body !== undefined) patch.body = input.body;
     if (input.language !== undefined) patch.language = input.language;
     if (Object.keys(patch).length === 0) return { error: null };
-    const { error } = await supabase.from("project_tasks").update(patch).eq("id", input.id);
+    const { error } = await api.from("project_tasks").update(patch).eq("id", input.id);
     return { error: error ? message(error) : null };
   } catch (err) {
     return { error: message(err) };
@@ -418,7 +418,7 @@ export interface ProjectMemberView {
 
 export async function loadProjectMembers(projectId: string): Promise<ProjectMemberView[]> {
   const rows = await safe(
-    supabase
+    api
       .from("project_members")
       .select("user_id, role, profile:users(prenom, pseudo, avatar_color)")
       .eq("project_id", projectId)
@@ -450,7 +450,7 @@ export async function loadApplications(options: {
   projectId?: string;
   userId?: string;
 }): Promise<ProjectApplication[]> {
-  let query = supabase.from("project_applications").select(APPLICATION_COLUMNS)
+  let query = api.from("project_applications").select(APPLICATION_COLUMNS)
     .order("created_at", { ascending: false })
     .limit(200);
   if (options.projectId) query = query.eq("project_id", options.projectId);
@@ -474,7 +474,7 @@ export interface ProjectApplicationView extends ProjectApplication {
 
 export async function loadApplicationViews(projectId: string): Promise<ProjectApplicationView[]> {
   const rows = await safe(
-    supabase
+    api
       .from("project_applications")
       .select(
         "id, project_id, user_id, role, message, status, decided_by, decided_at, created_at, " +
@@ -505,7 +505,7 @@ export async function applyToProject(input: {
   message: string;
 }): Promise<{ error: string | null }> {
   try {
-    const { error } = await supabase.from("project_applications").insert({
+    const { error } = await api.from("project_applications").insert({
       id: cryptoRandomId(),
       project_id: input.projectId,
       user_id: input.userId,
@@ -526,7 +526,7 @@ export async function decideApplication(input: {
   deciderId: string;
 }): Promise<{ error: string | null }> {
   try {
-    const { error } = await supabase.from("project_applications").update({
+    const { error } = await api.from("project_applications").update({
       status: input.accept ? "acceptee" : "refusee",
       decided_by: input.deciderId,
       decided_at: new Date().toISOString(),

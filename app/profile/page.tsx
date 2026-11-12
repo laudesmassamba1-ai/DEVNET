@@ -27,8 +27,8 @@ import {
 } from "@/lib/verification-data";
 import { fetchConnection } from "@/lib/github/connect";
 import { fetchProjectsByUser, summarizeRepoScores } from "@/lib/repo";
-import { supabase } from "@/lib/supabase/client";
-import { updateProfile } from "@/lib/supabase/profile";
+import { api } from "@/lib/api/client";
+import { updateProfile } from "@/lib/api/profile";
 import { applyTheme, broadcastTheme, DEFAULT_THEME, LIGHT_THEME } from "@/lib/theme";
 import { useSession } from "@/hooks/useSession";
 import { useProgress } from "@/hooks/useProgress";
@@ -76,7 +76,7 @@ function WeeklyGoalCard({ profileId }: { profileId: string }) {
     start.setDate(start.getDate() - ((start.getDay() + 6) % 7));
     start.setHours(0, 0, 0, 0);
     let alive = true;
-    supabase
+    api
       .from("posts")
       .select("id", { count: "exact", head: true })
       .eq("author_id", profileId)
@@ -225,7 +225,7 @@ export default function ProfilePage() {
     if (!profileId) return;
     let alive = true;
 
-    supabase
+    api
       .from("posts").select("*").eq("author_id", profileId)
       .order("created_at", { ascending: false })
       .then(({ data }: { data: Post[] | null }) => {
@@ -234,7 +234,7 @@ export default function ProfilePage() {
 
     void Promise.all([
       fetchProjectsByUser(profileId),
-      supabase.from("group_members").select("group_id").eq("user_id", profileId),
+      api.from("group_members").select("group_id").eq("user_id", profileId),
       fetchConnection(profileId),
     ]).then(async ([projectsRows, memberships, github]) => {
       // Le score moyen est lu **avec** le profil, pas à l'ouverture d'un
@@ -259,7 +259,7 @@ export default function ProfilePage() {
   }, [profileId]);
 
   async function logout() {
-    await supabase.auth.signOut();
+    await api.auth.signOut();
     router.replace("/login");
   }
 
@@ -278,7 +278,7 @@ export default function ProfilePage() {
     const next = current === "professional" ? "student" : "professional";
     setSwitchingType(true);
     try {
-      const { error } = await supabase
+      const { error } = await api
         .from("users")
         .update({ account_type: next })
         .eq("id", profileId);
@@ -340,10 +340,10 @@ export default function ProfilePage() {
     setExporting(true);
     try {
       const [postsRes, commentsRes, bookmarksRes, followsRes] = await Promise.all([
-        supabase.from("posts").select("*").eq("author_id", profileId),
-        supabase.from("comments").select("*").eq("author_id", profileId),
-        supabase.from("bookmarks").select("*").eq("user_id", profileId),
-        supabase.from("follows").select("*").eq("follower_id", profileId),
+        api.from("posts").select("*").eq("author_id", profileId),
+        api.from("comments").select("*").eq("author_id", profileId),
+        api.from("bookmarks").select("*").eq("user_id", profileId),
+        api.from("follows").select("*").eq("follower_id", profileId),
       ]);
       const anyError = postsRes.error || commentsRes.error || bookmarksRes.error || followsRes.error;
       if (anyError) throw anyError;

@@ -21,7 +21,7 @@ async function main(): Promise<void> {
   const databaseUrl = resolveDatabaseUrl(parseFlag(process.argv, "database-url"));
   const target = readTarget();
   const apply = process.argv.includes("--apply");
-  const migrationsDir = path.resolve(parseFlag(process.argv, "dir") ?? "supabase");
+  const migrationsDir = path.resolve(parseFlag(process.argv, "dir") ?? "db/migrations");
 
   const description = assertSafeTarget({
     databaseUrl,

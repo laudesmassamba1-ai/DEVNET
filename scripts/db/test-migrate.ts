@@ -32,14 +32,14 @@ function throws(label: string, run: () => void, expectedFragment: string): void 
 }
 
 async function verifyFileSelection(): Promise<void> {
-  const migrations = await listMigrations("supabase");
+  const migrations = await listMigrations("db/migrations");
   const names = migrations.map((migration) => migration.name);
 
-  check("54 migrations retenues", migrations.length === 54, `${migrations.length} trouvées`);
+  check("58 migrations retenues", migrations.length === 58, `${migrations.length} trouvées`);
   check("première = 001_schema.sql", names[0] === "001_schema.sql", names[0]);
   check(
-    "dernière = 054_comment_media.sql",
-    names[names.length - 1] === "054_comment_media.sql",
+    "dernière = 058_media_storage_url.sql",
+    names[names.length - 1] === "058_media_storage_url.sql",
     names[names.length - 1],
   );
   check("ordre croissant", names.join() === [...names].sort().join());

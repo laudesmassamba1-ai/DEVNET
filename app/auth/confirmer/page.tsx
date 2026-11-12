@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { supabase, usingDemoData } from "@/lib/supabase/client";
+import { api, usingDemoData } from "@/lib/api/client";
 import { Logo } from "@/components/Logo";
 import { rearmSplash } from "@/components/SplashScreen";
 
@@ -30,11 +30,11 @@ export default function ConfirmEmailPage() {
 
         if (code) {
           try {
-            await supabase.auth.exchangeCodeForSession(code);
+            await api.auth.exchangeCodeForSession(code);
           } catch {
             if (tokenHash && type) {
               try {
-                await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as "email" });
+                await api.auth.verifyOtp({ token_hash: tokenHash, type: type as "email" });
               } catch {
                 setInvalid(true);
                 setChecking(false);
@@ -56,7 +56,7 @@ export default function ConfirmEmailPage() {
 
         if (tokenHash && type) {
           try {
-            await supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as "email" });
+            await api.auth.verifyOtp({ token_hash: tokenHash, type: type as "email" });
             setOk(true);
             setChecking(false);
             // Session ouverte par le lien : voir le cas `code`.
@@ -69,7 +69,7 @@ export default function ConfirmEmailPage() {
           }
         }
 
-        const { data: sess } = await supabase.auth.getSession();
+        const { data: sess } = await api.auth.getSession();
         if (sess.session) {
           setOk(true);
           setChecking(false);

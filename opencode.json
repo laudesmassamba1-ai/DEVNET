@@ -1,0 +1,32 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "systalink": {
+      "type": "remote",
+      "url": "https://api.systalink.com/mcp",
+      "enabled": true,
+      "oauth": false,
+      "headers": {
+        "Authorization": "Bearer {env:SYSTALINK_TOKEN}"
+      }
+    }
+  },
+  "permission": {
+    "systalink_*": "deny",
+    "systalink_db_status": "allow",
+    "systalink_db_resources": "allow",
+    "systalink_db_backups": "allow",
+    "systalink_db_explore_databases": "allow",
+    "systalink_db_explore_tables": "allow",
+    "systalink_db_command": "ask",
+    "systalink_db_trigger_backup": "ask",
+    "systalink_db_start": "ask",
+    "systalink_db_delete": "deny",
+    "systalink_db_stop": "deny",
+    "systalink_db_create": "deny",
+    "systalink_db_connection": "deny",
+    "bash": {
+      "*": "ask"
+    }
+  }
+}

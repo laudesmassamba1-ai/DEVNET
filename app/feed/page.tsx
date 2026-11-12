@@ -16,9 +16,11 @@ import { groupStoriesByAuthor, StoryRail, StoryViewer } from "@/components/Story
 import { useToast } from "@/components/Toast";
 import { StoryStudio } from "@/components/StoryStudio";
 import { WovenBand } from "@/components/WovenBand";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { useSession } from "@/hooks/useSession";
+import { StudioEditor } from "@/components/studio/StudioEditor";
 import { postPoints } from "@/lib/gamification";
+import { uploadMedia } from "@/lib/media";
 import { deleteStory, fetchLiveStories } from "@/lib/stories";
 import {
   fetchFeedHydrationCached as fetchFeedHydration,
@@ -110,6 +112,12 @@ export default function FeedPage() {
   /** GIF joint à la publication en cours — un lien, pas un fichier. */
   const [gif, setGif] = useState<Gif | null>(null);
   const [gifOpen, setGifOpen] = useState(false);
+  /** Media (photo/video) joint à la publication — contient l'URL et le type. */
+  const [media, setMedia] = useState<{ url: string; kind: "image" | "video" } | null>(null);
+  /** Envoi du média en cours : publier maintenant enverrait l'ancien état. */
+  const [mediaBusy, setMediaBusy] = useState(false);
+  /** Atelier visuel ouvert par-dessus la feuille de publication. */
+  const [studioOpen, setStudioOpen] = useState(false);
   const [density, setDensity] = useState<FeedDensity>("comfortable");
   const [densityReady, setDensityReady] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -192,7 +200,7 @@ export default function FeedPage() {
    * l'utilisateur.
    *
    * On relit plutôt que d'attendre le canal temps réel : `postgres_changes`
-   * suppose que la table est ajoutée à la publication `supabase_realtime`,
+   * suppose que la table est ajoutée à la publication la publication temps réel,
    * ce qui n'est pas acquis sur un projet neuf. Un semis qui n'apparaît pas
    * fait croire à un échec — donc on lit, et le canal ne sert plus qu'à
    * actualiser les autres.
@@ -435,7 +443,7 @@ export default function FeedPage() {
 
   // Temps réel : nouveaux posts + mises à jour (likes)
   useEffect(() => {
-    const channel = supabase
+    const channel = api
       .channel("feed")
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "posts" },
@@ -465,7 +473,7 @@ export default function FeedPage() {
       // `removeChannel` ferme et retire le canal : `unsubscribe` seul le
       // laisse dans le client, et le prochain `channel("feed")` renverrait
       // l'instance déjà abonnée — `.on()` lèverait alors.
-      void supabase.removeChannel(channel);
+      void api.removeChannel(channel);
     };
   }, [scope, refresh]);
 
@@ -562,15 +570,32 @@ export default function FeedPage() {
 
   function resetSheet() {
     setOpen(false);
+    setStudioOpen(false);
     setText("");
     setCode("");
     setLang("");
     setIsCode(false);
     setGif(null);
+    setMedia(null);
+    setMediaBusy(false);
     // Le projet choisi ne survit pas à la publication : le rattachement
     // est une décision par publication, pas une préférence. Le garder
     // ferait rattacher par automatisme des publications sans rapport.
     setProjectId(null);
+  }
+
+  async function attachMedia(file: File) {
+    setMediaBusy(true);
+    try {
+      const result = await uploadMedia(file);
+      if (!result.ok) {
+        toast(result.error, "err");
+        return;
+      }
+      setMedia({ url: result.media.url, kind: result.media.kind });
+    } finally {
+      setMediaBusy(false);
+    }
   }
 
   async function publish() {
@@ -578,13 +603,14 @@ export default function FeedPage() {
     const body = text.trim();
     // Un GIF peut tenir lieu de texte : envoyer un GIF seul est un geste
     // complet, comme une image dans une messagerie.
-    if (!body && !gif) return toast("Écris quelque chose ou choisis un GIF", "err");
+    if (!body && !gif && !media) return toast("Écris quelque chose ou choisis un GIF ou un média", "err");
+    if (mediaBusy) return toast("Le média est encore en cours d'envoi", "err");
 
     setBusy(true);
     // On relit la ligne insérée : il faut son identifiant pour la
     // rattacher à un projet. Une publication sans projet reste possible —
     // le rattachement est une information, pas une obligation.
-    const { data: created, error } = await supabase
+    const { data: created, error } = await api
       .from("posts")
       .insert({
         author_id: profile.id,
@@ -600,6 +626,10 @@ export default function FeedPage() {
         // re-vérifié par la contrainte `posts_gif_url_https` en base.
         gif_url: gif?.url ?? "",
         gif_alt: gif?.alt ?? "",
+        // Media (photo/video) — stocké tel quel, le serveur appliquera
+        // sa propre transformation (redimension, format MP4 pour vidéo).
+        media_url: media?.url ?? "",
+        media_type: media?.kind ?? "",
       })
       .select("id")
       .single();
@@ -618,7 +648,7 @@ export default function FeedPage() {
     resetSheet();
     // On relit après la publication : le post publié doit apparaître **en
     // tête** tout de suite, même quand le canal temps réel n'est pas en
-    // place (table absente de `supabase_realtime` sur un projet neuf) ou
+    // place (table absente de la publication temps réel sur un projet neuf) ou
     // quand la portée Abonnements ne le laisserait pas passer.
     void refresh();
     // Le score est annoncé au moment où il est gagné : c'est le seul
@@ -1042,7 +1072,22 @@ export default function FeedPage() {
       />
       </div>
 
-      <Sheet open={open} onClose={resetSheet} title="Nouveau post">
+      <Sheet
+        open={open}
+        onClose={() => (studioOpen ? setStudioOpen(false) : resetSheet())}
+        title="Nouveau post"
+      >
+        <StudioEditor
+          open={studioOpen}
+          onClose={() => setStudioOpen(false)}
+          initialMedia={media}
+          onLayersChange={setText}
+          owner={profile?.pseudo ?? ""}
+          onUse={(file) => {
+            void attachMedia(file);
+          }}
+        />
+
         <textarea
           value={text} onChange={(e) => setText(e.target.value)}
           rows={Math.min(12, Math.max(4, text.split("\n").length))}
@@ -1053,8 +1098,9 @@ export default function FeedPage() {
         />
 
         {/* Le GIF se choisit dans une feuille à part : la grille a besoin
-            de place, et le composeur doit rester lisible. */}
-        <div className="mb-3 flex items-center gap-2">
+            de place, et le composeur doit rester lisible. L'atelier, lui,
+            ouvre l'éditeur de calques sur le média déjà joint. */}
+        <div className="mb-3 flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setGifOpen(true)}
@@ -1067,6 +1113,20 @@ export default function FeedPage() {
           >
             <Icon name="gif" size={16} />
             {gif ? "Changer le GIF" : "Ajouter un GIF"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setStudioOpen(true)}
+            aria-haspopup="dialog"
+            disabled={mediaBusy}
+            className="inline-flex min-h-[var(--h-tap)] items-center gap-1.5
+              rounded-[var(--radius-chip)] border border-line-3 px-3 font-mono
+              text-[12px] font-bold uppercase tracking-[0.08em] text-chalk-3
+              transition-colors duration-[var(--d-fast)]
+              hover:border-signal hover:text-signal disabled:opacity-40"
+          >
+            {mediaBusy ? <Spinner /> : <Icon name="spark" size={16} />}
+            {mediaBusy ? "Envoi…" : media ? "Modifier le média" : "Atelier"}
           </button>
         </div>
 
@@ -1094,7 +1154,59 @@ export default function FeedPage() {
           </Motion>
         )}
 
+        {/* Sélecteur de photo / vidéo */}
+        <label className="mb-3 flex cursor-pointer items-center gap-2" title="Ajouter une photo ou une vidéo">
+          <input
+            type="file"
+            accept="image/*,video/*"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              // Reset : choisir deux fois le même fichier doit fonctionner.
+              event.target.value = "";
+              if (file) void attachMedia(file);
+            }}
+            className="sr-only"
+          />
+          <Icon
+            name={media ? (media.kind === "video" ? "video" : "image") : "image"}
+            size={18}
+            strokeWidth={1.8}
+          />
+          {media && <span className="text-chalk-4">{media.kind === "video" ? "vidéo" : "photo"}</span>}
+        </label>
+
         <GifPicker open={gifOpen} onClose={() => setGifOpen(false)} onPick={setGif} />
+
+        {/* Bouton photo / vidéo */}
+        {media && (
+          <Motion role="scale" className="mb-3">
+            <div className="relative overflow-hidden rounded-[var(--radius-input)] border border-line-2">
+              {media.kind === "video" ? (
+                <video
+                  src={media.url}
+                  playsInline
+                  controls
+                  preload="metadata"
+                  className="max-h-[220px] w-full object-contain bg-surface-2"
+                />
+              ) : (
+                <img
+                  className="max-h-[220px] w-full object-contain bg-surface-2"
+                  src={media.url}
+                  alt="Photo jointe"
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => setMedia(null)}
+                aria-label="Retirer le media"
+                className="absolute right-2 top-2 inline-flex size-11 items-center justify-center rounded-full border border-line-3 bg-void/80 text-chalk shadow-sh-1 backdrop-blur transition-colors hover:border-danger hover:text-danger"
+              >
+                <Icon name="close" size={14} />
+              </button>
+            </div>
+          </Motion>
+        )}
 
         <label className="mb-3 flex cursor-pointer items-center gap-2 text-sm text-chalk-3">
           <input
@@ -1200,7 +1312,7 @@ export default function FeedPage() {
             Annuler
           </button>
           <button
-            type="button" onClick={publish} disabled={busy}
+            type="button" onClick={publish} disabled={busy || mediaBusy}
             className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
               rounded-[var(--radius-input)] border border-line-3 bg-signal text-[13px] font-bold
               text-void shadow-sh-2 disabled:opacity-40"

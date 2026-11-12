@@ -12,7 +12,7 @@
  * de fond, jamais de carte politique.
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 
 export interface MapPoint {
   id: string;
@@ -250,7 +250,7 @@ export function outlinePath(width: number, height: number): string {
  * ne pas dépendre d'une fonction `auth`.
  */
 export async function loadMapPoints(): Promise<MapPoint[]> {
-  const sb = supabase;
+  const sb = api;
   const [usersRes, proofsRes] = await Promise.all([
     sb.from("users").select("id, prenom, pseudo, avatar_color, ville, pays").limit(500),
     sb.from("proofs").select("user_id, language").limit(2000),

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import {
   canLink,
   needsRelink,
@@ -52,7 +52,7 @@ const LOGIN = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})$/;
 export async function fetchConnection(me: string): Promise<GithubConnection | null> {
   if (!me) return null;
 
-  const { data } = await supabase
+  const { data } = await api
     .from("github_connections")
     .select("*")
     .eq("user_id", me)
@@ -82,7 +82,7 @@ export async function connectGithub(
   const existing = await fetchConnection(me);
 
   if (existing) {
-    const { data, error } = await supabase
+    const { data, error } = await api
       .from("github_connections")
       .update({ login: clean })
       .eq("id", existing.id)
@@ -94,7 +94,7 @@ export async function connectGithub(
       : { connection: data as GithubConnection, error: null };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("github_connections")
     .insert({
       user_id: me,
@@ -118,7 +118,7 @@ export async function connectGithub(
 
 /** Retire la connexion — et la RLS n'autorise que la sienne. */
 export async function disconnectGithub(id: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("github_connections").delete().eq("id", id);
+  const { error } = await api.from("github_connections").delete().eq("id", id);
   return { error: error?.message ?? null };
 }
 
@@ -228,7 +228,7 @@ export function validEndpoint(value: string): boolean {
 export async function listConnections(me: string): Promise<GithubConnection[]> {
   if (!me) return [];
 
-  const { data } = await supabase
+  const { data } = await api
     .from("github_connections")
     .select("*")
     .eq("user_id", me)
@@ -269,7 +269,7 @@ export async function connectProvider(input: {
   const existing = await fetchConnectionOf(input.me, input.provider);
 
   if (existing) {
-    const { data, error } = await supabase
+    const { data, error } = await api
       .from("github_connections")
       .update({ login })
       .eq("id", existing.id)
@@ -281,7 +281,7 @@ export async function connectProvider(input: {
       : { connection: data as GithubConnection, error: null };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("github_connections")
     .insert({
       user_id: input.me,
@@ -308,7 +308,7 @@ export async function fetchConnectionOf(
 ): Promise<GithubConnection | null> {
   if (!me) return null;
 
-  const { data } = await supabase
+  const { data } = await api
     .from("github_connections")
     .select("*")
     .eq("user_id", me)
@@ -320,7 +320,7 @@ export async function fetchConnectionOf(
 
 /** Déconnecter n'importe quel fournisseur — sa propre ligne (004). */
 export async function disconnectConnection(id: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("github_connections").delete().eq("id", id);
+  const { error } = await api.from("github_connections").delete().eq("id", id);
   return { error: error?.message ?? null };
 }
 
@@ -335,7 +335,7 @@ export async function disconnectConnection(id: string): Promise<{ error: string 
  */
 export async function touchConnection(id: string): Promise<{ error: string | null }> {
   const now = new Date().toISOString();
-  const { error } = await supabase
+  const { error } = await api
     .from("github_connections")
     .update({ used_at: now, status: "active" })
     .eq("id", id);
@@ -346,7 +346,7 @@ export async function touchConnection(id: string): Promise<{ error: string | nul
 export async function fetchProjectLink(projectId: string): Promise<ProjectLink | null> {
   if (!projectId) return null;
 
-  const { data } = await supabase
+  const { data } = await api
     .from("project_links")
     .select("*")
     .eq("project_id", projectId)
@@ -387,7 +387,7 @@ export async function linkProject(input: {
   const existing = await fetchProjectLink(input.projectId);
 
   if (existing) {
-    const { data, error } = await supabase
+    const { data, error } = await api
       .from("project_links")
       .update({
         owner: parsed.ref.owner,
@@ -404,7 +404,7 @@ export async function linkProject(input: {
       : { link: data as ProjectLink, parsed: can, error: null };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("project_links")
     .insert({
       project_id: input.projectId,
@@ -423,7 +423,7 @@ export async function linkProject(input: {
 }
 
 export async function unlinkProject(linkId: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("project_links").delete().eq("id", linkId);
+  const { error } = await api.from("project_links").delete().eq("id", linkId);
   return { error: error?.message ?? null };
 }
 
@@ -482,7 +482,7 @@ export async function markSynced(
   // seulement `last_push_sha` laissait `last_pull_sha` incomparé : un
   // plan de tir relirait un état antérieur que la synchronisation
   // venait pourtant de rejoindre.
-  const { error } = await supabase
+  const { error } = await api
     .from("project_links")
     .update({ last_push_sha: localSha, last_pull_sha: localSha, last_synced_at: at })
     .eq("id", linkId);
@@ -527,7 +527,7 @@ export async function recordSync(
   linkId: string,
   input: { remoteSha: string; localSha: string },
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("project_links")
     .update({
       remote_sha: input.remoteSha,
@@ -545,7 +545,7 @@ export async function setSyncInterval(
   seconds: number,
 ): Promise<{ error: string | null }> {
   const clamped = Math.min(3600, Math.max(10, Math.round(seconds)));
-  const { error } = await supabase
+  const { error } = await api
     .from("project_links")
     .update({ sync_interval_seconds: clamped })
     .eq("id", linkId);

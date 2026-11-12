@@ -1,7 +1,7 @@
 # Environnement local reproductible (Phase 2).
 #
 #   docker compose up -d db                       base seule (5 min chrono avec npm ci)
-#   npm run db:migrate -- --apply                 compatibilité + 44 migrations
+#   npm run db:migrate -- --apply                 compatibilité + 56 migrations
 #   npm run db:migrate                            simulation, sans écriture
 #   docker compose --profile full up app          application + base
 #

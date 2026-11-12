@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { AUTHOR_COLUMNS } from "@/lib/social";
 import { slugify, uniqueSlug } from "@/lib/groups/channels";
 import type {
@@ -60,7 +60,7 @@ export function isCommunityStaff(role: CommunityRole | null | undefined): boolea
 
 /** Toutes les communautés lisibles, les plus peuplées d'abord. */
 export async function fetchCommunities(): Promise<Community[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("communities")
     .select(COMMUNITY_COLUMNS)
     .order("member_count", { ascending: false })
@@ -71,7 +71,7 @@ export async function fetchCommunities(): Promise<Community[]> {
 
 /** Une communauté par son adresse publique — `null` si elle est hors de portée. */
 export async function fetchCommunityBySlug(slug: string): Promise<Community | null> {
-  const { data } = await supabase
+  const { data } = await api
     .from("communities")
     .select(COMMUNITY_COLUMNS)
     .eq("slug", slug)
@@ -82,7 +82,7 @@ export async function fetchCommunityBySlug(slug: string): Promise<Community | nu
 
 /** Les adhésions d'un utilisateur — pour distinguer « les miennes ». */
 export async function fetchMyCommunityIds(userId: string): Promise<Set<string>> {
-  const { data } = await supabase
+  const { data } = await api
     .from("community_members")
     .select("community_id")
     .eq("user_id", userId);
@@ -96,7 +96,7 @@ export async function fetchMyCommunityIds(userId: string): Promise<Set<string>> 
 export async function fetchCommunityMembers(
   communityId: string,
 ): Promise<CommunityMemberRow[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("community_members")
     .select(
       "community_id, user_id, role, joined_at, user:users(id, prenom, pseudo, avatar_color, account_type)",
@@ -138,7 +138,7 @@ export async function createCommunity(
   const taken = await fetchCommunities();
   const slug = uniqueSlug(slugify(input.name), taken.map((c) => c.slug));
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("communities")
     .insert({
       slug,
@@ -156,7 +156,7 @@ export async function createCommunity(
   if (error) return { community: null, error: error.message };
   const community = data as Community;
 
-  const { error: joinError } = await supabase
+  const { error: joinError } = await api
     .from("community_members")
     .insert({ community_id: community.id, user_id: ownerId, role: "owner" });
 
@@ -171,13 +171,13 @@ export async function updateCommunity(
   id: string,
   patch: Partial<Pick<Community, "name" | "description" | "rules" | "icon" | "visibility">>,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("communities").update(patch).eq("id", id);
+  const { error } = await api.from("communities").update(patch).eq("id", id);
   return { error: error?.message ?? null };
 }
 
 /** Supprimer une communauté — le créateur seul (`communities_delete`, 028). */
 export async function deleteCommunity(id: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("communities").delete().eq("id", id);
+  const { error } = await api.from("communities").delete().eq("id", id);
   return { error: error?.message ?? null };
 }
 
@@ -189,7 +189,7 @@ export async function joinCommunity(
   communityId: string,
   userId: string,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("community_members")
     .insert({ community_id: communityId, user_id: userId, role: "member" });
 
@@ -201,7 +201,7 @@ export async function leaveCommunity(
   communityId: string,
   userId: string,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("community_members")
     .delete()
     .eq("community_id", communityId)
@@ -216,7 +216,7 @@ export async function setCommunityMemberRole(
   userId: string,
   role: CommunityRole,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("community_members")
     .update({ role })
     .eq("community_id", communityId)
@@ -230,7 +230,7 @@ export async function removeCommunityMember(
   communityId: string,
   userId: string,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("community_members")
     .delete()
     .eq("community_id", communityId)
@@ -255,7 +255,7 @@ export async function fetchCommunityPosts(
   communityId: string,
   limit = 30,
 ): Promise<CommunityPost[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("posts")
     .select(
       // `posts` → `users` passe par cinq chemins : la contrainte d'auteur
@@ -277,7 +277,7 @@ export async function fetchCommunityPosts(
  * ne se lit qu'en y entrant, pas depuis le fil général.
  */
 export async function fetchCommunityFeed(limit = 30): Promise<CommunityPost[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("posts")
     .select(
       `*, author:users!posts_author_id_fkey(${AUTHOR_COLUMNS}), community:communities(id, slug, name, visibility)`,

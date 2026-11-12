@@ -38,7 +38,7 @@ la production ».
 | Route | Accès / rôle | État | Dette visible |
 |---|---|---|---|
 | `/` | Visiteur, membre | Pivot | Aucune landing publique : redirection client vers `/feed` ou `/login`. Pas de proposition de valeur, pas de contenu indexable. |
-| `/login` | Visiteur | Partielle | Email + mot de passe, comptes de démonstration. Pas de GitHub OAuth, MFA, lien magique, ni message pour compte suspendu. |
+| `/login` | Visiteur | Partielle | Email + mot de passe, Google/GitHub OAuth, comptes de démonstration. Pas de MFA, lien magique, ni message pour compte suspendu. |
 | `/register` | Visiteur | Partielle | 2 étapes : identité/pseudo/email/mot de passe, puis langages + CGU. Pas de ville, centres d'intérêt, import GitHub, suggestions à suivre ni première publication. |
 | `/mot-de-passe-oublie` | Visiteur | Complète | Envoi du lien ; erreurs et confirmation présentes. |
 | `/reinitialiser-mot-de-passe` | Visiteur (lien) | Complète | Nouveau mot de passe + confirmation ; session de récupération gérée. |
@@ -58,7 +58,7 @@ profils et les posts partagés.
 
 | Route | Accès / rôle | État | Dette visible |
 |---|---|---|---|
-| `/feed` | Membre | Partielle | Fil + composeur (texte, code, langage, projet), brouillon local, densité, stories texte, réactions, repost, signet, partage, signalement, commentaires. Pas d'images, sondage, visibilité, publication programmée, avertissement de contenu, aperçu complet, ni sélecteur de mentions/hashtags. |
+| `/feed` | Membre | Partielle | Fil + composeur (texte, code, langage, projet), brouillon local, densité, stories texte, réactions, repost, signet, partage, signalement, commentaires, GIF, photo/vidéo et atelier de calques. Pas de sondage, visibilité, publication programmée, avertissement de contenu, aperçu complet, ni sélecteur de mentions/hashtags. |
 | `/decouvrir` | Membre | Partielle | Quatre sections : posts de la semaine, preuves récentes, ateliers ouverts, cercles. Pas de personnes à suivre, défis, catégories, pages langage/ville. |
 | `/search` | Membre | Partielle | Trois onglets : personnes, posts, hashtags (`?q=`, `?tag=`). Pas de projets, groupes, code, filtres, historique ni recherches enregistrées. |
 | `/notifications` | Membre | Partielle | Six filtres (tout, défi, like, abonnement, mention, message), regroupement, tout lire, pagination curseur. Pas de types projet/modération/système, ni actions rapides, ni préférences. |
@@ -113,6 +113,7 @@ profils et les posts partagés.
 | Coque / navigation | `AppShell`, `BottomNav`, `StatusBar`, `PublicFooter`, `AdminConsoleNav`, `NotificationBell`, `PresenceRail` | Solides ; navigation mobile livrée ; pas de palette de commandes. |
 | Identité / thème | `ThemeApplier`, `SplashScreen`, `LoadingLogo`, `AnimatedLogo`, `Logo`, `Motion` | Logos en couleurs directes (exception de marque). |
 | Social | `PostCard`, `PostOwnerTools`, `PostShareButton`, `CommentsPanel`, `ReactionPicker`, `StoryRail`, `FollowButton`, `ReportButton`, `VerifiedBadge`, `BadgeGallery` | Le cœur du produit ; `ReportButton` est complet, le blocage n'existe pas. |
+| Atelier visuel | `StudioEditor`, `StudioInspector`, `StudioLayerView` | Calques texte/image/vidéo/forme/courbe/sticker, export PNG/JPEG, préchargement du média du composeur. Pas encore de suppression, réordonnancement ni modération des médias. |
 | Messagerie | `ChatComposer`, `DMContext`, `MessageExtras`, `TypingDots`, `StdinBubble`, `Receipt` | 1:1 avancé ; pas de pièces jointes. |
 | Projets / code | `ProjectCard`, `ProjectCodeView`, `ProjectSettingsPanel`, `ProjectWikiPanel`, `ProjectRatingPanel`, `PullRequestPanel`, `IssuePanel`, `ForkTreePanel`, `TaskBoard`, `ApplicationPanel`, `CodeEditor`, `MonacoCodeEditor`, `CodeBlock`, `RunOutput`, `ScorePanel`, `ScoreCurve`, `ScoreTrajectory`, `ProfileWorkPanel`, `ProofPanel`, `GithubPanel`, `TrendNote` | La zone la plus complète ; Monaco hors bundle initial. |
 | Progression | `ProgressPanel`, `AchievementsPanel`, `ChallengePanel`, `ContributionMap` | Score, série, quêtes, badges, heatmap, classement local au profil. |

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 
 /**
  * Qui est en train d'écrire, dans cette conversation ou ce canal.
@@ -46,7 +46,7 @@ export function useTyping(channelName: string | null, me: string | null) {
   /** Dernier signal reçu, par pair — sert à l'expiration. */
   const seen = useRef(new Map<string, number>());
   /** Le canal courant, pour pouvoir émettre sans le repasser à l'appel. */
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const channelRef = useRef<ReturnType<typeof api.channel> | null>(null);
   /** Le dernier envoi : on ne diffuse pas à chaque frappe. */
   const lastSent = useRef(0);
 
@@ -61,7 +61,7 @@ export function useTyping(channelName: string | null, me: string | null) {
     const table = new Map<string, number>();
     seen.current = table;
 
-    const channel = supabase
+    const channel = api
       .channel(channelName)
       .on("broadcast", { event: "typing" }, ({ payload }: { payload: unknown }) => {
         const signal = payload as { userId?: string; typing?: boolean } | null;
@@ -88,7 +88,7 @@ export function useTyping(channelName: string | null, me: string | null) {
           payload: { userId: me, typing: false },
         });
       }
-      void supabase.removeChannel(channel);
+      void api.removeChannel(channel);
       if (channelRef.current === channel) channelRef.current = null;
       table.clear();
       // L'état est vidé **dans le cleanup**, pas dans le corps de

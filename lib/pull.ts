@@ -28,7 +28,7 @@
  * pas une fusion hasardeuse.
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { NULL_SHA } from "@/lib/git/objects";
 import { diffTrees, type Commit, type FileDiff, type RepoFile } from "@/lib/git/history";
 import {
@@ -92,7 +92,7 @@ const COLONNES = `*, author:users!pull_requests_author_id_fkey(${AUTHOR})`;
 
 /** Les demandes d'un projet, ouvertes d'abord puis les plus récentes. */
 export async function fetchPullRequests(projectId: string): Promise<PullRequest[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("pull_requests")
     .select(COLONNES)
     .eq("project_id", projectId)
@@ -110,7 +110,7 @@ export async function fetchPullRequests(projectId: string): Promise<PullRequest[
  * pour afficher « 1 » ferait transiter tout le texte.
  */
 export async function fetchOpenPullRequestCount(projectId: string): Promise<number> {
-  const { count } = await supabase
+  const { count } = await api
     .from("pull_requests")
     .select("id", { count: "exact", head: true })
     .eq("project_id", projectId)
@@ -132,7 +132,7 @@ export async function fetchOpenPullRequestForBranch(
   sourceBranch: string,
   targetBranch: string,
 ): Promise<PullRequest | null> {
-  const { data } = await supabase
+  const { data } = await api
     .from("pull_requests")
     .select(COLONNES)
     .eq("project_id", projectId)
@@ -181,7 +181,7 @@ export async function createPullRequest(options: {
     return { pull: null, error: "Le titre ne peut pas dépasser 140 caractères." };
   }
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("pull_requests")
     .insert({
       project_id: options.projectId,
@@ -220,7 +220,7 @@ export async function setPullRequestStatus(
   id: string,
   status: StatutPullRequest,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("pull_requests").update({ status }).eq("id", id);
+  const { error } = await api.from("pull_requests").update({ status }).eq("id", id);
   return { error: error?.message ?? null };
 }
 
@@ -415,7 +415,7 @@ export async function mergePullRequest(options: {
 
 /** Le commit de sommet d'une branche. */
 async function sommetDe(projectId: string, branch: string): Promise<Commit | null> {
-  const { data } = await supabase
+  const { data } = await api
     .from("git_refs")
     .select("sha")
     .eq("project_id", projectId)
@@ -432,7 +432,7 @@ async function sommetDe(projectId: string, branch: string): Promise<Commit | nul
 
 /** Tous les commits d'un projet, du plus récent au plus ancien. */
 async function tousLesCommits(projectId: string): Promise<Commit[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("git_commits")
     .select("*")
     .eq("project_id", projectId)
@@ -472,7 +472,7 @@ async function lignesInstantane(
 ): Promise<{ path: string; content: string; blob: string }[] | null> {
   if (!sha || sha === NULL_SHA) return [];
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("git_commit_files")
     .select("path, content, blob_sha")
     .eq("project_id", projectId)

@@ -16,7 +16,7 @@
 import { resetStore, getStore } from "../lib/demo/store";
 import { demoFrom } from "../lib/demo/query";
 import { saveSessionId } from "../lib/demo/session";
-import { updateProfile } from "../lib/supabase/profile";
+import { updateProfile } from "../lib/api/profile";
 import { LEVELS, levelFor } from "../lib/gamification";
 import {
   ALL_VERIFY_BADGES, VERIFY_BASE, VERIFY_TIERS, VERIFY_STATUS_LABEL,
@@ -557,7 +557,7 @@ async function testTouched() {
 /* ------------------------------------------------------------------ */
 
 /**
- * `updateProfile` (`lib/supabase/profile.ts`) écrit la même table, avec
+ * `updateProfile` (`lib/api/profile.ts`) écrit la même table, avec
  * la même politique de ligne — il porte donc le même contrôle de lignes
  * touchées. On le vérifie ici, au même endroit que la règle : c'est la
  * même erreur, et elle ne doit pas revenir par une autre porte.

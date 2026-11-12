@@ -6,7 +6,7 @@ import { Loading } from "@/components/Avatar";
 import { Icon, type IconName } from "@/components/Icon";
 import { buildPostActivitySeries, type ActivityRecord, type ActivityWeek } from "@/lib/admin-activity";
 import { useSession } from "@/hooks/useSession";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 
 type Metric = { value: number | null; error: string | null };
 type Overview = {
@@ -28,16 +28,16 @@ function unavailable(error: string): Metric {
 
 async function loadOverview(): Promise<Overview> {
   const [profiles, posts, projects] = await Promise.all([
-    supabase.from("users").select("id", { count: "exact", head: true }),
-    supabase.from("posts").select("id", { count: "exact", head: true }),
-    supabase.from("projects").select("id", { count: "exact", head: true }),
+    api.from("users").select("id", { count: "exact", head: true }),
+    api.from("posts").select("id", { count: "exact", head: true }),
+    api.from("projects").select("id", { count: "exact", head: true }),
   ]);
   const rangeStart = new Date();
   const daysSinceMonday = (rangeStart.getUTCDay() + 6) % 7;
   rangeStart.setUTCDate(rangeStart.getUTCDate() - daysSinceMonday - (WEEK_COUNT - 1) * 7);
   rangeStart.setUTCHours(0, 0, 0, 0);
 
-  const activity = await supabase
+  const activity = await api
     .from("posts")
     .select("created_at", { count: "exact" })
     .gte("created_at", rangeStart.toISOString())

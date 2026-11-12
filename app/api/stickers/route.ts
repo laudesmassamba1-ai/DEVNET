@@ -11,7 +11,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { decodeDataUrl, readStickerAction, StickersRepositoryError } from "@/modules/stickers";
-import { currentUserId } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import { getServerStickersRepository } from "@/platform/server-container";
 import { HOUSE_STICKERS, houseStickersEnabled } from "@/lib/sticker-catalog";
 

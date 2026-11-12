@@ -18,7 +18,7 @@ import {
   disconnectGithub,
   fetchConnection,
 } from "@/lib/github/connect";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { isDemoMode } from "@/lib/backend";
 import type { Group, GroupRole, GithubConnection, GithubRepo } from "@/lib/types";
 
@@ -112,7 +112,7 @@ export function ProfileWorkPanel({
 
       const [userProjects, memberships] = await Promise.all([
         fetchProjectsByUser(profileId),
-        supabase
+        api
           .from("group_members")
           .select("group_id, role")
           .eq("user_id", profileId),
@@ -129,10 +129,10 @@ export function ProfileWorkPanel({
 
       const [groupResult, repositoryResult, scoreSummary] = await Promise.all([
         groupIds.length
-          ? supabase.from("groups").select("*").in("id", groupIds)
+          ? api.from("groups").select("*").in("id", groupIds)
           : Promise.resolve({ data: [] }),
         projectIds.length
-          ? supabase
+          ? api
               .from("project_links")
               .select("project_id, owner, repo")
               .in("project_id", projectIds)

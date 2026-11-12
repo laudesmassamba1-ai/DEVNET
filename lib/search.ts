@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { PostWithAuthor, UserLite } from "@/lib/types";
 
 /**
@@ -52,7 +52,7 @@ const TAG_SCAN_LIMIT = 200;
 export async function searchTags(
   limit = 12,
 ): Promise<SearchResult<{ tag: string; count: number }[]>> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("posts")
     .select("tags")
     .order("created_at", { ascending: false })
@@ -92,7 +92,7 @@ export async function searchPeople(query: string): Promise<SearchResult<UserLite
 
   const pattern = `%${q}%`;
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .select("id, prenom, pseudo, avatar_color, account_type, verified, filiere, niveau")
     .or(`pseudo.ilike.${pattern},prenom.ilike.${pattern}`)
@@ -127,7 +127,7 @@ export async function searchPosts(query: string): Promise<SearchResult<PostWithA
 
   const pattern = `%${q}%`;
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("posts")
     .select("*, author:users!posts_author_id_fkey(id, prenom, pseudo, avatar_color, account_type, verified, filiere, niveau)")
     .or(`text.ilike.${pattern},code.ilike.${pattern}`)
@@ -146,7 +146,7 @@ export async function postsByTag(tag: string): Promise<SearchResult<PostWithAuth
   const t = tag.replace(/^#/, "").trim().toLowerCase();
   if (!t) return { data: [], error: null };
 
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("posts")
     .select("*, author:users!posts_author_id_fkey(id, prenom, pseudo, avatar_color, account_type, verified, filiere, niveau)")
     .overlaps("tags", [t])

@@ -1,4 +1,4 @@
-import { getBackend, getSupabaseUrl, isDemoAllowed } from "@/lib/backend";
+import { isDemoMode } from "@/lib/backend";
 import { withAuthorXp } from "@/lib/author-xp";
 import {
   createFeedService,
@@ -7,12 +7,12 @@ import {
 } from "@/modules/feed";
 import { HttpFeedRepository } from "@/modules/feed/infrastructure/http/http-feed-repository";
 import { MemoryFeedRepository } from "@/modules/feed/infrastructure/memory/memory-feed-repository";
-import { SupabaseFeedRepository } from "@/modules/feed/infrastructure/supabase/supabase-feed-repository";
+import { RestFeedRepository } from "@/modules/feed/infrastructure/rest/rest-feed-repository";
 import type { FeedRepository } from "@/modules/feed/ports/feed-repository";
 import { createReportService } from "@/modules/moderation";
-import { SupabaseReportRepository } from "@/modules/moderation/infrastructure/supabase/supabase-report-repository";
+import { RestReportRepository } from "@/modules/moderation/infrastructure/rest/rest-report-repository";
 import { createMessageExtrasService } from "@/modules/messages";
-import { SupabaseMessageExtrasRepository } from "@/modules/messages/infrastructure/supabase/supabase-message-extras-repository";
+import { RestMessageExtrasRepository } from "@/modules/messages/infrastructure/rest/rest-message-extras-repository";
 
 /**
  * Deux services, un par sens de lecture.
@@ -35,7 +35,7 @@ const feedWriter = createFeedService(getFeedRepository, withAuthorXp);
  * toucher.
  */
 export const reportService = createReportService(
-  () => new SupabaseReportRepository(),
+  () => new RestReportRepository(),
 );
 
 /**
@@ -44,7 +44,7 @@ export const reportService = createReportService(
  * backend soit réel ou démontré.
  */
 export const messageExtrasService = createMessageExtrasService(
-  () => new SupabaseMessageExtrasRepository(),
+  () => new RestMessageExtrasRepository(),
 );
 
 export function fetchFeedPage(options: FetchFeedPageOptions = {}): Promise<FeedPage> {
@@ -67,14 +67,9 @@ export function getReadFeedRepository(): FeedRepository {
 /** Écriture : l'adaptateur d'écriture existant, en attendant sa route. */
 export function getFeedRepository(): FeedRepository {
   if (shouldUseMemoryFeed()) return new MemoryFeedRepository();
-  return new SupabaseFeedRepository();
+  return new RestFeedRepository();
 }
 
 function shouldUseMemoryFeed(): boolean {
-  if (process.env.NEXT_PUBLIC_FORCE_DEMO === "true" || !getSupabaseUrl()) {
-    return true;
-  }
-
-  const backend = getBackend();
-  return backend.state === "offline" && isDemoAllowed();
+  return isDemoMode();
 }

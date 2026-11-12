@@ -12,7 +12,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { readStoryAction, StoriesRepositoryError } from "@/modules/stories";
-import { currentUserId } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import { getServerStoriesRepository } from "@/platform/server-container";
 
 export const runtime = "nodejs";

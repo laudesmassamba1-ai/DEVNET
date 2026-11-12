@@ -10,12 +10,13 @@ import { Sheet } from "@/components/Sheet";
 import { GroupReceipt } from "@/components/Receipt";
 import { MessageExtras, ReplyQuote } from "@/components/MessageExtras";
 import { MessageAttachmentButtons, MessageAttachmentView } from "@/components/MessageAttachments";
+import { StudioEditor } from "@/components/studio/StudioEditor";
 import { TypingLine } from "@/components/TypingDots";
 import { ChatComposer, ComposerBar } from "@/components/ChatComposer";
 import { useToast } from "@/components/Toast";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { badgeFor, xpOf } from "@/lib/verification";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { uploadMedia } from "@/lib/media";
 import { useSession } from "@/hooks/useSession";
 import { useTyping } from "@/hooks/useTyping";
@@ -62,6 +63,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<{ channelId: string; rows: GroupMessage[] } | null>(null);
   const [text, setText] = useState("");
+  const [studioOpen, setStudioOpen] = useState(false);
   const [asCode, setAsCode] = useState(false);
   const [sending, setSending] = useState(false);
   /** Fichier en cours de téléversement avant l'envoi du message. */
@@ -124,7 +126,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     let alive = true;
 
     (async () => {
-      const { data } = await supabase.from("groups").select("*").eq("id", id).single();
+      const { data } = await api.from("groups").select("*").eq("id", id).single();
       if (!alive) return;
       if (!data) return router.replace("/groups");
 
@@ -138,7 +140,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
       if (!alive) return;
       setRepos(repos);
 
-      const { data: chans } = await supabase
+      const { data: chans } = await api
         .from("channels")
         .select("id, slug, name, topic, position, is_private")
         .eq("group_id", id)
@@ -223,7 +225,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
 
     let alive = true;
     (async () => {
-      const { data } = await supabase
+      const { data } = await api
         .from("group_messages")
         .select("*")
         .eq("channel_id", channelId)
@@ -284,7 +286,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
    * faux, et une ligne d'indicateur fausse est pire qu'une absente.
    *
    * Le topic de frappe est distinct de celui des messages (`gc-<id>`) :
-   * `supabase.channel()` réutilise l'instance d'un topic existant, et
+   * `api.channel()` réutilise l'instance d'un topic existant, et
    * ajouter une liaison à un canal déjà abonné lève.
    */
   const { peers: typingPeers, notifyTyping } = useTyping(
@@ -303,7 +305,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         return;
       }
 
-      const { data } = await supabase
+      const { data } = await api
         .from("users")
         .select("id, prenom")
         .in("id", typingPeers.map((p) => p.userId));
@@ -323,7 +325,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   useEffect(() => {
     if (!channelId) return;
 
-    const channel = supabase
+    const channel = api
       .channel(`gc-${channelId}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "group_messages",
@@ -341,7 +343,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      void api.removeChannel(channel);
     };
   }, [channelId]);
 
@@ -417,7 +419,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     const media = attachmentColumns(attachment);
 
     setSending(true);
-    const { error } = await supabase.from("group_messages").insert({
+    const { error } = await api.from("group_messages").insert({
       group_id: id,
       channel_id: active.id,
       author_id: profile.id,
@@ -511,7 +513,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     setCreating(true);
     const slug = uniqueSlug(name, ordered.map((c) => c.slug));
 
-    const { data, error } = await supabase
+    const { data, error } = await api
       .from("channels")
       .insert({
         group_id: id,
@@ -840,6 +842,15 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             <div ref={endRef} />
 
           </div>
+          <StudioEditor
+            open={studioOpen}
+            onClose={() => setStudioOpen(false)}
+            owner={profile?.pseudo ?? ""}
+            onLayersChange={setText}
+            onUse={(file) => {
+              void sendMedia(file);
+            }}
+          />
           <ComposerBar>
             {replyTo && (
               <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
@@ -862,11 +873,25 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
               onValueChange={setText}
               onSend={() => void send()}
               attachments={
-                <MessageAttachmentButtons
-                  disabled={!active || sending || uploadingMedia}
-                  onGif={(gif) => void send({ kind: "gif", gif })}
-                  onMedia={(file) => void sendMedia(file)}
-                />
+                <>
+                  <MessageAttachmentButtons
+                    disabled={!active || sending || uploadingMedia}
+                    onGif={(gif) => void send({ kind: "gif", gif })}
+                    onMedia={(file) => void sendMedia(file)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setStudioOpen(true)}
+                    disabled={!active || sending || uploadingMedia}
+                    aria-label="Ouvrir l'atelier"
+                    title="Ouvrir l'atelier"
+                    className="mo-press flex size-[var(--h-input)] shrink-0 items-center
+                      justify-center rounded-full border border-line-3 bg-surface
+                      text-chalk-4 transition-colors hover:text-signal disabled:opacity-40"
+                  >
+                    <Icon name="spark" size={18} strokeWidth={1.8} />
+                  </button>
+                </>
               }
               onTyping={notifyTyping}
               sending={sending}

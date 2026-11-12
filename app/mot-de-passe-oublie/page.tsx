@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { supabase, usingDemoData } from "@/lib/supabase/client";
+import { api, usingDemoData } from "@/lib/api/client";
 import { Logo } from "@/components/Logo";
 
 const inputCls =
@@ -23,7 +23,7 @@ export default function ForgotPasswordPage() {
     // On ne révèle jamais si l'adresse correspond à un compte : la réponse
     // est la même dans les deux cas, seul un email part (ou pas).
     try {
-      await supabase.auth.resetPasswordForEmail(email.trim(), {
+      await api.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`,
       });
     } catch {

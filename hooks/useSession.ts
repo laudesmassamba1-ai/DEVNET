@@ -1,10 +1,10 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
-import { getOrCreateProfile } from "@/lib/supabase/profile";
+import { api } from "@/lib/api/client";
+import { getOrCreateProfile } from "@/lib/api/profile";
 import type { User } from "@/lib/types";
-import type { Session, User as AuthUser } from "@supabase/supabase-js";
+import type { AuthSession as Session, AuthUser } from "@/lib/rest/client";
 
 type State = {
   session: Session | null;
@@ -66,7 +66,7 @@ export function useSession(): State & { retry: () => void; refresh: () => Promis
   // base.
   const refresh = useCallback(async () => {
     const result = (await withTimeout(
-      () => supabase.auth.getSession(),
+      () => api.auth.getSession(),
       SESSION_TIMEOUT_MS,
     )) as { data: { session: Session | null } } | null;
     const session = result?.data?.session ?? null;
@@ -80,7 +80,7 @@ export function useSession(): State & { retry: () => void; refresh: () => Promis
 
     (async () => {
       const result = (await withTimeout(
-        () => supabase.auth.getSession(),
+        () => api.auth.getSession(),
         SESSION_TIMEOUT_MS,
       )) as { data: { session: Session | null } } | null;
       const session = result?.data?.session ?? null;
@@ -95,7 +95,7 @@ export function useSession(): State & { retry: () => void; refresh: () => Promis
       if (alive) setState({ session, profile, loading: false, failed: !profile });
     })();
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
+    const { data: sub } = api.auth.onAuthStateChange((_event: string, session: Session | null) => {
       if (!session) {
         setState({ session: null, profile: null, loading: false, failed: false });
         return;

@@ -7,7 +7,7 @@ import { Icon, asIconName } from "@/components/Icon";
 import { EmptyState, Loading } from "@/components/Avatar";
 import { Sheet } from "@/components/Sheet";
 import { useToast } from "@/components/Toast";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { useSession } from "@/hooks/useSession";
 import type { Group } from "@/lib/types";
 
@@ -39,7 +39,7 @@ export default function GroupsPage() {
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
-    const { data } = await supabase
+    const { data } = await api
       .from("groups").select("*").order("created_at", { ascending: false });
     setGroups((data as Group[]) ?? []);
   }, []);
@@ -47,7 +47,7 @@ export default function GroupsPage() {
   useEffect(() => {
     let alive = true;
 
-    supabase
+    api
       .from("groups").select("*").order("created_at", { ascending: false })
       .then(({ data }: { data: Group[] | null }) => {
         if (alive) setGroups(data ?? []);
@@ -65,7 +65,7 @@ export default function GroupsPage() {
     if (!profile?.id) return;
     let alive = true;
 
-    supabase
+    api
       .from("group_members")
       .select("group_id")
       .eq("user_id", profile.id)
@@ -91,7 +91,7 @@ export default function GroupsPage() {
    */
   async function join(g: Group) {
     if (!profile) return;
-    const { error } = await supabase
+    const { error } = await api
       .from("group_members")
       .insert({ group_id: g.id, user_id: profile.id, role: "member" });
 
@@ -115,7 +115,7 @@ export default function GroupsPage() {
     if (!name.trim()) return toast("Donne un nom au groupe", "err");
 
     setBusy(true);
-    const { data, error } = await supabase
+    const { data, error } = await api
       .from("groups")
       .insert({
         name: name.trim(),
@@ -142,13 +142,13 @@ export default function GroupsPage() {
       // ligne, il ne serait membre d'aucun rôle, les fonctions de rôle
       // le liraient comme un inconnu, et il ne pourrait pas être
       // reconnu comme propriétaire dans la salle des membres.
-      await supabase.from("group_members").insert({
+      await api.from("group_members").insert({
         group_id: gid,
         user_id: profile.id,
         role: "owner",
       });
       setMyGroupIds((prev) => new Set(prev).add(gid));
-      await supabase.from("channels").insert({
+      await api.from("channels").insert({
         group_id: gid,
         slug: "general",
         name: "général",

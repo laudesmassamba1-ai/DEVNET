@@ -12,7 +12,7 @@
  */
 import { NextRequest, NextResponse } from "next/server";
 import { FeedRepositoryError, readFeedQuery } from "@/modules/feed";
-import { currentUserId } from "@/lib/supabase/server";
+import { currentUserId } from "@/lib/api/server";
 import { getServerFeedRepository } from "@/platform/server-container";
 
 export const runtime = "nodejs";

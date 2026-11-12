@@ -1,41 +1,21 @@
 /**
- * Création d'un compte par l'administration — mode réel, clé de service.
+ * Création d'un compte par l'administration.
  *
- * ## Pourquoi cette route existe
+ * Le compte est créé par le service d'authentification (empreinte scrypt +
+ * ligne `auth.users`, qui déclenche `handle_new_user()`), puis le rôle est
+ * posé par une requête `withUser` : PostgreSQL applique `users_admin_update`
+ * et le déclencheur `guard_account_roles`, pas une clé de service.
  *
- * Insérer une ligne `users` pour quelqu'un d'autre est **interdit**, et
- * c'est la bonne politique (`users_insert with check (auth.uid() = id)`) :
- * une identité ne se pose pas depuis la session d'un tiers. Un
- * administrateur qui veut ouvrir un compte ne peut donc pas le faire avec
- * le client anonyme — ni écrire dans `auth.users`, qui n'est pas exposé
- * par PostgREST.
- *
- * La clé de service, elle, contourne les politiques de ligne. C'est
- * exactement pour ça qu'elle ne doit **jamais** partir au navigateur, et
- * pour ça que cette route n'est pas un simple relais : elle **vérifie
- * l'appelant avant** d'ouvrir la porte.
- *
- * ## L'ordre des contrôles
- *
- *  1. `SUPABASE_SERVICE_ROLE_KEY` absente → 503. La route ne devine pas,
- *     elle dit qu'elle n'est pas configurée. Un compte créé à moitié
- *     (ligne `users` sans `auth.users`) serait pire que pas de compte.
- *  2. L'appelant, lu depuis son cookie de session, doit porter
- *     `is_admin`. C'est la seule autorisation : le mot de passe est
- *     vérifié par Supabase Auth, pas ici.
- *  3. Forme des champs, puis création.
- *
- * La clé de service n'est **pas** `NEXT_PUBLIC_` : elle n'existe que dans
- * l'environnement du serveur, et le client ci-dessous est construit sans
- * persistance de session, exprès — il ne doit jamais s'approprier
- * l'identité du compte qu'il crée.
+ * La session ouverte par `signUp` est immédiatement révoquée : cette route
+ * crée un compte pour quelqu'un d'autre, elle ne doit pas s'approprier son
+ * identité ni laisser un jeton valide.
  */
 import { NextRequest, NextResponse } from "next/server";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { getSupabaseUrl } from "@/lib/backend";
-import { getOrCreateServerClient } from "@/lib/supabase/server";
-
-const MIN_PASSWORD = 6;
+import { AuthRepositoryError } from "@/modules/auth/ports/auth-repository";
+import { MIN_PASSWORD_LENGTH } from "@/modules/auth";
+import { currentUserId } from "@/lib/api/server";
+import { getServerAuthService } from "@/platform/auth-container";
+import { withUser } from "@/platform/infrastructure/postgres/with-user";
 
 interface Body {
   email?: unknown;
@@ -46,60 +26,56 @@ interface Body {
   is_admin?: unknown;
 }
 
-const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+const str = (value: unknown) => (typeof value === "string" ? value.trim() : "");
+const noStore = { "Cache-Control": "no-store" };
 
 export async function POST(request: NextRequest) {
-  const url = getSupabaseUrl();
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-  if (!url || !serviceKey) {
+  let callerId: string | null;
+  try {
+    callerId = await currentUserId();
+  } catch (error) {
+    console.error("[admin] session lookup failed", error);
     return NextResponse.json(
-      {
-        error:
-          "création de compte indisponible : renseigne SUPABASE_SERVICE_ROLE_KEY " +
-          "côté serveur (jamais préfixée NEXT_PUBLIC_)",
-      },
-      { status: 503 },
+      { error: "administration indisponible" },
+      { status: 503, headers: noStore },
     );
   }
-
-  // 1. Qui appelle ? Le client serveur lit le cookie de session.
-  //
-  // Le registre rend `unknown` (c'est un tampon sans dépendance serveur,
-  // voir `lib/supabase/server-registry.ts`) : la seule chose qu'on sache
-  // de lui, c'est qu'il lit les cookies de la requête.
-  const caller = (await getOrCreateServerClient()) as SupabaseClient | null;
-  if (!caller) {
-    return NextResponse.json({ error: "aucune session serveur" }, { status: 503 });
-  }
-
-  const { data: auth } = await caller.auth.getUser();
-  const callerId = auth?.user?.id;
   if (!callerId) {
-    return NextResponse.json({ error: "session requise" }, { status: 401 });
-  }
-
-  // 2. Le rôle se lit en base, pas dans le jeton : un jeton reste valide
-  //    après un retrait de rôle, et il ne doit pas rouvrir cette porte.
-  const { data: callerRow } = await caller
-    .from("users")
-    .select("is_admin")
-    .eq("id", callerId)
-    .maybeSingle();
-
-  if (callerRow?.is_admin !== true) {
     return NextResponse.json(
-      { error: "réservé à l'administration" },
-      { status: 403 },
+      { error: "session requise" },
+      { status: 401, headers: noStore },
     );
   }
 
-  // 3. Forme des champs.
+  try {
+    const callerRows = await withUser(callerId, (query) =>
+      query<{ is_admin: boolean }>(
+        "select is_admin from public.users where id = $1 limit 1",
+        [callerId],
+      ),
+    );
+    if (callerRows[0]?.is_admin !== true) {
+      return NextResponse.json(
+        { error: "réservé à l'administration" },
+        { status: 403, headers: noStore },
+      );
+    }
+  } catch (error) {
+    console.error("[admin] role lookup failed", error);
+    return NextResponse.json(
+      { error: "rôle indisponible" },
+      { status: 503, headers: noStore },
+    );
+  }
+
   let body: Body;
   try {
     body = (await request.json()) as Body;
   } catch {
-    return NextResponse.json({ error: "corps illisible" }, { status: 400 });
+    return NextResponse.json(
+      { error: "corps illisible" },
+      { status: 400, headers: noStore },
+    );
   }
 
   const email = str(body.email).toLowerCase();
@@ -111,75 +87,93 @@ export async function POST(request: NextRequest) {
     body.account_type === "professional" ? "professional" : "student";
 
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    return NextResponse.json({ error: "adresse email invalide" }, { status: 400 });
+    return NextResponse.json(
+      { error: "adresse email invalide" },
+      { status: 400, headers: noStore },
+    );
   }
   if (!prenom) {
-    return NextResponse.json({ error: "le prénom est requis" }, { status: 400 });
-  }
-  if (password.length < MIN_PASSWORD) {
     return NextResponse.json(
-      { error: `mot de passe : ${MIN_PASSWORD} caractères au moins` },
-      { status: 400 },
+      { error: "le prénom est requis" },
+      { status: 400, headers: noStore },
+    );
+  }
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return NextResponse.json(
+      { error: `mot de passe : ${MIN_PASSWORD_LENGTH} caractères au moins` },
+      { status: 400, headers: noStore },
     );
   }
 
-  const admin = createClient(url, serviceKey, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-
-  // `email_confirm` : un compte ouvert par l'administration est un compte
-  // ouvert pour quelqu'un qui est déjà identifié — on ne lui demande pas
-  // de confirmer par courriel ce qu'un administrateur vient d'affirmer.
-  const { data: created, error: createError } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: {
-      prenom,
-      pseudo: pseudoInput || prenom,
-      account_type: accountType,
-    },
-  });
-
-  if (createError || !created?.user) {
-    const duplicate = /already|registered|exists/i.test(createError?.message ?? "");
-    return NextResponse.json(
-      {
-        error: duplicate
-          ? "un compte existe déjà avec cette adresse"
-          : (createError?.message ?? "création refusée"),
+  const auth = getServerAuthService();
+  try {
+    const created = await auth.signUp({
+      email,
+      password,
+      metadata: {
+        prenom,
+        pseudo: pseudoInput || prenom,
+        account_type: accountType,
       },
-      { status: duplicate ? 409 : 502 },
+      userAgent: request.headers.get("user-agent"),
+    });
+
+    if (!created.ok) {
+      return NextResponse.json(
+        {
+          error:
+            created.reason === "email-taken"
+              ? "un compte existe déjà avec cette adresse"
+              : `mot de passe : ${MIN_PASSWORD_LENGTH} caractères au moins`,
+        },
+        { status: created.reason === "email-taken" ? 409 : 400, headers: noStore },
+      );
+    }
+
+    // Le jeton n'est jamais rendu au navigateur de l'administrateur.
+    await auth.signOut(created.token);
+
+    const verified = isAdmin;
+    const verificationStatus = isAdmin ? "acceptee" : "none";
+
+    const updated = await withUser(callerId, (query) =>
+      query<{ id: string; pseudo: string }>(
+        `update public.users
+            set is_admin = $2,
+                verified = $3,
+                verification_status = $4
+          where id = $1
+          returning id::text as id, pseudo`,
+        [created.userId, isAdmin, verified, verificationStatus],
+      ),
     );
-  }
 
-  const userId = created.user.id;
+    if (updated.length === 0) {
+      return NextResponse.json(
+        { error: "compte créé, mais le rôle n'a pas pu être posé" },
+        { status: 500, headers: noStore },
+      );
+    }
 
-  // `handle_new_user()` a créé la ligne `users`. On pose le rôle dans la
-  // même foulée ; si cette écriture échouait, le compte existerait sans
-  // le rôle — d'où le contrôle des lignes rendues.
-  const patch = isAdmin
-    ? { is_admin: true, verified: true, verification_status: "acceptee" }
-    : { is_admin: false };
-
-  const { data: updated, error: updateError } = await admin
-    .from("users")
-    .update(patch)
-    .eq("id", userId)
-    .select("id, pseudo");
-
-  if (updateError || !updated || updated.length === 0) {
-    return NextResponse.json(
-      {
-        error:
-          "compte créé, mais le rôle n'a pas pu être posé — " +
-          (updateError?.message ?? "ligne introuvable"),
+    return NextResponse.json({
+      account: {
+        id: created.userId,
+        email: created.email,
+        pseudo: updated[0].pseudo,
+        is_admin: isAdmin,
       },
-      { status: 500 },
+    });
+  } catch (error) {
+    if (error instanceof AuthRepositoryError) {
+      return NextResponse.json(
+        { error: "création indisponible. Réessaie dans un instant." },
+        { status: 503, headers: noStore },
+      );
+    }
+    console.error("[admin] création de compte impossible", error);
+    return NextResponse.json(
+      { error: "création impossible" },
+      { status: 500, headers: noStore },
     );
   }
-
-  return NextResponse.json({
-    account: { id: userId, email, pseudo: updated[0].pseudo, is_admin: isAdmin },
-  });
 }

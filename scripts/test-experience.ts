@@ -149,7 +149,7 @@ check("lecture du fil : adaptateur HTTP", social.includes("/api/feed/hydration")
 
 const feedRoute = read("app/api/feed/route.ts");
 check("route /api/feed : compose le serveur", feedRoute.includes("getServerFeedRepository"));
-check("route /api/feed : pas de client navigateur", !feedRoute.includes("@/lib/supabase/client"));
+check("route /api/feed : pas de client navigateur", !feedRoute.includes("@/lib/api/client"));
 
 const hydrationRoute = read("app/api/feed/hydration/route.ts");
 check("route hydratation : valide les identifiants", hydrationRoute.includes("readHydrationQuery"));
@@ -165,7 +165,7 @@ check("composition : pool jamais dans le navigateur", !read("platform/container.
 const stories = read("lib/stories.ts");
 check("stories : TTL de 24 h exposé", stories.includes("STORY_HOURS = 24"));
 check("stories : échéance lue en base", stories.includes("expires_at"));
-const storyMigration = read("supabase/018_social_depth.sql");
+const storyMigration = read("db/migrations/018_social_depth.sql");
 check("stories : échéance en base (018)", storyMigration.includes("expires_at"));
 
 /* ── 8. Documentation vivante ────────────────────────────────────── */

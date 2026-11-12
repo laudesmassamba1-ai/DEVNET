@@ -27,17 +27,15 @@ Le build passe donc sans accès réseau. ✅ vérifié, pas seulement relu.
 |---|---|---|
 | Suites dans `npm test` | **36** | 33 |
 | Fichiers `supabase/NNN_*.sql` | **40** (001 → 040) | 39 |
-| Fichiers important `@supabase/*` directement | **4** | 56 |
+| Fichiers important `@supabase/*` directement | **0** | 56 |
 | Fichiers passant par le client maison `lib/supabase/*` | **51** | — (le chiffre 56 les comptait tous) |
 | Occurrences de `.from(` (app, components, lib, hooks) | **304** | 289 |
 
-L'estimation initiale surestimait donc l'usage direct du SDK (4 fichiers seulement :
-`app/api/admin/accounts/route.ts`, `lib/supabase/client.ts`,
-`lib/supabase/server.ts`, `hooks/useSession.ts`) et sous-estimait le nombre
-d'appels `.from()`. Conséquence pratique : le point d'étranglement réel est
-**le client maison**, pas les imports SDK — c'est lui que les ports devront
-remplacer (Phase 4/6). Les compteurs de référence à faire décroître sont
-304 `.from()` et 51 fichiers.
+Le SDK Supabase a depuis été retiré : plus aucun fichier n'importe
+`@supabase/*`. Le point d'étranglement reste **le client maison** :
+`lib/rest/client.ts` conserve la surface `from`/`auth`/`channel` au-dessus de
+`/api/rest`, `/api/auth` et `/api/media`. Les compteurs à faire décroître sont
+les appels `.from()` et le nombre de fichiers qui passent par cette façade.
 
 ## 3. État du dépôt au démarrage (modifications préexistantes)
 

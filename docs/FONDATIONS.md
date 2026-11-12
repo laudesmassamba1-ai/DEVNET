@@ -84,20 +84,18 @@ flowchart LR
     InfraSupa --> House["lib/supabase (client maison)"]
     Svc --> House
     House --> Probe["lib/backend.ts (sonde)"]
-    Probe --> Live["Supabase"]
+    Probe --> Live["PostgreSQL (withUser/withAnon)"]
     Probe --> Demo["lib/demo/"]
     Route["app/api/"] --> Server["lib/supabase/server.ts"]
 ```
 
 Cinq règles dures :
 
-1. **Une seule porte vers le fournisseur.** Quatre fichiers importent
-   `@supabase/*` : `lib/supabase/client.ts`, `lib/supabase/server.ts`,
-   `hooks/useSession.ts` et `app/api/admin/accounts/route.ts`. Toute nouvelle
-   dépendance directe au SDK est un recul.
-2. **Le client maison reste le point d'étranglement.** 53 fichiers l'importent
-   et on compte 310 appels `.from(`. C'est cette façade que les ports
-   remplacent, pas les imports SDK.
+1. **Aucune dépendance SDK externe.** Le SDK Supabase est retiré ;
+   `lib/rest/client.ts` est l'unique porte vers `/api/rest` et `/api/auth`.
+2. **Le client maison reste le point d'étranglement.** De nombreux fichiers
+   importent encore cette façade et ses appels `.from(`. C'est elle que les
+   ports remplacent, domaine par domaine.
 3. **Un module ne se consomme que par son API publique** (`modules/<domaine>/index.ts`).
 4. **Les règles pures de `lib/` ne bougent pas** pendant une migration
    d'architecture : gamification, notation, preuves, git, recherche. Elles sont

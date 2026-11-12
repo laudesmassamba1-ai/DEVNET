@@ -9,10 +9,10 @@
 | Framework | **Next.js 16** (App Router, Turbopack) |
 | Langage | **TypeScript** strict |
 | Styles | **Tailwind CSS v4** (tokens CSS-first via `@theme`) |
-| Base actuelle | **Supabase** (compatibilité en transition) |
-| Cible | PostgreSQL **18.3** chez Systalink (mesuré le 2026-11-08) ; miroir local PostgreSQL 18.3 |
-| Auth | Supabase Auth (email + mot de passe) |
-| Temps réel | Supabase Realtime (`postgres_changes`) |
+| Base | PostgreSQL **18.3** chez Systalink (mesuré le 2026-11-08) ; miroir local PostgreSQL 18.3 |
+| Accès données | Gateway maison `app/api/rest` (contrat PostgREST) + adaptateurs PostgreSQL |
+| Auth | Sessions httpOnly, mots de passe scrypt, OAuth Google/GitHub, routes `/api/auth/*` |
+| Temps réel | Diffusion locale `BroadcastChannel` (le polling reste la référence serveur) |
 | Polices | `next/font` — Fraunces, Space Grotesk, JetBrains Mono |
 
 ## Démarrage
@@ -20,16 +20,21 @@
 ```bash
 npm install
 
-# Clés Supabase → Project Settings → API Keys
 cp .env.local.example .env.local
-# renseignez NEXT_PUBLIC_SUPABASE_URL et NEXT_PUBLIC_SUPABASE_ANON_KEY
+# renseignez DATABASE_URL (PostgreSQL local ou distant)
+
+# Clés GIF (optionnel — le bouton GIF apparaît mais renvoie vers une erreur)
+#   • TENOR_API_KEY  — obtained from tenor.com/developer/key-registration
+#   • GIPHY_API_KEY  — obtained from developers.giphy.com/dashboard/create-key
+#   Laisser vide : le bouton GIF affiche un message « GIF non configuré ».
+#   Renseigné : les GIFs searchables s'affichent dans le composeur.
 
 npm run dev
 ```
 
 ## Mode démonstration
 
-Une démo qui affiche un écran vide devant un jury est une démo ratée. `lib/backend.ts` sonde l'API REST au démarrage ; si elle ne répond pas, l'application bascule sur un **backend local** (`lib/demo/`) au lieu de laisser `Failed to fetch` s'afficher partout.
+Une démo qui affiche un écran vide devant un jury est une démo ratée. `lib/backend.ts` sonde `/api/backend-check` au démarrage ; si PostgreSQL ne répond pas, l'application bascule sur un **backend local** (`lib/demo/`) au lieu de laisser `Failed to fetch` s'afficher partout.
 
 Ce backend n'est pas une maquette : c'est une implémentation du sous-ensemble de PostgREST qu'utilise DevNet — mêmes méthodes, mêmes sémantiques de retour (`{ data, error }`), mêmes cas d'erreur (`single()` sur zéro ligne échoue, `maybeSingle()` non). Le code applicatif ne peut pas distinguer le vrai backend du faux.
 
@@ -41,6 +46,24 @@ Ce backend n'est pas une maquette : c'est une implémentation du sous-ensemble d
 Un bandeau l'affiche explicitement : afficher de fausses données sans le dire serait malhonnête.
 
 Limite assumée : le temps réel local est un bus en mémoire, donc **un seul onglet**. Le multi-onglets exige un vrai backend.
+
+## Connexion Google / GitHub
+
+Les boutons de `/login` passent par `/api/auth/oauth/<google|github>/start` puis
+le callback correspondant. Le compte est créé à la première connexion, ou relié
+à un compte existant lorsque le fournisseur confirme la même adresse email.
+GitHub exige une OAuth App dédiée à la connexion (scope `read:user user:email`),
+distincte de celle qui lie les dépôts. Google exige un client OAuth Web.
+
+Variables serveur : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+`GITHUB_LOGIN_CLIENT_ID`, `GITHUB_LOGIN_CLIENT_SECRET`, `AUTH_OAUTH_SECRET`
+(32 caractères minimum). Callbacks à déclarer :
+
+- `https://<origine>/api/auth/oauth/google/callback`
+- `https://<origine>/api/auth/oauth/github/callback`
+
+`APP_PUBLIC_ORIGIN` doit être l'origine HTTPS exacte en production. Sans
+configuration, le bouton revient sur `/login` avec un message explicite.
 
 ## Base de données
 
@@ -71,14 +94,14 @@ npm run test:db-rls              # RLS et identité, base locale requise
 ```
 
 > Les migrations ne s'exécutent pas à la main dans l'éditeur Supabase : pour
-> PostgreSQL direct, `scripts/db/migrate.ts` lit `supabase/001…051` et applique
+> PostgreSQL direct, `scripts/db/migrate.ts` lit `db/migrations/001…051` et applique
 > les fichiers dans l'ordre, avec sommes de contrôle.
 
 Dans Supabase → SQL Editor, exécuter dans l'ordre :
 
-1. `supabase/001_schema.sql` — tables, RLS, realtime, trigger de création de profil
-2. `supabase/002_accounts.sql` — comptes étudiant/professionnel + durcissement RLS
-3. `supabase/003_indexes.sql` — index de progression (**facultatif**, tout fonctionne sans)
+1. `db/migrations/001_schema.sql` — tables, RLS, realtime, trigger de création de profil
+2. `db/migrations/002_accounts.sql` — comptes étudiant/professionnel + durcissement RLS
+3. `db/migrations/003_indexes.sql` — index de progression (**facultatif**, tout fonctionne sans)
 
 Puis, dans l'ordre, les vagues suivantes : `004_foundation` (canaux, projets,
 dépôt, GitHub), `005_social` (likes, commentaires, follows), `006_messaging`,
@@ -92,13 +115,13 @@ reposts), `017_read_receipts` (accusés de lecture), `018_social_depth`
 `028` communautés, `029` la table des notes).
 
 > Cette énumération manuelle s'arrête à `029` et ne remplace pas l'exécuteur.
-> La source à jour est `supabase/001…051` ; `npm run db:migrate` en simulation
+> La source à jour est `db/migrations/001…051` ; `npm run db:migrate` en simulation
 > liste l'ordre exact sans rien écrire.
 
 ### Migration 025 — forks et notation par les pairs
 
-`supabase/025_forks.sql` crée la lignée des dépôts et le jury, et
-`supabase/029_project_ratings.sql` la table qui porte les votes :
+`db/migrations/025_forks.sql` crée la lignée des dépôts et le jury, et
+`db/migrations/029_project_ratings.sql` la table qui porte les votes :
 
 - **`project_forks`** — le parent (`source_id`), la racine de la lignée
   (`root_project_id`, déduite à l'insertion), l'instantané cloné
@@ -215,9 +238,9 @@ lib/
   github/             raccordement d'un projet à un dépôt GitHub (+ écran)
   backend.ts          sonde de disponibilité du backend
   demo/               backend local de démonstration
-  supabase/           client + résolution de profil
+  lib/api/            client REST + résolution de profil
 hooks/                session, progression, requête média
-supabase/             migrations SQL
+db/migrations/       migrations SQL
 scripts/              suites de tests
 ```
 
@@ -338,7 +361,7 @@ plus que l'ancienneté d'inscription.
 
 ## Fondations : groupes, dépôt interne, GitHub
 
-`supabase/004_foundation.sql` pose les tables des trois axes qui suivent, et
+`db/migrations/004_foundation.sql` pose les tables des trois axes qui suivent, et
 `lib/` pose leurs moteurs. **Il n'y a pas encore d'interface** : c'est la
 socle, pas le produit.
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { User } from "@/lib/types";
 import { challengesFor, type Challenge, type ChallengeCounters } from "@/lib/challenges";
 import { dayKey, todayKey } from "@/lib/gamification";
@@ -46,7 +46,7 @@ async function countToday(
 ): Promise<number> {
   const date = opts.date ?? "created_at";
   try {
-    let q = supabase
+    let q = api
       .from(table)
       .select(date)
       .eq(column, value)

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { loadAuthorXp } from "@/lib/author-xp";
 import { challengeAlertGroup } from "@/lib/challengeAlert";
 import {
@@ -104,7 +104,7 @@ export async function fetchNotificationPage(
     };
   }
 
-  let query = supabase
+  let query = api
     .from("notifications")
     // `notifications` porte `recipient_id` **et** `actor_id` : la
     // contrainte doit être nommée, sans quoi PostgREST refuse la jointure
@@ -185,7 +185,7 @@ export async function fetchUnreadSummary(me: string): Promise<UnreadSummary> {
 
   if (!me) return { total: 0, byKind, saturated: false };
 
-  const { data } = await supabase
+  const { data } = await api
     .from("notifications")
     .select(
       "id, recipient_id, actor_id, kind, post_id, comment_id, conversation_id, created_at, read_at",
@@ -228,7 +228,7 @@ export async function fetchUnreadSummary(me: string): Promise<UnreadSummary> {
 export async function markRead(ids: string[]): Promise<{ error: string | null }> {
   if (ids.length === 0) return { error: null };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
     .in("id", ids);
@@ -240,7 +240,7 @@ export async function markRead(ids: string[]): Promise<{ error: string | null }>
 export async function markAllRead(me: string): Promise<{ error: string | null }> {
   if (!me) return { error: null };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
     .eq("recipient_id", me)
@@ -267,7 +267,7 @@ export async function markConversationRead(
 ): Promise<{ error: string | null }> {
   if (!me || !conversationId) return { error: null };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
     .eq("recipient_id", me)
@@ -281,7 +281,7 @@ export async function markConversationRead(
 export async function dismissNotifications(ids: string[]): Promise<{ error: string | null }> {
   if (ids.length === 0) return { error: null };
 
-  const { error } = await supabase.from("notifications").delete().in("id", ids);
+  const { error } = await api.from("notifications").delete().in("id", ids);
   return { error: error?.message ?? null };
 }
 
@@ -296,7 +296,7 @@ export async function dismissNotifications(ids: string[]): Promise<{ error: stri
 export async function clearNotifications(me: string): Promise<{ error: string | null }> {
   if (!me) return { error: null };
 
-  const { error } = await supabase
+  const { error } = await api
     .from("notifications")
     .delete()
     .eq("recipient_id", me);
@@ -322,7 +322,7 @@ export async function fetchUnreadConversations(
 ): Promise<Record<string, number>> {
   if (!me) return {};
 
-  const { data } = await supabase
+  const { data } = await api
     .from("notifications")
     .select("conversation_id")
     .eq("recipient_id", me)
@@ -400,7 +400,7 @@ async function fetchPostExcerpts(ids: (string | null)[]): Promise<Map<string, st
 
   if (wanted.length === 0) return out;
 
-  const { data } = await supabase
+  const { data } = await api
     .from("posts")
     .select("id, text")
     .in("id", wanted);

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { asVerificationStatus, type VerificationStatus } from "@/lib/verification";
 import type { AvatarColor } from "@/lib/types";
 
@@ -87,7 +87,7 @@ export async function requestVerification(
   userId: string,
   note: string,
 ): Promise<void> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .update({ verification_status: "attente", verification_note: note })
     .eq("id", userId)
@@ -98,7 +98,7 @@ export async function requestVerification(
 
 /** Retire sa demande — on peut changer d'avis avant la décision. */
 export async function withdrawVerification(userId: string): Promise<void> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .update({ verification_status: "none", verification_note: "" })
     .eq("id", userId)
@@ -116,7 +116,7 @@ export async function withdrawVerification(userId: string): Promise<void> {
  * qu'un nouveau membre est arrivé.
  */
 export async function fetchVerificationQueue(): Promise<VerificationRequest[]> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .select(REQUEST_FIELDS)
     .eq("verification_status", "attente")
@@ -142,7 +142,7 @@ export async function decideVerification(
   userId: string,
   accept: boolean,
 ): Promise<void> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .update(
       accept
@@ -157,7 +157,7 @@ export async function decideVerification(
 
 /** Retire le cachet — c'est une sanction, pas un refus de demande. */
 export async function revokeVerification(userId: string): Promise<void> {
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("users")
     .update({ verified: false, verification_status: "none", verification_note: "" })
     .eq("id", userId)

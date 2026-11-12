@@ -9,7 +9,7 @@
  * qu'une exception. L'écran de progression doit toujours s'afficher.
  */
 
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import {
   buildStats, buildStory, dayKey, postPoints, questsFor, recent, shiftDay, todayKey,
   type ProgressStats, type Quest, type QuestCounters, type ScorableMessage,
@@ -90,7 +90,7 @@ export async function loadProgress(profile: ProgressProfile): Promise<Progress> 
 
   const [posts, messages] = await Promise.all([
     safe(
-      supabase
+      api
         .from("posts")
         .select("id, text, has_code, code, lang, likes, created_at")
         .eq("author_id", profile.id)
@@ -99,7 +99,7 @@ export async function loadProgress(profile: ProgressProfile): Promise<Progress> 
       [] as SlimPost[],
     ),
     safe(
-      supabase
+      api
         .from("group_messages")
         .select("id, text, is_code, created_at")
         .eq("author_id", profile.id)
@@ -165,7 +165,7 @@ export async function loadLeaderboard(profile: User): Promise<LeaderEntry[]> {
   const weekStart = shiftDay(today, -6);
 
   const rows = await safe(
-    supabase
+    api
       .from("posts")
       // `posts` mène à `users` par cinq chemins (`author_id` plus les
       // quatre tables de liaison). PostgREST exige donc qu'on nomme la

@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 
 /**
  * Les issues d'un projet.
@@ -79,7 +79,7 @@ const ISSUE_COLUMNS = `*, author:users!issues_author_id_fkey(${AUTHOR})`;
  * chaque ouverture, et l'écran devient lent bien avant d'être faux.
  */
 export async function fetchIssues(projectId: string): Promise<Issue[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("issues")
     .select(ISSUE_COLUMNS)
     .eq("project_id", projectId)
@@ -98,7 +98,7 @@ export async function fetchIssues(projectId: string): Promise<Issue[]> {
  * texte des issues pour en lire la longueur.
  */
 export async function fetchOpenIssueCount(projectId: string): Promise<number> {
-  const { count } = await supabase
+  const { count } = await api
     .from("issues")
     .select("id", { count: "exact", head: true })
     .eq("project_id", projectId)
@@ -134,7 +134,7 @@ export async function createIssue(options: {
   // `number` n'est **pas** envoyé : la colonne est calculée par le
   // déclencheur. L'envoyer, même `null`, désactive la condition du
   // déclencheur en base, et l'issue naîtrait sans numéro.
-  const { data, error } = await supabase
+  const { data, error } = await api
     .from("issues")
     .insert({
       project_id: options.projectId,
@@ -152,7 +152,7 @@ export async function createIssue(options: {
 
 /** Les commentaires d'une issue, du plus ancien au plus récent. */
 export async function fetchIssueComments(issueId: string): Promise<IssueComment[]> {
-  const { data } = await supabase
+  const { data } = await api
     .from("issue_comments")
     .select(`*, author:users(${AUTHOR})`)
     .eq("issue_id", issueId)
@@ -179,7 +179,7 @@ export async function addIssueComment(options: {
 
   if (!body) return { error: "Le message ne peut pas être vide." };
 
-  const { error } = await supabase.from("issue_comments").insert({
+  const { error } = await api.from("issue_comments").insert({
     issue_id: options.issueId,
     author_id: options.authorId,
     body,
@@ -199,7 +199,7 @@ export async function setIssueStatus(
   issueId: string,
   status: "open" | "closed",
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
+  const { error } = await api
     .from("issues")
     .update({ status })
     .eq("id", issueId);
@@ -209,13 +209,13 @@ export async function setIssueStatus(
 
 /** Retire une issue. Ses commentaires partent avec elle, en cascade. */
 export async function deleteIssue(issueId: string): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("issues").delete().eq("id", issueId);
+  const { error } = await api.from("issues").delete().eq("id", issueId);
   return { error: error?.message ?? null };
 }
 
 /** La première ligne d'une issue en discussion, en toutes lettres. */
 export async function fetchIssue(issueId: string): Promise<Issue | null> {
-  const { data } = await supabase
+  const { data } = await api
     .from("issues")
     .select(ISSUE_COLUMNS)
     .eq("id", issueId)

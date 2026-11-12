@@ -492,7 +492,6 @@ export function CommentsPanel({
           <MessageAttachmentButtons
             disabled={!me || busy}
             onGif={(gif) => setAttachment({ kind: "gif", gif })}
-            onSticker={(sticker) => setAttachment({ kind: "sticker", stickerId: sticker.id })}
           />
           <textarea
             ref={composerRef}

@@ -75,7 +75,7 @@ async function main(): Promise<void> {
 
   const report = await runMigrations({
     databaseUrl,
-    migrationsDir: path.resolve(parseFlag(process.argv, "dir") ?? "supabase"),
+    migrationsDir: path.resolve(parseFlag(process.argv, "dir") ?? "db/migrations"),
     compatDir: path.resolve("db/compat"),
     apply: true,
   });

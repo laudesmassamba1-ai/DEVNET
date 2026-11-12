@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import type { User } from "@/lib/types";
 import { loadProofsForUser } from "@/lib/reputation";
 import type { AchievementCounters } from "@/lib/achievements";
@@ -77,7 +77,7 @@ export function useAchievementCounters(profile: User | null, likes: number, stre
  */
 async function countTable(table: string, col: string, value: string): Promise<number> {
   try {
-    const { count, error } = await supabase
+    const { count, error } = await api
       .from(table)
       .select(col, { count: "exact", head: true })
       .eq(col, value);
@@ -91,10 +91,10 @@ async function countTable(table: string, col: string, value: string): Promise<nu
 async function countForksReceived(userId: string): Promise<number> {
   try {
     // Les projets que la personne possède.
-    const { data: projects } = await supabase.from("projects").select("id").eq("created_by", userId);
+    const { data: projects } = await api.from("projects").select("id").eq("created_by", userId);
     const ids = ((projects as { id: string }[]) ?? []).map((p) => p.id);
     if (!ids.length) return 0;
-    const { count, error } = await supabase
+    const { count, error } = await api
       .from("project_forks")
       .select("id", { count: "exact", head: true })
       .in("source_id", ids);
@@ -107,7 +107,7 @@ async function countForksReceived(userId: string): Promise<number> {
 
 async function countProjectsOwnedBy(userId: string): Promise<number> {
   try {
-    const { count, error } = await supabase
+    const { count, error } = await api
       .from("projects")
       .select("id", { count: "exact", head: true })
       .eq("created_by", userId);

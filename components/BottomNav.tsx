@@ -33,7 +33,6 @@ const MOBILE_MORE_LINKS: { href: string; label: string; icon: IconName }[] = [
   { href: "/communities", label: "Communautés", icon: "globe" },
   { href: "/projects", label: "Projets", icon: "package" },
   { href: "/github", label: "GitHub", icon: "code" },
-  { href: "/extensions", label: "Extensions", icon: "grid" },
   { href: "/signets", label: "Signets", icon: "bookmark" },
   { href: "/notifications", label: "Notifications", icon: "notifications" },
   { href: "/moderation", label: "Modération", icon: "flag" },
@@ -70,7 +69,7 @@ const WORKSPACE: { href: string; label: string; icon: IconName }[] = [
   { href: "/communities", label: "Communautés", icon: "globe" },
   { href: "/projects", label: "Projets", icon: "package" },
   { href: "/github", label: "GitHub", icon: "code" },
-  { href: "/extensions", label: "Extensions", icon: "grid" },
+  { href: "/signets", label: "Signets", icon: "bookmark" },
 ];
 
 /**

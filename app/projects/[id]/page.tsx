@@ -33,7 +33,7 @@ import {
 } from "@/lib/presence";
 import { fetchOpenPullRequestCount } from "@/lib/pull";
 import { loadProjectMembers } from "@/lib/reputation";
-import { supabase } from "@/lib/supabase/client";
+import { api } from "@/lib/api/client";
 import { type Commit, type FileDiff } from "@/lib/git/history";
 import { buildTree, guessLanguage, looksBinary, type FileNode } from "@/lib/git/paths";
 import { branchErrorText, DEFAULT_BRANCH, validateBranchName } from "@/lib/git/refs";
@@ -453,7 +453,7 @@ const [openPulls, setOpenPulls] = useState(0);
 
     const refresh = () => void refreshPresence();
 
-    const channel = supabase
+    const channel = api
       .channel(`projet-${id}`)
       .on(
         "postgres_changes",
@@ -496,7 +496,7 @@ const [openPulls, setOpenPulls] = useState(0);
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      void api.removeChannel(channel);
     };
   }, [id, profileId, refreshPresence]);
 

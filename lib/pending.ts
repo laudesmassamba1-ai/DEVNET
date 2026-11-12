@@ -5,7 +5,7 @@
  * le réseau travaille, la barre d'état le dit, et quand il se tait, elle
  * se tait avec lui. Le compteur est incrémenté par l'adaptateur de
  * `fetch` branché sur le client navigateur Supabase
- * (`lib/supabase/client.ts`, option `global.fetch`) — donc chaque requête
+ * (`lib/api/client.ts`, option `global.fetch`) — donc chaque requête
  * REST ou auth passée par le client compte, et rien d'autre.
  *
  * C'est un store minimal, pas un contexte : rien à monter dans l'arbre,

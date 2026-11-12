@@ -10,18 +10,18 @@ import { resetStore } from "@/lib/demo/store";
 
 const STEPS: { title: string; body: string; code?: string }[] = [
   {
-    title: "1. Créer le projet",
-    body: "Sur supabase.com → New project. Compte gratuit, région la plus proche (Europe West). Note l'URL : elle a la forme https://<ref>.supabase.co",
+    title: "1. Préparer PostgreSQL",
+    body: "DevNet utilise PostgreSQL, local ou hébergé. Aucun compte Supabase n'est nécessaire : le schéma, les rôles et les politiques vivent dans db/migrations/ et s'appliquent avec la couche de compatibilité.",
   },
   {
-    title: "2. Exécuter le schéma",
-    body: "Dans l'éditeur SQL, colle supabase/001_schema.sql puis exécute. Ensuite supabase/002_accounts.sql : c'est elle qui ajoute account_type, verified et le durcissement des RLS.",
-    code: "supabase/001_schema.sql\nsupabase/002_accounts.sql",
+    title: "2. Appliquer les migrations",
+    body: "Renseigne DATABASE_URL dans .env.local, puis lance le garde-fou et les migrations. Le garde-fou refuse une cible distante sans confirmation explicite.",
+    code: "npm run db:guard\nnpm run db:migrate",
   },
   {
-    title: "3. Brancher les clés",
-    body: "Récupère l'URL et la clé publique (Project Settings → API Keys), puis remplis .env.local et redémarre le serveur de développement.",
-    code: "NEXT_PUBLIC_SUPABASE_URL=https://<ref>.supabase.co\nNEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...",
+    title: "3. Démarrer",
+    body: "L'application parle à PostgreSQL via /api/rest et /api/auth. Sans DATABASE_URL, elle bascule en mode démonstration local.",
+    code: "npm run dev",
   },
 ];
 

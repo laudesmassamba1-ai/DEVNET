@@ -239,7 +239,7 @@ eq(
 eq(
   "message : sans pièce jointe, toutes les colonnes sont vides",
   JSON.stringify(attachmentColumns()),
-  JSON.stringify({ gif_url: "", gif_alt: "", sticker_id: null }),
+  JSON.stringify({ gif_url: "", gif_alt: "", sticker_id: null, media_url: "", media_type: "" }),
 );
 
 console.log(`\n${passed} vérification(s) passée(s), ${failures.length} échec(s)\n`);

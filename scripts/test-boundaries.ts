@@ -5,14 +5,14 @@
  * Exécuter avec :  npx tsx scripts/test-boundaries.ts
  *
  * Une architecture en couches qui n'est pas vérifiée ne survit pas à trois
- * semaines de livraison : un import de confort suffit à faire entrer
- * `@supabase/*` dans un composant, et plus rien ne le signale — le build
- * passe, l'écran marche, et la frontière est morte.
+ * semaines de livraison : un import de confort suffit à faire entrer un
+ * adaptateur dans un composant, et plus rien ne le signale — le build passe,
+ * l'écran marche, et la frontière est morte.
  *
  * Ce script lit le code, il ne l'exécute pas. Il vérifie trois choses :
  *
- *  1. **Une seule porte vers le fournisseur.** Quatre fichiers connus
- *     importent `@supabase/*`. Tout nouveau fichier fait échouer le test.
+ *  1. **Aucune dépendance SDK externe.** Plus aucun fichier n'importe
+ *     `@api/*` : le client maison est l'unique porte.
  *  2. **L'UI ne connaît pas les adaptateurs.** Une page ou un composant ne
  *     doit jamais importer `modules/*\/infrastructure` : il passerait
  *     au-dessus du port, donc au-dessus du contrat testable.
@@ -28,13 +28,8 @@ import { join, posix, relative } from "node:path";
 
 const ROOT = process.cwd();
 
-/** Les seuls fichiers autorisés à parler directement au SDK. */
-const SDK_ALLOWED = new Set([
-  "app/api/admin/accounts/route.ts",
-  "hooks/useSession.ts",
-  "lib/supabase/client.ts",
-  "lib/supabase/server.ts",
-]);
+/** Le SDK externe a été retiré : plus aucune exception. */
+const SDK_ALLOWED = new Set<string>();
 
 /** Dossiers lus : le produit. Scripts et documentation sont hors périmètre. */
 const SOURCE_DIRS = ["app", "components", "hooks", "lib", "modules", "platform", "plugins", "shared"];
@@ -73,19 +68,19 @@ function imports(file: string): string[] {
 
 // ── 1. La porte unique vers le fournisseur ────────────────────────────────
 const sdkUsers = files.filter((file) =>
-  imports(file).some((spec) => spec.startsWith("@supabase/")),
+  imports(file).some((spec) => spec.startsWith("@api/")),
 );
 
 for (const file of sdkUsers) {
   check(
     `accès SDK direct autorisé : ${file}`,
     SDK_ALLOWED.has(relative(ROOT, join(ROOT, file))),
-    "fichier hors de la liste des quatre portes",
+    "le SDK externe est interdit",
   );
 }
 check(
-  "aucun accès SDK nouveau",
-  sdkUsers.length <= SDK_ALLOWED.size,
+  "aucun accès SDK externe",
+  sdkUsers.length === 0,
   `${sdkUsers.length} fichiers importent le SDK`,
 );
 
@@ -98,7 +93,7 @@ const PORTED_FACADES = ["lib/messages.ts", "lib/reports.ts"];
 
 for (const file of PORTED_FACADES) {
   const legacyClient = imports(file).filter(
-    (spec) => spec === "@/lib/supabase/client",
+    (spec) => spec === "@/lib/api/client",
   );
   check(
     `façade portée sans client direct : ${file}`,
@@ -175,7 +170,7 @@ for (const file of sdkFiles) {
   const external = imports(file).filter(
     (spec) =>
       spec.startsWith("@/")
-      || spec.startsWith("@supabase/")
+      || spec.startsWith("@api/")
       || spec === "pg"
       || spec.startsWith("@vercel/")
       || spec.startsWith("next/"),
@@ -202,6 +197,7 @@ for (const file of pgUsers) {
 
 // ── 4. Le conteneur est le seul à composer un adaptateur concret ──────────
 const COMPOSERS = new Set([
+  "platform/auth-container.ts",
   "platform/container.ts",
   "platform/server-container.ts",
 ]);

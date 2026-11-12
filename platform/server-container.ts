@@ -32,11 +32,11 @@ import {
 } from "./infrastructure/postgres/pool";
 import {
   createPluginRuntime,
+  MemoryPluginStateRepository,
   type PluginRuntime,
   type PluginStateRepository,
 } from "./plugin-runtime";
 import { PostgresPluginStateRepository } from "./plugin-runtime/infrastructure/postgres/postgres-plugin-state-repository";
-import { SupabasePluginStateRepository } from "./plugin-runtime/supabase-plugin-state-repository";
 import { REGISTERED_PLUGINS } from "./registry.generated";
 
 let runtime: PluginRuntime | null = null;
@@ -46,7 +46,7 @@ function pluginStateRepository(): PluginStateRepository {
   if (hasDatabaseUrl()) {
     return new PostgresPluginStateRepository(getPostgresPool());
   }
-  return new SupabasePluginStateRepository();
+  return new MemoryPluginStateRepository();
 }
 
 export function getPluginRuntime(): PluginRuntime {
@@ -121,7 +121,7 @@ export function getServerStickersRepository(): StickersRepository {
  *
  * L'exécuteur est la connexion propriétaire : les deux tables d'auth n'ont
  * aucune politique RLS, une identité d'utilisateur n'y verrait rien. Voir
- * `supabase/046_auth_sessions.sql` pour la raison de ce choix.
+ * `db/migrations/046_auth_sessions.sql` pour la raison de ce choix.
  */
 export function getServerAuthRepository(): AuthRepository {
   return new PostgresAuthRepository({

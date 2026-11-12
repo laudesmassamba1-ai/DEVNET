@@ -45,7 +45,7 @@ const VENDORED = [
   "components/ui/", "dist/", "build/", ".next/", "coverage/",
 ];
 
-const MIGRATION = /(^|\/)(migrations?|supabase\/migrations)\//i;
+const MIGRATION = /(?:\/|^)(?:migrations?|db\/migrations)\//i;
 
 /** Fichiers de traduction ou de données produits par un outil. */
 const LINGUISTIC = /(^|\/)(i18n|locales?|lang)\/[^/]*generated/i;
