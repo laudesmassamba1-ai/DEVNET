@@ -200,6 +200,10 @@ export function AdminOverview() {
   if (!profile?.is_admin) return null;
   const shortcuts = [
     ["Comptes", "/admin", "profile"],
+    ["Signalements", "/admin/content", "flag"],
+    ["Sécurité", "/admin/security", "lock"],
+    ["Audit", "/admin/audit", "file"],
+    ["Système", "/admin/data", "server"],
     ["Radar", "/admin/radar", "target"],
     ["Paramètres", "/admin/settings", "settings"],
   ] as const satisfies readonly [string, string, IconName][];
