@@ -82,7 +82,9 @@ export async function probeBackend(force = false): Promise<BackendProbe> {
     const res = await fetch("/api/backend-check", {
       method: "GET",
       signal: controller.signal,
-      cache: "no-store",
+      // La route est cacheable quelques secondes côté CDN ; un « Réessayer »
+      // explicite doit au contraire ignorer ce cache.
+      cache: force ? "reload" : "default",
     });
     if (!res.ok) {
       return set({

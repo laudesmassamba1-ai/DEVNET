@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect } from "react";
-import { Loading } from "@/components/Avatar";
 import { isDemoAllowed, probeBackend } from "@/lib/backend";
 import { useBackend } from "@/hooks/useBackend";
 
 /**
- * Sonde le backend avant le premier rendu métier.
- * En production sans backend joignable et sans opt-in démo, on affiche
- * une page d'erreur plutôt qu'un repli silencieux vers des données fictives.
+ * Sonde le backend sans bloquer le premier rendu.
+ *
+ * La sonde tourne en arrière-plan : attendre son verdict ajoutait un à
+ * deux secondes d'écran vide à chaque ouverture. Seul un échec confirmé
+ * remplace l'interface par la page d'erreur.
  */
 export function BackendGate({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -16,14 +17,6 @@ export function BackendGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   const backend = useBackend();
-
-  if (backend.state === "unknown" || backend.state === "checking") {
-    return (
-      <div className="flex min-h-dvh items-center justify-center">
-        <Loading label="Connexion au réseau" />
-      </div>
-    );
-  }
 
   if (backend.state === "offline" && !isDemoAllowed()) {
     return (

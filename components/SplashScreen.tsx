@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useLayoutEffect } from "react";
+import { usePathname } from "next/navigation";
 import { AnimatedLogo, SPLASH_HOLD_MS } from "@/components/AnimatedLogo";
 
 /* ================================================================
@@ -39,11 +40,15 @@ const SEEN_KEY = "devnet.splash.seen";
 export function SplashScreen() {
   const [gone, setGone] = useState(false);
   const [fading, setFading] = useState(false);
+  const pathname = usePathname();
 
   useLayoutEffect(() => {
+    // La scène de marque est réservée à la page d'accueil. Sur un écran
+    // applicatif (fil, connexion, profil), elle ajoutait plusieurs secondes
+    // avant le premier contenu utile.
     // Déjà passé dans cet onglet : l'écran n'existe pas — on ne pose
     // même pas le verrou sur le défilement.
-    if (sessionStorage.getItem(SEEN_KEY)) {
+    if (pathname !== "/" || sessionStorage.getItem(SEEN_KEY)) {
       // Le setState ici est le but : il court dans `useLayoutEffect`,
       // donc **avant le premier paint** du commit d'hydratation — un
       // visiteur déjà passé ne voit jamais le voile, pas même une
@@ -76,7 +81,7 @@ export function SplashScreen() {
       clearTimeout(t2);
       document.documentElement.style.overflow = "";
     };
-  }, []);
+  }, [pathname]);
 
   if (gone) return null;
 

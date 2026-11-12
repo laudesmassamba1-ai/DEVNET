@@ -12,7 +12,7 @@
  * où `max_connections` est mesuré, ce commentaire et la valeur sont mis à jour
  * ensemble.
  */
-import { Pool } from "pg";
+import { Pool, type PoolClient } from "pg";
 import { resolvePostgresConnection } from "./tls";
 
 let pool: Pool | null = null;
@@ -69,21 +69,34 @@ export async function checkDatabase(timeoutMs = 2_000): Promise<DatabaseHealth> 
   if (!hasDatabaseUrl()) return { ok: false, reason: "not_configured" };
 
   const started = Date.now();
-  let client;
+  let client: PoolClient | undefined;
+  let broken = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
   try {
+    // Un seul aller-retour : `begin` + `set local` + `select` + `commit`
+    // coûtaient quatre fois la latence réseau de la base. Une course
+    // explicite borne la requête, puis un client expiré est détruit au
+    // lieu d'être remis dans le pool.
     client = await getPostgresPool().connect();
-    await client.query("begin");
-    await client.query(`set local statement_timeout = '${Math.max(100, timeoutMs)}ms'`);
-    await client.query("select 1");
-    await client.query("commit");
+    await Promise.race([
+      client.query("select 1"),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(
+          () => reject(new Error("database_timeout")),
+          Math.max(100, timeoutMs),
+        );
+      }),
+    ]);
     return { ok: true, latencyMs: Date.now() - started };
   } catch (error) {
+    broken = true;
     return {
       ok: false,
       reason: isDatabaseUnavailable(error) ? "unavailable" : "timeout",
     };
   } finally {
-    client?.release();
+    if (timer) clearTimeout(timer);
+    client?.release(broken);
   }
 }
 

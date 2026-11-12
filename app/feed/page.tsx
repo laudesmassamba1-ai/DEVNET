@@ -270,21 +270,19 @@ export default function FeedPage() {
     // toutes les cartes nouvelles. Sans cette ligne, la page 2 + arriverait
     // sans aucun état d'interaction — comme si on n'avait jamais rien aimé.
     const added = page.rows.map((r) => r.id);
-    if (profile) {
-      // Une seule lecture pour les quatre états d'interaction : la route
-      // serveur les rend ensemble, sous l'identité de la session.
-      const hydration = await fetchFeedHydration(added);
-      if (genRef.current !== gen) return;
-      if (hydration) {
-        setLikedIds((prev) => [...new Set([...prev, ...hydration.likedPostIds])]);
-        setRepostedIds((prev) => [...new Set([...prev, ...hydration.repostedPostIds])]);
-        setReactions((prev) => ({ ...prev, ...hydration.reactions }));
-        setBookmarkedIds((prev) => [...new Set([...prev, ...hydration.bookmarkedPostIds])]);
-      }
-    }
-
-    const projects = await fetchProjectsForPosts(added);
+    // Hydratation et projets sont indépendants : les lancer ensemble
+    // supprime un aller-retour complet sur « charger plus ».
+    const [hydration, projects] = await Promise.all([
+      profile ? fetchFeedHydration(added) : Promise.resolve(null),
+      fetchProjectsForPosts(added),
+    ]);
     if (genRef.current !== gen) return;
+    if (hydration) {
+      setLikedIds((prev) => [...new Set([...prev, ...hydration.likedPostIds])]);
+      setRepostedIds((prev) => [...new Set([...prev, ...hydration.repostedPostIds])]);
+      setReactions((prev) => ({ ...prev, ...hydration.reactions }));
+      setBookmarkedIds((prev) => [...new Set([...prev, ...hydration.bookmarkedPostIds])]);
+    }
     setPostProjects((prev) => {
       const next = new Map(prev);
       for (const [postId, p] of projects) {
@@ -414,23 +412,20 @@ export default function FeedPage() {
       // seule requête pour tout le fil. Le champ `liked_by` du post ne peut
       // plus servir : le like est une ligne dans `post_likes`, et il
       // appartient à celui qui regarde, pas au post.
-      if (profile) {
-        // Les likes, reposts, réactions et signets du lecteur arrivent
-        // ensemble par `/api/feed/hydration` : le navigateur n'interroge
-        // plus la base pour savoir ce qu'il a déjà aimé.
-        const hydration = await fetchFeedHydration(rows.map((r) => r.id));
-        if (!alive || genRef.current !== gen) return;
-        if (hydration) {
-          setLikedIds(hydration.likedPostIds);
-          setRepostedIds(hydration.repostedPostIds);
-          setReactions(hydration.reactions);
-          setBookmarkedIds(hydration.bookmarkedPostIds);
-        }
-      }
-      // Les projets des publications sont lus dans la foulée : une
-      // requête pour tout le fil, jamais une par carte.
-      const projects = await fetchProjectsForPosts(rows.map((r) => r.id));
+      // Les likes/reposts/réactions/signets et les projets sont deux
+      // lectures indépendantes : les mener en parallèle évite d'additionner
+      // leurs latences au premier affichage du fil.
+      const [hydration, projects] = await Promise.all([
+        profile ? fetchFeedHydration(rows.map((r) => r.id)) : Promise.resolve(null),
+        fetchProjectsForPosts(rows.map((r) => r.id)),
+      ]);
       if (!alive || genRef.current !== gen) return;
+      if (hydration) {
+        setLikedIds(hydration.likedPostIds);
+        setRepostedIds(hydration.repostedPostIds);
+        setReactions(hydration.reactions);
+        setBookmarkedIds(hydration.bookmarkedPostIds);
+      }
       setPostProjects(
         new Map(
           [...projects].map(([postId, p]) => [
