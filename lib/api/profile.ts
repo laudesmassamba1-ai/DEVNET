@@ -11,6 +11,7 @@ export interface ProfilePatch {
   pays?: string;
   langages?: string[];
   avatar_color?: AvatarColor;
+  avatar_url?: string;
   theme?: string;
   links?: ProfileLink[];
 }
@@ -23,7 +24,7 @@ export interface ProfilePatch {
  * du compte courant vient de la session `auth`.
  */
 const PROFILE_COLUMNS =
-  "id, prenom, pseudo, filiere, niveau, langages, avatar_color, bio, " +
+  "id, prenom, pseudo, filiere, niveau, langages, avatar_color, avatar_url, bio, " +
   "followers, following, created_at, account_type, verified, ville, pays, " +
   "links, theme, is_admin, verification_status, verification_note";
 
@@ -139,6 +140,7 @@ export async function getOrCreateProfile(
     langages,
     avatar_color: (str("avatar_color") ||
       AVATARS[Math.floor(Math.random() * AVATARS.length)]) as AvatarColor,
+    avatar_url: "",
     bio: "",
     account_type: "student" as const,
     verified: false,

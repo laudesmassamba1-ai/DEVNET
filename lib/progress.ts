@@ -170,7 +170,7 @@ export async function loadLeaderboard(profile: User): Promise<LeaderEntry[]> {
       // `posts` mène à `users` par cinq chemins (`author_id` plus les
       // quatre tables de liaison). PostgREST exige donc qu'on nomme la
       // contrainte — sinon il répond 300 et le fil est vide.
-      .select("author_id, has_code, created_at, author:users!posts_author_id_fkey(id, prenom, pseudo, avatar_color, verified, is_admin)")
+      .select("author_id, has_code, created_at, author:users!posts_author_id_fkey(id, prenom, pseudo, avatar_color, avatar_url, verified, is_admin)")
       .gte("created_at", new Date(Date.now() - 7 * DAY).toISOString())
       .order("created_at", { ascending: false })
       .limit(300),

@@ -14,20 +14,29 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (busy) return;
     setBusy(true);
+    setError("");
 
     // On ne révèle jamais si l'adresse correspond à un compte : la réponse
     // est la même dans les deux cas, seul un email part (ou pas).
     try {
-      await api.auth.resetPasswordForEmail(email.trim(), {
+      const result = await api.auth.resetPasswordForEmail(email.trim(), {
         redirectTo: `${window.location.origin}/reinitialiser-mot-de-passe`,
       });
+      if (result.error) {
+        setBusy(false);
+        setError(result.error.message);
+        return;
+      }
     } catch {
-      // ignoré volontairement : même réponse pour un compte existant ou non.
+      setBusy(false);
+      setError("L'envoi du lien est indisponible pour le moment.");
+      return;
     }
 
     setBusy(false);
@@ -71,6 +80,11 @@ export default function ForgotPasswordPage() {
           </div>
         ) : (
           <form onSubmit={submit} className="mt-7 space-y-3">
+            {error && (
+              <p role="alert" className="rounded-[var(--radius-input)] border border-danger bg-danger/8 px-3.5 py-2.5 text-[13px] text-danger">
+                {error}
+              </p>
+            )}
             <label className="block">
               <span className="label mb-1.5 block text-chalk-3">Email</span>
               <input

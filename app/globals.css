@@ -624,6 +624,70 @@
   box-shadow: var(--shadow-sh-1);
 }
 
+/* ── Badge vérifié 3D cel-shading HD ──
+   Onze cachets avec ombrage cel-shading, lumières directionnelles
+   et textures qui donnent profondeur et caractère. Les bords nets
+   garantissent la lisibilité même à petit format. */
+.verify-badge-3d {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(255, 255, 255, 0.15);
+  --ce-highlight: inset 0 -2px 0 rgba(255, 255, 255, 0.2),\n                inset 0 2px 0 rgba(0, 0, 0, 0.1);
+  --ce-inner: inset 0 1px 0 rgba(255, 255, 255, 0.1),\n              inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+  --ce-layer: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: var(--gradient-ember);
+  box-shadow: var(--ce-shadow), var(--ce-highlight), var(--ce-inner);
+  position: var(--ce-layer);
+  transition: box-shadow var(--d-fast) var(--ease-spring);
+}
+
+.verify-badge-3d:hover {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 4px 8px rgba(0, 0, 0, 0.4),\n             0 0 0 2px rgba(255, 255, 255, 0.25);
+}
+
+/* Styles par forme pour le cel-shading : chaque forme a sa teinte
+   dédiée dans `.verify-shape-*` et son ombre portée correspondante. */
+.verify-shape-round.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(255, 184, 55, 0.2);
+}
+.verify-shape-diamond.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(183, 127, 201, 0.2);
+}
+.verify-shape-triangle.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(207, 169, 140, 0.2);
+}
+.verify-shape-pentagon.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(182, 200, 120, 0.2);
+}
+.verify-shape-hexagon.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(143, 203, 158, 0.2);
+}
+.verify-shape-octagon.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(135, 200, 194, 0.2);
+}
+.verify-shape-star4.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(155, 166, 206, 0.2);
+}
+.verify-shape-shield.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(213, 154, 146, 0.2);
+}
+.verify-shape-star6.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(95, 176, 127, 0.2);
+}
+.verify-shape-seal.verify-badge-3d {
+  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(231, 206, 132, 0.2);
+  filter: drop-shadow(0 0 0.75px rgba(201, 148, 67, 0.85))\n        drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+}
+
+/* Tilt 3D pour les badges au survol */
+.verify-badge-3d:hover {
+  transform: perspective(800px) rotateY(8deg) rotateX(-4deg);
+  transition: transform var(--d-slow) var(--ease-spring);
+}
+
 /* Texture discrète de conversation, presque imperceptible. */
 .chat-wall {
   background-color: var(--color-page);

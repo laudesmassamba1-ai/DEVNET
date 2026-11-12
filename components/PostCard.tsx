@@ -207,6 +207,7 @@ export function PostCard({
           <Avatar
             name={name}
             color={color}
+            src={author?.avatar_url}
             /* Un anneau, pas une lueur : le cachet se lit à son filet.
                Une ombre colorée autour de l'avatar faisait briller la
                personne vérifiée — le privilège devenait un reflet. */

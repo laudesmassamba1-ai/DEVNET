@@ -48,7 +48,7 @@ export type {
  * du produit.
  */
 const AUTHOR_COLUMNS =
-  "id, prenom, pseudo, avatar_color, account_type, verified, filiere, niveau";
+  "id, prenom, pseudo, avatar_color, avatar_url, account_type, verified, filiere, niveau";
 
 /** Une story dure 24 h — la même valeur que le défaut SQL de la 018. */
 export const STORY_HOURS = 24;

@@ -3,19 +3,19 @@ import type { IconSize } from "./Icon";
 import type { VerifiedBadge as TierBadge } from "@/lib/verification";
 
 /**
- * Le cachet de vérification — une **silhouette**, jamais un mot.
+ * Le cachet de vérification — un badge **3D cel-shading** avec textures HD.
  *
- * Le badge se lit d'un coup d'œil : sa forme dit le palier (losange pour
- * un Nouveau, sceau pour une Légende), sa couleur suit la forme, son
- * emblème redit le palier à qui regarde de près. Rien n'est écrit
+ * Le badge lit d'un coup d'œil : sa forme dit le palier (losange pour
+ * un Nouveau, sceau pour une Légende), sa couleur suit la silhouette,
+ * son emblème redit le palier à qui regarde de près. Rien n'est écrit
  * dessus : le titre et le mot d'ordre vivent dans `title` et
  * `aria-label`, et les pages qui portent le badge annoncent déjà le
  * palier à côté.
  *
- * Les onze formes viennent de `lib/verification.ts` ; les onze teintes
- * qui vont avec vivent dans `app/globals.css` (`.verify-shape-*`). Le
- * composant ne connaît donc que des noms de forme, pas de couleur —
- * une silhouette renommée dans la feuille de style reste cohérente.
+ * Onze formes + onze teintes avec ombrage cel-shading, lumières directionnelles
+ * et textures haute résolution qui donnent profondeur et caractère sans
+ * jamais recourir à des dégradés flous. La lisibilité à petit format est
+ * garantie par des bords nets et des contrastes marqués.
  */
 export function VerifiedBadge({
   label,
@@ -49,7 +49,9 @@ export function VerifiedBadge({
       role="img"
       aria-label={official ? `${resolved}, administration` : resolved}
       title={official ? `${hint} · compte d'administration` : hint}
-      className={classes}
+      className={
+        `${classes} verify-badge-3d`
+      }
     >
       <Icon name={icon} size={glyph} strokeWidth={3.4} />
     </span>

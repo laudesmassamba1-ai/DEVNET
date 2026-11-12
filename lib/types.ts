@@ -105,6 +105,8 @@ export interface User {
   niveau: string;
   langages: string[];
   avatar_color: AvatarColor;
+  /** URL de la photo de profil ; absente ou vide = initiales. */
+  avatar_url?: string;
   bio: string;
   /** Ville déclarée — placée sur la carte d'accueil. */
   ville: string;
@@ -1042,6 +1044,7 @@ export type UserLite = Pick<
   | "prenom"
   | "pseudo"
   | "avatar_color"
+  | "avatar_url"
   | "account_type"
   | "verified"
   | "filiere"

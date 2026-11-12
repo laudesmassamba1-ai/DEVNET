@@ -820,8 +820,27 @@ export const restAuth: RestAuth = {
     }
   },
 
-  async resetPasswordForEmail(_email, _options) {
-    return { data: {}, error: null };
+  async resetPasswordForEmail(email, _options) {
+    try {
+      const response = await fetch(apiUrl("/api/auth/password/forgot"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ email }),
+      });
+      if (!response.ok) {
+        return { data: {}, error: await parseError(response) };
+      }
+      return { data: {}, error: null };
+    } catch (error) {
+      return {
+        data: {},
+        error: pgError(
+          error instanceof Error ? error.message : "Envoi impossible",
+          "NETWORK",
+        ),
+      };
+    }
   },
 
   async exchangeCodeForSession(_code) {

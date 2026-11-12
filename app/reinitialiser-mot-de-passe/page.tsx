@@ -18,11 +18,19 @@ export default function ResetPasswordPage() {
   const [invalid, setInvalid] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
+  const [resetToken, setResetToken] = useState("");
 
   useEffect(() => {
     async function exchange() {
       try {
         const search = new URLSearchParams(window.location.search);
+        const token = search.get("token");
+        if (token) {
+          setResetToken(token);
+          setChecking(false);
+          return;
+        }
+
         const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
 
         const code = search.get("code");
@@ -106,6 +114,25 @@ export default function ResetPasswordPage() {
 
     setBusy(true);
     try {
+      if (resetToken) {
+        const response = await fetch("/api/auth/password/reset", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: resetToken, newPassword: pw }),
+        });
+        if (!response.ok) {
+          const payload = (await response.json().catch(() => null)) as
+            | { error?: string }
+            | null;
+          setBusy(false);
+          setError(payload?.error ?? "Lien invalide ou expiré.");
+          return;
+        }
+        setBusy(false);
+        setDone(true);
+        return;
+      }
+
       const res = await api.auth.updateUser({ password: pw });
       if (res.error) {
         setBusy(false);

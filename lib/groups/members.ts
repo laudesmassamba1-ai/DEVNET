@@ -27,6 +27,7 @@ export interface MemberRow extends GroupMember {
     prenom: string;
     pseudo: string;
     avatar_color: AvatarColor;
+    avatar_url?: string;
     account_type: string;
     verified?: boolean;
     is_admin?: boolean;
@@ -52,7 +53,7 @@ export async function fetchMembers(groupId: string): Promise<MemberRow[]> {
     .from("group_members")
     .select(
       "group_id, user_id, role, joined_at, " +
-        "user:users(id, prenom, pseudo, avatar_color, account_type, verified, is_admin)",
+        "user:users(id, prenom, pseudo, avatar_color, avatar_url, account_type, verified, is_admin)",
       )
     .eq("group_id", groupId)
     .order("joined_at", { ascending: true });

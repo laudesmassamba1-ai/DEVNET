@@ -277,7 +277,7 @@ export default function PublicProfilePage({
       <Motion role="slide" className="border-b-[var(--bw-heavy)] border-line-2 px-(--gutter) py-5">
         {/* Grille 48 px */}
         <div className="flex items-start gap-3.5">
-          <Avatar name={user?.prenom} color={user?.avatar_color} size="lg" />
+          <Avatar name={user?.prenom} color={user?.avatar_color} src={user?.avatar_url} size="lg" />
 
           <div className="min-w-0 flex-1">
             <p className="flex flex-wrap items-center gap-1.5">

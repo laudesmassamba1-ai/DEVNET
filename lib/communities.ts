@@ -25,6 +25,7 @@ export interface CommunityMemberRow extends CommunityMember {
     prenom: string;
     pseudo: string;
     avatar_color: AvatarColor;
+    avatar_url?: string;
     account_type: string;
   } | null;
 }
@@ -99,7 +100,7 @@ export async function fetchCommunityMembers(
   const { data } = await api
     .from("community_members")
     .select(
-      "community_id, user_id, role, joined_at, user:users(id, prenom, pseudo, avatar_color, account_type)",
+      "community_id, user_id, role, joined_at, user:users(id, prenom, pseudo, avatar_color, avatar_url, account_type)",
     )
     .eq("community_id", communityId)
     .order("joined_at", { ascending: true });

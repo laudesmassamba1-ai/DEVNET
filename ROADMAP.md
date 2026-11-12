@@ -23,7 +23,7 @@ Ce qui reste tient en deux lignes :
 - **aucun média n'est stocké** (avatars et pièces jointes = zéro octet).
 
 Tout le reste est un périmètre choisi : langages exécutables (8, contrainte
-navigateur), modération (auto-modération, pas de file d'admin), explorer
+navigateur), modération (auto-modération et file admin des signalements), explorer
 (refusé).
 
 ---

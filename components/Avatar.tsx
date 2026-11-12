@@ -15,22 +15,30 @@ const SIZE = {
 export function Avatar({
   name,
   color,
+  src,
   size = "sm",
   className = "",
 }: {
   name?: string | null;
   color?: string | null;
+  /** Photo de profil ; les initiales restent le repli. */
+  src?: string | null;
   size?: keyof typeof SIZE;
   className?: string;
 }) {
   return (
     <div
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center rounded-[var(--radius-input)] border font-display font-bold
+      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-input)] border font-display font-bold
         ${SIZE[size]} ${avatarClass(color as AvatarColor)} ${className}`}
       style={size === "lg" ? { boxShadow: "var(--shadow-avatar-ring)" } : {}}
     >
-      {initials(name)}
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element -- avatar déjà dimensionné, URL média arbitraire
+        <img src={src} alt="" className="size-full object-cover" loading="lazy" />
+      ) : (
+        initials(name)
+      )}
     </div>
   );
 }

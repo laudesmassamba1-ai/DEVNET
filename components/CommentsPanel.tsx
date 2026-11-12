@@ -99,7 +99,7 @@ function CommentRow({
       className={`flex gap-2.5 border-b border-line py-3 last:border-b-0
         ${leaving ? "mo-exit" : ""}`}
     >
-      <Avatar name={name} color={author?.avatar_color ?? "av-sage"} size="sm" />
+      <Avatar name={name} color={author?.avatar_color ?? "av-sage"} src={author?.avatar_url} size="sm" />
 
       <div className="min-w-0 flex-1">
         <p className="flex flex-wrap items-baseline gap-1.5">

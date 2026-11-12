@@ -1,5 +1,5 @@
 export const AUTHOR_COLUMNS =
-  "id, prenom, pseudo, avatar_color, account_type, verified, is_admin, filiere, niveau";
+  "id, prenom, pseudo, avatar_color, avatar_url, account_type, verified, is_admin, filiere, niveau";
 
 export const PROFILE_COLUMNS =
   `${AUTHOR_COLUMNS}, bio, langages, ville, pays, links, followers, following`;

@@ -180,7 +180,7 @@ export default function MessagesPage() {
       if (!otherId) return { conv, other: null };
       const { data: u } = await api
         .from("users")
-        .select("id, prenom, pseudo, avatar_color, account_type, verified, dm_media")
+        .select("id, prenom, pseudo, avatar_color, avatar_url, account_type, verified, dm_media")
         .eq("id", otherId)
         .single();
       return { conv, other: (u as UserLite) ?? null };
@@ -419,7 +419,7 @@ export default function MessagesPage() {
       const q = userSearch.trim();
       let query = api
         .from("users")
-        .select("id, prenom, pseudo, avatar_color, account_type, verified")
+        .select("id, prenom, pseudo, avatar_color, avatar_url, account_type, verified")
         .neq("id", profileId!)
         .limit(20);
 
@@ -526,7 +526,7 @@ export default function MessagesPage() {
     (async () => {
       const { data } = await api
         .from("users")
-        .select("id, prenom, pseudo, avatar_color, account_type, verified")
+        .select("id, prenom, pseudo, avatar_color, avatar_url, account_type, verified")
         .ilike("pseudo", target)
         .neq("id", profile.id)
         .maybeSingle();
@@ -1001,7 +1001,7 @@ export default function MessagesPage() {
                     shell:hidden">
                   <Icon name="chevron-left" size={16} />
                 </button>
-                <Avatar name={peer.prenom} color={peer.avatar_color} />
+                <Avatar name={peer.prenom} color={peer.avatar_color} src={peer.avatar_url} />
                 <div className="min-w-0 flex-1">
                   <div className="truncate font-display text-[13.5px] font-bold tracking-[-0.01em]">
                     {peer.prenom}
@@ -1410,7 +1410,7 @@ export default function MessagesPage() {
                 rounded-[var(--radius-card)] border glass-flat p-3.5 text-left
                 ${unread > 0 ? "border-signal" : "border-line-2/60"}`}
               style={{ animationDelay: `${cascade(i)}ms` }}>
-              <Avatar name={other?.prenom} color={other?.avatar_color} />
+              <Avatar name={other?.prenom} color={other?.avatar_color} src={other?.avatar_url} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[14px] font-bold">
@@ -1458,7 +1458,7 @@ export default function MessagesPage() {
             className="mb-[9px] flex w-full items-center gap-3.5 rounded-[var(--radius-card)] border
               border-line-3 bg-surface p-3 shadow-sh-1 transition-[transform,box-shadow]
               hover:-translate-x-[2px] hover:-translate-y-[2px] hover:bg-surface-2 hover:shadow-sh-2">
-            <Avatar name={u.prenom} color={u.avatar_color} />
+            <Avatar name={u.prenom} color={u.avatar_color} src={u.avatar_url} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
                 <span className="text-[13.5px] font-bold">{u.prenom}</span>
