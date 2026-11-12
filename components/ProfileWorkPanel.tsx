@@ -67,6 +67,11 @@ export function ProfileWorkPanel({
   const [connection, setConnection] = useState<GithubConnection | null | undefined>(undefined);
   const [repos, setRepos] = useState<GithubRepo[] | null>(null);
   const [disconnecting, setDisconnecting] = useState(false);
+  /** Connexion sans OAuth : jeton personnel, vérifié puis chiffré au cookie. */
+  const [tokenOpen, setTokenOpen] = useState(false);
+  const [token, setToken] = useState("");
+  const [tokenBusy, setTokenBusy] = useState(false);
+  const [tokenError, setTokenError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -173,6 +178,45 @@ export function ProfileWorkPanel({
     };
   }, [profileId, toast]);
 
+  /** Le client OAuth est-il configuré sur ce déploiement ? */
+  const oauthConfigured = Boolean(process.env.NEXT_PUBLIC_GITHUB_CLIENT_ID);
+
+  async function connectWithToken() {
+    if (!token.trim() || tokenBusy) return;
+    setTokenBusy(true);
+    setTokenError(null);
+    try {
+      const response = await fetch("/api/github/token", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ token: token.trim() }),
+      });
+      const payload = (await response.json().catch(() => null)) as
+        | { login?: string; error?: string }
+        | null;
+      if (!response.ok || !payload?.login) {
+        setTokenError(payload?.error ?? "Connexion GitHub impossible.");
+        return;
+      }
+
+      const saved = await connectGithub(profileId, payload.login);
+      if (saved.error || !saved.connection) {
+        setTokenError(saved.error ?? "Connexion GitHub impossible.");
+        return;
+      }
+
+      setConnection(saved.connection);
+      setRepos(await fetchRepos());
+      setToken("");
+      setTokenOpen(false);
+      toast(`GitHub connecté : @${payload.login}`);
+    } catch {
+      setTokenError("Réseau indisponible.");
+    } finally {
+      setTokenBusy(false);
+    }
+  }
+
   function startGithubOAuth() {
     const params = new URLSearchParams({
       u: profileId,
@@ -187,6 +231,9 @@ export function ProfileWorkPanel({
   async function disconnect() {
     if (!connection) return;
     setDisconnecting(true);
+    // Le cookie de coffre ne doit pas survivre à la déconnexion : sinon le
+    // jeton resterait envoyé aux routes GitHub jusqu'à son expiration.
+    await fetch("/api/github/session", { method: "DELETE" }).catch(() => undefined);
     const result = await disconnectGithub(connection.id);
     setDisconnecting(false);
     if (result.error) return toast("Déconnexion GitHub impossible", "err");
@@ -427,20 +474,113 @@ export function ProfileWorkPanel({
             )}
           </div>
         ) : (
-          <div className="flex flex-wrap items-center justify-between gap-3 border-y border-line-2 py-3">
-            <p className="text-sm text-chalk-3">
-              Relie tes dépôts à tes projets.
-            </p>
-            <button
-              type="button"
-              onClick={startGithubOAuth}
-              className="inline-flex h-[var(--h-tap)] items-center gap-2 border border-signal-d
-                bg-signal px-3.5 font-mono text-[11px] font-bold text-void transition-colors
-                hover:bg-signal-d"
-            >
-              <Icon name="code" size={14} />
-              Connecter GitHub
-            </button>
+          <div className="border-y border-line-2 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-chalk-3">
+                Relie tes dépôts à tes projets.
+              </p>
+              <div className="flex flex-wrap items-center gap-2">
+                {oauthConfigured && (
+                  <button
+                    type="button"
+                    onClick={startGithubOAuth}
+                    className="inline-flex h-[var(--h-tap)] items-center gap-2 border border-signal-d
+                      bg-signal px-3.5 font-mono text-[11px] font-bold text-void transition-colors
+                      hover:bg-signal-d"
+                  >
+                    <Icon name="code" size={14} />
+                    Connecter GitHub
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTokenOpen((open) => !open);
+                    setTokenError(null);
+                  }}
+                  className="inline-flex h-[var(--h-tap)] items-center gap-2 border border-line-2
+                    px-3.5 font-mono text-[11px] font-bold text-chalk-2 transition-colors
+                    hover:border-signal hover:text-signal"
+                >
+                  <Icon name="lock" size={14} />
+                  {tokenOpen ? "Masquer le jeton" : "Utiliser un jeton"}
+                </button>
+              </div>
+            </div>
+
+            {!oauthConfigured && (
+              <p className="mt-2 text-[11.5px] leading-relaxed text-chalk-4">
+                L&apos;OAuth GitHub n&apos;est pas configuré sur ce déploiement.
+                Un jeton personnel relie immédiatement tes dépôts.
+              </p>
+            )}
+
+            {tokenOpen && (
+              <form
+                className="mt-3 space-y-2"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  void connectWithToken();
+                }}
+              >
+                <label htmlFor="github-token" className="label block text-chalk">
+                  Jeton GitHub personnel
+                </label>
+                <input
+                  id="github-token"
+                  type="password"
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={token}
+                  onChange={(event) => setToken(event.target.value)}
+                  placeholder="ghp_… ou github_pat_…"
+                  className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+                    border border-line-3 bg-surface px-3.5 font-mono text-[12px]
+                    text-chalk placeholder:text-chalk-4"
+                />
+                <p className="text-[11px] leading-relaxed text-chalk-4">
+                  Portées nécessaires : <code>repo</code> et <code>read:user</code>.
+                  Le jeton est chiffré dans un cookie <code>httpOnly</code>, jamais
+                  écrit en base.{" "}
+                  <a
+                    href="https://github.com/settings/tokens/new?scopes=repo,read:user&description=DevNet"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-signal hover:underline"
+                  >
+                    Créer un jeton
+                  </a>
+                </p>
+                {tokenError && (
+                  <p role="alert" className="rounded-input border border-danger/40 bg-danger/8 px-3 py-2 text-xs text-danger">
+                    {tokenError}
+                  </p>
+                )}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="submit"
+                    disabled={!token.trim() || tokenBusy}
+                    className="inline-flex h-[var(--h-tap)] items-center gap-2 border border-signal-d
+                      bg-signal px-3.5 font-mono text-[11px] font-bold text-void
+                      transition-colors hover:bg-signal-d disabled:opacity-40"
+                  >
+                    <Icon name="check" size={14} />
+                    {tokenBusy ? "Connexion…" : "Connecter"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setTokenOpen(false);
+                      setTokenError(null);
+                    }}
+                    className="inline-flex h-[var(--h-tap)] items-center border border-line-2 px-3.5
+                      font-mono text-[11px] font-bold text-chalk-3 hover:text-chalk"
+                  >
+                    Annuler
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
         )}
       </section>
