@@ -20,24 +20,23 @@ import type { ReportStatus, ReportWithReporter } from "@/lib/types";
  * **Elle n'est pas une file d'administration, et c'est un choix.**
  *
  * Depuis la migration 037, le schéma possède bien un rôle de compte
- * (`users.is_admin`) : il ne sert qu'à **vérifier des comptes**, et sa
- * file vit sur `/admin`. Ce n'est pas un modérateur de site — il ne voit
- * pas plus de contenu que n'importe qui.
+ * (`users.is_admin`) : il sert à **vérifier des comptes** et à consulter
+ * la file globale des signalements sur `/admin/content`. Il ne donne pas
+ * le droit de supprimer le contenu d'autrui.
  *
- * Ce que la migration 011 fait donc : les signalements sont visibles par
- * **l'auteur du contenu signalé** et par le créateur du groupe. Autrement
- * dit, la vue liste **le contenu qui vous a été signalé**, et vous invite
- * à le traiter.
+ * Ce que la migration 011 fait donc ici : les signalements sont visibles
+ * par **l'auteur du contenu signalé** et par le créateur du groupe.
+ * Autrement dit, cette vue liste **le contenu qui vous a été signalé**, et
+ * vous invite à le traiter.
  *
  * C'est de l'auto-modération, et c'est ce qui rend la modération réelle
  * sans juge : l'auteur peut voir ce qu'on lui reproche et supprimer ce
  * qui est justifié. La sanction, elle, reste où elle était — la
  * politique `posts_delete`, qui n'appartient qu'à l'auteur.
  *
- * Conséquence à énoncer devant un jury : sur un fil public, personne
- * n'a d'autorité au-dessus de l'auteur d'un post. C'est un choix, pas un
- * oubli — `is_admin` ne change rien à cela : il accorde un cachet, il ne
- * donne aucun droit sur le contenu des autres.
+ * L'administration voit et classe les signalements, mais ne supprime pas
+ * le contenu à la place de son auteur : la politique `posts_delete` reste
+ * la seule voie de suppression.
  */
 /**
  * La lecture de l'écran, hors du composant.
