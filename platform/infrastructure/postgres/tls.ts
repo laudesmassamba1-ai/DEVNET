@@ -8,7 +8,9 @@
  * sans problème. On retire `sslmode` de l'URL et on fixe le niveau ici :
  *
  *  - `disable` n'est accepté que vers un hôte **local** ; vers un hôte
- *    distant, le mot de passe circulerait en clair : on refuse ;
+ *    distant, le mot de passe circulerait en clair : on refuse, sauf
+ *    consentement explicite via `DATABASE_TLS_INSECURE=true` (cas d'un
+ *    hébergeur qui n'offre pas TLS, comme Systalink l'annonce aujourd'hui) ;
  *  - `prefer` et `allow` sont promus en `require` : jamais de repli en clair ;
  *  - `require` chiffre sans vérifier le certificat (état actuel de Systalink) ;
  *  - `verify-ca` et `verify-full` vérifient la chaîne, avec le certificat
@@ -49,15 +51,24 @@ export function resolvePostgresConnection(databaseUrl: string): PostgresConnecti
 
   let mode: PostgresTlsMode;
   if (requested === "disable") {
-    if (!local) {
+    /* Refus par défaut : un `disable` oublié dans une URL distante rendrait
+       le transport lisible sur le réseau. L'échappatoire est donc un choix
+       d'exploitation nommé, jamais une déduction du code. */
+    if (!local && process.env.DATABASE_TLS_INSECURE !== "true") {
       throw new Error(
-        "sslmode=disable refusé vers un hôte distant : le mot de passe et les données circuleraient en clair.",
+        "sslmode=disable refusé vers un hôte distant : le mot de passe et les données circuleraient en clair. "
+          + "Poser DATABASE_TLS_INSECURE=true pour l'accepter explicitement.",
       );
     }
     mode = "disable";
   } else if (requested === "verify-ca" || requested === "verify-full") {
     mode = "verify-full";
-  } else if (requested === "" || requested === "prefer" || requested === "allow") {
+  } else if (requested === "") {
+    /* URL sans `sslmode`, comme celle que publie Systalink : le mode par
+       défaut reste chiffré, sauf si l'exploitation a déclaré l'hôte sans
+       TLS. `prefer` et `allow`, eux, demandent explicitement un essai TLS. */
+    mode = local || process.env.DATABASE_TLS_INSECURE === "true" ? "disable" : "require";
+  } else if (requested === "prefer" || requested === "allow") {
     mode = local ? "disable" : "require";
   } else {
     mode = "require";
