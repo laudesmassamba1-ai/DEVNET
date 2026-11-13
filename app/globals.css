@@ -1992,6 +1992,24 @@ input[type="search"]::-webkit-search-decoration {
   border-radius: 2px;
 }
 
+/* ── La coque sur téléphone ────────────────────────────────────────────
+
+   La barre de titre et la barre d'onglets gardent leur dessin, mais
+   perdent les quelques pixels de bord qui ne servaient à rien : 4 px en
+   haut, 4 px en bas. Ce n'est pas une économie de cible — les boutons
+   restent à 44 px — c'est de la hauteur rendue au contenu, sur les deux
+   thèmes Savane comme sur les thèmes sombre et clair.
+
+   Le sélecteur `:root[data-theme]` a la même spécificité que les blocs de
+   thème ci-dessus et vient après : il l'emporte sans `!important`. */
+@media (max-width: 640px) {
+  :root,
+  :root[data-theme] {
+    --h-topbar:    calc(48px + var(--h-safe-top));
+    --h-bottomnav: calc(52px + var(--h-safe-bottom));
+  }
+}
+
 /* ── Densité mobile du fil ─────────────────────────────────────────────
 
    Sur un iPhone, une carte confortable réservait 24 px de rembourrage

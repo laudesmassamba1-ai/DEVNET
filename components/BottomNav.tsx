@@ -132,7 +132,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`relative mx-1 my-1.5 flex min-w-0 flex-col items-center
+            className={`relative mx-1 my-1 flex min-w-0 flex-col items-center
               justify-center gap-[5px] rounded-[var(--radius-chip)]
               text-[10px] font-medium tracking-[-0.01em] normal-case
               transition-[color,background-color] duration-[var(--d-fast)]
@@ -167,7 +167,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
         onClick={openComposer}
         aria-label="Créer une publication"
         aria-haspopup="dialog"
-        className="mo-press mx-1 my-1.5 flex min-w-0 flex-col items-center
+        className="mo-press mx-1 my-1 flex min-w-0 flex-col items-center
           justify-center gap-[5px] rounded-[var(--radius-chip)] bg-signal
           text-[10px] font-semibold text-void transition-opacity
           duration-[var(--d-fast)] hover:opacity-90"
@@ -182,7 +182,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`relative mx-1 my-1.5 flex min-w-0 flex-col items-center
+            className={`relative mx-1 my-1 flex min-w-0 flex-col items-center
               justify-center gap-[5px] rounded-[var(--radius-chip)]
               text-[10px] font-medium tracking-[-0.01em] normal-case
               transition-[color,background-color] duration-[var(--d-fast)]
@@ -202,7 +202,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
         aria-label="Ouvrir les autres sections"
         aria-expanded={moreOpen}
         aria-haspopup="dialog"
-        className={`mo-press mx-1 my-1.5 flex min-w-0 flex-col items-center
+        className={`mo-press mx-1 my-1 flex min-w-0 flex-col items-center
           justify-center gap-[5px] rounded-[var(--radius-chip)]
           text-[10px] font-medium tracking-[-0.01em] normal-case
           transition-[color,background-color] duration-[var(--d-fast)]

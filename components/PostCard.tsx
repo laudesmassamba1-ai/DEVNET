@@ -9,6 +9,7 @@ import { Motion, useCount } from "./Motion";
 import { ReactionPicker } from "./ReactionPicker";
 import { ReportButton } from "./ReportButton";
 import { PostShareButton } from "./PostShareButton";
+import { Sheet } from "./Sheet";
 import { VerifiedBadge } from "./VerifiedBadge";
 import { badgeFor } from "@/lib/verification";
 import { clockTime, profileMeta, timeAgo } from "@/lib/utils";
@@ -31,6 +32,11 @@ const ACTION =
 
 /** Icône seule : même cible, sans largeur de texte. */
 const ACTION_ICON = `${ACTION} px-0`;
+
+/** Ligne de la feuille d'actions : même hauteur de cible que la barre. */
+const MENU_ROW =
+  "flex min-h-[var(--h-tap)] items-center gap-3 rounded-[var(--radius-input)] " +
+  "px-3 text-left text-[14px] text-chalk-2 hover:bg-surface-2";
 
 /**
  * Vidéo jointe à une publication.
@@ -162,6 +168,17 @@ export function PostCard({
   onBookmark?: (id: string) => void;
 }) {
   const router = useRouter();
+
+  /**
+   * La feuille des gestes secondaires, sous 640 px seulement.
+   *
+   * Neuf boutons de 44 px ne tiennent pas sur une ligne de téléphone :
+   * la barre cassait en deux rangs, et « Partager » se retrouvait seul
+   * au centre du second. Les gestes rares — republier, enregistrer,
+   * signaler, modifier, supprimer — passent donc dans une feuille, et
+   * la barre tient sur un rang. Le bureau ne change pas.
+   */
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // L'auteur vient de la jointure, jamais des colonnes recopiées sur le
   // post : une recopie est figée à l'insertion, donc un changement de nom,
@@ -492,6 +509,7 @@ export function PostCard({
             </span>
           ) : null}
 
+          <div className="hidden sm:contents">
           {/* Repost : ni like, ni partage. Le like dit « j'ai vu », le
               partage dit « envoie-le à quelqu'un », le repost dit « il
               fait partie de mon fil ». Le confondre avec le partage
@@ -548,7 +566,13 @@ export function PostCard({
             </Motion>
           </button>
 
+          </div>
+
+          {/* Partager reste dans la barre : c'est le geste le plus
+              courant, il ne mérite pas une feuille. */}
           <PostShareButton title={post.text} url={`${window.location.origin}/post/${post.id}`} />
+
+          <div className="hidden sm:contents">
 
           {/* Signaler, en icône seule et dans le ton le plus discret :
               c'est un geste qu'on fait une fois, dans le doute, et il ne
@@ -594,7 +618,92 @@ export function PostCard({
               </button>
             </>
           )}
+          </div>
+
+          {/* Sous 640 px : une seule cible de plus, qui ouvre les gestes
+              rangés dans la feuille. Elle porte le même gabarit que les
+              autres — 44 px — pour ne pas redevenir le petit bouton
+              qu'on rate au pouce. */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Plus d'actions sur cette publication"
+            aria-haspopup="dialog"
+            className={`${ACTION_ICON} sm:hidden border-line text-chalk-4
+              hover:border-line-3 hover:text-chalk`}
+          >
+            <Icon name="dots" size={16} />
+          </button>
         </Motion>
+
+        <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title="Actions">
+          <div className="grid gap-1 px-(--gutter) pb-2">
+            <button
+              type="button"
+              onClick={() => {
+                onRepost?.(post.id);
+                setMenuOpen(false);
+              }}
+              aria-pressed={reposted}
+              className={`${MENU_ROW} ${reposted ? "text-ok" : ""}`}
+            >
+              <Icon name="repost" size={18} />
+              {reposted ? "Retirer de mon fil" : "Republier dans mon fil"}
+              {post.reposts ? (
+                <span className="tnum ml-auto text-chalk-4">{post.reposts}</span>
+              ) : null}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                onBookmark?.(post.id);
+                setMenuOpen(false);
+              }}
+              aria-pressed={bookmarked}
+              className={`${MENU_ROW} ${bookmarked ? "text-signal" : ""}`}
+            >
+              <Icon name="bookmark" size={18} fill={bookmarked ? "currentColor" : "none"} />
+              {bookmarked ? "Retirer des signets" : "Enregistrer dans les signets"}
+            </button>
+
+            <ReportButton
+              me={meId ?? null}
+              targetId={post.id}
+              targetType="post"
+              targetLabel="cette publication"
+              targetAuthorId={post.author_id}
+              className={`${MENU_ROW} text-chalk-3 hover:text-danger`}
+            />
+
+            {isMine && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onEdit?.(post);
+                  }}
+                  className={MENU_ROW}
+                >
+                  <Icon name="edit" size={18} />
+                  Modifier
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDelete?.(post);
+                  }}
+                  className={`${MENU_ROW} hover:text-danger`}
+                >
+                  <Icon name="trash" size={18} />
+                  Supprimer
+                </button>
+              </>
+            )}
+          </div>
+        </Sheet>
       </div>
     </article>
   );
