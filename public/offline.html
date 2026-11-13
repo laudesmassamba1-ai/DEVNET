@@ -8,6 +8,7 @@
     <title>DevNet — hors ligne</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <style>
       :root {
         color-scheme: dark;
@@ -16,6 +17,7 @@
         color: #ECE9DF;
       }
       * { box-sizing: border-box; }
+      html, body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
       body {
         min-height: 100dvh;
         margin: 0;
@@ -29,6 +31,7 @@
         background:
           radial-gradient(circle at 50% 12%, rgba(255, 122, 69, 0.14), transparent 42%),
           #11110E;
+        -webkit-tap-highlight-color: transparent;
       }
       main {
         width: 100%;
@@ -69,7 +72,9 @@
         font-size: 0.85rem;
         font-weight: 700;
         cursor: pointer;
+        touch-action: manipulation;
       }
+      button:active { transform: scale(0.98); }
       button:focus-visible {
         outline: 2px solid #ECE9DF;
         outline-offset: 3px;
@@ -83,7 +88,7 @@
   </head>
   <body>
     <main>
-      <img src="/logo.svg" alt="DevNet" width="64" height="64">
+      <img src="/icons/icon-192.png" alt="DevNet" width="64" height="64">
       <h1>Tu es hors ligne</h1>
       <p>
         Cette page n'est pas encore disponible sans réseau. Vérifie ta connexion,

@@ -555,7 +555,12 @@ export default function ProfilePage() {
 
             <WovenBand tone="phosphor" className="mt-4" />
 
-            <div role="tablist" aria-label="Contenu du profil" data-tour="profile-tabs" className="flex border-b border-line-3">
+            <div
+              role="tablist"
+              aria-label="Contenu du profil"
+              data-tour="profile-tabs"
+              className="flex overflow-x-auto border-b border-line-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
               {TABS.map((t) => (
                 <button
                   key={t.key}
@@ -563,7 +568,7 @@ export default function ProfilePage() {
                   type="button"
                   aria-selected={tab === t.key}
                   onClick={() => setTab(t.key)}
-                  className={`tab-underline flex-1 py-3 text-[11px] font-bold
+                  className={`tab-underline min-w-0 flex-1 whitespace-nowrap px-1 py-3 text-[11px] font-bold
                     tracking-[0.1em] uppercase transition-colors
                     duration-[var(--d-fast)] ${tab === t.key
                       ? "text-chalk"

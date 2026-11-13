@@ -237,12 +237,15 @@ export function AppShell({
                 key={title}
                 role="slide"
                 as="h1"
-                className="flex flex-1 items-center gap-2 self-center
+                className="flex min-w-0 flex-1 items-center gap-2 self-center
                   border-l-[3px] border-signal bg-surface-2 px-(--gutter) text-chalk
                   font-display text-[15px] font-semibold tracking-[-0.02em]"
               >
-                <Icon name="file" size={12} className="text-chalk-4" />
-                {title}
+                <Icon name="file" size={12} className="shrink-0 text-chalk-4" />
+                {/* Le titre cède avant les icônes : sur un écran de 320 px,
+                    quatre commandes à droite laissent peu de place, et un
+                    titre tronqué vaut mieux qu'une barre qui déborde. */}
+                <span className="truncate">{title}</span>
               </Motion>
             ) : (
               <div className="flex flex-1 items-center gap-2.5 px-(--gutter) shell:hidden">
@@ -261,7 +264,7 @@ export function AppShell({
             )}
 
             {action && (
-              <div className="flex items-center gap-2 border-l-[var(--bw-thin)]
+              <div className="flex shrink-0 items-center gap-2 border-l-[var(--bw-thin)]
                 border-line px-(--gutter)">
                 {action}
               </div>
@@ -274,8 +277,8 @@ export function AppShell({
                 droite. Sans cela, la cloche sauterait d'une colonne de
                 quelques pixels selon les écrans, et l'œil la perdrait
                 en la cherchant. */}
-            <div className="flex items-center border-l-[var(--bw-thin)]
-              border-line px-(--gutter)">
+            <div className="flex shrink-0 items-center border-l-[var(--bw-thin)]
+              border-line px-1 sm:px-(--gutter)">
               <NotificationBell />
             </div>
           </header>

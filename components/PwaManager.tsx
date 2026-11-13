@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import {
   createContext,
@@ -13,7 +14,9 @@ import {
 } from "react";
 import { Icon, type IconName } from "./Icon";
 import { Motion } from "./Motion";
+import { Sheet } from "./Sheet";
 import {
+  PWA_ICONS,
   PWA_INSTALL_DISMISS_MS,
   PWA_INSTALL_DISMISSED_KEY,
   PWA_LIGHT_THEME_COLOR,
@@ -132,6 +135,7 @@ export function PwaManager({ children }: { children: React.ReactNode }) {
   const [appInstalled, setAppInstalled] = useState(false);
   const [installDismissed, setInstallDismissed] = useState(readInstallDismissed);
   const [installReady, setInstallReady] = useState(false);
+  const [iosSheet, setIosSheet] = useState(false);
   const [updateReady, setUpdateReady] = useState(false);
   const updateRequested = useRef(false);
   const installPrompt = useRef<BeforeInstallPromptEvent | null>(null);
@@ -260,10 +264,9 @@ export function PwaManager({ children }: { children: React.ReactNode }) {
     if (!canInstall && !isIos) return;
     if (PUBLIC_PAGES.has(pathname)) return;
 
-    // 12 s laissaient le temps de quitter la page : l'invite arrivait sur un
-    // écran déjà refermé. Quatre secondes suffisent à ne pas surgir pendant
-    // le premier rendu.
-    const timer = window.setTimeout(() => setInstallReady(true), 4_000);
+    // Laisser le temps de lire l'écran avant de proposer l'installation.
+    // Une invite trop tôt recouvre le contenu et gêne la prise en main.
+    const timer = window.setTimeout(() => setInstallReady(true), 12_000);
     return () => window.clearTimeout(timer);
   }, [canInstall, installDismissed, installed, isIos, mounted, pathname]);
 
@@ -361,19 +364,92 @@ export function PwaManager({ children }: { children: React.ReactNode }) {
           title="Installer DevNet"
           description={
             isIos
-              ? "Dans Safari, ouvre Partager puis « Sur l'écran d'accueil »."
+              ? "Plein écran, démarrage immédiat, comme une application."
               : "Accès direct, plein écran et démarrage plus rapide."
           }
           action={
             canInstall
               ? { label: "Installer", onClick: () => void install() }
-              : { label: "Compris", onClick: dismissInstall }
+              : { label: "Comment faire", onClick: () => setIosSheet(true) }
           }
           secondary={
             canInstall ? { label: "Plus tard", onClick: dismissInstall } : undefined
           }
         />
       )}
+
+      {/*
+        Sur iOS, il n'existe pas d'invite programmatique : seul le menu
+        Partager de Safari installe l'application. Plutôt que d'écrire un
+        mode d'emploi dans une bannière qui disparaît, on ouvre une feuille
+        qui montre les trois gestes, image et numéros à l'appui.
+      */}
+      <Sheet open={iosSheet} onClose={() => setIosSheet(false)} title="Installer DevNet">
+        <div className="flex flex-col gap-4 pb-2">
+          <div className="flex items-center gap-3">
+            <Image
+              src={PWA_ICONS.appleTouch}
+              alt=""
+              width={56}
+              height={56}
+              unoptimized
+              className="size-14 rounded-[14px] border border-line-2"
+            />
+            <p className="text-sm leading-relaxed text-chalk-3">
+              DevNet s&apos;ajoute à l&apos;écran d&apos;accueil, sans passer par l&apos;App Store.
+            </p>
+          </div>
+
+          <ol className="flex flex-col gap-3">
+            {[
+              {
+                icon: "share" as IconName,
+                title: "Ouvre Partager",
+                body: "Dans Safari, appuie sur l'icône Partager de la barre du bas.",
+              },
+              {
+                icon: "plus" as IconName,
+                title: "Sur l'écran d'accueil",
+                body: "Fais défiler le menu et choisis « Sur l'écran d'accueil ».",
+              },
+              {
+                icon: "check" as IconName,
+                title: "Ajoute",
+                body: "Confirme avec « Ajouter » : l'icône apparaît à côté de tes apps.",
+              },
+            ].map((step, index) => (
+              <li key={step.title} className="flex gap-3">
+                <span
+                  className="flex size-8 shrink-0 items-center justify-center rounded-full
+                    border border-line-3 bg-surface font-mono text-xs font-bold text-signal"
+                >
+                  {index + 1}
+                </span>
+                <div className="min-w-0">
+                  <p className="flex items-center gap-1.5 text-sm font-bold text-chalk">
+                    <Icon name={step.icon} size={14} strokeWidth={2} />
+                    {step.title}
+                  </p>
+                  <p className="mt-0.5 text-xs leading-relaxed text-chalk-3">{step.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <button
+            type="button"
+            onClick={() => {
+              setIosSheet(false);
+              dismissInstall();
+            }}
+            className="lift-press mt-1 flex min-h-(--h-tap) w-full items-center justify-center
+              rounded-(--radius-input) border border-signal bg-signal px-4
+              text-sm font-bold text-void"
+          >
+            Compris
+          </button>
+        </div>
+      </Sheet>
     </PwaContext.Provider>
   );
 }
@@ -398,6 +474,7 @@ function PwaBanner({
       attrs={{ role: "status", "aria-live": "polite" }}
       className="pwa-toast pointer-events-none fixed inset-x-3 mx-auto max-w-md
         shell:inset-x-auto shell:right-4 shell:bottom-6 shell:w-96"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="pointer-events-auto flex items-start gap-3 rounded-(--radius-card) border
         border-edge bg-surface-2 p-3.5 text-chalk shadow-(--shadow-sh-1)">

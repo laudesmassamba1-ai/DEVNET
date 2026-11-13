@@ -1760,6 +1760,9 @@ html {
 
 body {
   overscroll-behavior-y: none;
+  /* Empêche le rebond horizontal qui donne une impression de page web
+     sur certains navigateurs mobiles, sans bloquer le défilement vertical. */
+  overscroll-behavior-x: none;
 }
 
 button,
@@ -1768,6 +1771,16 @@ a,
 [role="tab"] {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+}
+
+/* iOS zoome sur un champ dont la police fait moins de 16 px : en forçant
+   cette taille sur mobile, la mise au point reste stable et native. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
 }
 
 @media (display-mode: standalone) {

@@ -162,7 +162,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
               <Icon name={l.icon} size={20} strokeWidth={active ? 2 : 1.8} />
             </span>
 
-            {l.label}
+            <span className="w-full truncate text-center">{l.label}</span>
           </Link>
         );
       })}
@@ -177,7 +177,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
           duration-[var(--d-fast)] hover:opacity-90"
       >
         <Icon name="plus" size={20} strokeWidth={2} />
-        Créer
+        <span className="w-full truncate text-center">Créer</span>
       </button>
       {MOBILE_LINKS.slice(2).map((l) => {
         const active = pathname.startsWith(l.href);
@@ -196,7 +196,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
                 : "text-chalk-4 hover:bg-surface-2/60 hover:text-chalk-2"}`}
           >
             <Icon name={l.icon} size={20} strokeWidth={active ? 2 : 1.8} />
-            {l.label}
+            <span className="w-full truncate text-center">{l.label}</span>
           </Link>
         );
       })}
@@ -215,7 +215,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             : "text-chalk-4 hover:bg-surface-2/60 hover:text-chalk-2"}`}
       >
         <Icon name="menu" size={20} strokeWidth={1.8} />
-        Plus
+        <span className="w-full truncate text-center">Plus</span>
       </button>
       <Sheet
         open={moreOpen}

@@ -10,6 +10,7 @@ import {
   PWA_OFFLINE_URL,
   PWA_SCREENSHOTS,
   PWA_SHORT_NAME,
+  PWA_SPLASHES,
   PWA_START_URL,
   PWA_THEME_COLOR,
 } from "@/lib/pwa";
@@ -81,6 +82,31 @@ async function main() {
   await checkImage(PWA_ICONS.icon512, "512x512");
   await checkImage(PWA_ICONS.maskable512, "512x512");
   await checkImage(PWA_ICONS.appleTouch, "180x180");
+  await checkImage(PWA_ICONS.icon1024, "1024x1024");
+  await checkImage(PWA_ICONS.icon72, "72x72");
+  await checkImage(PWA_ICONS.icon96, "96x96");
+  await checkImage(PWA_ICONS.icon144, "144x144");
+  await checkImage(PWA_ICONS.icon256, "256x256");
+  await checkImage(PWA_ICONS.icon384, "384x384");
+  await checkImage(PWA_ICONS.monochrome512, "512x512");
+  check(
+    "manifeste : icône monochrome",
+    icons.some((icon) => icon.src === PWA_ICONS.monochrome512 && icon.purpose === "monochrome"),
+  );
+
+  // Les écrans de démarrage iOS : chaque fichier existe, à la taille physique
+  // annoncée par sa requête média — sinon Safari affiche un rectangle noir.
+  for (const splash of PWA_SPLASHES) {
+    const match = /splash-(\d+)x(\d+)\.png$/.exec(splash.url);
+    check(`écran de démarrage : nom ${splash.url}`, Boolean(match), splash.url);
+    if (match) await checkImage(splash.url, `${match[1]}x${match[2]}`);
+    check(
+      `écran de démarrage : requête média ${splash.url}`,
+      splash.media.startsWith("(device-width:") &&
+        splash.media.includes("-webkit-device-pixel-ratio"),
+      splash.media,
+    );
+  }
 
   const screenshots = data.screenshots ?? [];
   check("manifeste : capture large", screenshots.some((shot) => shot.form_factor === "wide"));
@@ -136,6 +162,7 @@ async function main() {
     "appleWebApp",
     "PWA_ICONS",
     "viewportFit",
+    "startupImage",
   ]);
   checkSource("app/settings/page.tsx", ["PwaInstallSection", "Installer DevNet"]);
 

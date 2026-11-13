@@ -272,7 +272,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
   return (
     <Link
       href={`/post/${proof.id}`}
-      className={`group flex flex-col rounded-[var(--radius-card)] border border-line-2 bg-surface p-4 depth-card transition-colors hover:border-line-3 hover:bg-surface-2/50
+      className={`group flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-line-2 bg-surface p-4 depth-card transition-colors hover:border-line-3 hover:bg-surface-2/50
         ${featured ? "sm:col-span-2" : ""}`}
     >
       <div className="flex items-center gap-2">

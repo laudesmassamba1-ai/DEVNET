@@ -9,7 +9,13 @@ import { ThemeApplier } from "@/components/ThemeApplier";
 import { ToastProvider } from "@/components/Toast";
 import { TourProvider } from "@/components/TourProvider";
 import { DEFAULT_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
-import { PWA_ICONS, PWA_SHORT_NAME, PWA_THEME_COLOR } from "@/lib/pwa";
+import {
+  PWA_ICONS,
+  PWA_LIGHT_THEME_COLOR,
+  PWA_SHORT_NAME,
+  PWA_SPLASHES,
+  PWA_THEME_COLOR,
+} from "@/lib/pwa";
 import { REDUCED_MOTION_KEY } from "@/lib/ui-preferences";
 import "./globals.css";
 
@@ -51,23 +57,28 @@ export const metadata: Metadata = {
     capable: true,
     title: PWA_SHORT_NAME,
     statusBarStyle: "black-translucent",
+    startupImage: PWA_SPLASHES.map(({ url, media }) => ({ url, media })),
   },
   formatDetection: { telephone: false },
   icons: {
     icon: [
       { url: PWA_ICONS.icon48, sizes: "48x48", type: "image/png" },
+      { url: PWA_ICONS.icon72, sizes: "72x72", type: "image/png" },
+      { url: PWA_ICONS.icon96, sizes: "96x96", type: "image/png" },
+      { url: PWA_ICONS.icon144, sizes: "144x144", type: "image/png" },
       { url: PWA_ICONS.icon192, sizes: "192x192", type: "image/png" },
       { url: PWA_ICONS.icon512, sizes: "512x512", type: "image/png" },
     ],
-    apple: [
-      { url: PWA_ICONS.appleTouch, sizes: "180x180", type: "image/png" },
-    ],
+    apple: [{ url: PWA_ICONS.appleTouch, sizes: "180x180", type: "image/png" }],
     shortcut: "/favicon.svg",
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: PWA_THEME_COLOR,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: PWA_LIGHT_THEME_COLOR },
+    { media: "(prefers-color-scheme: dark)", color: PWA_THEME_COLOR },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -127,41 +138,9 @@ export default function RootLayout({
         <Script id="devnet-install-prompt" strategy="beforeInteractive">
           {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__devnetInstallPrompt=e;window.dispatchEvent(new Event("devnet:install-available"));});`}
         </Script>
-        {/*
-          `ToastProvider` était écrit, exporté… et monté nulle part.
-
-          `useToast()` renvoie alors la fonction vide du contexte par
-          défaut, donc **tous** les `toast(…)` de l'application étaient
-          des no-ops : « lien copié », « suivi impossible », « commentaire
-          supprimé » ne s'affichaient jamais. Le bouton fonctionnait, la
-          confirmation disparaissait — ce qui est pire que de ne pas avoir
-          de bouton, parce que l'interface promet alors une réponse.
-
-          Il entoure `BackendGate` pour être au-dessus de toutes les pages,
-          y compris de l'écran de connexion.
-        */}
-        {/*
-          L'écran de lancement vit au-dessus de tout : pendant sa scène,
-          la page est vide et le logo se construit étape par étape.
-          Hors de `ToastProvider` volontairement — la scène ne doit
-          rien devoir à l'état de session ni aux toasts.
-        */}
         <SplashScreen />
         <ToastProvider>
-          {/*
-            `ThemeApplier` applique `users.theme` à `<html>` dès que le
-            profil est résolu. Le script `beforeInteractive` ci-dessus a
-            déjà posé le thème mémorisé pour éviter le flash ; ce composant
-            le remet d'aplomb avec la valeur réellement stockée en base.
-          */}
           <ThemeApplier />
-          {/*
-            La prise en main (`TourProvider`) enveloppe les pages plutôt
-            que de vivre dans chacune : elle doit pouvoir guider d'un
-            écran à l'autre, donc rester montée pendant les navigations.
-            Elle ne s'arme toutefois que lorsque la session porte un
-            profil, et jamais sur les écrans publics.
-          */}
           <PwaManager>
             <TourProvider>
               <BackendGate>{children}</BackendGate>

@@ -1,4 +1,4 @@
-const VERSION = "devnet-pwa-v1";
+const VERSION = "devnet-pwa-v2";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const OFFLINE_URL = "/offline.html";
@@ -8,10 +8,17 @@ const PRECACHE = [
   OFFLINE_URL,
   "/manifest.webmanifest",
   "/icons/icon-48.png",
+  "/icons/icon-72.png",
+  "/icons/icon-96.png",
+  "/icons/icon-144.png",
   "/icons/icon-192.png",
+  "/icons/icon-256.png",
+  "/icons/icon-384.png",
   "/icons/icon-512.png",
   "/icons/maskable-512.png",
+  "/icons/monochrome-512.png",
   "/icons/apple-touch-icon.png",
+  "/icons/app-icon.svg",
   "/logo.svg",
   "/favicon.svg",
 ];
@@ -122,6 +129,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/_next/static/") ||
     url.pathname.startsWith("/icons/") ||
     url.pathname.startsWith("/stickers/") ||
+    url.pathname.startsWith("/splash/") ||
     url.pathname === "/logo.svg" ||
     url.pathname === "/favicon.svg";
 

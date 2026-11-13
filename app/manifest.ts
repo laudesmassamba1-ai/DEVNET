@@ -22,7 +22,9 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: PWA_START_URL,
     scope: PWA_SCOPE,
     display: "standalone",
-    display_override: ["standalone"],
+    // On réclame le mode le plus intégré disponible, sans jamais dégrader
+    // l'affichage sur un navigateur qui ne connaît pas ces modes.
+    display_override: ["standalone", "minimal-ui"],
     orientation: "any",
     background_color: PWA_BACKGROUND_COLOR,
     theme_color: PWA_THEME_COLOR,
@@ -30,30 +32,16 @@ export default function manifest(): MetadataRoute.Manifest {
     prefer_related_applications: false,
     launch_handler: { client_mode: "navigate-existing" },
     icons: [
-      {
-        src: PWA_ICONS.icon48,
-        sizes: "48x48",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: PWA_ICONS.icon192,
-        sizes: "192x192",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: PWA_ICONS.icon512,
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "any",
-      },
-      {
-        src: PWA_ICONS.maskable512,
-        sizes: "512x512",
-        type: "image/png",
-        purpose: "maskable",
-      },
+      { src: PWA_ICONS.icon48, sizes: "48x48", type: "image/png", purpose: "any" },
+      { src: PWA_ICONS.icon72, sizes: "72x72", type: "image/png", purpose: "any" },
+      { src: PWA_ICONS.icon96, sizes: "96x96", type: "image/png", purpose: "any" },
+      { src: PWA_ICONS.icon144, sizes: "144x144", type: "image/png", purpose: "any" },
+      { src: PWA_ICONS.icon192, sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: PWA_ICONS.icon256, sizes: "256x256", type: "image/png", purpose: "any" },
+      { src: PWA_ICONS.icon384, sizes: "384x384", type: "image/png", purpose: "any" },
+      { src: PWA_ICONS.icon512, sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: PWA_ICONS.maskable512, sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: PWA_ICONS.monochrome512, sizes: "512x512", type: "image/png", purpose: "monochrome" },
     ],
     screenshots: [
       {
