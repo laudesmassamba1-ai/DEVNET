@@ -70,6 +70,7 @@ async function sendWithEmailjs(input: {
     }),
   }).catch(() => null);
 }
+
 export async function POST(request: Request): Promise<NextResponse> {
   const body = await readObjectBody(request);
   const email = (body ? (stringField(body, "email") ?? "") : "").trim().toLowerCase();
