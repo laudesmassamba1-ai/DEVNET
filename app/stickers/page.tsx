@@ -117,7 +117,15 @@ export default function StickerStudioPage() {
     );
   }
 
-  const mine = rows ?? [];
+  /* Un sticker de la maison n'appartient à personne : il peut être affiché,
+     mais pas retiré. La liste est donc coupée en deux plutôt que de montrer
+     « Retirer » sur des vignettes qui refuseront toujours l'action. */
+  const mine = (rows ?? []).filter((row) => row.mine);
+  const catalog = (rows ?? []).filter((row) => !row.mine);
+  /* En démonstration forcée, il n'y a pas de dépôt : la création répondrait
+     503. Le bouton reste visible mais désactivé, avec la raison écrite —
+     mieux qu'un formulaire qui échoue après l'envoi du fichier. */
+  const sansDepot = process.env.NEXT_PUBLIC_FORCE_DEMO === "true";
 
   return (
     <AppShell path="~/stickers">
@@ -217,7 +225,7 @@ export default function StickerStudioPage() {
             <button
               type="button"
               onClick={submit}
-              disabled={!profile || busy}
+              disabled={!profile || busy || sansDepot}
               className="mo-press inline-flex h-[var(--h-tap)] items-center justify-center
                 rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
                 text-sm font-bold text-void shadow-sh-1
@@ -229,6 +237,10 @@ export default function StickerStudioPage() {
             {!profile ? (
               <p className="mt-2 text-xs text-chalk-3">
                 Connecte-toi pour créer un sticker.
+              </p>
+            ) : sansDepot ? (
+              <p className="mt-2 text-xs text-chalk-3">
+                Démonstration : la création demande une base de données.
               </p>
             ) : null}
           </div>
@@ -302,6 +314,48 @@ export default function StickerStudioPage() {
           )}
         </section>
       </div>
+
+      {catalog.length > 0 ? (
+        /* Le catalogue embarqué apparaissait dans « Ma bibliothèque » avec un
+           bouton « Retirer » alors que ces stickers ne sont à personne : en
+           démonstration, l'action échouait systématiquement. Il a sa propre
+           section, en lecture seule. */
+        <section aria-labelledby="catalog-title" className="mt-8">
+          <div className="mb-2 flex items-center justify-between">
+            <h2 id="catalog-title" className="label-micro text-chalk-3">
+              Catalogue de la maison
+            </h2>
+            <span className="label-micro text-chalk-3">fournis</span>
+          </div>
+          <p className="mb-2 text-xs text-chalk-3">
+            Utilisables dans les messages et les stories, non modifiables.
+          </p>
+          <ul className="grid grid-cols-4 gap-2 sm:grid-cols-6">
+            {catalog.map((sticker) => (
+              <li
+                key={sticker.id}
+                className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-2"
+              >
+                <div className="flex aspect-square items-center justify-center">
+                  <StickerFace
+                    kind={sticker.kind}
+                    glyph={sticker.glyph}
+                    fg={sticker.fg}
+                    bg={sticker.bg}
+                    assetId={sticker.id}
+                    builtin={sticker.builtin}
+                    size={48}
+                    alt={sticker.name}
+                  />
+                </div>
+                <p className="mt-1 truncate text-center text-[11px] text-chalk-3" title={sticker.name}>
+                  {sticker.name}
+                </p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </AppShell>
   );
 }
