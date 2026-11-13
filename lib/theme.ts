@@ -22,6 +22,32 @@
 export const DEFAULT_THEME = "dark";
 export const LIGHT_THEME = "light";
 
+/**
+ * Troisième thème : vert profond, or et ivoire.
+ *
+ * Il n'est pas une variante du sombre mais une palette à part entière :
+ * fond vert nuit (`#0B1715`), surfaces vertes relevées, texte ivoire
+ * (`#F4F1E8`), action turquoise (`#20BFA9`), or (`#D6A84F`) réservé aux
+ * distinctions — anneau de story, niveaux, badges — et vert `#087F5B`
+ * pour la progression. Les composants ne changent pas : tout passe par
+ * les jetons de `globals.css`.
+ */
+export const SAVANE_THEME = "savane";
+
+/**
+ * Thèmes proposés à l'utilisateur, dans l'ordre d'affichage.
+ *
+ * Une seule liste : les Paramètres et le profil piochent dedans, et
+ * `normalizeTheme` accepte exactement ces identifiants. Une valeur
+ * inconnue retombe sur le défaut au lieu de produire un écran sans
+ * couleurs.
+ */
+export const THEMES = [
+  { id: DEFAULT_THEME, label: "Encre", hint: "Le défaut, sombre et chaud.", icon: "moon" },
+  { id: LIGHT_THEME, label: "Papier", hint: "Ivoire, encre, lumière du jour.", icon: "sun" },
+  { id: SAVANE_THEME, label: "Savane", hint: "Vert profond, or, turquoise.", icon: "globe" },
+] as const;
+
 /** Copie locale du thème — lue avant l'hydratation, pour éviter le flash. */
 export const THEME_STORAGE_KEY = "devnet:theme";
 
@@ -33,7 +59,8 @@ export function normalizeTheme(theme: string | null | undefined): string {
   // Toute valeur inconnue (dont l'ancien `liquid-bleu`) devient le défaut :
   // un profil qui porte encore l'ancien nom affiche le thème sombre, qui
   // est bien ce qu'il voyait déjà.
-  return theme === LIGHT_THEME ? LIGHT_THEME : DEFAULT_THEME;
+  const known = THEMES.find((entry) => entry.id === theme);
+  return known ? known.id : DEFAULT_THEME;
 }
 
 /** Applique le thème au document et mémorise le choix localement. */

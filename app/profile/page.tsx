@@ -30,7 +30,7 @@ import { fetchConnection } from "@/lib/github/connect";
 import { fetchProjectsByUser, summarizeRepoScores } from "@/lib/repo";
 import { api } from "@/lib/api/client";
 import { updateProfile } from "@/lib/api/profile";
-import { applyTheme, broadcastTheme, DEFAULT_THEME, LIGHT_THEME } from "@/lib/theme";
+import { applyTheme, broadcastTheme, DEFAULT_THEME, LIGHT_THEME, SAVANE_THEME } from "@/lib/theme";
 import { useSession } from "@/hooks/useSession";
 import { useProgress } from "@/hooks/useProgress";
 import { loadLeaderboard, type LeaderEntry } from "@/lib/progress";
@@ -41,10 +41,11 @@ import {
   type AccountType, type AvatarColor, type Post, type ProfileLink, type User,
 } from "@/lib/types";
 
-/** Thèmes disponibles : le sombre est le défaut, le clair le second. */
+/** Thèmes disponibles : Encre par défaut, puis Papier et Savane. */
 const THEMES = [
-  { id: DEFAULT_THEME, label: "Sombre", icon: "moon" },
-  { id: LIGHT_THEME, label: "Clair", icon: "sun" },
+  { id: DEFAULT_THEME, label: "Encre", icon: "moon" },
+  { id: LIGHT_THEME, label: "Papier", icon: "sun" },
+  { id: SAVANE_THEME, label: "Savane", icon: "globe" },
 ] as const;
 
 type Tab = "posts" | "work" | "progress" | "infos" | "settings";

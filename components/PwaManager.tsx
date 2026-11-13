@@ -20,6 +20,7 @@ import {
   PWA_INSTALL_DISMISS_MS,
   PWA_INSTALL_DISMISSED_KEY,
   PWA_LIGHT_THEME_COLOR,
+  PWA_SAVANE_THEME_COLOR,
   PWA_SERVICE_WORKER_URL,
   PWA_THEME_COLOR,
 } from "@/lib/pwa";
@@ -145,12 +146,20 @@ export function PwaManager({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const applyChrome = () => {
-      const light = document.documentElement.dataset.theme === "light";
+      const theme = document.documentElement.dataset.theme;
+      const light = theme === "light";
       const themeColor = document.querySelector('meta[name="theme-color"]');
       const statusBar = document.querySelector(
         'meta[name="apple-mobile-web-app-status-bar-style"]',
       );
-      themeColor?.setAttribute("content", light ? PWA_LIGHT_THEME_COLOR : PWA_THEME_COLOR);
+      // La barre de statut suit le fond du thème, sinon un liseré clair
+      // apparaît au-dessus d'une page verte sur iPhone.
+      const color = light
+        ? PWA_LIGHT_THEME_COLOR
+        : theme === "savane"
+          ? PWA_SAVANE_THEME_COLOR
+          : PWA_THEME_COLOR;
+      themeColor?.setAttribute("content", color);
       statusBar?.setAttribute("content", light ? "default" : "black-translucent");
     };
 

@@ -13,6 +13,8 @@ export const PWA_DESCRIPTION =
 export const PWA_THEME_COLOR = "#11110E";
 export const PWA_BACKGROUND_COLOR = "#11110E";
 export const PWA_LIGHT_THEME_COLOR = "#F6F4EF";
+/** Barre de statut du thème Savane : le vert nuit du fond. */
+export const PWA_SAVANE_THEME_COLOR = "#0B1715";
 export const PWA_LIGHT_BACKGROUND_COLOR = "#F6F4EF";
 export const PWA_START_URL = "/feed";
 export const PWA_SCOPE = "/";

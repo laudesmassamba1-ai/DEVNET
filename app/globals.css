@@ -1,5 +1,7 @@
-/* DevNet : papier d'atelier en clair, encre en sombre, terre cuite pour
-   l'action. Les filets et la typographie structurent le contenu. */
+/* DevNet : trois thèmes complets — « Encre » (sombre, terre cuite),
+   « Papier » (ivoire, encre) et « Savane » (vert profond, or, turquoise).
+   Chaque thème redéfinit les mêmes jetons ; aucun composant ne connaît
+   son nom. Les filets et la typographie structurent le contenu. */
 
 @import "tailwindcss";
 
@@ -321,6 +323,183 @@
 
 :root[data-theme="light"] .bg-signal {
   color: #FBFAF7;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THÈME SAVANE — vert profond, or, ivoire, turquoise
+
+   L'idée : un fond vert nuit qui n'est pas du noir, des surfaces qui se
+   relèvent par la valeur et non par l'ombre, un texte ivoire plutôt que
+   blanc. L'or ne décore pas — il distingue (story, niveau, badge) ; le
+   turquoise est la seule couleur d'action, donc un bouton ne se confond
+   jamais avec un ornement.
+
+   Ce thème est **compact** par construction : rayons plus courts, coque
+   plus basse, interlignage resserré, gouttière à 14 px. Une interface
+   dense se lit mieux qu'une interface aérée quand tout l'écran est déjà
+   occupé par du contenu — c'est le cas d'un fil social sur iPhone.
+   ══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="savane"] {
+  color-scheme: dark;
+
+  /* ── Fond et surfaces ── */
+  --color-void: #0B1715;
+  --color-page: #0B1715;
+  --color-page-end: #08120F;
+  --color-surface: #0F211C;
+  --color-surface-2: #142A24;
+  --color-surface-3: #1B342C;
+
+  /* ── Texte : ivoire, jamais blanc pur ── */
+  --color-chalk: #F4F1E8;
+  --color-chalk-2: #D9D5C7;
+  --color-chalk-3: #A7B6AD;
+  --color-chalk-4: #8C9E94;
+
+  /* ── Filets ── */
+  --color-line: #1E3A31;
+  --color-line-2: #27483D;
+  --color-line-3: #35604F;
+  --color-edge: #1E3A31;
+
+  /* ── Action : turquoise, la touche d'interaction ── */
+  --color-signal: #20BFA9;
+  --color-signal-d: #56D8C4;   /* survol et texte sur fond sombre */
+  --color-signal-fill: #20BFA9;
+  --color-signal-soft: #8FE6D8;
+
+  /* ── Distinction : or, et progression : vert ── */
+  --color-gold: #D6A84F;
+  --color-forest: #087F5B;
+
+  /* ── Sémantique ── */
+  --color-phosphor: #20BFA9;
+  --color-phosphor-d: var(--color-forest);
+  --color-ok: #4FC08F;
+  --color-danger: #E8735C;
+  --color-warn: #D6A84F;
+  --color-info: #9BBFB0;
+
+  /* ── Avatars : terres et végétal ── */
+  --color-av-lime-bg:   #DDE8B4;  --color-av-lime-fg:   #33400F;
+  --color-av-sage-bg:   #CDE4D3;  --color-av-sage-fg:   #173A26;
+  --color-av-pink-bg:   #F2CDB8;  --color-av-pink-fg:   #5A2A0F;
+  --color-av-orange-bg: #F1DCA8;  --color-av-orange-fg: #4A340A;
+  --color-av-violet-bg: #DCC9E4;  --color-av-violet-fg: #3F1F4A;
+
+  /* ── Profondeur : courte, la valeur fait le travail ── */
+  --shadow-sh-1: 0 10px 26px rgb(4 12 9 / 55%);
+  --shadow-sh-2: var(--shadow-sh-1);
+  --shadow-sh-3: 0 18px 40px rgb(4 12 9 / 62%);
+  --shadow-drop: none;
+  --shadow-drop-lg: var(--shadow-sh-1);
+  --shadow-action: none;
+  --shadow-inset-signal: inset 0 -3px 0 var(--color-signal);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
+  --shadow-sh-signal-top: 0 -6px 0 var(--color-signal);
+  --glow-signal: 0 0 10px rgb(32 191 169 / 35%);
+  --shadow-avatar-ring: 0 0 0 2px var(--color-void), 0 0 0 4px var(--color-line-2),
+    0 0 12px 1px rgb(214 168 79 / 35%);
+
+  /* ── Verre : opaque, sans reflet ── */
+  --glass-bg: var(--color-surface);
+  --glass-bg-strong: var(--color-surface-2);
+  --glass-refract: none;
+  --glass-refract-strong: none;
+  --glass-lens: none;
+  --glass-sheen: none;
+  --glass-rim: none;
+  --overlay-veil-bg: rgb(4 12 9 / 78%);
+  --overlay-blur: none;
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-brut: none;
+  --shadow-brut-lg: var(--shadow-sh-1);
+
+  /* ── Dégradés : l'or pour la story, le turquoise pour la donnée ── */
+  --gradient-amber-fire: var(--color-gold);
+  --gradient-ember:      var(--color-gold);
+  --gradient-phosphor:   var(--color-signal);
+  --gradient-aura:       none;
+  --story-ring-gradient: linear-gradient(135deg, var(--color-gold), var(--color-signal));
+
+  /* ── Densité : coque plus basse, rayons plus courts ── */
+  --space-md: 10px;
+  --space-lg: 14px;
+  --space-xl: 20px;
+  --space-2xl: 28px;
+  --gutter:   14px;
+  --radius-chip:  4px;
+  --radius-input: 6px;
+  --radius-card:  8px;
+  --h-topbar:    calc(52px + var(--h-safe-top));
+  --h-bottomnav: calc(56px + var(--h-safe-bottom));
+  --h-action:    40px;
+
+  /* ── Typographie resserrée : Inter lit, Poppins nomme ── */
+  --text-body:    0.9375rem;  --lh-body:    1.48;
+  --text-caption: 0.75rem;    --lh-caption: 1.38;
+  --text-label:   0.6875rem;  --lh-label:   1.25;
+  --text-micro:   0.6875rem;  --lh-micro:   1.25;
+  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-grotesk), ui-monospace, monospace;
+  --font-label:   var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Palette de code : lisérée sur le vert, lisible ── */
+  --color-code-bg:      #0A1A15;
+  --color-code-plain:   #F0EDE3;
+  --color-code-keyword: #7FE3D3;
+  --color-code-string:  #D6A84F;
+  --color-code-number:  #6FD3A8;
+  --color-code-function:#A8DCC9;
+  --color-code-type:    #E8C97F;
+  --color-code-comment: #7E938A;
+  --color-code-punct:   #C9CFC7;
+}
+
+:root[data-theme="savane"] body {
+  background-color: var(--color-page);
+  /* Une lueur très basse en haut de page : le fond respire sans devenir
+     un dégradé décoratif. */
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, rgb(8 127 91 / 22%), transparent 70%);
+  background-repeat: no-repeat;
+}
+
+/* Le turquoise est clair : le texte posé dessus doit être le vert nuit. */
+:root[data-theme="savane"] .bg-signal {
+  color: #0B1715;
+}
+
+/* Le turquoise clair sert de couleur de texte sur le fond vert nuit ;
+   l'or, lui, ne porte jamais du texte courant. */
+:root[data-theme="savane"] .text-signal {
+  color: var(--color-signal-d);
+}
+
+/* Titres : Poppins resserré, sans effet de lettrage large. */
+:root[data-theme="savane"] h1,
+:root[data-theme="savane"] h2,
+:root[data-theme="savane"] h3,
+:root[data-theme="savane"] .font-display {
+  letter-spacing: -0.018em;
+  line-height: 1.1;
+}
+
+/* Les micro-libellés passent en Manrope ; les données restent en chiffres
+   à chasse fixe, et le code reste monospace — Space Grotesk n'en est pas
+   un, on ne lui confie pas du code. */
+:root[data-theme="savane"] .label-micro {
+  font-family: var(--font-label);
+  letter-spacing: 0.06em;
+}
+
+:root[data-theme="savane"] pre,
+:root[data-theme="savane"] code,
+:root[data-theme="savane"] kbd,
+:root[data-theme="savane"] samp {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
 }
 
 [data-code-variant="paper"] {

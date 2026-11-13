@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Manrope, Poppins, Space_Grotesk } from "next/font/google";
 import localFont from "next/font/local";
 import Script from "next/script";
 import { BackendGate } from "@/components/BackendGate";
@@ -8,7 +9,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { ToastProvider } from "@/components/Toast";
 import { TourProvider } from "@/components/TourProvider";
-import { DEFAULT_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
+import { DEFAULT_THEME, THEME_STORAGE_KEY, THEMES } from "@/lib/theme";
 import {
   PWA_ICONS,
   PWA_LIGHT_THEME_COLOR,
@@ -34,6 +35,49 @@ const instrumentSans = localFont({
   display: "swap",
   variable: "--font-instrument",
   weight: "400 700",
+});
+
+/*
+ * Les familles du thème Savane.
+ *
+ * Elles sont chargées une fois et exposées en variables : le thème
+ * choisit laquelle parle (`--font-display`, `--font-sans`, `--font-mono`,
+ * `--font-label`), les deux thèmes historiques gardent Instrument Sans.
+ * next/font les auto-héberge, donc aucune requête vers Google au runtime.
+ *
+ * - **Inter** — le texte : dessin neutre, chiffres lisibles, très bon en
+ *   petite taille sur iPhone.
+ * - **Poppins** — les titres : géométrique, rond, une voix.
+ * - **Space Grotesk** — les données : compteurs, pseudos, libellés.
+ * - **Manrope** — les micro-libellés de section.
+ */
+const inter = localFont({
+  src: "./fonts/Inter[opsz,wght].ttf",
+  display: "swap",
+  variable: "--font-inter",
+  weight: "100 900",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+  variable: "--font-poppins",
+  preload: false,
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-grotesk",
+  preload: false,
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-manrope",
+  preload: false,
 });
 
 const plexMono = localFont({
@@ -100,7 +144,7 @@ export default function RootLayout({
       // dit à Next de ne pas l'appliquer pendant une navigation de route,
       // sinon la page défile visiblement vers le haut à chaque clic.
       data-scroll-behavior="smooth"
-      className={`${instrumentSans.variable} ${plexMono.variable}`}
+      className={`${instrumentSans.variable} ${plexMono.variable} ${inter.variable} ${poppins.variable} ${spaceGrotesk.variable} ${manrope.variable}`}
       // Le thème est posé sur `<html>` avant l'hydratation (script plus
       // bas) : le serveur ne peut pas le connaître, on autorise l'écart.
       suppressHydrationWarning
@@ -125,7 +169,7 @@ export default function RootLayout({
           `ThemeApplier` resynchronise ensuite avec la valeur en base.
         */}
         <Script id="devnet-theme" strategy="beforeInteractive">
-          {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});document.documentElement.dataset.theme=t===${JSON.stringify(LIGHT_THEME)}?${JSON.stringify(LIGHT_THEME)}:${JSON.stringify(DEFAULT_THEME)};document.documentElement.dataset.reduceMotion=localStorage.getItem(${JSON.stringify(REDUCED_MOTION_KEY)})==="true"?"true":"false";}catch(e){}`}
+          {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});var k=${JSON.stringify(THEMES.map((entry) => entry.id))};document.documentElement.dataset.theme=k.indexOf(t)>-1?t:${JSON.stringify(DEFAULT_THEME)};document.documentElement.dataset.reduceMotion=localStorage.getItem(${JSON.stringify(REDUCED_MOTION_KEY)})==="true"?"true":"false";}catch(e){}`}
         </Script>
         {/*
           `beforeinstallprompt` part **avant** l'hydratation : le navigateur

@@ -20,7 +20,7 @@ import {
   type PushState,
 } from "@/lib/device-notify";
 import { asVerificationStatus, VERIFY_STATUS_LABEL } from "@/lib/verification";
-import { broadcastTheme, DEFAULT_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
+import { broadcastTheme, normalizeTheme, THEMES, THEME_STORAGE_KEY } from "@/lib/theme";
 import {
   applyReducedMotion,
   FEED_DENSITY_KEY,
@@ -33,7 +33,7 @@ const inputCls =
   "shadow-sh-1 transition-[box-shadow,border-color] placeholder:text-chalk-4 " +
   "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
-type Theme = typeof DEFAULT_THEME | typeof LIGHT_THEME;
+type Theme = (typeof THEMES)[number]["id"];
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -43,7 +43,7 @@ export default function SettingsPage() {
   const [pwBusy, setPwBusy] = useState(false);
   const [pwMsg, setPwMsg] = useState("");
   const [pwErr, setPwErr] = useState("");
-  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
+  const [theme, setTheme] = useState<Theme>(THEMES[0].id);
   const [themeBusy, setThemeBusy] = useState(false);
   const [appearanceMessage, setAppearanceMessage] = useState("");
   const [appearanceError, setAppearanceError] = useState("");
@@ -164,7 +164,7 @@ export default function SettingsPage() {
       const savedDensity = localStorage.getItem(FEED_DENSITY_KEY);
       const savedMotion = localStorage.getItem(REDUCED_MOTION_KEY) === "true";
       // eslint-disable-next-line react-hooks/set-state-in-effect -- preferences are read after hydration
-      setTheme(savedTheme === LIGHT_THEME ? LIGHT_THEME : DEFAULT_THEME);
+      setTheme(normalizeTheme(savedTheme) as Theme);
       setFeedDensity(savedDensity === "compact" ? "compact" : "comfortable");
       setReduceMotion(savedMotion);
       applyReducedMotion(savedMotion);
@@ -393,36 +393,28 @@ export default function SettingsPage() {
             <p className="mt-1 text-[13px] text-chalk-3">
               Le thème suit ton compte ; les options de lecture restent sur cet appareil.
             </p>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={() => void saveTheme(DEFAULT_THEME)}
-                disabled={themeBusy}
-                aria-pressed={theme === DEFAULT_THEME}
-                className={`lift-press flex h-(--h-tap) items-center justify-center gap-2 rounded-(--radius-input) border px-3 text-[12px] font-bold ${
-                  theme === DEFAULT_THEME
-                    ? "border-signal bg-signal text-void"
-                    : "border-line-3 bg-surface text-chalk hover:border-signal"
-                } disabled:opacity-60`}
-              >
-                <Icon name="moon" size={16} />
-                Sombre
-              </button>
-              <button
-                type="button"
-                onClick={() => void saveTheme(LIGHT_THEME)}
-                disabled={themeBusy}
-                aria-pressed={theme === "light"}
-                className={`lift-press flex h-(--h-tap) items-center justify-center gap-2 rounded-(--radius-input) border px-3 text-[12px] font-bold ${
-                  theme === "light"
-                    ? "border-signal bg-signal text-void"
-                    : "border-line-3 bg-surface text-chalk hover:border-signal"
-                } disabled:opacity-60`}
-              >
-                <Icon name="sun" size={16} />
-                Clair
-              </button>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              {THEMES.map((entry) => (
+                <button
+                  key={entry.id}
+                  type="button"
+                  onClick={() => void saveTheme(entry.id)}
+                  disabled={themeBusy}
+                  aria-pressed={theme === entry.id}
+                  className={`lift-press flex h-(--h-tap) flex-col items-center justify-center gap-1 rounded-(--radius-input) border px-2 text-[12px] font-bold ${
+                    theme === entry.id
+                      ? "border-signal bg-signal text-void"
+                      : "border-line-3 bg-surface text-chalk hover:border-signal"
+                  } disabled:opacity-60`}
+                >
+                  <Icon name={entry.icon} size={16} />
+                  {entry.label}
+                </button>
+              ))}
             </div>
+            <p className="mt-2 text-[12px] text-chalk-4">
+              {THEMES.find((entry) => entry.id === theme)?.hint}
+            </p>
             <fieldset className="mt-6">
               <legend className="label text-chalk-3">Densité du fil</legend>
               <p className="mt-1 text-[12px] text-chalk-4">

@@ -90,9 +90,15 @@ export function SplashScreen() {
       className="fixed inset-0 z-[9000] flex items-center justify-center"
       style={{
         /* Charbon chaud, puis la flaque de scène derrière le logo :
-           la lumière vient du centre, comme une table de dessinateur. */
+           la lumière vient du centre, comme une table de dessinateur.
+
+           La teinte vient du thème (`--color-signal` mélangé au fond) :
+           l'ouverture reste chaude en « Encre », devient un halo
+           turquoise en « Savane » — sans littéral qui jurerait. */
         background:
-          "radial-gradient(60rem 42rem at 50% 46%, #241B11 0%, #1A1209 55%, #131009 100%)",
+          "radial-gradient(60rem 42rem at 50% 46%," +
+          " color-mix(in srgb, var(--color-signal) 16%, var(--color-page)) 0%," +
+          " var(--color-page) 55%, var(--color-page) 100%)",
         backgroundSize: "18px 18px",
         opacity: fading ? 0 : 1,
         transition: "opacity var(--d-enter) ease",
@@ -108,7 +114,7 @@ export function SplashScreen() {
         className="pointer-events-none absolute inset-0"
         style={{
           backgroundImage:
-            "radial-gradient(rgba(255,138,61,.04) 1px, transparent 1.4px)",
+            "radial-gradient(color-mix(in srgb, var(--color-signal) 7%, transparent) 1px, transparent 1.4px)",
           backgroundSize: "18px 18px",
         }}
       />
