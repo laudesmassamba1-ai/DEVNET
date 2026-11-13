@@ -306,14 +306,25 @@ export function StudioEditor({
     dragRef.current = null;
   }, []);
 
+  /**
+   * Ajoute un calque **et le sélectionne**.
+   *
+   * Sans sélection, un calque fraîchement créé n'affiche ni poignées ni
+   * réglages : on croit que l'outil n'a rien fait, et il faut deviner qu'il
+   * faut cliquer dessus dans la scène pour commencer à le régler.
+   */
+  function addLayer(layer: Layer) {
+    replace([...layers, layer]);
+    setSelectedId(layer.id);
+  }
+
   function addTool(id: (typeof TOOLS)[number]["id"]) {
     if (id === "text")
-      replace([...layers, createText({ color: `var(${foreground})` })]);
-    if (id === "shapes")
-      replace([...layers, createShape("rect", { fill: `var(${foreground})` })]);
-    if (id === "bezier") replace([...layers, createBezier()]);
+      addLayer(createText({ color: `var(${foreground})` }));
+    if (id === "shapes") addLayer(createShape("rect", { fill: `var(${foreground})` }));
+    if (id === "bezier") addLayer(createBezier());
     if (id === "stickers")
-      replace([...layers, createMedia("sticker", STICKERS[0].src, { name: STICKERS[0].label })]);
+      addLayer(createMedia("sticker", STICKERS[0].src, { name: STICKERS[0].label }));
     if (id === "image") imageInput.current?.click();
     if (id === "video") videoInput.current?.click();
   }
@@ -328,10 +339,7 @@ export function StudioEditor({
       return;
     }
     const url = URL.createObjectURL(file);
-    replace([
-      ...layers,
-      createMedia(kind, url, { name: file.name, fit: "cover" }),
-    ]);
+    addLayer(createMedia(kind, url, { name: file.name, fit: "cover" }));
   }
 
   async function exportImage(type: "image/png" | "image/jpeg") {
