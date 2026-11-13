@@ -35,6 +35,18 @@ import { TourOverlay } from "./TourOverlay";
 const DONE_KEY = "devnet.tour.v1";
 
 /**
+ * La visite est mémorisée **par compte**, pas par navigateur.
+ *
+ * Une clé unique par navigateur faisait qu'un second compte, ou le même
+ * compte recréé après une remise à zéro de la base, ne voyait jamais
+ * l'explication : le drapeau « déjà vue » était resté d'une session
+ * précédente. La clé porte donc l'identifiant du compte.
+ */
+function doneKeyFor(userId: string | null | undefined): string {
+  return `${DONE_KEY}:${userId ?? "invite"}`;
+}
+
+/**
  * Écrans publics : la visite ne s'y déclenche jamais, même connecté.
  *
  * L'accueil et la connexion se lisent sans guide — c'est le **produit**
@@ -78,6 +90,9 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   const [active, setActive] = useState(false);
 
   const launched = useRef(false);
+  // Lu une fois par rendu : le compilateur React refuse un accès optionnel
+  // en chaîne dans les dépendances d'un `useCallback` mémorisé.
+  const userId = session?.user?.id ?? null;
 
   const open = useCallback(() => {
     setPhase("intro");
@@ -89,12 +104,12 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
   const close = useCallback(() => {
     setActive(false);
     try {
-      window.localStorage.setItem(DONE_KEY, "done");
+      window.localStorage.setItem(doneKeyFor(userId), "done");
     } catch {
       // Stockage indisponible : la visite se reproposera au prochain
       // chargement. Gênant, jamais bloquant.
     }
-  }, []);
+  }, [userId]);
 
   const next = useCallback(() => {
     if (phase === "intro") {
@@ -134,7 +149,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
 
     let seen: string | null = null;
     try {
-      seen = window.localStorage.getItem(DONE_KEY);
+      seen = window.localStorage.getItem(doneKeyFor(userId));
     } catch {
       // Stockage indisponible : on renonce à l'auto-lancement pour ne pas
       // imposer la visite à chaque rechargement.
@@ -151,7 +166,7 @@ export function TourProvider({ children }: { children: React.ReactNode }) {
       open();
     }, 900);
     return () => clearTimeout(timer);
-  }, [loading, session, profile, pathname, open]);
+  }, [loading, session, profile, pathname, open, userId]);
 
   return (
     <TourContext.Provider value={{ active, start: open, stop: close }}>

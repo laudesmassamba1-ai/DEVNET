@@ -35,11 +35,11 @@ async function verifyFileSelection(): Promise<void> {
   const migrations = await listMigrations("db/migrations");
   const names = migrations.map((migration) => migration.name);
 
-  check("61 migrations retenues", migrations.length === 61, `${migrations.length} trouvées`);
+  check("62 migrations retenues", migrations.length === 62, `${migrations.length} trouvées`);
   check("première = 001_schema.sql", names[0] === "001_schema.sql", names[0]);
   check(
-    "dernière = 061_password_reset.sql",
-    names[names.length - 1] === "061_password_reset.sql",
+    "dernière = 062_app_role_grants.sql",
+    names[names.length - 1] === "062_app_role_grants.sql",
     names[names.length - 1],
   );
   check("ordre croissant", names.join() === [...names].sort().join());

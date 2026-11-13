@@ -103,6 +103,17 @@ export default function RootLayout({
           {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});document.documentElement.dataset.theme=t===${JSON.stringify(LIGHT_THEME)}?${JSON.stringify(LIGHT_THEME)}:${JSON.stringify(DEFAULT_THEME)};document.documentElement.dataset.reduceMotion=localStorage.getItem(${JSON.stringify(REDUCED_MOTION_KEY)})==="true"?"true":"false";}catch(e){}`}
         </Script>
         {/*
+          `beforeinstallprompt` part **avant** l'hydratation : le navigateur
+          décide que l'application est installable en lisant le manifeste,
+          puis émet l'événement pendant le chargement de la page. Un écouteur
+          posé dans un `useEffect` arrive après, et l'événement est perdu —
+          l'invite d'installation ne s'affichait donc jamais. On le capture
+          ici, dès l'HTML initial, et on le signale à React.
+        */}
+        <Script id="devnet-install-prompt" strategy="beforeInteractive">
+          {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__devnetInstallPrompt=e;window.dispatchEvent(new Event("devnet:install-available"));});`}
+        </Script>
+        {/*
           `ToastProvider` était écrit, exporté… et monté nulle part.
 
           `useToast()` renvoie alors la fonction vide du contexte par

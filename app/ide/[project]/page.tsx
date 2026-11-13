@@ -17,13 +17,20 @@ import { useCollab } from "@/lib/collab/useCollab";
 import { fetchActiveContributions } from "@/lib/extensions";
 import { IDLE, runFile, type RunOutcome } from "@/lib/execution/runner";
 import { DEFAULT_BRANCH, branchErrorText, validateBranchName } from "@/lib/git/refs";
-import { buildTree, looksBinary, type FileNode } from "@/lib/git/paths";
+import {
+  buildTree,
+  looksBinary,
+  normalizePath,
+  pathErrorText,
+  type FileNode,
+} from "@/lib/git/paths";
 import { DEFAULT_EXTENSIONS, devcontainerJson, recommendedExtensions } from "@/lib/vscode/bridge";
 import type { ExtensionCommand, ExtensionSnippet, GitRef, Project } from "@/lib/types";
 import {
   commitRepo,
   createBranch,
   deleteBranch,
+  deleteRepoFile,
   fetchBranches,
   fetchProject,
   fetchRepoFiles,
@@ -235,6 +242,14 @@ export default function IdePage() {
   const [committing, setCommitting] = useState(false);
   const [commitMsg, setCommitMsg] = useState("");
 
+  // Créer un fichier manquait : un projet neuf s'ouvrait sur « aucun fichier
+  // ouvert » et « sélectionner un fichier », sans aucun moyen d'en créer un.
+  // Le studio ne servait alors à rien tant que le dépôt n'était pas rempli
+  // ailleurs — c'est-à-dire jamais, puisque rien d'autre n'écrit dans le dépôt.
+  const [creatingFile, setCreatingFile] = useState(false);
+  const [newPath, setNewPath] = useState("");
+  const [deletingFile, setDeletingFile] = useState<string | null>(null);
+
   const openRef = useRef<string | null>(null);
   const branchRef = useRef(branch);
 
@@ -276,7 +291,7 @@ export default function IdePage() {
     setOutcome(IDLE);
   }, [current]);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (override?: string) => {
     if (!projectId) return;
     const found = await fetchProject(projectId);
     if (!found) {
@@ -285,11 +300,14 @@ export default function IdePage() {
     }
     setProject(found);
 
-    const currentBranch = branchReady.current
-      ? branch
-      : found.default_branch || DEFAULT_BRANCH;
+    // Une branche supprimée change la branche courante : sans ce paramètre,
+    // le rechargement relisait l'ancienne, déjà effacée, et le studio
+    // affichait un dépôt vide au lieu de la branche de repli.
+    const currentBranch =
+      override ??
+      (branchReady.current ? branch : found.default_branch || DEFAULT_BRANCH);
 
-    if (!branchReady.current) {
+    if (!branchReady.current || override) {
       setBranch(currentBranch);
       branchReady.current = true;
     }
@@ -389,6 +407,76 @@ export default function IdePage() {
     await load();
   }, [current, profile, dirty, projectId, content, branch, savedSha, toast, load]);
 
+  /**
+   * Contenu de départ d'un fichier neuf.
+   *
+   * Un fichier vide ouvre un éditeur muet, sans indice sur ce qu'on attend
+   * de lui. Une ligne de commentaire dans la syntaxe du fichier suffit à
+   * rendre l'écran vivant, et rappelle que l'écriture est locale au dépôt.
+   */
+  const starterFor = useCallback((path: string) => {
+    const ext = path.slice(path.lastIndexOf(".") + 1).toLowerCase();
+    const line = (prefix: string) => `${prefix} ${path} — écrit dans DevNet\n`;
+    if (["md", "markdown"].includes(ext)) return `# ${path}\n\n`;
+    if (["yml", "yaml", "toml"].includes(ext)) return line("#");
+    if (["py", "sh", "rb"].includes(ext)) return line("#");
+    if (["sql"].includes(ext)) return line("--");
+    if (["html", "xml", "svg"].includes(ext)) return `<!-- ${path} -->\n`;
+    if (["css", "scss"].includes(ext)) return line("/*");
+    return line("//");
+  }, []);
+
+  const createFile = useCallback(async () => {
+    if (!profile?.id) {
+      toast("Connectez-vous pour écrire dans le dépôt.", "err");
+      return;
+    }
+    const normalized = normalizePath(newPath);
+    if (!normalized.ok) {
+      toast(pathErrorText(normalized.reason), "err");
+      return;
+    }
+
+    setBusy(true);
+    const res = await saveRepoFile({
+      projectId,
+      path: normalized.path,
+      content: starterFor(normalized.path),
+      userId: profile.id,
+      branch,
+      // `null` : le fichier ne doit pas exister. Si quelqu'un l'a créé
+      // entre-temps, l'écriture est refusée au lieu de l'écraser.
+      expectedSha: null,
+    });
+    setBusy(false);
+
+    if (res.error) {
+      toast(res.error, "err");
+      return;
+    }
+    toast("Fichier créé");
+    setCreatingFile(false);
+    setNewPath("");
+    await load();
+    openFile(normalized.path);
+  }, [profile, newPath, projectId, branch, starterFor, toast, load, openFile]);
+
+  const removeFile = useCallback(async () => {
+    const path = deletingFile;
+    if (!path) return;
+    setBusy(true);
+    const res = await deleteRepoFile({ projectId, path, branch });
+    setBusy(false);
+    if (res.error) {
+      toast(res.error, "err");
+      return;
+    }
+    toast("Fichier supprimé");
+    setDeletingFile(null);
+    closeTab(path);
+    await load();
+  }, [deletingFile, projectId, branch, toast, closeTab, load]);
+
   const execute = useCallback(async () => {
     if (!current) return;
     if (abortRef.current) abortRef.current();
@@ -456,6 +544,8 @@ export default function IdePage() {
     setDropping(null);
     if (b === branch) {
       setBranch(DEFAULT_BRANCH);
+      await load(DEFAULT_BRANCH);
+      return;
     }
     await load();
   }, [projectId, branch, toast, load]);
@@ -539,7 +629,7 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => router.push("/projects")}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)]
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input)
                 border border-line-3 px-4 text-[13px] font-bold text-chalk-2
                 hover:border-signal hover:text-signal"
             >
@@ -616,11 +706,38 @@ export default function IdePage() {
           <aside className="flex w-[260px] shrink-0 flex-col border-r border-line-3 bg-surface-2/40">
             <div className="flex items-center justify-between border-b border-line-3 px-2.5 py-2">
               <span className="label-micro text-chalk-3">Fichiers</span>
-              <span className="tnum font-mono text-[10.5px] text-chalk-4">
-                {(files ?? []).length}
+              <span className="flex items-center gap-1.5">
+                <span className="tnum font-mono text-[10.5px] text-chalk-4">
+                  {(files ?? []).length}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setCreatingFile(true)}
+                  aria-label="Créer un fichier"
+                  title="Créer un fichier"
+                  className="mo-press inline-flex size-[26px] items-center justify-center rounded-(--radius-chip) border border-line-3 text-chalk-3 hover:border-signal hover:text-signal"
+                >
+                  <Icon name="plus" size={11} strokeWidth={2} />
+                </button>
               </span>
             </div>
             <div className="min-h-0 flex-1 overflow-auto py-1">
+              {(files ?? []).length === 0 && (
+                <div className="px-3 py-4 text-center">
+                  <p className="text-[12px] leading-relaxed text-chalk-4">
+                    Dépôt vide. Créez le premier fichier — il sera écrit sur
+                    la branche <span className="font-mono text-chalk-3">{branch}</span>.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => setCreatingFile(true)}
+                    className="mo-press mt-3 inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-signal px-3 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-signal"
+                  >
+                    <Icon name="plus" size={11} strokeWidth={2} />
+                    créer un fichier
+                  </button>
+                </div>
+              )}
               <ul>
                 {tree.map((n) => (
                   <TreeNode
@@ -644,7 +761,7 @@ export default function IdePage() {
                   value={branch}
                   aria-label="Branche"
                   onChange={(e) => switchBranch(e.target.value)}
-                  className="mo-press h-[32px] rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2 font-mono text-[11px] text-chalk-2"
+                  className="mo-press h-[32px] rounded-(--radius-chip) border border-line-3 bg-surface px-2 font-mono text-[11px] text-chalk-2"
                 >
                   {branches.map((b) => (
                     <option key={b.name} value={b.name}>
@@ -655,7 +772,7 @@ export default function IdePage() {
                 <button
                   type="button"
                   onClick={() => setNamingBranch(true)}
-                  className="mo-press inline-flex h-[32px] items-center gap-1 rounded-[var(--radius-chip)] border border-line-3 px-2 font-mono text-[11px] text-chalk-2 hover:border-signal hover:text-signal"
+                  className="mo-press inline-flex h-[32px] items-center gap-1 rounded-(--radius-chip) border border-line-3 px-2 font-mono text-[11px] text-chalk-2 hover:border-signal hover:text-signal"
                 >
                   <Icon name="plus" size={11} />
                   branche
@@ -664,7 +781,7 @@ export default function IdePage() {
                   <button
                     type="button"
                     onClick={() => setDropping(branch)}
-                    className="mo-press inline-flex h-[32px] items-center gap-1 rounded-[var(--radius-chip)] border border-line-3 px-2 font-mono text-[11px] text-chalk-2 hover:border-danger hover:text-danger"
+                    className="mo-press inline-flex h-[32px] items-center gap-1 rounded-(--radius-chip) border border-line-3 px-2 font-mono text-[11px] text-chalk-2 hover:border-danger hover:text-danger"
                   >
                     <Icon name="close" size={11} />
                     supprimer
@@ -676,7 +793,7 @@ export default function IdePage() {
                 <button
                   type="button"
                   onClick={() => setChatOpen((v) => !v)}
-                  className={`mo-press inline-flex h-[32px] items-center gap-1.5 rounded-[var(--radius-chip)] border px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em]
+                  className={`mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em]
                     ${chatOpen ? "border-signal text-signal" : "border-line-3 text-chalk-3 hover:border-signal hover:text-signal"}`}
                 >
                   <Icon name="messages" size={11} />
@@ -689,7 +806,7 @@ export default function IdePage() {
                   type="button"
                   onClick={exportDevcontainer}
                   title="Exporter devcontainer.json"
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-[var(--radius-chip)] border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal"
                 >
                   <Icon name="code" size={11} />
                   devcontainer
@@ -698,7 +815,7 @@ export default function IdePage() {
                   type="button"
                   onClick={exportExtensions}
                   title="Exporter extensions.json"
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-[var(--radius-chip)] border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal"
                 >
                   <Icon name="package" size={11} />
                   extensions
@@ -707,7 +824,7 @@ export default function IdePage() {
                   type="button"
                   onClick={stopExec}
                   disabled={outcome.status !== "running" && outcome.status !== "loading"}
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-[var(--radius-chip)] border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-warn hover:text-warn disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-warn hover:text-warn disabled:opacity-40"
                 >
                   <Icon name="stop" size={11} strokeWidth={2.2} />
                   arrêter
@@ -716,7 +833,7 @@ export default function IdePage() {
                   type="button"
                   onClick={execute}
                   disabled={!current || busy}
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-[var(--radius-chip)] border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
                 >
                   <Icon name="bolt" size={11} strokeWidth={2} />
                   exécuter
@@ -725,16 +842,26 @@ export default function IdePage() {
                   type="button"
                   onClick={persist}
                   disabled={busy || !dirty}
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-[var(--radius-chip)] border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
                 >
                   <Icon name="check" size={11} strokeWidth={2} />
                   écrire
                 </button>
                 <button
                   type="button"
+                  onClick={() => setDeletingFile(current?.path ?? null)}
+                  disabled={!current || busy}
+                  title="Supprimer le fichier ouvert"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-danger hover:text-danger disabled:opacity-40"
+                >
+                  <Icon name="trash" size={11} strokeWidth={2} />
+                  effacer
+                </button>
+                <button
+                  type="button"
                   onClick={() => setCommitting(true)}
                   disabled={busy}
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-[var(--radius-chip)] border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
                 >
                   <Icon name="plus" size={11} strokeWidth={2} />
                   commit
@@ -804,7 +931,7 @@ export default function IdePage() {
               aria-label="Nom de la nouvelle branche"
               value={branchName}
               onChange={(e) => setBranchName(e.target.value)}
-              className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-sm text-chalk"
+              className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3 py-2 font-mono text-sm text-chalk"
               placeholder="feature/ide"
               spellCheck={false}
             />
@@ -813,16 +940,101 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => setNamingBranch(false)}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)] border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
             >
               Annuler
             </button>
             <button
               type="button"
               onClick={createNewBranch}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)] border border-signal bg-signal px-4 text-[13px] font-bold text-void hover:opacity-95"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-[13px] font-bold text-void hover:opacity-95"
             >
               Créer
+            </button>
+          </div>
+        </div>
+      </Sheet>
+
+      {/* ── Feuille : nouveau fichier ── */}
+      <Sheet
+        open={creatingFile}
+        onClose={() => setCreatingFile(false)}
+        title="Nouveau fichier"
+      >
+        <div className="space-y-4 p-4">
+          <p className="text-sm leading-relaxed text-chalk-3">
+            Créé sur la branche{" "}
+            <span className="font-mono text-chalk-2">{branch}</span>
+          </p>
+          <div className="space-y-2">
+            <label className="label block text-chalk-2">Chemin du fichier</label>
+            <input
+              aria-label="Chemin du nouveau fichier"
+              value={newPath}
+              onChange={(e) => setNewPath(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void createFile();
+              }}
+              className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3 py-2 font-mono text-sm text-chalk"
+              placeholder="src/main.js"
+              spellCheck={false}
+            />
+            <p className="text-[11.5px] leading-relaxed text-chalk-4">
+              Le dossier est créé au besoin. Si ce chemin existe déjà, rien
+              n’est écrasé.
+            </p>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setCreatingFile(false)}
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={() => void createFile()}
+              disabled={busy || newPath.trim().length === 0}
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-[13px] font-bold text-void hover:opacity-95 disabled:opacity-40"
+            >
+              Créer
+            </button>
+          </div>
+        </div>
+      </Sheet>
+
+      {/* ── Feuille : supprimer fichier ── */}
+      <Sheet
+        open={deletingFile !== null}
+        onClose={() => setDeletingFile(null)}
+        title="Supprimer le fichier"
+      >
+        <div className="space-y-4 p-4">
+          <p className="text-sm leading-relaxed text-chalk-3">
+            Confirmer la suppression de{" "}
+            <span className="font-mono text-danger">{deletingFile}</span> sur
+            la branche <span className="font-mono text-chalk-2">{branch}</span>.
+          </p>
+          <p className="text-[11.5px] leading-relaxed text-chalk-4">
+            Le fichier disparaît de l’état de travail. Les commits déjà
+            enregistrés le conservent.
+          </p>
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setDeletingFile(null)}
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+            >
+              Annuler
+            </button>
+            <button
+              type="button"
+              onClick={() => void removeFile()}
+              disabled={busy}
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-danger bg-danger px-4 text-[13px] font-bold text-void hover:opacity-95 disabled:opacity-40"
+            >
+              Supprimer
             </button>
           </div>
         </div>
@@ -842,14 +1054,14 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => setDropping(null)}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)] border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
             >
               Annuler
             </button>
             <button
               type="button"
               onClick={() => dropping && dropBranch(dropping)}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)] border border-danger bg-danger px-4 text-[13px] font-bold text-void hover:opacity-95"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-danger bg-danger px-4 text-[13px] font-bold text-void hover:opacity-95"
             >
               Supprimer
             </button>
@@ -875,7 +1087,7 @@ export default function IdePage() {
               onChange={(e) => setCommitMsg(e.target.value)}
               rows={3}
               spellCheck={false}
-              className="w-full resize-y rounded-[var(--radius-input)] border border-line-3 bg-surface px-3 py-2 font-mono text-sm leading-relaxed text-chalk"
+              className="w-full resize-y rounded-(--radius-input) border border-line-3 bg-surface px-3 py-2 font-mono text-sm leading-relaxed text-chalk"
               placeholder="fix: corriger l’éditeur"
             />
           </div>
@@ -883,14 +1095,14 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => setCommitting(false)}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)] border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
             >
               Annuler
             </button>
             <button
               type="button"
               onClick={commit}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)] border border-signal bg-signal px-4 text-[13px] font-bold text-void hover:opacity-95"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-[13px] font-bold text-void hover:opacity-95"
             >
               Enregistrer
             </button>

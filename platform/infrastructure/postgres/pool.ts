@@ -6,11 +6,17 @@
  * créé au premier usage pour qu'un build sans `DATABASE_URL` ne tente jamais
  * de se connecter.
  *
- * Calcul de capacité : `max = 2` par instance. Avec 20 instances chaudes au
- * pire, cela fait 40 connexions. La cible Systalink `1x-1024-5120` annonce un
- * petit nœud ; on garde une marge pour la maintenance et les scripts. Le jour
- * où `max_connections` est mesuré, ce commentaire et la valeur sont mis à jour
- * ensemble.
+ * Capacité : `PG_POOL_MAX` par instance (10 par défaut), `PG_CONNECT_TIMEOUT_MS`
+ * pour l'établissement (10 s par défaut).
+ *
+ * Ces deux valeurs étaient calibrées pour un nœud Systalink local au réseau
+ * (`max: 2`, connexion en 3 s). Sur une base distante, chaque connexion coûte
+ * un aller-retour TCP puis une poignée de main TLS : un écran qui lance dix
+ * requêtes en parallèle saturait deux emplacements et partait en timeout, ce
+ * qui se voyait comme des 500 et un profil illisible. La latence mesurée vers
+ * Neon est de ~185 ms, donc 3 s ne couvrent même pas une poignée de main sous
+ * charge. Le plafond reste réglable pour ne pas dépasser les connexions de
+ * l'hébergeur.
  */
 import { Pool, type PoolClient } from "pg";
 import { resolvePostgresConnection } from "./tls";
@@ -27,6 +33,12 @@ export class DatabaseUnavailableError extends Error {
     super(message, options);
     this.name = "DatabaseUnavailableError";
   }
+}
+
+/** Entier strictement positif issu de l'environnement, sinon la valeur par défaut. */
+function positiveInt(raw: string | undefined, fallback: number): number {
+  const value = Number(raw);
+  return Number.isInteger(value) && value > 0 ? value : fallback;
 }
 
 export function hasDatabaseUrl(): boolean {
@@ -46,10 +58,10 @@ export function getPostgresPool(): Pool {
     connectionString: connection.connectionString,
     ssl: connection.ssl,
     application_name: "devnet-web",
-    max: 2,
-    idleTimeoutMillis: 5_000,
-    connectionTimeoutMillis: 3_000,
-    query_timeout: 5_000,
+    max: positiveInt(process.env.PG_POOL_MAX, 10),
+    idleTimeoutMillis: 10_000,
+    connectionTimeoutMillis: positiveInt(process.env.PG_CONNECT_TIMEOUT_MS, 10_000),
+    query_timeout: 15_000,
   });
   return pool;
 }

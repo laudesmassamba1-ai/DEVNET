@@ -134,6 +134,29 @@ WantedBy=timers.target
 `systemctl --user enable --now devnet-backup.timer` après validation. Une
 sauvegarde locale sur la même machine ne remplace pas une copie hors site.
 
+### 3.3 Minuterie installée (Neon, depuis le 2026-11-13)
+
+La sauvegarde passe par `scripts/db/backup-daily.sh`, qui lit `.env.local` et
+utilise `DATABASE_URL_UNPOOLED`. L'URL **directe** n'est pas un détail : le
+pooler multiplexe les sessions, et un `pg_dump` à travers lui peut échouer ou
+produire une archive incohérente.
+
+```bash
+./scripts/db/backup-daily.sh                    # essai manuel
+systemctl --user list-timers devnet-backup.timer  # prochaine exécution
+systemctl --user start devnet-backup.service      # forcer une sauvegarde
+alias revue='journalctl --user -u devnet-backup.service -n 20'
+```
+
+Installée le 2026-11-13 : `OnCalendar=*-*-* 03:00:00`, `Persistent=true` (un
+rattrapage a lieu si la machine était éteinte), décalage aléatoire de 15 min,
+`TimeoutStartSec=15min`. Vérifié par un lancement réel : `Result=success`,
+archive de 73 173 octets avec empreinte SHA-256.
+
+À savoir : une minuterie **utilisateur** ne tourne que si la session existe.
+Pour qu'elle fonctionne machine éteinte ou personne connectée :
+`loginctl enable-linger laudes`.
+
 ## 4. Restauration testée
 
 Restauration exécutée le 2026-11-09 depuis le dump chiffré, dans une base locale

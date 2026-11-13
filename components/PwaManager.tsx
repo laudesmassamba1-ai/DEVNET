@@ -160,10 +160,13 @@ export function PwaManager({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const onBeforeInstall = (event: Event) => {
-      event.preventDefault();
+    const adopt = (event: Event) => {
       installPrompt.current = event as BeforeInstallPromptEvent;
       setInstallEvent(event as BeforeInstallPromptEvent);
+    };
+    const onBeforeInstall = (event: Event) => {
+      event.preventDefault();
+      adopt(event);
     };
     const onInstalled = () => {
       installPrompt.current = null;
@@ -172,10 +175,23 @@ export function PwaManager({ children }: { children: React.ReactNode }) {
       setInstallReady(false);
     };
 
+    // L'événement a peut-être déjà été émis avant l'hydratation : le script
+    // `beforeInteractive` du layout l'a mis de côté. Sans cette reprise, le
+    // bouton « Installer » restait invisible sur un premier chargement.
+    const early = (window as Window & { __devnetInstallPrompt?: Event }).__devnetInstallPrompt;
+    if (early) adopt(early);
+
+    const onAvailable = () => {
+      const stashed = (window as Window & { __devnetInstallPrompt?: Event }).__devnetInstallPrompt;
+      if (stashed) adopt(stashed);
+    };
+
     window.addEventListener("beforeinstallprompt", onBeforeInstall);
+    window.addEventListener("devnet:install-available", onAvailable);
     window.addEventListener("appinstalled", onInstalled);
     return () => {
       window.removeEventListener("beforeinstallprompt", onBeforeInstall);
+      window.removeEventListener("devnet:install-available", onAvailable);
       window.removeEventListener("appinstalled", onInstalled);
     };
   }, []);
@@ -244,7 +260,10 @@ export function PwaManager({ children }: { children: React.ReactNode }) {
     if (!canInstall && !isIos) return;
     if (PUBLIC_PAGES.has(pathname)) return;
 
-    const timer = window.setTimeout(() => setInstallReady(true), 12_000);
+    // 12 s laissaient le temps de quitter la page : l'invite arrivait sur un
+    // écran déjà refermé. Quatre secondes suffisent à ne pas surgir pendant
+    // le premier rendu.
+    const timer = window.setTimeout(() => setInstallReady(true), 4_000);
     return () => window.clearTimeout(timer);
   }, [canInstall, installDismissed, installed, isIos, mounted, pathname]);
 
