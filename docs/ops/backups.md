@@ -184,6 +184,28 @@ Le dump distant contient 92 fonctions `public` ; la restauration portable en
 contient 90 car `pgaudit` est exclu. Le schéma `pgbouncer` et `_crunchypgbouncer`
 sont également exclus : ils appartiennent au fournisseur, pas à DevNet.
 
+### 4.1 Restauration scriptée — `db:restore`
+
+La procédure manuelle ci-dessus a été automatisée : `scripts/db/restore.ts`
+déchiffre l'archive, vérifie l'empreinte SHA-256 quand le `.sha256` est
+présent, puis rejoue `pg_restore --clean --if-exists` via l'image PostgreSQL 18.
+
+```bash
+npm run db:restore -- --file=<archive.dump.gpg>            # simulation
+npm run db:restore -- --file=<archive.dump.gpg> --apply    # écriture
+npm run db:restore:remote -- --file=<archive.dump.gpg> --apply
+```
+
+Garde-fous, identiques à `db:backup` : sans `--apply` rien n'est écrit ; une
+cible `remote` exige `DB_TARGET=remote` **et** `CONFIRM_REMOTE=<nom de la
+base>` ; une empreinte différente annule la restauration. `--clean` remplace
+les objets existants : la cible redevient exactement l'archive, ce qui est le
+comportement voulu pour une bascule et interdit pour une fusion.
+
+Testé le 2026-11-13 : dump local (58 tables, 6 comptes) restauré dans une base
+vide → 58 tables, 6 comptes ; refus vérifiés en simulation, sur cible distante
+sans confirmation et sur empreinte faussée.
+
 ## 5. Dérive du schéma
 
 Comparer la base et le dépôt. Le client `pg_dump` doit être en version 18
@@ -203,7 +225,34 @@ inattendue sur un objet DevNet est un incident : elle signifie qu'un objet a
 été créé hors migrations. Ne pas la corriger à la main en production ; écrire
 une migration.
 
-## 6. Ce qui reste à faire
+## 6. Bascule d'hébergeur (aller-retour)
+
+Une seule base est **faisante** à la fois : `DATABASE_URL` ne pointe que vers
+elle, donc deux bases actives en écriture divergeraient sans réconciliation.
+La bascule se fait donc en fenêtre courte, avec une sauvegarde de chaque côté.
+
+**A. Quitter un hébergeur en panne**
+
+1. Créer la base chez le nouveau fournisseur (Neon, région UE, TLS valide).
+2. Mettre son URL dans `.env.remote`, `DB_TARGET=remote`, puis
+   `CONFIRM_REMOTE=<base> npm run db:migrate:remote -- --apply` → schéma seul.
+3. Si une sauvegarde de l'ancienne base existe : `npm run db:restore:remote --
+   --file=<archive> --apply` → données.
+4. Basculer `DATABASE_URL` sur Vercel, redéployer, vérifier `/api/ready`.
+
+**B. Revenir sur l'ancien hébergeur**
+
+1. Vérifier que la cible répond : `npm run db:probe -- --env=remote`.
+2. Sauvegarder la base **active** avant tout : `npm run db:backup:remote`.
+3. Restaurer cette archive dans la cible revenue : `npm run db:restore:remote
+   -- --file=<archive> --apply`. Le schéma est remplacé par celui du dump.
+4. Basculer `DATABASE_URL`, redéployer, vérifier `/api/ready` et un compte.
+
+**Le point à ne pas rater** : l'étape B.2. Les écritures faites sur la base
+temporaire après la panne n'existent que là. Sans cette sauvegarde, revenir
+sur l'ancien hébergeur revient à perdre tout ce qui a été créé entre-temps.
+
+## 7. Ce qui reste à faire
 
 - [x] Prendre une sauvegarde pré-migration et consigner son empreinte.
 - [x] Réussir une sauvegarde distante chiffrée GPG.
