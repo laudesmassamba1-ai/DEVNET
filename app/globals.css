@@ -771,7 +771,14 @@
     font-size: 15px;
     line-height: 1.55;
     min-height: 100dvh;
+    /* `hidden` faisait de `body` un conteneur de défilement : tout élément
+       `sticky` de la page (panneau de commentaires, barres latérales) s'y
+       accrochait et défilait avec le contenu au lieu de rester visible.
+       `clip` coupe le débordement horizontal *sans* créer de conteneur de
+       défilement — d'où l'ordre : `hidden` reste le repli des navigateurs
+       qui ignorent `clip`. */
     overflow-x: hidden;
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
