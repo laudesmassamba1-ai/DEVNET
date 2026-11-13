@@ -56,6 +56,32 @@ function run(command: string, args: string[], env?: NodeJS.ProcessEnv, output?: 
   });
 }
 
+/**
+ * Objets propres à l'hébergeur d'origine, qui n'existent nulle part ailleurs.
+ * Le dump de Systalink embarque `pgaudit` (absent de PostgreSQL nu comme de
+ * Neon) et les schémas `pgbouncer` / `_crunchypgbouncer`. Sans ce filtre, le
+ * `CREATE EXTENSION pgaudit` fait échouer toute la restauration.
+ */
+const PROVIDER_OBJECT = /pgaudit|pgbouncer|_crunchy/i;
+
+/** Exécute une commande et récupère sa sortie standard. */
+function capture(command: string, args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { stdio: ["ignore", "pipe", "pipe"] });
+    let stdout = "";
+    let stderr = "";
+    child.stdout?.on("data", (chunk: Buffer) => {
+      stdout += chunk.toString("utf8");
+    });
+    child.stderr?.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString("utf8");
+      if (stderr.length > 8_000) stderr = stderr.slice(-8_000);
+    });
+    child.on("error", reject);
+    child.on("close", (code) => resolve({ code: code ?? 1, stdout, stderr }));
+  });
+}
+
 async function sha256(file: string): Promise<string> {
   const hash = createHash("sha256");
   for await (const chunk of createReadStream(file)) hash.update(chunk as Buffer);
@@ -80,6 +106,46 @@ function caCertificate(): string | undefined {
   } catch {
     throw new MigrationError(`Certificat CA introuvable ou illisible : ${value}.`);
   }
+}
+
+/**
+ * Écrit la table des matières du dump sans les objets du fournisseur, et
+ * renvoie le nombre de lignes écartées. `pg_restore --use-list` rejoue alors
+ * exactement ce fichier, ce qui rend la sélection explicite et auditable.
+ */
+async function writePortableToc(
+  archiveDir: string,
+  archiveName: string,
+  tempDir: string,
+  image: string,
+): Promise<number> {
+  const listing = await capture("docker", [
+    "run",
+    "--rm",
+    "-v",
+    `${archiveDir}:/dump:ro`,
+    image,
+    "pg_restore",
+    "-l",
+    `/dump/${archiveName}`,
+  ]);
+  if (listing.code !== 0) {
+    throw new MigrationError(`Lecture du sommaire impossible (code ${listing.code}) : ${listing.stderr.trim()}`);
+  }
+
+  const lines = listing.stdout.split("\n");
+  const kept: string[] = [];
+  let skipped = 0;
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    if (PROVIDER_OBJECT.test(line)) {
+      skipped += 1;
+      continue;
+    }
+    kept.push(line);
+  }
+  writeFileSync(path.join(tempDir, "portable.toc"), `${kept.join("\n")}\n`, { mode: 0o600 });
+  return skipped;
 }
 
 /** Le dump est chiffré quand l'extension est `.gpg`, sinon il est pris tel quel. */
@@ -138,6 +204,7 @@ async function restore(url: URL, target: "local" | "remote", archive: string, im
     // doit pas pouvoir le modifier, et l'archive reste hors du conteneur.
     const archiveDir = path.dirname(archive);
     const archiveName = path.basename(archive);
+    const skipped = await writePortableToc(archiveDir, archiveName, tempDir, image);
     writeFileSync(envFile, `${envLines.join("\n")}\n`, { mode: 0o600 });
     if (ca) writeFileSync(path.join(tempDir, "root.crt"), ca, { mode: 0o600 });
     const args = [
@@ -150,6 +217,8 @@ async function restore(url: URL, target: "local" | "remote", archive: string, im
       envFile,
       "-v",
       `${archiveDir}:/dump:ro`,
+      "-v",
+      `${tempDir}:/work:ro`,
     ];
     if (ca) args.push("-v", `${tempDir}:/certs:ro`);
     args.push(
@@ -161,12 +230,14 @@ async function restore(url: URL, target: "local" | "remote", archive: string, im
       "--no-privileges",
       "--single-transaction",
       "--no-password",
+      "--use-list=/work/portable.toc",
       `--host=${url.hostname}`,
       `--port=${url.port || "5432"}`,
       `--username=${decodeURIComponent(url.username)}`,
       `--dbname=${decodeURIComponent(url.pathname.replace(/^\/+/, "")) || "postgres"}`,
       `/dump/${archiveName}`,
     );
+    if (skipped > 0) console.log(`Objets du fournisseur écartés : ${skipped}.`);
     const result = await run("docker", args);
     // `pg_restore --clean` signale en code 1 les objets absents à supprimer ;
     // ce n'est pas une restauration ratée, seulement un premier passage.
