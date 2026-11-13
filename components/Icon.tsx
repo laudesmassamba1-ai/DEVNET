@@ -22,7 +22,7 @@ export const ICON_NAMES = [
   "code", "terminal", "branch", "command", "hash", "package", "server",
   "bolt", "layers", "grid", "cursor", "keyboard", "file", "stop", "play",
   "pin", "star", "verified", "globe", "lock", "flame", "trophy", "chart",
-  "medal", "fork", "target", "info", "flag", "smile", "droplet",
+  "medal", "fork", "target", "info", "flag", "smile", "droplet", "align",
   "sun", "moon", "gif", "video", "pause", "volume", "volume-off",
   "studio", "execute", "sticker",
 ] as const;

@@ -17,6 +17,7 @@ import { timeAgo } from "@/lib/utils";
 import { STORY_REPLY_MAX } from "@/modules/stories";
 import {
   fetchStoryFeed,
+  fetchStoryViewers,
   markStorySeen,
   moveStorySticker,
   placeStorySticker,
@@ -26,6 +27,7 @@ import {
   toggleStoryLike,
   type PlacedSticker,
   type StickerCatalogEntry,
+  type StoryViewerEntry,
 } from "@/lib/stories";
 
 /**
@@ -70,6 +72,21 @@ function isVideoUrl(url: string): boolean {
 
 /** Durée d'affichage d'une story avant de passer à la suivante. */
 const STORY_MS = 7000;
+
+/**
+ * Réactions rapides.
+ *
+ * Un emoji est envoyé comme une réponse privée — c'est exactement ce qu'il
+ * est : un mot adressé à l'auteur, qui arrive dans la messagerie. Inventer
+ * un second canal de réaction aurait créé deux endroits où lire la même
+ * intention.
+ */
+const QUICK_REACTIONS = ["🔥", "👏", "😂", "🙌", "💡"] as const;
+
+/** Le geste qui ferme : un glissement vertical franc, pas un frôlement. */
+const CLOSE_SWIPE_PX = 110;
+/** Le geste qui tourne la page : horizontal, et plus long que haut. */
+const PAGE_SWIPE_PX = 70;
 
 interface Feedback {
   kind: "ok" | "error";
@@ -148,6 +165,16 @@ export function StoryViewer({
   const [mediaById, setMediaById] = useState<Record<string, { mime: string } | null>>({});
   const [liked, setLiked] = useState<Set<string>>(new Set());
   const [likeCounts, setLikeCounts] = useState<Record<string, number>>({});
+  const [viewCounts, setViewCounts] = useState<Record<string, number>>({});
+
+  // Insights : la liste des vues, chargée seulement quand l'auteur l'ouvre.
+  const [viewersOpen, setViewersOpen] = useState(false);
+  const [viewers, setViewers] = useState<StoryViewerEntry[] | null>(null);
+  const [viewersFailed, setViewersFailed] = useState(false);
+
+  // Geste en cours sur la surface : départ du doigt, pour distinguer un
+  // glissement (tourner la page, fermer) d'un simple toucher.
+  const swipeRef = useRef<{ x: number; y: number } | null>(null);
   const [placed, setPlaced] = useState<Record<string, PlacedSticker[]>>({});
   const [state, setState] = useState<"loading" | "ready" | "unavailable">("loading");
 
@@ -217,6 +244,9 @@ export function StoryViewer({
         setLikeCounts(
           Object.fromEntries(feed.stories.map((s) => [s.id, s.likes] as const)),
         );
+        setViewCounts(
+          Object.fromEntries(feed.stories.map((s) => [s.id, s.views] as const)),
+        );
         setPlaced(
           Object.fromEntries(feed.stories.map((s) => [s.id, s.stickers] as const)),
         );
@@ -229,6 +259,28 @@ export function StoryViewer({
       alive = false;
     };
   }, []);
+
+  // Insights : chargés à la demande. Tant que la liste n'est pas ouverte,
+  // aucune requête n'est faite pour elle.
+  useEffect(() => {
+    if (!viewersOpen) return;
+    const storyId = current?.id;
+    if (!storyId) return;
+    let alive = true;
+    setViewers(null);
+    setViewersFailed(false);
+    fetchStoryViewers(storyId).then((list) => {
+      if (!alive) return;
+      if (list === null) {
+        setViewersFailed(true);
+        return;
+      }
+      setViewers(list);
+    });
+    return () => {
+      alive = false;
+    };
+  }, [viewersOpen, current?.id]);
 
   // Vue : une seule fois par story et par ouverture.
   useEffect(() => {
@@ -253,6 +305,7 @@ export function StoryViewer({
     setDraft("");
     setTrayOpen(false);
     setPlacing(null);
+    setViewersOpen(false);
   }, [index, stories.length, onClose, replyOpen]);
 
   const prev = useCallback(() => {
@@ -263,16 +316,17 @@ export function StoryViewer({
     setDraft("");
     setTrayOpen(false);
     setPlacing(null);
+    setViewersOpen(false);
   }, [replyOpen]);
 
   // Avance automatique : suspendue par la composition, le catalogue,
   // le placement, le survol du contenu et un onglet caché.
   useEffect(() => {
-    if (paused || replyOpen || trayOpen || placing || !current) return;
+    if (paused || replyOpen || trayOpen || placing || viewersOpen || !current) return;
     if (typeof document !== "undefined" && document.hidden) return;
     const timer = setTimeout(next, STORY_MS);
     return () => clearTimeout(timer);
-  }, [index, paused, replyOpen, trayOpen, placing, next, current]);
+  }, [index, paused, replyOpen, trayOpen, placing, viewersOpen, next, current]);
 
   // Clavier : navigation, pause, fermeture. Le focus reste dans la surface.
   useEffect(() => {
@@ -356,6 +410,47 @@ export function StoryViewer({
     setReplyOpen(false);
     setPaused(false);
     setFeedback({ kind: "ok", text: "Réponse envoyée en privé" });
+  }
+
+  /**
+   * Réaction rapide : un emoji part comme réponse privée.
+   *
+   * Pas de canal parallèle, pas de compteur public : l'emoji arrive dans
+   * la conversation, exactement comme un mot tapé.
+   */
+  async function react(emoji: string) {
+    if (!current) return;
+    const result = await replyToStory(current.id, emoji);
+    if (!result.ok) {
+      setFeedback({ kind: "error", text: result.error });
+      return;
+    }
+    setFeedback({ kind: "ok", text: `${emoji} envoyé à l’auteur` });
+  }
+
+  /**
+   * Fin de geste sur la surface : un glissement tourne la page ou ferme, un
+   * appui simple ne fait rien (les zones gauche/droite gardent leur rôle).
+   *
+   * Le geste part du média : un appui sur un bouton, une vidéo ou le champ
+   * de réponse n'est jamais interprété comme une navigation.
+   */
+  function endSwipe(event: ReactPointerEvent<HTMLDivElement>) {
+    const start = swipeRef.current;
+    swipeRef.current = null;
+    if (!start) return;
+    const target = event.target as HTMLElement | null;
+    if (target?.closest("button, input, textarea, video, a, [role='button']")) return;
+    if (placing) return;
+
+    const dx = event.clientX - start.x;
+    const dy = event.clientY - start.y;
+    if (Math.abs(dx) > PAGE_SWIPE_PX && Math.abs(dx) > Math.abs(dy) * 1.4) {
+      if (dx < 0) next();
+      else prev();
+      return;
+    }
+    if (dy > CLOSE_SWIPE_PX && Math.abs(dy) > Math.abs(dx) * 1.4) onClose();
   }
 
   async function place(sticker: StickerCatalogEntry, x: number, y: number) {
@@ -623,11 +718,28 @@ export function StoryViewer({
           <div className="text-[11px] text-chalk/60">{timeAgo(current.created_at)}</div>
         </div>
 
-        {isMine && (
+        {isMine && count > 0 && (
           <span className="label-micro mr-1 flex items-center gap-1 text-chalk/70">
-            <SectionIcon name="eye" size={13} />
-            {count > 0 ? `${count} j’aime` : ""}
+            <SectionIcon name="heart" size={13} />
+            {count}
           </span>
+        )}
+
+        {/* Insights : la porte des vues n'existe que chez l'auteur — la RLS
+            répondrait « personne » à tout le monde d'autre, mais un bouton
+            qui n'ouvre rien n'a pas à exister. */}
+        {isMine && (
+          <button
+            type="button"
+            onClick={() => setViewersOpen(true)}
+            aria-label="Voir qui a regardé ce statut"
+            title="Qui a vu"
+            className="story-control mr-1 flex h-11 items-center gap-1.5 px-2.5
+              text-chalk/70 transition-colors hover:text-chalk"
+          >
+            <SectionIcon name="eye" size={14} />
+            <span className="label-micro tnum">{viewCounts[current.id] ?? 0}</span>
+          </button>
         )}
 
         {isMine && onDelete && (
@@ -671,6 +783,13 @@ export function StoryViewer({
             className="story-aperture relative h-full p-[1px]"
             style={{ background: "var(--color-line-2)" }}
             onDoubleClick={() => void like()}
+            onPointerDown={(event) => {
+              swipeRef.current = { x: event.clientX, y: event.clientY };
+            }}
+            onPointerUp={endSwipe}
+            onPointerCancel={() => {
+              swipeRef.current = null;
+            }}
             onClick={(event) => {
               if (!placing) return;
               const rect = event.currentTarget.getBoundingClientRect();
@@ -872,6 +991,76 @@ export function StoryViewer({
         </p>
       ) : null}
 
+      {/* ── Qui a vu — panneau de l'auteur ──────────────────────────── */}
+      {viewersOpen ? (
+        <div className="absolute inset-0 z-20 flex flex-col justify-end bg-void/60 sm:p-4">
+          {/* Fermer est une action, donc un bouton : un fond cliquable en
+              `div` ne serait ni annoncé, ni atteignable au clavier. */}
+          <button
+            type="button"
+            aria-label="Fermer la liste des vues"
+            onClick={() => setViewersOpen(false)}
+            className="absolute inset-0 cursor-default"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Personnes ayant vu ce statut"
+            className="story-tray relative mx-auto max-h-[70%] min-h-[132px] w-full
+              max-w-[440px] overflow-y-auto rounded-t-[var(--radius-card)] p-3
+              pb-[max(12px,var(--h-safe-bottom))] sm:rounded-[var(--radius-card)]"
+          >
+            <div className="mb-2 flex items-center justify-between gap-2">
+              <span className="label-micro text-chalk-3">
+                Vues · 24 h · {viewers?.length ?? viewCounts[current.id] ?? 0}
+              </span>
+              <button
+                type="button"
+                onClick={() => setViewersOpen(false)}
+                aria-label="Fermer la liste des vues"
+                className="flex size-11 items-center justify-center text-chalk/70"
+              >
+                <SectionIcon name="close" size={14} />
+              </button>
+            </div>
+
+            {viewersFailed ? (
+              // La démonstration n’a pas de vues nominatives : le total
+              // reste vrai, le détail ne l’est pas. On le dit plutôt que de
+              // laisser un panneau vide ou une promesse en l’air.
+              <p className="px-1 py-2 label-micro text-chalk/60">
+                Le détail des vues est indisponible ici. Le total, lui, est à jour.
+              </p>
+            ) : viewers === null ? (
+              <p className="px-1 py-2 label-micro text-chalk/50">Chargement…</p>
+            ) : viewers.length === 0 ? (
+              <p className="px-1 py-2 label-micro text-chalk/60">
+                Personne n’a encore regardé ce statut.
+              </p>
+            ) : (
+              <ul className="flex flex-col">
+                {viewers.map((viewer) => (
+                  <li key={viewer.id} className="flex items-center gap-2.5 py-1.5">
+                    <Avatar name={viewer.prenom} color={viewer.avatar_color} className="size-8 text-[12px]" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[13px] font-semibold text-chalk">
+                        {viewer.prenom}
+                      </span>
+                      <span className="block truncate font-mono text-[12px] text-chalk/60">
+                        @{viewer.pseudo}
+                      </span>
+                    </span>
+                    <time dateTime={viewer.seenAt} className="label-micro shrink-0 text-chalk/50">
+                      {timeAgo(viewer.seenAt)}
+                    </time>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      ) : null}
+
       <footer className="absolute inset-x-0 bottom-0 z-10 px-3 pb-4">
         {replyOpen ? (
           <form
@@ -965,6 +1154,27 @@ export function StoryViewer({
             )}
           </div>
         ) : (
+          <>
+            {/* Réactions rapides : un geste, pas un clavier. Elles
+                n'existent pas sur sa propre story — on ne s'écrit pas à
+                soi-même. */}
+            {!isMine && me ? (
+              <div className="mb-2 flex items-center justify-center gap-1">
+                {QUICK_REACTIONS.map((emoji) => (
+                  <button
+                    key={emoji}
+                    type="button"
+                    onClick={() => void react(emoji)}
+                    aria-label={`Réagir avec ${emoji}`}
+                    className="story-control flex size-11 items-center justify-center
+                      text-[20px] leading-none transition-transform active:scale-95"
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
+            ) : null}
+
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -1010,10 +1220,13 @@ export function StoryViewer({
               </button>
             )}
           </div>
+          </>
         )}
 
-        <p className="mt-2 text-center label-micro text-chalk/35">
-          ← → naviguer · Espace pause · double-clic aimer
+        {/* Raccourcis clavier : sur un téléphone, il n'y a pas de clavier
+            et la ligne ne fait que pousser le pouce hors de l'écran. */}
+        <p className="mt-2 hidden text-center label-micro text-chalk/35 sm:block">
+          ← → naviguer · Espace pause · glisser pour fermer · double-clic aimer
         </p>
       </footer>
     </div>,

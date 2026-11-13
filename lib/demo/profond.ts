@@ -179,33 +179,47 @@ export const DEMO_MESSAGE_PINS: MessagePin[] = [
  * c'est le cas que le moteur doit savoir afficher sans planter. Le
  * stockage configuré plus tard remplira la colonne.
  */
+/*
+ * Les stories de démonstration se datent **par rapport à maintenant**, pas
+ * par rapport à l'ancre `t0` du reste du jeu de données.
+ *
+ * Une story vit 24 h, et la démo est datée d'un jour fixe : ancrées sur
+ * `t0`, les trois stories étaient périmées dès le lendemain du seed, donc
+ * retirées du store au chargement. Le rail de la démonstration ne montrait
+ * plus qu'un bouton « Votre story » vide, et publier semblait n'avoir rien
+ * fait — alors que tout fonctionnait en base. Une démonstration doit rester
+ * vivante quel que soit le jour où on l'ouvre.
+ */
+const nowMs = Date.now();
+const fromNow = (ms: number): string => new Date(nowMs + ms).toISOString();
+
 export const DEMO_STORIES: Story[] = [
   {
     id: "s-1",
     author_id: "u-koffi",
     caption: "Le registre des coopératives tourne enfin. Trois jours de retard, un typage strict, et cette boucle.",
     media_url: "",
-    created_at: ago(3 * HOUR),
-    // Vivante : dans deux heures, comme une story qui vient d'être
+    created_at: fromNow(-3 * HOUR),
+    // Vivante : encore vingt heures, comme une story qui vient d'être
     // postée.
-    expires_at: new Date(t0 + 2 * HOUR).toISOString(),
+    expires_at: fromNow(21 * HOUR),
   },
   {
     id: "s-2",
     author_id: "u-aminata",
     caption: "Présentation de mon modèle aujourd'hui. J'espère que mes coefficients ne surapprennent pas.",
     media_url: "",
-    created_at: ago(50 * MIN),
-    expires_at: new Date(t0 + 23 * HOUR).toISOString(),
+    created_at: fromNow(-50 * MIN),
+    expires_at: fromNow(23 * HOUR),
   },
   {
     id: "s-3",
     author_id: "u-thabo",
     caption: "Writeup du CTF publié. L'injection était encore dans un ORDER BY concaténé.",
     media_url: "",
-    created_at: ago(2 * 24 * HOUR),
+    created_at: fromNow(-2 * 24 * HOUR),
     // Périmée : elle ne doit apparaître nulle part, ni dans le rail, ni
     // dans le compteur de stories.
-    expires_at: ago(4 * HOUR),
+    expires_at: fromNow(-4 * HOUR),
   },
 ].filter((s) => USER_IDS.has(s.author_id));

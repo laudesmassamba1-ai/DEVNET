@@ -7,6 +7,7 @@ import type {
   PlaceStickerInput,
   StickerCatalogEntry,
   StoryEntry,
+  StoryViewerEntry,
 } from "@/modules/stories";
 
 export type {
@@ -14,6 +15,7 @@ export type {
   PlaceStickerInput,
   StickerCatalogEntry,
   StoryEntry,
+  StoryViewerEntry,
 };
 
 /**
@@ -179,6 +181,29 @@ export async function publishStoryMedia(
   return postStoryMedia({ caption: clean, dataUrl });
 }
 
+/**
+ * Qui a vu une story — réservé à l'auteur par la RLS.
+ *
+ * `null` signifie « indisponible » (hors ligne, mode démonstration) ; un
+ * tableau vide est une réponse légitime : personne n'a encore regardé.
+ */
+export async function fetchStoryViewers(
+  storyId: string,
+): Promise<StoryViewerEntry[] | null> {
+  try {
+    const response = await fetch(`/api/stories/${encodeURIComponent(storyId)}/viewers`, {
+      cache: "no-store",
+      credentials: "same-origin",
+      headers: { accept: "application/json" },
+    });
+    if (!response.ok) return null;
+    const body = (await response.json()) as { viewers?: StoryViewerEntry[] };
+    return body.viewers ?? [];
+  } catch {
+    return null;
+  }
+}
+
 /** URL des octets du média d'un statut. */
 export function storyMediaUrl(storyId: string): string {
   return `/api/stories/${encodeURIComponent(storyId)}/media`;
@@ -260,8 +285,53 @@ export function toggleStoryLike(
   return postStory<{ liked: boolean; likes: number }>({ action: "like", storyId });
 }
 
+/* ── Ce que **j'ai** déjà vu ─────────────────────────────────────────
+
+   Le rail doit distinguer une story neuve d'une story déjà vue. Le serveur
+   ne peut pas le dire : la table des vues n'est lisible que par l'auteur
+   (`story_views_read`). La mémoire locale est donc la bonne source pour
+   cette information — elle décrit la lecture de cet appareil, pas une
+   propriété de la story. */
+
+const SEEN_KEY = "devnet:stories:seen";
+const SEEN_MAX = 300;
+/** Événement émis quand une story vient d'être vue, pour le rail. */
+export const SEEN_EVENT = "devnet:stories:seen-change";
+
+/** Les identifiants de stories déjà vues sur cet appareil. */
+export function readSeenStoryIds(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(SEEN_KEY);
+    const list = raw ? (JSON.parse(raw) as unknown) : [];
+    return new Set(Array.isArray(list) ? list.filter((id) => typeof id === "string") : []);
+  } catch {
+    return new Set();
+  }
+}
+
+/**
+ * Retient qu'une story a été vue, et prévient le rail.
+ *
+ * La liste est bornée : une story vit 24 h, garder des identifiants
+ * au-delà ne sert à rien et gonflerait le stockage à chaque session.
+ */
+export function rememberSeenStory(storyId: string): void {
+  if (typeof window === "undefined") return;
+  const seen = readSeenStoryIds();
+  if (seen.has(storyId)) return;
+  const next = [storyId, ...seen].slice(0, SEEN_MAX);
+  try {
+    window.localStorage.setItem(SEEN_KEY, JSON.stringify(next));
+  } catch {
+    return;
+  }
+  window.dispatchEvent(new Event(SEEN_EVENT));
+}
+
 /** Marque la story comme vue — silencieux : une vue n'est pas une action. */
 export async function markStorySeen(storyId: string): Promise<void> {
+  rememberSeenStory(storyId);
   await postStory<Record<string, never>>({ action: "view", storyId }).catch(() => undefined);
 }
 

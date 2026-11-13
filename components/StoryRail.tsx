@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Avatar } from "./Avatar";
 import { Icon } from "./Icon";
+import { readSeenStoryIds, SEEN_EVENT } from "@/lib/stories";
 import type { StoryWithAuthor } from "@/lib/types";
 
 /**
@@ -65,6 +67,26 @@ export function StoryRail({
 }) {
   const groups = groupStoriesByAuthor(stories);
 
+  /**
+   * Ce que cet appareil a déjà vu.
+   *
+   * Le serveur ne peut pas répondre à cette question : la table des vues
+   * n'est lisible que par l'auteur. Le rail lit donc la mémoire locale, et
+   * se met à jour quand le lecteur referme une story — sans recharger le
+   * fil pour une information qui tient dans un `Set`.
+   */
+  const [seenIds, setSeenIds] = useState<Set<string>>(() => new Set());
+  useEffect(() => {
+    const sync = () => setSeenIds(readSeenStoryIds());
+    sync();
+    window.addEventListener(SEEN_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(SEEN_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
   // Sans story et sans possibilité d'en publier, le rail n'a rien à dire :
   // un titre « Dernières contributions » au-dessus du vide serait du bruit.
   if (groups.length === 0 && !onPublish) return null;
@@ -110,7 +132,12 @@ export function StoryRail({
                     }}
                   />
                 )}
-                <span className="flex size-full items-center justify-center rounded-full bg-page">
+                {/* L'initiale est décorative : le nom est juste en dessous.
+                    Lue deux fois, elle s'entendrait « K vous ». */}
+                <span
+                  aria-hidden="true"
+                  className="flex size-full items-center justify-center rounded-full bg-page"
+                >
                   <Avatar
                     name={mine?.author?.prenom ?? "moi"}
                     color={mine?.author?.avatar_color ?? "av-lime"}
@@ -147,59 +174,81 @@ export function StoryRail({
           </div>
         )}
 
-        {groups.filter((g) => !(onPublish && g.authorId === me)).map((g) => (
-          <button
-            key={g.authorId}
-            type="button"
-            onClick={() => onOpen(g.authorId)}
-            className="group flex w-[80px] shrink-0 flex-col items-center gap-1.5"
-          >
-            {/* Anneau « sonde » — la signature de marque.
-                Le dégradé phosphor ambre→vert, d'un écran qui s'allume.
-                Il remplace l'arc-en-ciel d'Instagram par une seule
-                affirmation de la marque. */}
-            <span
-              className="relative flex size-[54px] items-center justify-center
-                rounded-full p-[2px] transition-transform group-hover:-translate-y-0.5
-                group-hover:animate-[pulse_1.8s_ease-continuous_infinite]"
-            >
-              {/* L'anneau est un calque **frère** de l'avatar, jamais son
-                  parent : un masque s'applique aussi aux enfants, et posé
-                  sur le conteneur il effaçait le visage au centre du cercle.
-                  On ne voyait plus que des anneaux vides. */}
-              <span
-                aria-hidden
-                className="absolute inset-0 rounded-full"
-                style={{
-                  background: "var(--story-ring-gradient)",
-                  WebkitMask: "radial-gradient(circle, transparent 62%, black 63%)",
-                  mask: "radial-gradient(circle, transparent 62%, black 63%)",
-                }}
-              />
-              <span
-                className="flex size-full items-center justify-center
-                  rounded-full bg-page"
+        {groups
+          .filter((g) => !(onPublish && g.authorId === me))
+          .map((g) => {
+            const unseen = g.items.some((story) => !seenIds.has(story.id));
+            return (
+              <button
+                key={g.authorId}
+                type="button"
+                onClick={() => onOpen(g.authorId)}
+                className="group flex w-[80px] shrink-0 flex-col items-center gap-1.5"
               >
-                <Avatar
-                  name={g.author?.prenom}
-                  color={g.author?.avatar_color}
-                  className="size-[38px] border-0 text-[14px]"
-                />
-              </span>
-            </span>
+                {/* Deux états, deux matières : l'anneau de marque pour ce
+                    qui n'a pas été vu, un filet discret pour le reste. Le
+                    dégradé ne clignote pas : c'est une information, pas un
+                    appel à l'action. */}
+                <span
+                  className={`relative flex size-[54px] items-center justify-center
+                    rounded-full p-[2px] transition-transform
+                    group-hover:-translate-y-0.5 ${
+                      unseen ? "" : "border-[1.5px] border-line-3"
+                    }`}
+                >
+                  {/* L'anneau est un calque **frère** de l'avatar, jamais
+                      son parent : un masque s'applique aussi aux enfants, et
+                      posé sur le conteneur il effaçait le visage au centre
+                      du cercle. */}
+                  {unseen && (
+                    <span
+                      aria-hidden
+                      className="absolute inset-0 rounded-full"
+                      style={{
+                        background: "var(--story-ring-gradient)",
+                        WebkitMask: "radial-gradient(circle, transparent 62%, black 63%)",
+                        mask: "radial-gradient(circle, transparent 62%, black 63%)",
+                      }}
+                    />
+                  )}
+                  <span
+                    aria-hidden="true"
+                    className="flex size-full items-center justify-center rounded-full bg-page"
+                  >
+                    <Avatar
+                      name={g.author?.prenom}
+                      color={g.author?.avatar_color}
+                      className="size-[38px] border-0 text-[14px]"
+                    />
+                  </span>
+                </span>
 
-            <span className="label-micro w-full truncate text-center text-chalk-2">
-              {g.authorId === me ? "vous" : (g.author?.pseudo ?? "?")}
-            </span>
+                <span
+                  className={`label-micro w-full truncate text-center ${
+                    unseen ? "text-chalk-2" : "text-chalk-3"
+                  }`}
+                >
+                  {g.authorId === me ? "vous" : (g.author?.pseudo ?? "?")}
+                </span>
 
-            {/* Indicateur de nombre de stories (Instagram-style). */}
-            {g.items.length > 1 && (
-              <span className="label-micro flex items-center justify-center w-full text-chalk-4">
-                {g.items.length}
-              </span>
-            )}
-          </button>
-        ))}
+                {/* Un compteur n'apparaît que s'il y a plusieurs statuts :
+                    « 1 » à côté de chaque nom serait du bruit. */}
+                {g.items.length > 1 && (
+                  <span className="label-micro flex w-full items-center justify-center text-chalk-4">
+                    {g.items.length}
+                  </span>
+                )}
+
+                {/* L'état se dit à voix haute sans remplacer le nom visible :
+                    un `aria-label` qui réécrit le contenu casse le lien entre
+                    ce qu'on lit et ce qu'on entend. */}
+                <span className="sr-only">
+                  {` — ${g.items.length} statut${g.items.length > 1 ? "s" : ""}, `}
+                  {unseen ? "non vu" : "déjà vu"}
+                </span>
+              </button>
+            );
+          })}
       </div>
     </div>
   );

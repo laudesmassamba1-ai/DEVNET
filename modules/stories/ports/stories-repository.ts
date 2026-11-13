@@ -59,6 +59,21 @@ export interface StoryFeed {
   catalog: StickerCatalogEntry[];
 }
 
+/**
+ * Une personne qui a vu la story.
+ *
+ * `seenAt` est l'horodatage de la **première** vue : revoir une story ne
+ * crée pas une seconde ligne, et une liste de vues qui grossirait à chaque
+ * passage ne dirait plus qui a réellement regardé.
+ */
+export interface StoryViewerEntry {
+  id: string;
+  prenom: string;
+  pseudo: string;
+  avatar_color: string;
+  seenAt: string;
+}
+
 export interface PlaceStickerInput {
   stickerId: string;
   x: number;
@@ -125,6 +140,12 @@ export interface StoriesRepository {
     readerId: string | null,
     storyId: string,
   ): Promise<{ mime: string; bytes: Buffer } | null>;
+  /**
+   * Qui a vu la story — **l'auteur seulement**. La RLS de `story_views`
+   * restreint déjà la lecture à l'auteur : un autre lecteur reçoit une
+   * liste vide, jamais celle de quelqu'un d'autre.
+   */
+  listViewers(readerId: string, storyId: string): Promise<StoryViewerEntry[]>;
 }
 
 export class StoriesRepositoryError extends Error {
@@ -138,7 +159,8 @@ export class StoriesRepositoryError extends Error {
       | "remove-sticker"
       | "place-sticker"
       | "create-story"
-      | "read-story-media",
+      | "read-story-media"
+      | "list-viewers",
     readonly code: string,
     options?: ErrorOptions,
   ) {
@@ -149,6 +171,8 @@ export class StoriesRepositoryError extends Error {
           ? "Impossible de publier la story. Réessaie dans un instant."
           : operation === "read-story-media"
             ? "Impossible de charger le média. Réessaie dans un instant."
+            : operation === "list-viewers"
+              ? "Impossible de charger les vues. Réessaie dans un instant."
             : "Impossible d’enregistrer ce geste. Réessaie dans un instant.",
       options,
     );

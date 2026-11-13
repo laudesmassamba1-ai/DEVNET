@@ -177,11 +177,13 @@ export interface DemoStore {
  * fonctionnalité est cassée.
  *
  * À monter dès que le seed change de contenu, pas seulement de forme.
+ * v15 : les stories de démonstration se datent par rapport à maintenant —
+ * un store v14 gardait des stories périmées, donc un rail vide.
  * v13 : un message privé de code et un message corrigé (migration 041).
  * v11 : les tables `communities` et `community_members` (migration 028) et
  * la colonne `posts.community_id`.
  */
-const KEY = "devnet.demo.v14";
+const KEY = "devnet.demo.v15";
 
 const TABLES: (keyof DemoStore)[] = [
   "users", "posts", "groups",

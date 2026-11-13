@@ -8,4 +8,5 @@ export type {
   StoriesRepository,
   StoryEntry,
   StoryFeed,
+  StoryViewerEntry,
 } from "./ports/stories-repository";

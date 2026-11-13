@@ -19,6 +19,7 @@ import type {
   StoriesRepository,
   StoryEntry,
   StoryFeed,
+  StoryViewerEntry,
 } from "../../ports/stories-repository";
 import { StoriesRepositoryError } from "../../ports/stories-repository";
 
@@ -529,6 +530,43 @@ export class PostgresStoriesRepository implements StoriesRepository {
       return row ? { mime: row.mime, bytes: row.bytes } : null;
     } catch (error) {
       throw new StoriesRepositoryError("read-story-media", pgCode(error), { cause: error });
+    }
+  }
+
+  async listViewers(
+    readerId: string,
+    storyId: string,
+  ): Promise<StoryViewerEntry[]> {
+    try {
+      const rows = await this.dependencies.asUser(readerId, (query) =>
+        query<{
+          id: string;
+          prenom: string | null;
+          pseudo: string | null;
+          avatar_color: string | null;
+          seen_at: Date | string;
+        }>(
+          // La jointure porte sur `users`, pas sur la story : on veut le nom
+          // de la personne et l'instant de sa vue. La RLS de `story_views`
+          // ne rend ces lignes qu'à l'auteur de la story.
+          `select u.id::text as id, u.prenom, u.pseudo, u.avatar_color, v.seen_at
+             from public.story_views v
+             join public.users u on u.id = v.viewer_id
+            where v.story_id = $1
+            order by v.seen_at desc
+            limit 200`,
+          [storyId],
+        ),
+      );
+      return rows.map((row) => ({
+        id: String(row.id),
+        prenom: String(row.prenom ?? ""),
+        pseudo: String(row.pseudo ?? ""),
+        avatar_color: String(row.avatar_color ?? "av-sage"),
+        seenAt: iso(row.seen_at),
+      }));
+    } catch (error) {
+      throw new StoriesRepositoryError("list-viewers", pgCode(error), { cause: error });
     }
   }
 

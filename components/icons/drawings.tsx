@@ -88,6 +88,7 @@ export type GlyphName =
   | "flag"
   | "smile"
   | "droplet"
+  | "align"
   | "sun"
   | "moon"
   | "gif"
@@ -613,6 +614,13 @@ export const GLYPHS: Record<GlyphName, ReactNode> = {
 
   droplet: (
     <path d="M12 3.2c3 3.4 5.6 6 5.6 9.2A5.6 5.6 0 0 1 12 18a5.6 5.6 0 0 1-5.6-5.6c0-3.2 2.6-5.8 5.6-9.2z" />
+  ),
+
+  // Trois lignes, trois opinions : un texte qu'on peut caler.
+  align: (
+    <>
+      <path d="M4.6 7.2h14.8M4.6 12h9.4M4.6 16.8h12.2" />
+    </>
   ),
 
   sun: (

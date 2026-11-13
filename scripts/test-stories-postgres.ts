@@ -169,6 +169,26 @@ async function main(): Promise<void> {
       readerViews.stories.find((s) => s.id === story.live)?.views === 0,
     );
 
+    // 4 bis. Liste des vues : nominative pour l'auteur, vide pour les autres.
+    const authorViewers = await repository.listViewers(users.author, story.live);
+    check("vues : une personne listée", authorViewers.length === 1, authorViewers.length);
+    check("vues : bonne personne", authorViewers[0]?.id === users.reader, authorViewers[0]?.id);
+    check(
+      "vues : nom et pseudo résolus",
+      Boolean(authorViewers[0]?.pseudo) && Boolean(authorViewers[0]?.prenom),
+      authorViewers[0],
+    );
+    check(
+      "vues : horodatage lisible",
+      Number.isFinite(Date.parse(authorViewers[0]?.seenAt ?? "")),
+      authorViewers[0]?.seenAt,
+    );
+
+    const readerViewers = await repository.listViewers(users.reader, story.live);
+    check("vues : invisibles au lecteur lui-même", readerViewers.length === 0, readerViewers.length);
+    const soloViewers = await repository.listViewers(users.solo, story.live);
+    check("vues : invisibles au tiers", soloViewers.length === 0, soloViewers.length);
+
     // 5. Réponse privée : écrite, lisible, et jamais sur sa propre story.
     const reply = await repository.reply(users.reader, story.live, "Bravo pour cette story");
     check("réponse : enregistrée", typeof reply.id === "string" && reply.id.length > 0);

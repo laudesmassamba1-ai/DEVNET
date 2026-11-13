@@ -44,6 +44,31 @@ const TEXT_COLORS = ["--story-ink-1", "--story-ink-2", "--story-ink-3", "--story
 const TEXT_SIZES = [0.09, 0.07, 0.052];
 
 /**
+ * Ambiances, dans l'ordre du cycle « Filtre ».
+ *
+ * Ce sont des fonctions CSS : le canvas les accepte telles quelles, donc
+ * l'aperçu et le fichier publié reçoivent **la même** chaîne. Un filtre
+ * décrit ici ne peut pas mentir à l'export.
+ */
+const FILTERS: { label: string; css: string }[] = [
+  { label: "Naturel", css: "none" },
+  { label: "Chaud", css: "saturate(1.08) sepia(0.22) brightness(1.03)" },
+  { label: "Froid", css: "saturate(0.94) hue-rotate(-10deg) brightness(1.03)" },
+  { label: "Vintage", css: "sepia(0.4) saturate(0.82) contrast(0.94) brightness(1.04)" },
+  { label: "Cinéma", css: "contrast(1.16) saturate(0.88) brightness(0.96)" },
+  { label: "Noir et blanc", css: "grayscale(1) contrast(1.06)" },
+  { label: "Contrasté", css: "contrast(1.24) saturate(1.08)" },
+  { label: "Doux", css: "brightness(1.06) contrast(0.92) saturate(0.9)" },
+];
+
+/** Alignement du bloc de texte, dans l'ordre du cycle. */
+const ALIGNMENTS = [
+  { label: "gauche", css: "left", canvas: "left" },
+  { label: "centre", css: "center", canvas: "center" },
+  { label: "droite", css: "right", canvas: "right" },
+] as const;
+
+/**
  * Valeur réelle d'une variable de thème.
  *
  * Le canvas n'accepte pas `var(...)` : il lui faut la couleur résolue.
@@ -95,6 +120,8 @@ function EditorShell({
   const [color, setColor] = useState(0);
   const [size, setSize] = useState(0);
   const [pos, setPos] = useState({ x: 50, y: 46 });
+  const [filter, setFilter] = useState(0);
+  const [align, setAlign] = useState(1);
   const [stageWidth, setStageWidth] = useState(360);
   const [source, setSource] = useState<Source | null>(() => {
     if (sourceFile) {
@@ -231,7 +258,11 @@ function EditorShell({
         const scale = Math.max(STAGE_W / image.width, STAGE_H / image.height);
         const width = image.width * scale;
         const height = image.height * scale;
+        // Le filtre est cuit dans les pixels : ce que l'on voit est ce qui
+        // part sur le serveur, sans dépendre d'une propriété stockée.
+        context.filter = FILTERS[filter].css;
         context.drawImage(image, (STAGE_W - width) / 2, (STAGE_H - height) / 2, width, height);
+        context.filter = "none";
       } else {
         context.fillStyle = themeColor("--story-bg-1-a", "black");
         context.fillRect(0, 0, STAGE_W, STAGE_H);
@@ -250,11 +281,19 @@ function EditorShell({
       const fontSize = Math.round(TEXT_SIZES[size] * STAGE_W);
       const maxWidth = STAGE_W * 0.82;
       context.font = `800 ${fontSize}px ui-sans-serif, system-ui, sans-serif`;
-      context.textAlign = "center";
+      const alignCss = ALIGNMENTS[align].css;
+      context.textAlign = alignCss;
       context.textBaseline = "middle";
       const lines = wrap(context, body, maxWidth);
       const lineHeight = fontSize * 1.22;
-      const x = (pos.x / 100) * STAGE_W;
+      // Aligné à gauche, le bloc s'ancre sur son bord gauche ; à droite, sur
+      // son bord droit. Le centre reste le centre — la position du doigt.
+      const x =
+        align === 0
+          ? (pos.x / 100) * STAGE_W - maxWidth / 2
+          : align === 2
+            ? (pos.x / 100) * STAGE_W + maxWidth / 2
+            : (pos.x / 100) * STAGE_W;
       const startY = (pos.y / 100) * STAGE_H - ((lines.length - 1) * lineHeight) / 2;
       context.fillStyle = themeColor(TEXT_COLORS[color], "white");
       // Une ombre douce garde le texte lisible sur n'importe quelle photo.
@@ -361,6 +400,7 @@ function EditorShell({
               alt=""
               draggable={false}
               className="absolute inset-0 h-full w-full object-cover"
+              style={{ filter: FILTERS[filter].css }}
             />
           ) : null}
           {source?.kind === "video" ? (
@@ -375,8 +415,12 @@ function EditorShell({
           ) : null}
 
           <div
-            className="absolute w-full -translate-x-1/2 -translate-y-1/2 px-6 text-center"
-            style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+            className="absolute w-full -translate-x-1/2 -translate-y-1/2 px-6"
+            style={{
+              left: `${pos.x}%`,
+              top: `${pos.y}%`,
+              textAlign: ALIGNMENTS[align].css,
+            }}
           >
             {editing ? (
               <>
@@ -397,7 +441,7 @@ function EditorShell({
                   }}
                   rows={2}
                   placeholder="Votre statut"
-                  className="w-full resize-none appearance-none border-0 bg-transparent text-center
+                  className="w-full resize-none appearance-none border-0 bg-transparent
                     font-extrabold leading-tight shadow-none outline-none ring-0 placeholder:text-chalk-3
                     focus:border-0 focus:shadow-none focus:outline-none focus:ring-0"
                   style={{ color: `var(${TEXT_COLORS[color]})`, fontSize: Math.round(TEXT_SIZES[size] * stageWidth), textShadow: "var(--story-text-shadow)" }}
@@ -436,6 +480,23 @@ function EditorShell({
           <ToolButton label="Fond" icon="droplet" onClick={() => setBackground((value) => (value + 1) % BACKGROUNDS.length)} />
           <ToolButton label="Taille" icon="grid" onClick={() => setSize((value) => (value + 1) % TEXT_SIZES.length)} />
           <ToolButton label="Couleur" icon="sun" onClick={() => setColor((value) => (value + 1) % TEXT_COLORS.length)} />
+          <ToolButton
+            label="Alignement"
+            icon="align"
+            onClick={() => setAlign((value) => (value + 1) % ALIGNMENTS.length)}
+          />
+          <ToolButton
+            label={FILTERS[filter].label}
+            icon="moon"
+            active={filter > 0}
+            disabled={source?.kind === "video"}
+            title={
+              source?.kind === "video"
+                ? "Un filtre vidéo demande un recodage serveur : la vidéo part sans filtre."
+                : undefined
+            }
+            onClick={() => setFilter((value) => (value + 1) % FILTERS.length)}
+          />
           <label htmlFor="status-composer-media" className="sr-only">
             Photo ou vidéo du statut
           </label>
@@ -452,7 +513,8 @@ function EditorShell({
           />
         </div>
         <p className="mt-2 text-center text-[12px] text-chalk-3">
-          Glisse le texte pour le placer · double-clic pour modifier
+          Glisse le texte pour le placer · double-clic pour modifier · filtre :{" "}
+          {source?.kind === "video" ? "photos seulement" : FILTERS[filter].label}
         </p>
       </footer>
     </div>,
@@ -465,18 +527,25 @@ function ToolButton({
   icon,
   onClick,
   active = false,
+  disabled = false,
+  title,
 }: {
   label: string;
-  icon: "image" | "edit" | "droplet" | "grid" | "sun";
+  icon: "image" | "edit" | "droplet" | "grid" | "sun" | "align" | "moon";
   onClick: () => void;
   active?: boolean;
+  disabled?: boolean;
+  title?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
+      title={title}
       aria-pressed={active}
       className={`inline-flex min-h-tap items-center gap-1.5 rounded-[var(--radius-chip)] border px-3 text-[13px] font-medium transition-colors
+        disabled:cursor-not-allowed disabled:opacity-50
         ${active ? "border-signal bg-signal/10 text-chalk" : "border-line-3 bg-surface text-chalk-3 hover:border-line-2 hover:text-chalk"}`}
     >
       <Icon name={icon} size={16} />
