@@ -142,6 +142,27 @@ function StickerFace({
   );
 }
 
+/**
+ * Le fond d'un statut qui n'a que du texte.
+ *
+ * Les statuts exportés portent leur fond dans l'image ; ceux qui n'ont
+ * que du texte — le seed de démonstration, les anciens — tombaient sur
+ * un noir plat et une boîte grise derrière les mots. Une teinte tirée de
+ * l'identifiant donne un fond stable (le même à chaque ouverture) sans
+ * ajouter une colonne en base.
+ */
+function storyTint(id: string): number {
+  // Seuls les fonds sombres : le texte d'un statut est blanc, et un
+  // dégradé clair le rendait illisible — deux fois invisible, une fois
+  // sur le fond, une fois sur le mot.
+  const dark = [1, 3, 5, 7];
+  let hash = 0;
+  for (let index = 0; index < id.length; index += 1) {
+    hash = (hash * 31 + id.charCodeAt(index)) % 997;
+  }
+  return dark[hash % dark.length];
+}
+
 export function StoryViewer({
   stories,
   me,
@@ -205,6 +226,32 @@ export function StoryViewer({
     base: { distance: number; angle: number; centerX: number; centerY: number } | null;
     latest: { x: number; y: number; scale: number; rotation: number };
   } | null>(null);
+
+  /**
+   * Préchargement de la story suivante.
+   *
+   * Sans lui, passer à la suite laissait un cadre noir le temps d'un
+   * aller-retour réseau — c'est le « ça met trop de temps à s'afficher »
+   * qu'on ressent sur un téléphone. L'image suivante est demandée pendant
+   * qu'on lit celle-ci ; le navigateur la sert depuis son cache ensuite.
+   */
+  useEffect(() => {
+    const nextStory = stories[index + 1];
+    if (!nextStory) return;
+    // Le média en base a sa propre route ; une vidéo déposée sur le
+    // stockage objet ne se précharge pas comme une image.
+    const src = mediaById[nextStory.id]?.mime
+      ? nextStory.media_url && !mediaById[nextStory.id]
+        ? ""
+        : storyMediaUrl(nextStory.id)
+      : nextStory.media_url && !isVideoUrl(nextStory.media_url)
+        ? nextStory.media_url
+        : "";
+    if (!src) return;
+    const image = new Image();
+    image.decoding = "async";
+    image.src = src;
+  }, [index, mediaById, stories]);
 
   const reduced = usePrefersReducedMotion();
   const surfaceRef = useRef<HTMLDivElement | null>(null);
@@ -806,7 +853,7 @@ export function StoryViewer({
                   src={storyMediaUrl(current.id)}
                   controls
                   playsInline
-                  preload="metadata"
+                  preload="auto"
                   className="absolute inset-0 h-full w-full bg-void object-contain"
                 />
               ) : mediaById[current.id] ? (
@@ -814,6 +861,8 @@ export function StoryViewer({
                 <img
                   src={storyMediaUrl(current.id)}
                   alt=""
+                  decoding="async"
+                  fetchPriority="high"
                   className="absolute inset-0 h-full w-full bg-void object-cover"
                 />
               ) : current.media_url && isVideoUrl(current.media_url) ? (
@@ -824,7 +873,7 @@ export function StoryViewer({
                   src={current.media_url}
                   controls
                   playsInline
-                  preload="metadata"
+                  preload="auto"
                   className="absolute inset-0 h-full w-full bg-void object-contain"
                 />
               ) : current.media_url ? (
@@ -832,6 +881,8 @@ export function StoryViewer({
                 <img
                   src={current.media_url}
                   alt=""
+                  decoding="async"
+                  fetchPriority="high"
                   className="absolute inset-0 h-full w-full bg-void object-cover"
                 />
               ) : (
@@ -840,9 +891,17 @@ export function StoryViewer({
                    n'est pas répété sous une image — l'éditeur l'a déjà
                    gravé dans l'export, et deux fois le même mot, c'est
                    une faute d'affichage, pas une légende. */
-                <div className="grid min-h-0 flex-1 place-items-center bg-surface px-8 py-16">
-                  <p className="story-caption max-h-[70%] overflow-y-auto whitespace-pre-wrap
-                    text-center text-[24px] leading-[1.4] font-semibold text-chalk">
+                <div
+                  className="grid min-h-0 flex-1 place-items-center px-8 py-16"
+                  style={{
+                    background: `linear-gradient(160deg, var(--story-bg-${storyTint(current.id)}-a), var(--story-bg-${storyTint(current.id)}-b))`,
+                  }}
+                >
+                  <p
+                    className="max-h-[70%] overflow-y-auto whitespace-pre-wrap text-center
+                      text-[24px] leading-[1.4] font-semibold text-chalk"
+                    style={{ textShadow: "var(--story-text-shadow)" }}
+                  >
                     {current.caption || ""}
                   </p>
                 </div>
@@ -979,12 +1038,6 @@ export function StoryViewer({
         </p>
       ) : null}
 
-      {state === "loading" ? (
-        <p className="absolute inset-x-0 bottom-24 text-center label-micro text-chalk/50">
-          Chargement des interactions…
-        </p>
-      ) : null}
-
       {state === "unavailable" && !feedback ? (
         <p className="absolute inset-x-0 bottom-24 mx-auto w-fit rounded-full bg-void/70 px-3 py-1.5 label-micro text-chalk/70">
           Interactions indisponibles (mode démonstration)
@@ -1081,7 +1134,7 @@ export function StoryViewer({
               autoFocus
               placeholder="Répondre en privé…"
               className="min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-2
-                bg-surface px-3 py-2 text-[14px] text-chalk placeholder:text-chalk-4"
+                bg-surface px-3 py-2 text-[16px] text-chalk placeholder:text-chalk-4"
             />
             <button
               type="submit"
@@ -1176,38 +1229,41 @@ export function StoryViewer({
             ) : null}
 
           <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setPaused(true);
-                setReplyOpen(true);
-              }}
-              disabled={isMine || !me}
-              className="story-control flex h-11 flex-1 items-center gap-2 px-3
-                text-[13px] text-chalk/70 disabled:opacity-40"
-            >
-              <SectionIcon name="reply" size={15} />
-              Répondre en privé…
-            </button>
+            {/* Sur son propre statut, une barre de réponse et un cœur
+                désactivés ne sont pas des contrôles : ce sont des
+                reproches. On ne les affiche pas. */}
+            {!isMine && me ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPaused(true);
+                    setReplyOpen(true);
+                  }}
+                  className="story-control flex h-11 flex-1 items-center gap-2 px-3
+                    text-[13px] text-chalk/70"
+                >
+                  <SectionIcon name="reply" size={15} />
+                  Répondre en privé…
+                </button>
 
-            <button
-              type="button"
-              onClick={() => void like()}
-              disabled={isMine || !me}
-              aria-pressed={currentLiked}
-              aria-label={currentLiked ? "Retirer le j’aime" : "Aimer cette story"}
-              className={`story-control flex size-11 items-center justify-center
-                transition-colors disabled:opacity-40 ${
-                  currentLiked ? "bg-signal text-void" : "text-chalk"
-                }`}
-            >
-              <SectionIcon
-                name="heart"
-                size={18}
-                strokeWidth={currentLiked ? 2.4 : 1.7}
-                style={currentLiked ? { fill: "currentColor" } : undefined}
-              />
-            </button>
+                <button
+                  type="button"
+                  onClick={() => void like()}
+                  aria-pressed={currentLiked}
+                  aria-label={currentLiked ? "Retirer le j’aime" : "Aimer cette story"}
+                  className={`story-control flex size-11 items-center justify-center
+                    transition-colors ${currentLiked ? "bg-signal text-void" : "text-chalk"}`}
+                >
+                  <SectionIcon
+                    name="heart"
+                    size={18}
+                    strokeWidth={currentLiked ? 2.4 : 1.7}
+                    style={currentLiked ? { fill: "currentColor" } : undefined}
+                  />
+                </button>
+              </>
+            ) : null}
 
             {isMine && (
               <button

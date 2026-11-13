@@ -1,4 +1,5 @@
 import { api } from "@/lib/api/client";
+import { isDemoMode } from "@/lib/backend";
 import { uploadMedia } from "@/lib/media";
 import type { StoryWithAuthor } from "@/lib/types";
 import { STORY_REPLY_MAX } from "@/modules/stories";
@@ -153,8 +154,18 @@ async function postStoryMedia(payload: {
 export async function publishStoryMedia(
   caption: string,
   file: File,
+  /** Auteur — nécessaire en démonstration, où la route serveur n'a pas de session. */
+  authorId?: string,
 ): Promise<{ id: string | null; error: string | null }> {
   const clean = caption.trim();
+
+  // En démonstration, il n'y a pas de session serveur : `/api/stories/media`
+  // répond 401 et la publication échouait sans le dire. On écrit donc la
+  // ligne directement dans le moteur local, média compris.
+  if (isDemoMode() && authorId) {
+    return insertDemoStory(authorId, clean, file);
+  }
+
   const uploadFirst = file.type.startsWith("video/") || file.size > STORY_DATA_URL_MAX;
 
   if (uploadFirst) {
@@ -179,6 +190,70 @@ export async function publishStoryMedia(
   if (!dataUrl) return { id: null, error: "Lecture du fichier impossible" };
 
   return postStoryMedia({ caption: clean, dataUrl });
+}
+
+/**
+ * Publie un GIF comme statut.
+ *
+ * Un GIF n'est pas un fichier chez nous : c'est une adresse https chez le
+ * fournisseur. Le serveur l'accepte telle quelle (voie `mediaUrl`), ce qui
+ * évite de le télécharger puis de le ré-encoder en WebP — un GIF animé
+ * perdrait son animation au passage.
+ */
+export async function publishStoryGif(
+  caption: string,
+  url: string,
+  authorId?: string,
+): Promise<{ id: string | null; error: string | null }> {
+  const clean = caption.trim();
+  if (!url.startsWith("https://")) return { id: null, error: "Adresse de GIF invalide" };
+
+  if (isDemoMode() && authorId) {
+    const { data, error } = await api
+      .from("stories")
+      .insert({ author_id: authorId, caption: clean, media_url: url })
+      .select("id")
+      .single();
+    if (error) return { id: null, error: error.message };
+    return { id: (data as { id?: string } | null)?.id ?? null, error: null };
+  }
+
+  return postStoryMedia({ caption: clean, mediaUrl: url });
+}
+
+/**
+ * Écrit une story de démonstration, média inclus.
+ *
+ * Le média est rangé en data URL dans la ligne : c'est le seul endroit où
+ * les octets peuvent vivre sans stockage objet, et le lecteur sait déjà
+ * afficher une data URL comme n'importe quelle image.
+ */
+async function insertDemoStory(
+  authorId: string,
+  caption: string,
+  file: File,
+): Promise<{ id: string | null; error: string | null }> {
+  if (file.type.startsWith("video/")) {
+    return {
+      id: null,
+      error: "En démonstration, les vidéos de statut demandent le stockage objet.",
+    };
+  }
+  const dataUrl = await new Promise<string | null>((resolve) => {
+    const reader = new FileReader();
+    reader.onerror = () => resolve(null);
+    reader.onload = () => (typeof reader.result === "string" ? resolve(reader.result) : resolve(null));
+    reader.readAsDataURL(file);
+  });
+  if (!dataUrl) return { id: null, error: "Lecture du fichier impossible" };
+
+  const { data, error } = await api
+    .from("stories")
+    .insert({ author_id: authorId, caption, media_url: dataUrl })
+    .select("id")
+    .single();
+  if (error) return { id: null, error: error.message };
+  return { id: (data as { id?: string } | null)?.id ?? null, error: null };
 }
 
 /**

@@ -22,7 +22,12 @@ import { StatusComposer } from "@/components/StatusComposer";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { postPoints } from "@/lib/gamification";
 import { uploadMedia } from "@/lib/media";
-import { deleteStory, fetchLiveStories, publishStoryMedia } from "@/lib/stories";
+import {
+  deleteStory,
+  fetchLiveStories,
+  publishStoryGif,
+  publishStoryMedia,
+} from "@/lib/stories";
 import {
   fetchFeedHydrationCached as fetchFeedHydration,
   fetchFeedPageCached as fetchFeedPage,
@@ -593,7 +598,16 @@ export default function FeedPage() {
 
   /** Publie le dessin de l'atelier comme statut de 24 h. */
   async function publishStoryFromStudio(file: File) {
-    const { id, error } = await publishStoryMedia(storyText, file);
+    const { id, error } = await publishStoryMedia(storyText, file, profile?.id);
+    if (error || !id) return toast(error ?? "Publication du statut impossible", "err");
+    setStoryText("");
+    await refreshStories();
+    toast("Statut publié · 24 h");
+  }
+
+  /** Le GIF reste un lien : son animation survit, contrairement à un export. */
+  async function publishStoryGifFromStudio(url: string) {
+    const { id, error } = await publishStoryGif(storyText, url, profile?.id);
     if (error || !id) return toast(error ?? "Publication du statut impossible", "err");
     setStoryText("");
     await refreshStories();
@@ -1366,6 +1380,9 @@ export default function FeedPage() {
         onLayersChange={setStoryText}
         onUse={(file) => {
           void publishStoryFromStudio(file);
+        }}
+        onUseGif={(picked) => {
+          void publishStoryGifFromStudio(picked.url);
         }}
       />
 

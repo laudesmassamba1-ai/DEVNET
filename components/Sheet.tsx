@@ -33,11 +33,20 @@ export function Sheet({
   title,
   children,
   size = "default",
+  stacked = false,
 }: {
   open: boolean;
   onClose: () => void;
   title: string;
   children: React.ReactNode;
+  /**
+   * Ouvre la feuille **au-dessus d'une autre surface plein écran**.
+   *
+   * Un sélecteur de GIF appelé depuis l'éditeur de statut vivait sous
+   * l'éditeur (feuille à 200, éditeur à 300) : elle s'ouvrait, mais
+   * derrière un écran opaque. On croyait le bouton mort.
+   */
+  stacked?: boolean;
   /** `wide` ouvre la feuille aux outils qui ont besoin de deux colonnes
       (studio de statut) ; le reste garde la largeur de lecture. */
   size?: "default" | "wide";
@@ -102,7 +111,9 @@ export function Sheet({
 
   return createPortal(
     <div
-      className="overlay-veil fixed inset-0 z-[var(--z-sheet)] flex items-end justify-center"
+      className={`overlay-veil fixed inset-0 flex items-end justify-center ${
+        stacked ? "z-[calc(var(--z-modal)+10)]" : "z-[var(--z-sheet)]"
+      }`}
       onClick={onClose}
       role="presentation"
     >

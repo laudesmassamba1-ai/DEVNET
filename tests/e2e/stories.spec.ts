@@ -67,6 +67,43 @@ test.describe("statuts", () => {
     await expect(page.getByRole("button", { name: /statuts?, déjà vu$/ }).first()).toBeVisible();
   });
 
+  test("un GIF se choisit et se publie en statut", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await quietTour(page);
+    await page.goto("/feed");
+
+    await page.getByLabel("Publier une nouvelle story").click();
+    const composer = page.getByRole("dialog", { name: "Éditeur de statut" });
+    await expect(composer).toBeVisible();
+
+    await composer.getByRole("button", { name: "GIF", exact: true }).click();
+    const picker = page.getByRole("dialog", { name: "Choisir un GIF" });
+    await expect(picker).toBeVisible();
+
+    // Le champ n'est atteignable que si la feuille est **au-dessus** de
+    // l'éditeur : c'est précisément le défaut qui rendait les GIF
+    // impossibles — la feuille s'ouvrait derrière un écran opaque. Un
+    // clic intercepté ferait échouer cette étape.
+    const gifUrl = "https://media.giphy.com/media/devnet/giphy.gif";
+    await picker.getByLabel("Adresse directe du GIF").fill(gifUrl);
+    await picker.getByRole("button", { name: "Utiliser" }).click();
+    await expect(picker).toHaveCount(0);
+
+    // Le GIF reste un lien : c'est le fournisseur qui sert l'animation.
+    await expect(composer.locator(`img[src="${gifUrl}"]`)).toHaveCount(1);
+    await composer.getByRole("button", { name: "Publier", exact: true }).click();
+    await expect(composer).toHaveCount(0);
+
+    const publie = await page.evaluate((url) => {
+      const key = Object.keys(localStorage).find((k) => /^devnet\.demo\.v\d+$/.test(k));
+      const data = key ? JSON.parse(localStorage.getItem(key) ?? "null") : null;
+      return (data?.stories ?? []).some(
+        (story: { media_url?: string }) => story.media_url === url,
+      );
+    }, gifUrl);
+    expect(publie).toBe(true);
+  });
+
   test("le lecteur suit le clavier et ouvre la liste des vues", async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 768 });
     await quietTour(page);

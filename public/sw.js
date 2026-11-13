@@ -58,6 +58,31 @@ self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
 });
 
+/*
+ * Un appui sur une bannière ouvre la conversation, pas l'accueil.
+ *
+ * La fenêtre déjà ouverte est réutilisée et mise à la bonne adresse :
+ * ouvrir un second onglet pour un message qu'on attend ferait perdre
+ * le fil de ce qu'on faisait.
+ */
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const target = new URL(event.notification.data?.url || "/messages", self.location.origin).href;
+
+  event.waitUntil(
+    (async () => {
+      const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      for (const client of windows) {
+        if (!client.url.startsWith(self.location.origin)) continue;
+        await client.focus();
+        if ("navigate" in client) await client.navigate(target);
+        return;
+      }
+      await self.clients.openWindow(target);
+    })(),
+  );
+});
+
 async function trimCache(cache) {
   const keys = await cache.keys();
   if (keys.length <= MAX_STATIC_ENTRIES) return;

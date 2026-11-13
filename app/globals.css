@@ -1763,6 +1763,11 @@ body {
   /* Empêche le rebond horizontal qui donne une impression de page web
      sur certains navigateurs mobiles, sans bloquer le défilement vertical. */
   overscroll-behavior-x: none;
+  /* Un double-appui sur un texte ou une carte déclenchait le zoom de
+     Safari, qui décalait la page entière. `manipulation` retire le
+     double-tap tout en gardant le pincement à deux doigts : on ne
+     supprime pas l'accessibilité, on retire l'accident. */
+  touch-action: manipulation;
 }
 
 button,
@@ -1834,4 +1839,19 @@ a,
  * et hors du composant pour rester une décision de design. */
 :root {
   --story-text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Le champ de texte d'un statut ──────────────────────────────────────
+ *
+ * Ici le champ **est** le texte : un cadre autour d'un mot posé sur une
+ * photo dirait « formulaire » là où l'écran doit dire « ta story ». Le
+ * repère de focus reste, parce qu'il faut savoir où l'on écrit — un
+ * liseré pointillé, pas un halo plein.
+ */
+.status-text-field:focus,
+.status-text-field:focus-visible {
+  outline: 1px dashed color-mix(in srgb, var(--color-signal) 50%, transparent) !important;
+  outline-offset: 8px !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
 }

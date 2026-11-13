@@ -10,6 +10,11 @@ import { useSession } from "@/hooks/useSession";
 import { Icon } from "@/components/Icon";
 import { Loading } from "@/components/Avatar";
 import { accountLabel } from "@/lib/utils";
+import {
+  notificationState,
+  requestNotifications,
+  unlockAudio,
+} from "@/lib/device-notify";
 import { asVerificationStatus, VERIFY_STATUS_LABEL } from "@/lib/verification";
 import { broadcastTheme, DEFAULT_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
 import {
@@ -43,6 +48,20 @@ export default function SettingsPage() {
   const [dmMediaBusy, setDmMediaBusy] = useState(false);
   const [dmMediaMessage, setDmMediaMessage] = useState("");
   const [dmMediaError, setDmMediaError] = useState("");
+  /** Permission d'afficher des bannières sur cet appareil. */
+  const [notifyState, setNotifyState] = useState<ReturnType<typeof notificationState>>("default");
+  const [notifyBusy, setNotifyBusy] = useState(false);
+
+  useEffect(() => setNotifyState(notificationState()), []);
+
+  async function enableNotifications() {
+    setNotifyBusy(true);
+    // Le geste qui suit la demande est aussi celui qui débloque le son.
+    unlockAudio();
+    const next = await requestNotifications();
+    setNotifyState(next === "unsupported" ? "unsupported" : next);
+    setNotifyBusy(false);
+  }
 
   // `null` tant que rien n'a été touché : la valeur vient du profil, et
   // un état séparé éviterait deux sources de vérité qui divergent.
@@ -439,6 +458,45 @@ export default function SettingsPage() {
               >
                 {dmMediaError || dmMediaMessage}
               </p>
+            )}
+          </section>
+
+          <section className="rounded-(--radius-card) border border-line-2 bg-surface p-5 sm:p-6">
+            <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
+              <Icon name="notifications" size={18} strokeWidth={2} />
+              Alertes sur cet appareil
+            </h2>
+            <p className="mt-2 text-[13px] leading-relaxed text-chalk-3">
+              Le son, la bannière et le chiffre sur l&apos;icône signalent un message reçu
+              pendant que DevNet est ouvert. Sur iPhone, la bannière demande d&apos;abord
+              l&apos;application ajoutée à l&apos;écran d&apos;accueil.
+            </p>
+
+            {notifyState === "granted" ? (
+              <p className="mt-4 flex items-center gap-2 text-[13px] font-semibold text-ok">
+                <Icon name="check" size={14} strokeWidth={2.4} />
+                Activées sur cet appareil
+              </p>
+            ) : notifyState === "denied" ? (
+              <p className="mt-4 text-[13px] text-warn">
+                Refusées dans le navigateur. Il faut les réactiver dans ses réglages —
+                l&apos;application ne peut pas redemander.
+              </p>
+            ) : notifyState === "unsupported" ? (
+              <p className="mt-4 text-[13px] text-chalk-4">
+                Cet appareil ne prend pas en charge les bannières.
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => void enableNotifications()}
+                disabled={notifyBusy}
+                className="lift-press mt-4 flex h-(--h-tap) items-center justify-center
+                  rounded-(--radius-input) border border-signal bg-signal px-5
+                  text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
+              >
+                {notifyBusy ? "Demande…" : "Activer les alertes"}
+              </button>
             )}
           </section>
 

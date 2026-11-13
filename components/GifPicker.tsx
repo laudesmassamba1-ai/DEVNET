@@ -76,7 +76,7 @@ export function GifPicker({
   }, [open, query]);
 
   return (
-    <Sheet open={open} onClose={onClose} title="Choisir un GIF">
+    <Sheet open={open} onClose={onClose} title="Choisir un GIF" stacked>
       <input
         value={query}
         onChange={(event) => setQuery(event.target.value)}
@@ -84,7 +84,7 @@ export function GifPicker({
         placeholder="Chercher un GIF…"
         autoFocus
         className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-          border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
+          border border-line-3 bg-surface px-3.5 text-[16px] shadow-sh-1
           placeholder:text-chalk-4
           focus:shadow-[3px_3px_0_var(--color-signal)]"
       />
@@ -117,7 +117,7 @@ export function GifPicker({
               aria-label="Adresse du GIF"
               placeholder="https://media.tenor.com/…"
               className="h-10 min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-3
-                bg-surface px-3 text-[13px] placeholder:text-chalk-4"
+                bg-surface px-3 text-[16px] placeholder:text-chalk-4"
             />
             <button
               type="button"
@@ -159,43 +159,46 @@ export function GifPicker({
                     src={gif.preview}
                     alt=""
                     loading="lazy"
+                    decoding="async"
                     className="h-24 w-full object-cover"
                   />
                 </button>
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[11.5px] text-chalk-4">
+          <p className="mt-2 text-[12px] text-chalk-4">
             <span aria-hidden="true" className="mr-1 inline-flex">
               <Icon name="gif" size={12} />
             </span>
             GIF fournis par {provider === "tenor" ? "Tenor" : "Giphy"}.
           </p>
-          <div className="mt-3 border-t border-line pt-3">
-            <p className="mb-1.5 text-[12px] text-chalk-3">Ou colle l'adresse directe d'un GIF (Tenor/Giphy)</p>
-            <div className="flex gap-2">
-              <input
-                value={directUrl}
-                onChange={(e) => setDirectUrl(e.target.value)}
-                aria-label="Adresse directe du GIF"
-                placeholder="https://media.tenor.com/…"
-                className="h-10 min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-3
-                  bg-surface px-3 text-[13px] placeholder:text-chalk-4"
-              />
-              <button
-                type="button"
-                onClick={pickDirect}
-                disabled={!isAllowedGifUrl(directUrl.trim())}
-                className="h-10 shrink-0 rounded-[var(--radius-input)] border border-line-3
-                  bg-surface px-3 font-mono text-[11px] font-bold uppercase tracking-wide text-chalk
-                  hover:border-signal disabled:opacity-40"
-              >
-                Utiliser
-              </button>
-            </div>
-          </div>
         </>
       )}
+
+      <div className="mt-3 border-t border-line pt-3">
+        <p className="mb-1.5 text-[12px] text-chalk-3">
+          Colle l&apos;adresse d&apos;un GIF (Tenor ou Giphy) pour l&apos;envoyer directement
+        </p>
+        <div className="flex gap-2">
+          <input
+            value={directUrl}
+            onChange={(e) => setDirectUrl(e.target.value)}
+            aria-label="Adresse directe du GIF"
+            placeholder="https://media.tenor.com/…"
+            className="h-10 min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-3
+              bg-surface px-3 text-[16px] placeholder:text-chalk-4"
+          />
+          <button
+            type="button"
+            onClick={pickDirect}
+            disabled={!isAllowedGifUrl(directUrl.trim())}
+            className="h-10 shrink-0 rounded-[var(--radius-input)] border border-signal bg-signal
+              px-3 font-mono text-[11px] font-bold uppercase tracking-wide text-void disabled:opacity-40"
+          >
+            Utiliser
+          </button>
+        </div>
+      </div>
     </Sheet>
   );
 }

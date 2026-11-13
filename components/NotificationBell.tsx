@@ -4,6 +4,12 @@ import { useRouter, usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Icon } from "./Icon";
 import { api } from "@/lib/api/client";
+import {
+  playChime,
+  showNotification,
+  syncBadge,
+  unlockAudio,
+} from "@/lib/device-notify";
 import { fetchUnreadSummary } from "@/lib/notifications";
 import { useSession } from "@/hooks/useSession";
 import type { UnreadSummary } from "@/lib/notifications";
@@ -52,9 +58,36 @@ export function NotificationBell() {
   const here = pathname === "/notifications";
 
   const load = useCallback(async () => {
-    if (!me) return setSummary(null);
-    setSummary(await fetchUnreadSummary(me));
+    if (!me) {
+      setSummary(null);
+      void syncBadge(0);
+      return;
+    }
+    const next = await fetchUnreadSummary(me);
+    setSummary(next);
+    // Le chiffre de l'icône est le même que celui de la cloche : deux
+    // compteurs séparés finiraient par diverger.
+    void syncBadge(next.total);
   }, [me]);
+
+  // L'audio d'iOS ne démarre qu'après un geste : on l'ouvre au premier
+  // appui, sans jouer quoi que ce soit.
+  useEffect(() => {
+    const unlock = () => unlockAudio();
+    window.addEventListener("pointerdown", unlock, { once: true });
+    return () => window.removeEventListener("pointerdown", unlock);
+  }, []);
+
+  // L'icône garde le dernier chiffre connu quand l'application revient au
+  // premier plan : sans cela, un message reçu entre-temps n'apparaîtrait
+  // qu'au prochain rafraîchissement de la cloche.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [load]);
 
   useEffect(() => {
     let alive = true;
@@ -84,8 +117,25 @@ export function NotificationBell() {
           table: "notifications",
           filter: `recipient_id=eq.${me}`,
         },
-        () => {
+        (payload: { new?: { kind?: string; actor_id?: string | null; conversation_id?: string | null } }) => {
           void load();
+
+          // Un message reçu n'est pas une ligne de plus dans une liste :
+          // c'est quelqu'un qui attend. On le dit par une bannière et un
+          // son, sauf si l'écran des messages est déjà ouvert — auquel cas
+          // la bulle qui apparaît suffit et doubler l'annonce serait
+          // grossier.
+          if (payload?.new?.kind !== "message") return;
+          if (window.location.pathname.startsWith("/messages")) return;
+          playChime();
+          void showNotification({
+            title: "Nouveau message",
+            body: "Tu as reçu un message sur DevNet.",
+            tag: `dm-${payload.new.conversation_id ?? "devnet"}`,
+            url: payload.new.conversation_id
+              ? `/messages?conversation=${payload.new.conversation_id}`
+              : "/messages",
+          });
         },
       )
       .subscribe();

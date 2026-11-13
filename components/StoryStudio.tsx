@@ -148,7 +148,7 @@ export function StoryStudio({
     setError(null);
     try {
       if (media) {
-        const { id, error: uploadError } = await publishStoryMedia(text, media.file);
+        const { id, error: uploadError } = await publishStoryMedia(text, media.file, profile.id);
         if (uploadError || !id) {
           setError(uploadError ?? "Réponse vide du serveur.");
           return;

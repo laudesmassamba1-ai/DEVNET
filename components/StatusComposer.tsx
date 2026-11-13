@@ -14,7 +14,9 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { GifPicker } from "@/components/GifPicker";
 import { Icon } from "@/components/Icon";
+import type { Gif } from "@/lib/gifs";
 
 const STAGE_W = 1080;
 const STAGE_H = 1920;
@@ -42,6 +44,10 @@ const TEXT_COLORS = ["--story-ink-1", "--story-ink-2", "--story-ink-3", "--story
 /** Fractions de la largeur de scène : l'échelle suit l'écran, comme sur
  *  Instagram, au lieu de figer 76 px qui débordent sur un téléphone. */
 const TEXT_SIZES = [0.09, 0.07, 0.052];
+/** Noms des tailles, dans le même ordre — pour que le bouton dise sa valeur. */
+const TEXT_SIZE_LABEL = ["Grand", "Moyen", "Petit"] as const;
+/** Noms des encres, dans l'ordre de `TEXT_COLORS`. */
+const TEXT_COLOR_LABEL = ["Blanc", "Encre", "Ambre", "Menthe"] as const;
 
 /**
  * Ambiances, dans l'ordre du cycle « Filtre ».
@@ -91,6 +97,8 @@ type ComposerProps = {
   sourceFile?: File | null;
   onUse: (file: File) => void;
   onUseSource?: (file: File) => void;
+  /** GIF choisi : il part en **lien**, animé, sans passer par le canvas. */
+  onUseGif?: (gif: Gif) => void;
   onLayersChange?: (text: string) => void;
 };
 
@@ -112,6 +120,7 @@ function EditorShell({
   sourceFile = null,
   onUse,
   onUseSource,
+  onUseGif,
   onLayersChange,
 }: ComposerProps) {
   const [text, setText] = useState("");
@@ -142,6 +151,9 @@ function EditorShell({
   });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** GIF choisi — il remplace le média et reste animé. */
+  const [gif, setGif] = useState<Gif | null>(null);
+  const [gifOpen, setGifOpen] = useState(false);
 
   const mediaInput = useRef<HTMLInputElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -192,6 +204,20 @@ function EditorShell({
     return () => cancelAnimationFrame(frame);
   }, [editing]);
 
+  /**
+   * Le champ grandit avec son texte.
+   *
+   * Un `textarea` de hauteur fixe défile : au-delà de deux lignes, le
+   * début du statut disparaissait au-dessus du cadre — on écrivait à
+   * l'aveugle dans ce qu'on croyait être une story.
+   */
+  useEffect(() => {
+    const field = textRef.current;
+    if (!field) return;
+    field.style.height = "auto";
+    field.style.height = `${field.scrollHeight}px`;
+  }, [text, size, stageWidth, editing]);
+
   const pickFile = useCallback((file: File | null) => {
     if (!file) return;
     const kind = file.type.startsWith("video/")
@@ -204,6 +230,7 @@ function EditorShell({
       return;
     }
     setError(null);
+    setGif(null);
     if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
     const url = URL.createObjectURL(file);
     createdUrl.current = url;
@@ -317,8 +344,19 @@ function EditorShell({
   async function publish() {
     if (busy) return;
     setError(null);
+    // Un GIF part en lien : le réencoder en image figerait l'animation.
+    // Le texte voyage alors comme légende, comme pour une vidéo.
+    if (gif) {
+      if (!onUseGif) {
+        setError("Les GIF ne sont pas disponibles ici.");
+        return;
+      }
+      onUseGif(gif);
+      onClose();
+      return;
+    }
     if (!source && !text.trim()) {
-      setError("Ajoute un texte ou une photo.");
+      setError("Ajoute un texte, une photo ou un GIF.");
       return;
     }
     // Une vidéo part intacte : la réencoder au navigateur détruirait sa
@@ -355,11 +393,11 @@ function EditorShell({
       className="fixed inset-0 z-[var(--z-modal)] flex flex-col bg-void text-chalk"
       style={{ paddingTop: "var(--h-safe-top)", paddingBottom: "var(--h-safe-bottom)" }}
     >
-      <header className="flex items-center justify-between gap-3 border-b border-line-2 bg-surface/95 px-4 py-2.5">
+      <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line-2 bg-surface/95 px-4 py-2.5">
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex min-h-tap items-center gap-2 rounded-[var(--radius-chip)] px-2 text-sm font-medium text-chalk-3 transition-colors hover:bg-surface-2 hover:text-chalk"
+          className="inline-flex min-h-(--h-tap) items-center gap-2 rounded-[var(--radius-chip)] px-2 text-sm font-medium text-chalk-3 transition-colors hover:bg-surface-2 hover:text-chalk"
         >
           <Icon name="close" size={18} />
           Fermer
@@ -371,13 +409,13 @@ function EditorShell({
           type="button"
           onClick={() => void publish()}
           disabled={busy}
-          className="inline-flex min-h-tap items-center justify-center rounded-[var(--radius-chip)] bg-signal px-4 text-sm font-semibold text-void transition-opacity disabled:opacity-50"
+          className="inline-flex min-h-(--h-tap) items-center justify-center rounded-[var(--radius-chip)] bg-signal px-4 text-sm font-semibold text-void transition-opacity disabled:opacity-50"
         >
           {busy ? "Envoi…" : "Publier"}
         </button>
       </header>
 
-      <div className="flex min-h-0 flex-1 items-center justify-center bg-page px-4 py-4">
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-page px-3 py-3">
         <div
           ref={stageRef}
           onPointerDown={beginDrag}
@@ -388,11 +426,22 @@ function EditorShell({
           className="relative h-full max-h-full overflow-hidden rounded-[var(--radius-card)] border border-line-2 shadow-sh-1"
           style={{
             aspectRatio: "9 / 16",
-            background: source
+            background: gif
               ? "var(--color-void)"
-              : `linear-gradient(160deg, var(${BACKGROUNDS[background][0]}), var(${BACKGROUNDS[background][1]}))`,
+              : source
+                ? "var(--color-void)"
+                : `linear-gradient(160deg, var(${BACKGROUNDS[background][0]}), var(${BACKGROUNDS[background][1]}))`,
           }}
         >
+          {gif ? (
+            /* eslint-disable-next-line @next/next/no-img-element */
+            <img
+              src={gif.url}
+              alt={gif.alt}
+              draggable={false}
+              className="absolute inset-0 h-full w-full object-contain"
+            />
+          ) : null}
           {source?.kind === "image" ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -439,11 +488,11 @@ function EditorShell({
                       setEditing(false);
                     }
                   }}
-                  rows={2}
+                  rows={1}
                   placeholder="Votre statut"
-                  className="w-full resize-none appearance-none border-0 bg-transparent
-                    font-extrabold leading-tight shadow-none outline-none ring-0 placeholder:text-chalk-3
-                    focus:border-0 focus:shadow-none focus:outline-none focus:ring-0"
+                  className="status-text-field w-full resize-none appearance-none border-0
+                    bg-transparent font-extrabold leading-tight shadow-none ring-0
+                    placeholder:text-chalk-3"
                   style={{ color: `var(${TEXT_COLORS[color]})`, fontSize: Math.round(TEXT_SIZES[size] * stageWidth), textShadow: "var(--story-text-shadow)" }}
                 />
               </>
@@ -454,7 +503,10 @@ function EditorShell({
               >
                 {text}
               </p>
-            ) : (
+            ) : gif ? null : (
+              // Sur un GIF, l'invite se posait au milieu de l'image, à
+              // l'endroit même qu'on regarde. Le bouton « Texte » de la
+              // barre reste là pour ajouter une légende.
               <button
                 type="button"
                 onClick={() => setEditing(true)}
@@ -473,56 +525,121 @@ function EditorShell({
         </p>
       ) : null}
 
-      <footer className="border-t border-line-2 bg-surface/95 px-3 py-3">
-        <div className="mx-auto flex max-w-xl flex-wrap items-center justify-center gap-2">
-          <ToolButton label="Média" icon="image" onClick={() => mediaInput.current?.click()} />
-          <ToolButton label="Texte" icon="edit" active={editing} onClick={() => setEditing(true)} />
-          <ToolButton label="Fond" icon="droplet" onClick={() => setBackground((value) => (value + 1) % BACKGROUNDS.length)} />
-          <ToolButton label="Taille" icon="grid" onClick={() => setSize((value) => (value + 1) % TEXT_SIZES.length)} />
-          <ToolButton label="Couleur" icon="sun" onClick={() => setColor((value) => (value + 1) % TEXT_COLORS.length)} />
-          <ToolButton
-            label="Alignement"
-            icon="align"
-            onClick={() => setAlign((value) => (value + 1) % ALIGNMENTS.length)}
+      {/*
+        Deux rangs, et pas davantage : les gestes rares (GIF, média, texte,
+        fond, filtre) sur une ligne qui ne se casse jamais — cinq colonnes
+        égales tiennent dans les 320 px — puis les réglages du texte, qui
+        servent à chaque fois qu'on écrit.
+
+        Avant, huit boutons enroulés occupaient trois rangs et la moitié de
+        l'écran : la scène devenait une vignette. Un éditeur de statut se
+        juge à la place que prend l'image qu'on fabrique.
+      */}
+      <footer className="shrink-0 border-t border-line-2 bg-surface/95 px-2 pb-1.5 pt-1">
+        <div className="mx-auto flex max-w-xl items-stretch">
+          <ToolItem
+            label="GIF"
+            icon="gif"
+            active={Boolean(gif)}
+            onClick={() => setGifOpen(true)}
           />
-          <ToolButton
-            label={FILTERS[filter].label}
-            icon="moon"
+          <ToolItem label="Média" icon="image" onClick={() => mediaInput.current?.click()} />
+          <ToolItem label="Texte" icon="edit" active={editing} onClick={() => setEditing(true)} />
+          <ToolItem
+            label="Fond"
+            icon="droplet"
+            // Sur une photo, un GIF ou une vidéo, le fond est couvert : le
+            // bouton qui ne change rien à l'écran est un bouton qui ment.
+            disabled={Boolean(source) || Boolean(gif)}
+            title={
+              source || gif ? "Retire le média pour changer de fond." : undefined
+            }
+            onClick={() => setBackground((value) => (value + 1) % BACKGROUNDS.length)}
+          />
+          <ToolItem
+            label="Filtre"
+            icon="layers"
             active={filter > 0}
             disabled={source?.kind === "video"}
             title={
               source?.kind === "video"
                 ? "Un filtre vidéo demande un recodage serveur : la vidéo part sans filtre."
-                : undefined
+                : `Filtre : ${FILTERS[filter].label}`
             }
             onClick={() => setFilter((value) => (value + 1) % FILTERS.length)}
           />
-          <label htmlFor="status-composer-media" className="sr-only">
-            Photo ou vidéo du statut
-          </label>
-          <input
-            id="status-composer-media"
-            ref={mediaInput}
-            type="file"
-            accept="image/*,video/*"
-            className="sr-only"
-            onChange={(event) => {
-              pickFile(event.target.files?.[0] ?? null);
-              event.target.value = "";
-            }}
+        </div>
+
+        <div className="mx-auto mt-1 flex max-w-xl items-stretch gap-1.5 border-t border-line-2 pt-1.5">
+          <ToolButton
+            icon="grid"
+            label={TEXT_SIZE_LABEL[size]}
+            hint="Taille"
+            active={size > 0}
+            onClick={() => setSize((value) => (value + 1) % TEXT_SIZES.length)}
+          />
+          <ToolButton
+            icon="sun"
+            label={TEXT_COLOR_LABEL[color]}
+            hint="Couleur"
+            active={color > 0}
+            onClick={() => setColor((value) => (value + 1) % TEXT_COLORS.length)}
+          />
+          <ToolButton
+            icon="align"
+            label={ALIGNMENTS[align].label}
+            hint="Alignement"
+            active={align !== 1}
+            onClick={() => setAlign((value) => (value + 1) % ALIGNMENTS.length)}
           />
         </div>
-        <p className="mt-2 text-center text-[12px] text-chalk-3">
-          Glisse le texte pour le placer · double-clic pour modifier · filtre :{" "}
-          {source?.kind === "video" ? "photos seulement" : FILTERS[filter].label}
-        </p>
+
+        {text.trim() && !editing ? (
+          <p className="mt-1 text-center text-[12px] leading-tight text-chalk-3">
+            Glisse le texte pour le placer · double-clic pour le modifier
+          </p>
+        ) : null}
+
+        <label htmlFor="status-composer-media" className="sr-only">
+          Photo ou vidéo du statut
+        </label>
+        <input
+          id="status-composer-media"
+          ref={mediaInput}
+          type="file"
+          accept="image/*,video/*"
+          className="sr-only"
+          onChange={(event) => {
+            pickFile(event.target.files?.[0] ?? null);
+            event.target.value = "";
+          }}
+        />
       </footer>
+
+      <GifPicker
+        open={gifOpen}
+        onClose={() => setGifOpen(false)}
+        onPick={(picked) => {
+          setGif(picked);
+          // Un GIF et une photo ne se superposent pas : le dernier choix
+          // gagne, sinon la scène montrerait deux histoires différentes.
+          if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
+          createdUrl.current = null;
+          setSource(null);
+        }}
+      />
     </div>,
     document.body,
   );
 }
 
-function ToolButton({
+/**
+ * Une entrée de la ligne d'outils : icône au-dessus, mot en dessous.
+ *
+ * Cinq entrées de largeur égale tiennent sur un écran de 320 px sans
+ * défiler — c'est la contrainte qui a décidé de cette forme, pas le goût.
+ */
+function ToolItem({
   label,
   icon,
   onClick,
@@ -531,7 +648,7 @@ function ToolButton({
   title,
 }: {
   label: string;
-  icon: "image" | "edit" | "droplet" | "grid" | "sun" | "align" | "moon";
+  icon: "image" | "edit" | "droplet" | "layers" | "gif";
   onClick: () => void;
   active?: boolean;
   disabled?: boolean;
@@ -542,14 +659,50 @@ function ToolButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      title={title}
       aria-pressed={active}
-      className={`inline-flex min-h-tap items-center gap-1.5 rounded-[var(--radius-chip)] border px-3 text-[13px] font-medium transition-colors
-        disabled:cursor-not-allowed disabled:opacity-50
-        ${active ? "border-signal bg-signal/10 text-chalk" : "border-line-3 bg-surface text-chalk-3 hover:border-line-2 hover:text-chalk"}`}
+      title={title}
+      className={`flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-1
+        rounded-[var(--radius-chip)] px-1 text-[12px] font-semibold
+        transition-colors disabled:cursor-not-allowed disabled:opacity-35
+        ${active ? "text-signal" : "text-chalk-3 hover:text-chalk"}`}
     >
-      <Icon name={icon} size={16} />
-      {label}
+      <Icon name={icon} size={18} />
+      <span className="max-w-full truncate">{label}</span>
+    </button>
+  );
+}
+
+/**
+ * Un réglage du texte. Le nom du réglage (« Taille ») reste lisible à
+ * côté de sa valeur (« Grand ») : un cycle qui n'affiche que sa valeur
+ * oblige à le presser pour savoir ce qu'il règle.
+ */
+function ToolButton({
+  label,
+  hint,
+  icon,
+  onClick,
+  active = false,
+}: {
+  label: string;
+  hint: string;
+  icon: "grid" | "sun" | "align";
+  onClick: () => void;
+  active?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      aria-label={`${hint} — ${label}`}
+      className={`flex min-h-(--h-tap) flex-1 items-center justify-center gap-1.5
+        rounded-[var(--radius-chip)] border px-2 text-[12px] font-semibold
+        transition-colors min-w-0
+        ${active ? "border-signal/60 bg-signal/10 text-chalk" : "border-line-3 bg-surface text-chalk-3 hover:border-line-2 hover:text-chalk"}`}
+    >
+      <Icon name={icon} size={14} />
+      <span className="truncate capitalize">{label}</span>
     </button>
   );
 }
