@@ -33,6 +33,7 @@ const MOBILE_MORE_LINKS: { href: string; label: string; icon: IconName }[] = [
   { href: "/communities", label: "Communautés", icon: "globe" },
   { href: "/projects", label: "Projets", icon: "package" },
   { href: "/github", label: "GitHub", icon: "code" },
+  { href: "/extensions", label: "Extensions", icon: "package" },
   { href: "/signets", label: "Signets", icon: "bookmark" },
   { href: "/notifications", label: "Notifications", icon: "notifications" },
   { href: "/moderation", label: "Modération", icon: "flag" },
@@ -69,6 +70,9 @@ const WORKSPACE: { href: string; label: string; icon: IconName }[] = [
   { href: "/communities", label: "Communautés", icon: "globe" },
   { href: "/projects", label: "Projets", icon: "package" },
   { href: "/github", label: "GitHub", icon: "code" },
+  // Les extensions modifient l'éditeur : elles appartiennent à l'espace de
+  // travail, pas à un écran de réglages qu'on ne retrouve jamais.
+  { href: "/extensions", label: "Extensions", icon: "bolt" },
 ];
 
 /**

@@ -196,6 +196,7 @@ export function CommentsPanel({
   onClose,
   me,
   canModerate,
+  variant = "sheet",
 }: {
   postId: string | null;
   open: boolean;
@@ -204,6 +205,13 @@ export function CommentsPanel({
   me: string | null;
   /** Droit de supprimer les commentaires d'autrui (auteur du post). */
   canModerate: boolean;
+  /**
+   * `docked` pose le fil dans une colonne à droite du contenu, sans voile
+   * ni superposition : on lit les commentaires **et** les publications en
+   * même temps, comme sur Instagram ou YouTube. `sheet` garde la feuille
+   * du bas, seule tenable sur un écran de téléphone.
+   */
+  variant?: "sheet" | "docked";
 }) {
   const [comments, setComments] = useState<CommentWithAuthor[] | null>(null);
   /** Commentaire en cours de retrait — garde son animation de sortie. */
@@ -386,9 +394,9 @@ export function CommentsPanel({
   let delayIndex = 0;
   const nextDelay = () => Math.min(delayIndex++ * 45, 360);
 
-  return (
-    <Sheet open={open && postId !== null} onClose={onClose} title="Commentaires">
-      <div className="max-h-[56vh] overflow-y-auto">
+  const body = (
+    <>
+      <div className={variant === "docked" ? "min-h-0 flex-1 overflow-y-auto" : "max-h-[56vh] overflow-y-auto"}>
         {comments === null && <Loading label="Lecture des commentaires" />}
 
         {comments?.length === 0 && (
@@ -540,6 +548,39 @@ export function CommentsPanel({
           {text.length}/1000
         </p>
       )}
+    </>
+  );
+
+  if (variant === "docked") {
+    if (!open || postId === null) return null;
+    return (
+      <aside
+        aria-label="Commentaires"
+        className="sticky top-3 hidden max-h-[calc(100dvh-1.5rem)] w-96 shrink-0 flex-col
+          overflow-hidden rounded-panel border border-line-2 bg-surface shadow-sh-2 lg:flex"
+      >
+        <header className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
+          <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3">
+            Commentaires
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer les commentaires"
+            className="flex size-8 items-center justify-center rounded-full text-chalk-4
+              transition-colors hover:text-chalk"
+          >
+            <Icon name="close" size={14} />
+          </button>
+        </header>
+        <div className="flex min-h-0 flex-1 flex-col px-4 pb-3">{body}</div>
+      </aside>
+    );
+  }
+
+  return (
+    <Sheet open={open && postId !== null} onClose={onClose} title="Commentaires">
+      {body}
     </Sheet>
   );
 }

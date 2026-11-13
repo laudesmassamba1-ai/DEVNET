@@ -396,10 +396,10 @@ function PwaBanner({
       role="rise"
       as="section"
       attrs={{ role: "status", "aria-live": "polite" }}
-      className="pwa-toast fixed inset-x-3 mx-auto max-w-md shell:inset-x-auto
-        shell:right-4 shell:bottom-6 shell:w-96"
+      className="pwa-toast pointer-events-none fixed inset-x-3 mx-auto max-w-md
+        shell:inset-x-auto shell:right-4 shell:bottom-6 shell:w-96"
     >
-      <div className="flex items-start gap-3 rounded-(--radius-card) border
+      <div className="pointer-events-auto flex items-start gap-3 rounded-(--radius-card) border
         border-edge bg-surface-2 p-3.5 text-chalk shadow-(--shadow-sh-1)">
         <span className="flex size-9 shrink-0 items-center justify-center rounded-full
           bg-signal/15 text-signal">

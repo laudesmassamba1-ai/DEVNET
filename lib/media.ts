@@ -32,15 +32,22 @@ export type UploadedMedia = {
 const MB = 1024 * 1024;
 
 /**
- * Plafond d'envoi : 4 Mo, images comme vidéos.
+ * Plafond de l'envoi **en une seule requête** : 4 Mo.
  *
- * Ce n'est pas un choix arbitraire : c'est le corps de requête que les
- * fonctions Vercel acceptent (4,5 Mo). Au-delà, la plateforme renvoie un
- * 413 opaque avant même que `/api/media` puisse s'expliquer. Le client
- * s'arrête donc juste en dessous, avec un message lisible.
+ * C'est le corps de requête que les fonctions Vercel acceptent (4,5 Mo).
+ * Au-delà, la plateforme renvoie un 413 opaque. Une vidéo plus lourde passe
+ * donc par l'envoi par morceaux, qui va du navigateur directement à R2.
  */
 export const MAX_IMAGE_BYTES = 4 * MB;
-export const MAX_VIDEO_BYTES = 4 * MB;
+/**
+ * Plafond d'une vidéo : 100 Mo, envoyée par morceaux.
+ *
+ * Les morceaux (8 à 12 Mo) partent du navigateur vers R2 avec une URL
+ * signée : le fichier ne traverse plus Vercel, donc la limite de 4,5 Mo du
+ * corps de requête ne s'applique plus. 100 Mo est notre choix : au-delà, un
+ * envoi mobile dure des dizaines de minutes et le stockage gratuit déborde.
+ */
+export const MAX_VIDEO_BYTES = 100 * MB;
 
 /**
  * Plafond de **sélection** d'une photo : 20 Mo.
@@ -162,13 +169,146 @@ export type UploadResult =
   | { ok: true; media: UploadedMedia }
   | { ok: false; error: string };
 
+export type UploadProgress = { sent: number; total: number };
+
+/** Parties envoyées en même temps : trois suffit à saturer une 4G. */
+const PARALLEL_PARTS = 3;
+const PART_RETRIES = 2;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+interface MultipartPlan {
+  uploadId: string;
+  partSize: number;
+  partCount: number;
+  urls: string[];
+}
+
+async function multipartAction(
+  payload: Record<string, unknown>,
+): Promise<{ response: Response; body: Record<string, unknown> | null }> {
+  const response = await fetch("/api/media/multipart", {
+    method: "POST",
+    credentials: "same-origin",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  const body = (await response.json().catch(() => null)) as Record<string, unknown> | null;
+  return { response, body };
+}
+
+/**
+ * Envoi direct vers R2, partie par partie.
+ *
+ * Les URL signées sont demandées en une fois (une petite requête JSON qui,
+ * elle, traverse Vercel), puis les morceaux partent en parallèle vers
+ * Cloudflare. Un morceau échoué est repris deux fois avant d'abandonner : sur
+ * mobile, une coupure d'une seconde ne doit pas faire perdre 80 Mo déjà
+ * transférés.
+ */
+async function uploadInParts(
+  prepared: File,
+  path: string,
+  kind: MediaKind,
+  onProgress?: (progress: UploadProgress) => void,
+): Promise<UploadResult> {
+  const { response, body } = await multipartAction({
+    action: "create",
+    path,
+    size: prepared.size,
+    contentType: prepared.type,
+  });
+
+  if (response.status === 501) {
+    return {
+      ok: false,
+      error: "L'envoi des fichiers volumineux n'est pas configuré sur ce serveur.",
+    };
+  }
+  if (!response.ok || !body?.uploadId) {
+    return { ok: false, error: String(body?.error ?? "L'envoi a échoué.") };
+  }
+
+  const plan = body as unknown as MultipartPlan;
+  const uploadId = plan.uploadId;
+  const etags: { partNumber: number; etag: string }[] = [];
+  let sent = 0;
+  let cursor = 0;
+  let failed = false;
+
+  async function worker(): Promise<void> {
+    while (!failed) {
+      const index = cursor++;
+      if (index >= plan.partCount) return;
+      const start = index * plan.partSize;
+      const chunk = prepared.slice(start, Math.min(start + plan.partSize, prepared.size));
+
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          const put = await fetch(plan.urls[index], {
+            method: "PUT",
+            body: chunk,
+            headers: { "Content-Type": prepared.type },
+          });
+          if (!put.ok) throw new Error(`partie ${index + 1} : ${put.status}`);
+          const etag = put.headers.get("etag");
+          if (!etag) throw new Error(`partie ${index + 1} : étiquette absente`);
+          etags[index] = { partNumber: index + 1, etag };
+          sent += chunk.size;
+          onProgress?.({ sent, total: prepared.size });
+          break;
+        } catch (error) {
+          if (attempt >= PART_RETRIES) {
+            failed = true;
+            throw error;
+          }
+          await sleep(600 * (attempt + 1));
+        }
+      }
+    }
+  }
+
+  try {
+    await Promise.all(
+      Array.from({ length: Math.min(PARALLEL_PARTS, plan.partCount) }, worker),
+    );
+    const done = await multipartAction({
+      action: "complete",
+      path,
+      uploadId,
+      size: prepared.size,
+      contentType: prepared.type,
+      parts: etags.filter(Boolean),
+    });
+    if (!done.response.ok || !done.body?.url) {
+      return { ok: false, error: String(done.body?.error ?? "L'assemblage a échoué.") };
+    }
+    return {
+      ok: true,
+      media: { url: String(done.body.url), kind },
+    };
+  } catch {
+    // Sans abandon, les parties déjà reçues resteraient facturées.
+    void multipartAction({ action: "abort", path, uploadId });
+    return {
+      ok: false,
+      error: "L'envoi s'est interrompu. Vérifiez la connexion et réessayez.",
+    };
+  }
+}
+
 /**
  * Met un fichier en ligne et rend son URL.
  *
  * Ne lève jamais : les composeurs affichent l'erreur telle quelle dans un
  * toast, sans écran blanc ni promesse rejetée non gérée.
  */
-export async function uploadMedia(file: File): Promise<UploadResult> {
+export async function uploadMedia(
+  file: File,
+  onProgress?: (progress: UploadProgress) => void,
+): Promise<UploadResult> {
   const kind = mediaKindOf(file);
   if (!kind) {
     return { ok: false, error: "Formats acceptés : photos et vidéos." };
@@ -181,13 +321,21 @@ export async function uploadMedia(file: File): Promise<UploadResult> {
       error: `Photo trop lourde (${formatBytes(file.size)}) — ${formatBytes(MAX_IMAGE_INPUT_BYTES)} maximum avant compression.`,
     };
   }
-
-  const prepared = kind === "image" ? await compressImage(file) : file;
-  const max = kind === "image" ? MAX_IMAGE_BYTES : MAX_VIDEO_BYTES;
-  if (prepared.size > max) {
+  if (kind === "video" && file.size > MAX_VIDEO_BYTES) {
     return {
       ok: false,
-      error: `${kind === "image" ? "Photo" : "Vidéo"} trop lourde (${formatBytes(prepared.size)}) — ${formatBytes(max)} maximum.`,
+      error: `Vidéo trop lourde (${formatBytes(file.size)}) — ${formatBytes(MAX_VIDEO_BYTES)} maximum.`,
+    };
+  }
+
+  const prepared = kind === "image" ? await compressImage(file) : file;
+  // Une photo compressée reste sous 4 Mo ; une vidéo plus lourde passe par
+  // l'envoi par morceaux, directement vers R2.
+  const max = MAX_IMAGE_BYTES;
+  if (kind === "image" && prepared.size > max) {
+    return {
+      ok: false,
+      error: `Photo trop lourde (${formatBytes(prepared.size)}) — ${formatBytes(max)} maximum.`,
     };
   }
 
@@ -211,6 +359,11 @@ export async function uploadMedia(file: File): Promise<UploadResult> {
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "");
   const path = `${crypto.randomUUID()}${ext ? `.${ext}` : ""}`;
+
+  if (kind === "video" && prepared.size > MAX_IMAGE_BYTES) {
+    return uploadInParts(prepared, path, kind, onProgress);
+  }
+
   const body = new FormData();
   body.set("path", path);
   body.set("file", prepared);

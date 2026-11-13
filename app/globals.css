@@ -845,7 +845,9 @@
 
 @utility pwa-toast {
   bottom: calc(var(--h-bottomnav) + var(--h-status) + var(--space-md));
-  z-index: var(--z-toast);
+  /* Sous les feuilles et les modales : une invitation ne doit jamais
+     flotter au-dessus d'un éditeur plein écran. */
+  z-index: var(--z-nav);
 }
 
 @utility safe-top {
@@ -1738,4 +1740,85 @@ input[type="search"]::-webkit-search-decoration {
 :where(input, textarea, select):focus-visible {
   outline: 2px solid var(--color-signal);
   outline-offset: 2px;
+}
+
+/* ── Finitions « application installée » ────────────────────────────────
+ *
+ * Dans un navigateur, certains gestes signalent une page web : le surlignage
+ * bleu d'un appui, le délai de 300 ms qui attend un double-tap, le
+ * rebondissement élastique en haut de page, le menu contextuel d'iOS sur un
+ * appui long. Une fois installée, l'application n'a plus à les subir.
+ *
+ * La sélection de texte reste possible là où elle a un sens — champs de
+ * saisie et blocs explicitement marqués — parce qu'on copie du code et des
+ * extraits.
+ */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  overscroll-behavior-y: none;
+}
+
+button,
+a,
+[role="button"],
+[role="tab"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (display-mode: standalone) {
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    overscroll-behavior: none;
+  }
+
+  input,
+  textarea,
+  select,
+  [contenteditable="true"],
+  .selectable,
+  .selectable * {
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-touch-callout: default;
+  }
+}
+
+/* Fonds et encres de l'éditeur de statut. Ils vivent ici, pas dans le
+ * composant : une couleur en dur dans le JS échappe au thème et au
+ * contrôle DS-01. Le canvas relit ces variables à l'export, donc l'image
+ * publiée porte exactement la couleur de l'aperçu. */
+:root {
+  --story-bg-1-a: #0b0b0f;
+  --story-bg-1-b: #1b1b24;
+  --story-bg-2-a: #ff5f6d;
+  --story-bg-2-b: #ffc371;
+  --story-bg-3-a: #4776e6;
+  --story-bg-3-b: #8e54e9;
+  --story-bg-4-a: #11998e;
+  --story-bg-4-b: #38ef7d;
+  --story-bg-5-a: #fc466b;
+  --story-bg-5-b: #3f5efb;
+  --story-bg-6-a: #f7971e;
+  --story-bg-6-b: #ffd200;
+  --story-bg-7-a: #000000;
+  --story-bg-7-b: #434343;
+  --story-bg-8-a: #e0eafc;
+  --story-bg-8-b: #cfdef3;
+  --story-ink-1: #ffffff;
+  --story-ink-2: #0b0b0f;
+  --story-ink-3: #ffd166;
+  --story-ink-4: #7cf5c0;
+}
+
+/* Ombre portée du texte de statut : la même dans l'aperçu et dans l'export,
+ * et hors du composant pour rester une décision de design. */
+:root {
+  --story-text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
 }

@@ -10,7 +10,7 @@ import { Sheet } from "@/components/Sheet";
 import { GroupReceipt } from "@/components/Receipt";
 import { MessageExtras, ReplyQuote } from "@/components/MessageExtras";
 import { MessageAttachmentButtons, MessageAttachmentView } from "@/components/MessageAttachments";
-import { StudioEditor } from "@/components/studio/StudioEditor";
+import { StatusComposer } from "@/components/StatusComposer";
 import { TypingLine } from "@/components/TypingDots";
 import { ChatComposer, ComposerBar } from "@/components/ChatComposer";
 import { useToast } from "@/components/Toast";
@@ -874,10 +874,9 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             <div ref={endRef} />
 
           </div>
-          <StudioEditor
+          <StatusComposer
             open={studioOpen}
             onClose={closeStudio}
-            owner={profile?.pseudo ?? ""}
             initialMedia={
               studioSource
                 ? { url: studioSource.url, kind: studioSource.kind, name: studioSource.name }

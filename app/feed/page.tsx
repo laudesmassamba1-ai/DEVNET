@@ -18,7 +18,8 @@ import { useToast } from "@/components/Toast";
 import { WovenBand } from "@/components/WovenBand";
 import { api } from "@/lib/api/client";
 import { useSession } from "@/hooks/useSession";
-import { StudioEditor } from "@/components/studio/StudioEditor";
+import { StatusComposer } from "@/components/StatusComposer";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { postPoints } from "@/lib/gamification";
 import { uploadMedia } from "@/lib/media";
 import { deleteStory, fetchLiveStories, publishStoryMedia } from "@/lib/stories";
@@ -117,14 +118,6 @@ export default function FeedPage() {
   /** Envoi du média en cours : publier maintenant enverrait l'ancien état. */
   const [mediaBusy, setMediaBusy] = useState(false);
   /** Atelier visuel ouvert par-dessus la feuille de publication. */
-  const [studioOpen, setStudioOpen] = useState(false);
-  /** Média importé, encore local : il devient le fond de l'atelier. */
-  const [studioSource, setStudioSource] = useState<{
-    file: File;
-    url: string;
-    kind: "image" | "video";
-    name: string;
-  } | null>(null);
   /** Texte des calques du statut en cours d'édition. */
   const [storyText, setStoryText] = useState("");
   const [density, setDensity] = useState<FeedDensity>("comfortable");
@@ -152,6 +145,8 @@ export default function FeedPage() {
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   /** Post dont on ouvre le fil de commentaires. */
   const [commentsFor, setCommentsFor] = useState<string | null>(null);
+  /** Au-delà de 1024 px, les commentaires tiennent dans une colonne à droite. */
+  const commentsDocked = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
     const openComposer = () => setOpen(true);
@@ -574,8 +569,6 @@ export default function FeedPage() {
 
   function resetSheet() {
     setOpen(false);
-    setStudioOpen(false);
-    clearStudioSource();
     setText("");
     setCode("");
     setLang("");
@@ -587,38 +580,6 @@ export default function FeedPage() {
     // est une décision par publication, pas une préférence. Le garder
     // ferait rattacher par automatisme des publications sans rapport.
     setProjectId(null);
-  }
-
-  /** Libère l'URL locale du média importé. */
-  function clearStudioSource() {
-    setStudioSource((current) => {
-      if (current) URL.revokeObjectURL(current.url);
-      return null;
-    });
-  }
-
-  function closeStudio() {
-    clearStudioSource();
-    setStudioOpen(false);
-  }
-
-  /**
-   * Importer un média ouvre l'atelier immédiatement. Le fichier n'est pas
-   * encore téléversé : l'export de l'atelier décidera de ce qui part.
-   */
-  function openStudioWith(file: File) {
-    const kind = file.type.startsWith("video/")
-      ? "video"
-      : file.type.startsWith("image/")
-        ? "image"
-        : null;
-    if (!kind) return toast("Choisis une photo ou une vidéo.", "err");
-    const url = URL.createObjectURL(file);
-    setStudioSource((current) => {
-      if (current) URL.revokeObjectURL(current.url);
-      return { file, url, kind, name: file.name };
-    });
-    setStudioOpen(true);
   }
 
   /** Publie le dessin de l'atelier comme statut de 24 h. */
@@ -863,6 +824,8 @@ export default function FeedPage() {
       }
     >
       <div className="px-(--gutter) pt-3" data-feed-density={density}>
+        <div className="flex items-start gap-6">
+        <div className="min-w-0 flex-1">
         <div className="mb-3 flex min-h-11 items-center justify-between gap-3">
           <h1 className="font-display text-[22px] font-semibold tracking-[-0.03em]">
             Fil
@@ -1105,43 +1068,27 @@ export default function FeedPage() {
         )}
 
       <PostOwnerTools actions={postActions} />
+        </div>
 
-      <CommentsPanel
-        postId={commentsFor}
-        open={commentsFor !== null}
-        onClose={() => setCommentsFor(null)}
-        me={profile?.id ?? null}
-        canModerate={
-          commentsFor !== null &&
-          posts?.find((p) => p.id === commentsFor)?.author_id === profile?.id
-        }
-      />
+        <CommentsPanel
+          variant={commentsDocked ? "docked" : "sheet"}
+          postId={commentsFor}
+          open={commentsFor !== null}
+          onClose={() => setCommentsFor(null)}
+          me={profile?.id ?? null}
+          canModerate={
+            commentsFor !== null &&
+            posts?.find((p) => p.id === commentsFor)?.author_id === profile?.id
+          }
+        />
+        </div>
       </div>
 
       <Sheet
         open={open}
-        onClose={() => (studioOpen ? closeStudio() : resetSheet())}
+        onClose={resetSheet}
         title="Nouveau post"
       >
-        <StudioEditor
-          open={studioOpen}
-          onClose={closeStudio}
-          initialMedia={
-            studioSource
-              ? { url: studioSource.url, kind: studioSource.kind, name: studioSource.name }
-              : media
-          }
-          sourceFile={studioSource?.file ?? null}
-          onLayersChange={setText}
-          owner={profile?.pseudo ?? ""}
-          onUse={(file) => {
-            void attachMedia(file);
-          }}
-          onUseSource={(file) => {
-            void attachMedia(file);
-          }}
-        />
-
         <textarea
           value={text} onChange={(e) => setText(e.target.value)}
           rows={Math.min(12, Math.max(4, text.split("\n").length))}
@@ -1167,20 +1114,6 @@ export default function FeedPage() {
           >
             <Icon name="gif" size={16} />
             {gif ? "Changer le GIF" : "Ajouter un GIF"}
-          </button>
-          <button
-            type="button"
-            onClick={() => setStudioOpen(true)}
-            aria-haspopup="dialog"
-            disabled={mediaBusy}
-            className="inline-flex min-h-[var(--h-tap)] items-center gap-1.5
-              rounded-[var(--radius-chip)] border border-line-3 px-3 font-mono
-              text-[12px] font-bold uppercase tracking-[0.08em] text-chalk-3
-              transition-colors duration-[var(--d-fast)]
-              hover:border-signal hover:text-signal disabled:opacity-40"
-          >
-            {mediaBusy ? <Spinner /> : <Icon name="studio" size={16} />}
-            {mediaBusy ? "Envoi…" : media ? "Modifier le média" : "Atelier"}
           </button>
         </div>
 
@@ -1217,7 +1150,7 @@ export default function FeedPage() {
               const file = event.target.files?.[0];
               // Reset : choisir deux fois le même fichier doit fonctionner.
               event.target.value = "";
-              if (file) openStudioWith(file);
+              if (file) void attachMedia(file);
             }}
             className="sr-only"
           />
@@ -1391,13 +1324,12 @@ export default function FeedPage() {
 
 
       {/* ── Statut : l'atelier est le brouillon, et publie ce qu'on voit. ── */}
-      <StudioEditor
+      <StatusComposer
         open={openStoryCompose}
         onClose={() => {
           setOpenStoryCompose(false);
           setStoryText("");
         }}
-        owner={profile?.pseudo ?? ""}
         onLayersChange={setStoryText}
         onUse={(file) => {
           void publishStoryFromStudio(file);

@@ -73,6 +73,8 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
+const mediaOrigin = process.env.R2_PUBLIC_URL?.trim().replace(/\/+$/, "") ?? "";
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -93,6 +95,18 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased">
+        {/*
+          Les médias vivent sur R2, pas sur le domaine de l'app : sans
+          indication, le navigateur ne résout ce domaine qu'au moment de la
+          première image, ce qui ajoute une poignée de main TLS au chargement
+          du fil. Deux `<link>` suffisent, sans dépendance.
+        */}
+        {mediaOrigin ? (
+          <>
+            <link rel="preconnect" href={mediaOrigin} crossOrigin="" />
+            <link rel="dns-prefetch" href={mediaOrigin} />
+          </>
+        ) : null}
         {/*
           Le thème doit être appliqué **avant** le premier rendu, sinon un
           utilisateur en thème clair voit un flash ivoire. Ce script lit la

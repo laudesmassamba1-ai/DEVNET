@@ -19,7 +19,7 @@ import { badgeFor, xpOf } from "@/lib/verification";
 import { loadAuthorXp } from "@/lib/author-xp";
 import { api } from "@/lib/api/client";
 import { uploadMedia } from "@/lib/media";
-import { StudioEditor } from "@/components/studio/StudioEditor";
+import { StatusComposer } from "@/components/StatusComposer";
 import { useSession } from "@/hooks/useSession";
 import { useTyping } from "@/hooks/useTyping";
 import { clockTime } from "@/lib/utils";
@@ -1276,11 +1276,10 @@ export default function MessagesPage() {
                 <div ref={endRef} />
 
               </div>
-              <StudioEditor
+              <StatusComposer
                 open={studioOpen}
                 onClose={closeStudio}
-                owner={profile?.pseudo ?? ""}
-                initialMedia={
+                    initialMedia={
                   studioSource
                     ? { url: studioSource.url, kind: studioSource.kind, name: studioSource.name }
                     : null

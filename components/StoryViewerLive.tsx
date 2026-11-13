@@ -551,6 +551,12 @@ export function StoryViewer({
       aria-modal="true"
       aria-label={`Story de ${author?.prenom ?? "quelqu'un"}`}
       className="story-stage fixed inset-0 z-[var(--z-modal)] flex flex-col"
+      style={{
+        // iPhone X et suivants : le contenu ne passe ni sous l'encoche ni
+        // sous la barre d'accueil. `viewport-fit=cover` est déjà posé.
+        paddingTop: "var(--h-safe-top)",
+        paddingBottom: "var(--h-safe-bottom)",
+      }}
       onPointerDown={(event) => {
         // Un appui sur la story met en pause le temps de la lecture.
         if (event.target === event.currentTarget) setPaused(true);
@@ -630,11 +636,11 @@ export function StoryViewer({
         </button>
       </header>
 
-      <div className="relative flex flex-1 items-center justify-center px-5 pt-20 pb-28">
-        <div className="w-full max-w-[420px]">
+      <div className="relative flex min-h-0 flex-1 items-center justify-center">
+        <div className="h-full w-full max-w-[min(100%,540px)]">
           <div
             ref={surfaceRef}
-            className="story-aperture relative p-[2px]"
+            className="story-aperture relative h-full p-0"
             style={{ background: "var(--story-ring-gradient)" }}
             onDoubleClick={() => void like()}
             onClick={(event) => {
@@ -646,14 +652,7 @@ export function StoryViewer({
               void place(placing, x, y);
             }}
           >
-            <div className="story-frame relative flex max-h-[64vh] min-h-[240px] flex-col overflow-hidden bg-[var(--overlay-panel-bg)] shadow-sh-3">
-              <div className="flex items-center gap-2 border-b border-line-2 px-4 py-2.5">
-                <span className="story-ticks" aria-hidden />
-                <span className="label-micro text-chalk-3">Statut</span>
-                <span className="label-micro ml-auto text-chalk-4">
-                  {index + 1} / {stories.length}
-                </span>
-              </div>
+            <div className="story-frame relative flex h-full min-h-0 flex-col overflow-hidden bg-void">
 
               {mediaById[current.id]?.mime.startsWith("video/") ? (
                 <video
@@ -661,25 +660,26 @@ export function StoryViewer({
                   controls
                   playsInline
                   preload="metadata"
-                  className="max-h-[46vh] w-full bg-void object-contain"
+                  className="min-h-0 w-full flex-1 bg-void object-contain"
                 />
               ) : mediaById[current.id] ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={storyMediaUrl(current.id)}
                   alt=""
-                  className="max-h-[46vh] w-full bg-void/5 object-cover"
+                  className="min-h-0 w-full flex-1 bg-void object-contain"
                 />
               ) : current.media_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={current.media_url}
                   alt=""
-                  className="max-h-[46vh] w-full bg-void/5 object-cover"
+                  className="min-h-0 w-full flex-1 bg-void object-contain"
                 />
               ) : null}
 
-              <p className="story-caption min-h-[72px] overflow-y-auto whitespace-pre-wrap px-4 py-4
+              <p className="story-caption max-h-[30%] shrink-0 overflow-y-auto whitespace-pre-wrap
+                bg-gradient-to-t from-void via-void/85 to-transparent px-4 pb-5 pt-8
                 text-[16.5px] leading-[1.6] text-chalk">
                 {current.caption}
               </p>

@@ -1,0 +1,519 @@
+"use client";
+
+/**
+ * Éditeur de statut — un seul écran, comme dans WhatsApp, Instagram ou
+ * Snapchat : un fond, un texte qu'on tape et qu'on déplace, un bouton.
+ *
+ * Il remplace l'Atelier à calques : plus d'inspecteur, de transformations en
+ * pourcentage ni de filtres. Ce qu'on voit est exactement ce qui est publié,
+ * parce que la scène et l'export partagent le même dessin (canvas 1080 × 1920).
+ *
+ * Une vidéo n'est pas réencodée : elle part telle quelle et le texte est
+ * joint comme légende. Une photo ou un fond de couleur est composé en image,
+ * texte compris, pour que le rendu soit identique chez tous les lecteurs.
+ */
+import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Icon } from "@/components/Icon";
+
+const STAGE_W = 1080;
+const STAGE_H = 1920;
+
+/**
+ * Fonds proposés, dans l'ordre du cycle « Fond ».
+ *
+ * Chaque entrée nomme deux variables CSS ; l'aperçu les compose en
+ * dégradé et l'export relit la valeur calculée. Aucune couleur n'est
+ * écrite ici : le thème reste la seule source.
+ */
+const BACKGROUNDS: [string, string][] = [
+  ["--story-bg-1-a", "--story-bg-1-b"],
+  ["--story-bg-2-a", "--story-bg-2-b"],
+  ["--story-bg-3-a", "--story-bg-3-b"],
+  ["--story-bg-4-a", "--story-bg-4-b"],
+  ["--story-bg-5-a", "--story-bg-5-b"],
+  ["--story-bg-6-a", "--story-bg-6-b"],
+  ["--story-bg-7-a", "--story-bg-7-b"],
+  ["--story-bg-8-a", "--story-bg-8-b"],
+];
+
+/** Encres du texte, du blanc au vert phosphor, en variables. */
+const TEXT_COLORS = ["--story-ink-1", "--story-ink-2", "--story-ink-3", "--story-ink-4"];
+/** Fractions de la largeur de scène : l'échelle suit l'écran, comme sur
+ *  Instagram, au lieu de figer 76 px qui débordent sur un téléphone. */
+const TEXT_SIZES = [0.09, 0.07, 0.052];
+
+/**
+ * Valeur réelle d'une variable de thème.
+ *
+ * Le canvas n'accepte pas `var(...)` : il lui faut la couleur résolue.
+ * On la lit une fois, au moment de dessiner.
+ */
+function themeColor(name: string, fallback: string): string {
+  if (typeof window === "undefined") return fallback;
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
+}
+
+type Source = { file: File; url: string; kind: "image" | "video" };
+
+type ComposerProps = {
+  open: boolean;
+  onClose: () => void;
+  /** Média déjà joint (reprise d'un brouillon). */
+  initialMedia?: { url: string; kind: "image" | "video"; name?: string } | null;
+  /** Fichier choisi avant l'ouverture. */
+  sourceFile?: File | null;
+  onUse: (file: File) => void;
+  onUseSource?: (file: File) => void;
+  onLayersChange?: (text: string) => void;
+};
+
+/**
+ * L'éditeur est remonté à chaque ouverture, avec un média neuf : l'état
+ * initial se calcule au rendu, sans effet ni remise à zéro manuelle.
+ */
+export function StatusComposer(props: ComposerProps) {
+  if (!props.open) return null;
+  const seed = props.sourceFile
+    ? `${props.sourceFile.name}:${props.sourceFile.size}:${props.sourceFile.lastModified}`
+    : (props.initialMedia?.url ?? "neuf");
+  return <EditorShell key={seed} {...props} />;
+}
+
+function EditorShell({
+  onClose,
+  initialMedia = null,
+  sourceFile = null,
+  onUse,
+  onUseSource,
+  onLayersChange,
+}: ComposerProps) {
+  const [text, setText] = useState("");
+  const [editing, setEditing] = useState(true);
+  const [background, setBackground] = useState(0);
+  const [color, setColor] = useState(0);
+  const [size, setSize] = useState(0);
+  const [pos, setPos] = useState({ x: 50, y: 46 });
+  const [stageWidth, setStageWidth] = useState(360);
+  const [source, setSource] = useState<Source | null>(() => {
+    if (sourceFile) {
+      return {
+        file: sourceFile,
+        url: URL.createObjectURL(sourceFile),
+        kind: sourceFile.type.startsWith("video/") ? "video" : "image",
+      };
+    }
+    if (initialMedia) {
+      return {
+        file: new File([], initialMedia.name ?? "media"),
+        url: initialMedia.url,
+        kind: initialMedia.kind,
+      };
+    }
+    return null;
+  });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const mediaInput = useRef<HTMLInputElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLTextAreaElement>(null);
+  const imageRef = useRef<HTMLImageElement | null>(null);
+  const dragRef = useRef<{ dx: number; dy: number } | null>(null);
+  const createdUrl = useRef<string | null>(source && sourceFile ? source.url : null);
+
+  useEffect(() => {
+    if (!createdUrl.current) return;
+    return () => {
+      if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
+    };
+  }, []);
+
+  // La taille du texte suit la largeur réelle de la scène : c'est elle qui
+  // décide si le texte tient, pas la fenêtre.
+  useEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setStageWidth(entry.contentRect.width);
+    });
+    observer.observe(stage);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  useEffect(() => {
+    onLayersChange?.(text);
+  }, [text, onLayersChange]);
+
+  useEffect(() => {
+    if (!editing) return;
+    const frame = requestAnimationFrame(() => textRef.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [editing]);
+
+  const pickFile = useCallback((file: File | null) => {
+    if (!file) return;
+    const kind = file.type.startsWith("video/")
+      ? "video"
+      : file.type.startsWith("image/")
+        ? "image"
+        : null;
+    if (!kind) {
+      setError("Choisis une photo ou une vidéo.");
+      return;
+    }
+    setError(null);
+    if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
+    const url = URL.createObjectURL(file);
+    createdUrl.current = url;
+    setSource({ file, url, kind });
+    setPos({ x: 50, y: 46 });
+    setEditing(true);
+  }, []);
+
+  function beginDrag(event: React.PointerEvent<HTMLDivElement>) {
+    if (editing) return;
+    const stage = stageRef.current?.getBoundingClientRect();
+    if (!stage) return;
+    dragRef.current = {
+      dx: pos.x - ((event.clientX - stage.left) / stage.width) * 100,
+      dy: pos.y - ((event.clientY - stage.top) / stage.height) * 100,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
+
+  function moveDrag(event: React.PointerEvent<HTMLDivElement>) {
+    const stage = stageRef.current?.getBoundingClientRect();
+    if (!dragRef.current || !stage) return;
+    const x = ((event.clientX - stage.left) / stage.width) * 100 + dragRef.current.dx;
+    const y = ((event.clientY - stage.top) / stage.height) * 100 + dragRef.current.dy;
+    setPos({ x: Math.min(92, Math.max(8, x)), y: Math.min(94, Math.max(6, y)) });
+  }
+
+  function endDrag() {
+    dragRef.current = null;
+  }
+
+  /** Dessine exactement la scène affichée, en 1080 × 1920. */
+  async function renderStage(): Promise<Blob | null> {
+    const canvas = document.createElement("canvas");
+    canvas.width = STAGE_W;
+    canvas.height = STAGE_H;
+    const context = canvas.getContext("2d");
+    if (!context) return null;
+
+    if (source?.kind === "image") {
+      if (!imageRef.current) {
+        imageRef.current = await new Promise<HTMLImageElement | null>((resolve) => {
+          const image = new Image();
+          image.crossOrigin = "anonymous";
+          image.onload = () => resolve(image);
+          image.onerror = () => resolve(null);
+          image.src = source.url;
+        });
+      }
+      const image = imageRef.current;
+      if (image) {
+        const scale = Math.max(STAGE_W / image.width, STAGE_H / image.height);
+        const width = image.width * scale;
+        const height = image.height * scale;
+        context.drawImage(image, (STAGE_W - width) / 2, (STAGE_H - height) / 2, width, height);
+      } else {
+        context.fillStyle = themeColor("--story-bg-1-a", "black");
+        context.fillRect(0, 0, STAGE_W, STAGE_H);
+      }
+    } else {
+      const palette = backgroundPalette();
+      const gradient = context.createLinearGradient(0, 0, STAGE_W, STAGE_H);
+      gradient.addColorStop(0, palette[0]);
+      gradient.addColorStop(1, palette[1]);
+      context.fillStyle = gradient;
+      context.fillRect(0, 0, STAGE_W, STAGE_H);
+    }
+
+    const body = text.trim();
+    if (body) {
+      const fontSize = Math.round(TEXT_SIZES[size] * STAGE_W);
+      const maxWidth = STAGE_W * 0.82;
+      context.font = `800 ${fontSize}px ui-sans-serif, system-ui, sans-serif`;
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      const lines = wrap(context, body, maxWidth);
+      const lineHeight = fontSize * 1.22;
+      const x = (pos.x / 100) * STAGE_W;
+      const startY = (pos.y / 100) * STAGE_H - ((lines.length - 1) * lineHeight) / 2;
+      context.fillStyle = themeColor(TEXT_COLORS[color], "white");
+      // Une ombre douce garde le texte lisible sur n'importe quelle photo.
+      context.shadowColor = "rgba(0,0,0,0.45)";
+      context.shadowBlur = 18;
+      lines.forEach((line, index) => {
+        context.fillText(line, x, startY + index * lineHeight, maxWidth);
+      });
+    }
+
+    return new Promise((resolve) => canvas.toBlob(resolve, "image/webp", 0.9));
+  }
+
+  function backgroundPalette(): [string, string] {
+    return [
+      themeColor(BACKGROUNDS[background][0], "black"),
+      themeColor(BACKGROUNDS[background][1], "black"),
+    ];
+  }
+
+  async function publish() {
+    if (busy) return;
+    setError(null);
+    if (!source && !text.trim()) {
+      setError("Ajoute un texte ou une photo.");
+      return;
+    }
+    // Une vidéo part intacte : la réencoder au navigateur détruirait sa
+    // durée. Le texte voyage alors comme légende.
+    if (source?.kind === "video" && source.file.size > 0) {
+      (onUseSource ?? onUse)(source.file);
+      onClose();
+      return;
+    }
+    if (!source && !text.trim()) return;
+    setBusy(true);
+    try {
+      const blob = await renderStage();
+      if (!blob) {
+        setError("Le rendu a échoué.");
+        return;
+      }
+      const file = new File([blob], `statut-${Date.now()}.webp`, {
+        type: "image/webp",
+        lastModified: Date.now(),
+      });
+      onUse(file);
+      onClose();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Éditeur de statut"
+      className="fixed inset-0 z-[var(--z-modal)] flex flex-col bg-void text-chalk"
+      style={{ paddingTop: "var(--h-safe-top)", paddingBottom: "var(--h-safe-bottom)" }}
+    >
+      <header className="flex items-center justify-between gap-3 px-4 py-3">
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex min-h-tap items-center gap-2 rounded-chip px-2 font-mono text-xs font-bold uppercase tracking-wide text-chalk-3 hover:text-chalk"
+        >
+          <Icon name="close" size={18} />
+          Fermer
+        </button>
+        <span className="font-mono text-xs uppercase tracking-wide text-chalk-3">
+          Statut
+        </span>
+        <button
+          type="button"
+          onClick={() => void publish()}
+          disabled={busy}
+          className="inline-flex min-h-tap items-center gap-2 rounded-chip bg-signal px-4 font-mono text-xs font-bold uppercase tracking-wide text-void disabled:opacity-50"
+        >
+          {busy ? "Envoi…" : "Publier"}
+        </button>
+      </header>
+
+      <div className="flex min-h-0 flex-1 items-center justify-center px-3">
+        <div
+          ref={stageRef}
+          onPointerDown={beginDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onDoubleClick={() => setEditing(true)}
+          className="relative h-full max-h-full overflow-hidden rounded-xl"
+          style={{
+            aspectRatio: "9 / 16",
+            background: source
+              ? "var(--color-void)"
+              : `linear-gradient(160deg, var(${BACKGROUNDS[background][0]}), var(${BACKGROUNDS[background][1]}))`,
+          }}
+        >
+          {source?.kind === "image" ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={source.url}
+              alt=""
+              draggable={false}
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          ) : null}
+          {source?.kind === "video" ? (
+            <video
+              src={source.url}
+              className="absolute inset-0 h-full w-full object-cover"
+              playsInline
+              autoPlay
+              loop
+              muted
+            />
+          ) : null}
+
+          <div
+            className="absolute w-full -translate-x-1/2 -translate-y-1/2 px-6 text-center"
+            style={{ left: `${pos.x}%`, top: `${pos.y}%` }}
+          >
+            {editing ? (
+              <>
+                <label htmlFor="status-composer-text" className="sr-only">
+                  Texte du statut
+                </label>
+                <textarea
+                  id="status-composer-text"
+                  ref={textRef}
+                  value={text}
+                  onChange={(event) => setText(event.target.value)}
+                  onBlur={() => setEditing(false)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      setEditing(false);
+                    }
+                  }}
+                  rows={2}
+                  placeholder="Votre statut"
+                  className="w-full resize-none appearance-none border-0 bg-transparent text-center
+                    font-extrabold leading-tight shadow-none outline-none ring-0 placeholder:text-chalk-3
+                    focus:border-0 focus:shadow-none focus:outline-none focus:ring-0"
+                  style={{ color: `var(${TEXT_COLORS[color]})`, fontSize: Math.round(TEXT_SIZES[size] * stageWidth), textShadow: "var(--story-text-shadow)" }}
+                />
+              </>
+            ) : text.trim() ? (
+              <p
+                className="whitespace-pre-wrap break-words font-extrabold leading-tight"
+                style={{ color: `var(${TEXT_COLORS[color]})`, fontSize: Math.round(TEXT_SIZES[size] * stageWidth), textShadow: "var(--story-text-shadow)" }}
+              >
+                {text}
+              </p>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                className="rounded-chip bg-void/70 px-4 py-2 font-mono text-xs uppercase tracking-wide text-chalk"
+              >
+                Ajouter du texte
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {error ? (
+        <p role="alert" className="px-4 pb-1 text-center text-sm text-danger">
+          {error}
+        </p>
+      ) : null}
+
+      <footer className="flex items-center gap-2 overflow-x-auto px-3 py-3 [scrollbar-width:none]">
+        <ToolButton label="Photo" icon="image" onClick={() => mediaInput.current?.click()} />
+        <ToolButton
+          label="Texte"
+          icon="edit"
+          active={editing}
+          onClick={() => setEditing(true)}
+        />
+        <ToolButton
+          label="Fond"
+          icon="droplet"
+          onClick={() => setBackground((value) => (value + 1) % BACKGROUNDS.length)}
+        />
+        <ToolButton
+          label="Taille"
+          icon="grid"
+          onClick={() => setSize((value) => (value + 1) % TEXT_SIZES.length)}
+        />
+        <ToolButton
+          label="Encre"
+          icon="sun"
+          onClick={() => setColor((value) => (value + 1) % TEXT_COLORS.length)}
+        />
+        <label htmlFor="status-composer-media" className="sr-only">
+          Photo ou vidéo du statut
+        </label>
+        <input
+          id="status-composer-media"
+          ref={mediaInput}
+          type="file"
+          accept="image/*,video/*"
+          className="sr-only"
+          onChange={(event) => {
+            pickFile(event.target.files?.[0] ?? null);
+            event.target.value = "";
+          }}
+        />
+      </footer>
+      <p className="pb-3 text-center font-mono text-xs uppercase tracking-wide text-chalk-3">
+        Glissez le texte pour le placer · double-clic pour le modifier
+      </p>
+    </div>,
+    document.body,
+  );
+}
+
+function ToolButton({
+  label,
+  icon,
+  onClick,
+  active = false,
+}: {
+  label: string;
+  icon: "image" | "edit" | "droplet" | "grid" | "sun";
+  onClick: () => void;
+  active?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={`inline-flex min-h-tap items-center gap-1.5 rounded-chip border px-3 font-mono text-xs font-bold uppercase tracking-wide transition-colors
+        ${active ? "border-signal text-signal" : "border-line-3 text-chalk-3 hover:border-signal hover:text-signal"}`}
+    >
+      <Icon name={icon} size={16} />
+      {label}
+    </button>
+  );
+}
+
+function wrap(context: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
+  const lines: string[] = [];
+  for (const paragraph of text.split("\n")) {
+    let line = "";
+    for (const word of paragraph.split(/\s+/)) {
+      const candidate = line ? `${line} ${word}` : word;
+      if (context.measureText(candidate).width > maxWidth && line) {
+        lines.push(line);
+        line = word;
+      } else {
+        line = candidate;
+      }
+    }
+    lines.push(line);
+  }
+  return lines;
+}

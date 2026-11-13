@@ -26,6 +26,27 @@ const FAQ: { theme: string; items: { q: string; a: string }[] }[] = [
     ],
   },
   {
+    theme: "Installer l’application (PWA)",
+    items: [
+      {
+        q: "Comment installer DevNet sur Android ?",
+        a: "Ouvre DevNet dans Chrome, puis menu ⋮ en haut à droite → « Installer l’application » (ou « Ajouter à l’écran d’accueil »). Une invite apparaît aussi dans l’app elle-même : appuie sur « Installer ». L’icône rejoint le tiroir d’applications et DevNet s’ouvre alors en plein écran, sans barre d’adresse.",
+      },
+      {
+        q: "Comment installer DevNet sur iPhone ou iPad ?",
+        a: "Safari ne connaît pas de bouton « Installer » : ouvre DevNet dans Safari, appuie sur Partager (le carré avec une flèche), puis « Sur l’écran d’accueil » et « Ajouter ». L’application s’ouvre ensuite en plein écran. Depuis Chrome ou Firefox sur iOS, passe d’abord par Safari : seul lui installe une application web.",
+      },
+      {
+        q: "Pourquoi l’app installée n’a-t-elle pas de barre d’adresse ?",
+        a: "C’est le mode autonome du manifeste : la fenêtre est celle de l’application, pas celle du navigateur. L’encoche et la barre d’accueil de l’iPhone sont prises en compte (marges de sécurité), et la barre d’état adopte la couleur du thème clair ou sombre.",
+      },
+      {
+        q: "Comment mise à jour l’application installée ?",
+        a: "Elle se met à jour toute seule ; une bannière « Mise à jour prête » propose de recharger quand une nouvelle version attend. Rien à désinstaller.",
+      },
+    ],
+  },
+  {
     theme: "Publier et échanger",
     items: [
       {
