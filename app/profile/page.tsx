@@ -259,6 +259,7 @@ export default function ProfilePage() {
   }, [profileId]);
 
   async function logout() {
+    await fetch("/api/auth/deconnexion", { method: "POST" });
     await supabase.auth.signOut();
     router.replace("/login");
   }

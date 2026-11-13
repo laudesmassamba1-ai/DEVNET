@@ -10,12 +10,15 @@ import { Motion } from "@/components/Motion";
 import { rearmSplash } from "@/components/SplashScreen";
 import { supabase } from "@/lib/supabase/client";
 import { useSession } from "@/hooks/useSession";
+import { useBackend } from "@/hooks/useBackend";
 import { AVATARS, FILIERES, LANGAGES, NIVEAUX, type AccountType } from "@/lib/types";
 
 const TERMS_VERSION = "2026-10-16";
 
 export default function Register() {
   const { session, loading } = useSession();
+  const backend = useBackend();
+  const isDemo = backend.state === "offline";
   const router = useRouter();
 
   const [step, setStep] = useState<1 | 2>(1);
@@ -63,13 +66,49 @@ export default function Register() {
     setError("");
 
     if (pw !== pw2) return setError("Les mots de passe ne correspondent pas.");
-    if (pw.length < 6) return setError("Mot de passe trop court (6 caractères minimum).");
+    if (pw.length < 8) return setError("Mot de passe trop court (8 caractères minimum).");
     if (!acceptedTerms) return setError("Acceptez les CGU pour créer votre compte.");
 
     setBusy(true);
     const cleanPseudo = pseudo.toLowerCase().replace(/[^a-z0-9_]/g, "");
     const avatar = AVATARS[Math.floor(Math.random() * AVATARS.length)];
     const termsAcceptedAt = new Date().toISOString();
+
+    
+    if (!isDemo) {
+      const res = await fetch("/api/auth/inscription", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password: pw, pseudo: cleanPseudo }),
+      });
+      if (!res.ok) {
+        setBusy(false);
+        setError(
+          res.status === 409
+            ? "Email déjà utilisé."
+            : res.status === 400
+              ? "Informations invalides : vérifie l'e-mail, le pseudo (3 à 30 caractères) et le mot de passe (8 caractères minimum)."
+              : "Inscription indisponible. Réessaie dans un instant.",
+        );
+        return;
+      }
+      const { userId } = (await res.json()) as { userId: string };
+      // Le compte existe et la session est ouverte : on complète le profil.
+      await supabase
+        .from("users")
+        .update({
+          prenom,
+          filiere,
+          niveau,
+          langages: [...langs],
+          avatar_color: avatar,
+          account_type: accountType,
+        })
+        .eq("id", userId);
+      rearmSplash();
+      router.replace("/feed");
+      return;
+    }
 
     const { data, error: err } = await supabase.auth.signUp({
       email,
@@ -318,7 +357,7 @@ export default function Register() {
               <label htmlFor="pw" className="label mb-1.5 block text-chalk">Mot de passe</label>
               <Motion role="rise" delay={420} as="div">
                 <input id="pw" type="password" autoComplete="new-password" value={pw}
-                  onChange={(e) => setPw(e.target.value)} placeholder="Minimum 6 caractères"
+                  onChange={(e) => setPw(e.target.value)} placeholder="Minimum 8 caractères"
                   className={inputCls} />
               </Motion>
             </div>

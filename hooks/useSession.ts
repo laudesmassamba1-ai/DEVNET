@@ -115,15 +115,21 @@ export function useSession(): State & { retry: () => void; refresh: () => Promis
       if (alive) setState({ session, profile, loading: false, failed: !profile });
     })();
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event: string, session: Session | null) => {
-      if (!session) {
-        setState({ session: null, profile: null, loading: false, failed: false });
-        return;
-      }
-      void resolveProfile(session).then((profile) => {
-        if (alive) setState({ session, profile, loading: false, failed: !profile });
-      });
-    });
+        const { data: sub } = supabase.auth.onAuthStateChange(
+      (_event: string, supabaseSession: Session | null) => {
+        void (async () => {
+          // Un événement Supabase « sans session » ne prouve rien : la session
+          // PostgreSQL peut exister. On la cherche avant de conclure.
+          const session = supabaseSession ?? (await currentSession());
+          if (!session) {
+            if (alive) setState({ session: null, profile: null, loading: false, failed: false });
+            return;
+          }
+          const profile = await resolveProfile(session);
+          if (alive) setState({ session, profile, loading: false, failed: !profile });
+        })();
+      },
+    );
 
     return () => {
       alive = false;

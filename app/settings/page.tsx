@@ -177,6 +177,11 @@ export default function SettingsPage() {
   async function signOut() {
     setSignOutError("");
     try {
+      const res = await fetch("/api/auth/deconnexion", { method: "POST" });
+      if (!res.ok) {
+        setSignOutError("Déconnexion impossible. Réessaie dans un instant.");
+        return;
+      }
       const { error } = await supabase.auth.signOut();
       if (error) {
         setSignOutError(`Déconnexion impossible : ${error.message}`);
