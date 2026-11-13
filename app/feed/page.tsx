@@ -609,6 +609,12 @@ export default function FeedPage() {
         return;
       }
       setMedia({ url: result.media.url, kind: result.media.kind });
+      // Un `.mov` d'iPhone contient souvent du HEVC, que Chrome et Firefox
+      // ne décodent pas : l'envoi passe, la lecture non. On le dit avant
+      // publication plutôt que de laisser une zone noire après.
+      if (file.type === "video/quicktime") {
+        toast("Vidéo .mov : à réexporter en MP4/H.264 si elle ne se lit pas", "err");
+      }
     } finally {
       setMediaBusy(false);
     }

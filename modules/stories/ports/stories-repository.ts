@@ -112,6 +112,12 @@ export interface StoriesRepository {
         height: number | null;
         durationMs: number | null;
       };
+      /**
+       * Média déjà déposé sur le stockage objet (R2/blob). C'est la voie
+       * des vidéos : leurs octets ne passent jamais par une requête JSON
+       * (la limite de corps de Vercel est de 4,5 Mo) ni par la base.
+       */
+      mediaUrl?: string;
     },
   ): Promise<{ id: string }>;
   /** Octets du média, sous les droits du lecteur. */

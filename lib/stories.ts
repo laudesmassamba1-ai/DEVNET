@@ -1,4 +1,5 @@
 import { api } from "@/lib/api/client";
+import { uploadMedia } from "@/lib/media";
 import type { StoryWithAuthor } from "@/lib/types";
 import { STORY_REPLY_MAX } from "@/modules/stories";
 import type {
@@ -108,44 +109,74 @@ export async function publishStory(
 }
 
 /**
+ * Au-delà de cette taille, un fichier n'entre plus dans le corps JSON d'une
+ * fonction Vercel (4,5 Mo) une fois encodé en base64 (+33 %) : il part
+ * d'abord sur le stockage objet, et la story ne garde que son URL.
+ */
+const STORY_DATA_URL_MAX = 3 * 1024 * 1024;
+
+async function postStoryMedia(payload: {
+  caption: string;
+  dataUrl?: string;
+  mediaUrl?: string;
+}): Promise<{ id: string | null; error: string | null }> {
+  try {
+    const response = await fetch("/api/stories/media", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const body = (await response.json().catch(() => null)) as
+      | { id?: string; error?: string }
+      | null;
+    if (!response.ok) {
+      return { id: null, error: body?.error ?? `Erreur ${response.status}` };
+    }
+    return { id: body?.id ?? null, error: null };
+  } catch {
+    return { id: null, error: "Réseau indisponible" };
+  }
+}
+
+/**
  * Publie un statut média : image, GIF ou vidéo.
  *
- * Le fichier monte en data URL ; le serveur le re-encode (WebP borné,
- * MP4 15 s) et rend l'identifiant de la story. Rien de ce qui part d'ici
- * n'est publié tel quel.
+ * Deux chemins, et un seul critère : le poids. Une petite image part en data
+ * URL et se fait re-encoder côté serveur (WebP borné à 1080 px) ; une vidéo
+ * ou un fichier de plus de 3 Mo monte d'abord sur le stockage objet, puis la
+ * story retient son URL. Sans ce second chemin, toute vidéo dépassant trois
+ * mégaoctets se heurtait à un 413 — la limite de corps de la fonction, pas
+ * celle du média.
  */
-export function publishStoryMedia(
+export async function publishStoryMedia(
   caption: string,
   file: File,
 ): Promise<{ id: string | null; error: string | null }> {
-  return new Promise((resolve) => {
+  const clean = caption.trim();
+  const uploadFirst = file.type.startsWith("video/") || file.size > STORY_DATA_URL_MAX;
+
+  if (uploadFirst) {
+    const uploaded = await uploadMedia(file);
+    if (!uploaded.ok) return { id: null, error: uploaded.error };
+    // Le repli sans R2 rend un chemin relatif (`/api/media/…`) : on le
+    // résout ici, le serveur n'acceptant que des adresses absolues https.
+    const url = new URL(uploaded.media.url, window.location.origin).href;
+    if (!url.startsWith("https://")) {
+      return { id: null, error: "Stockage des vidéos indisponible" };
+    }
+    return postStoryMedia({ caption: clean, mediaUrl: url });
+  }
+
+  const dataUrl = await new Promise<string | null>((resolve) => {
     const reader = new FileReader();
-    reader.onerror = () => resolve({ id: null, error: "Lecture du fichier impossible" });
-    reader.onload = async () => {
-      if (typeof reader.result !== "string") {
-        resolve({ id: null, error: "Fichier illisible" });
-        return;
-      }
-      try {
-        const response = await fetch("/api/stories/media", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ caption: caption.trim(), dataUrl: reader.result }),
-        });
-        const body = (await response.json().catch(() => null)) as
-          | { id?: string; error?: string }
-          | null;
-        if (!response.ok) {
-          resolve({ id: null, error: body?.error ?? `Erreur ${response.status}` });
-          return;
-        }
-        resolve({ id: body?.id ?? null, error: null });
-      } catch {
-        resolve({ id: null, error: "Réseau indisponible" });
-      }
-    };
+    reader.onerror = () => resolve(null);
+    reader.onload = () =>
+      resolve(typeof reader.result === "string" ? reader.result : null);
     reader.readAsDataURL(file);
   });
+  if (!dataUrl) return { id: null, error: "Lecture du fichier impossible" };
+
+  return postStoryMedia({ caption: clean, dataUrl });
 }
 
 /** URL des octets du média d'un statut. */

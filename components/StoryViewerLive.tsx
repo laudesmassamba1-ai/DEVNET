@@ -57,6 +57,17 @@ import {
  * elle reste un repère fixe, et la série avance au rythme prévu.
  */
 
+/**
+ * Une URL de story pointe-t-elle vers une vidéo ?
+ *
+ * Le type du média en base ne suffit plus : une vidéo publiable (plus de
+ * 3 Mo) vit sur le stockage objet et seule son URL est retenue. On la
+ * reconnaît donc à son extension, avant tout autre test.
+ */
+function isVideoUrl(url: string): boolean {
+  return /\.(mp4|webm|ogv|mov|m4v)(?:$|[?#])/i.test(url);
+}
+
 /** Durée d'affichage d'une story avant de passer à la suivante. */
 const STORY_MS = 7000;
 
@@ -685,6 +696,17 @@ export function StoryViewer({
                   src={storyMediaUrl(current.id)}
                   alt=""
                   className="absolute inset-0 h-full w-full bg-void object-cover"
+                />
+              ) : current.media_url && isVideoUrl(current.media_url) ? (
+                /* Vidéo déposée sur le stockage objet : ses octets ne sont
+                   pas en base, mais elle se lit exactement comme les
+                   autres. */
+                <video
+                  src={current.media_url}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="absolute inset-0 h-full w-full bg-void object-contain"
                 />
               ) : current.media_url ? (
                 // eslint-disable-next-line @next/next/no-img-element

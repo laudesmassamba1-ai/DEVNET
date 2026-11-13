@@ -1,9 +1,14 @@
 /**
  * Publier un statut média.
  *
- * Le fichier arrive en data URL, il en ressort **re-encodé** : WebP borné à
- * 1080 px pour une image ou un GIF, MP4/H.264 de 15 s au plus pour une vidéo.
- * Le corps d'origine n'est jamais stocké ni servi.
+ * Deux chemins, selon la taille :
+ *
+ * - petite image ou GIF : une data URL entre, et sort **re-encodée** (WebP
+ *   borné à 1080 px) dans `story_media` ;
+ * - vidéo ou fichier lourd : le client a d'abord déposé les octets sur le
+ *   stockage objet, puis envoie seulement `mediaUrl`. Une vidéo en base64
+ *   dans un corps JSON dépassait la limite de 4,5 Mo de Vercel — d'où un
+ *   413 systématique au-delà de trois mégaoctets de fichier.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { STORY_MAX } from "@/lib/stories";
@@ -19,6 +24,8 @@ export const dynamic = "force-dynamic";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 const DATA_URL = /^data:((?:image|video)\/[a-z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/i;
+/** URL publique du stockage objet : https uniquement, jamais de data URL. */
+const MEDIA_URL = /^https:\/\/[^\s"'<>]{1,600}$/;
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const authorId = await currentUserId();
@@ -33,11 +40,40 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "corps illisible" }, { status: 400, headers: NO_STORE });
   }
 
-  const body = raw as { caption?: unknown; dataUrl?: unknown } | null;
+  const body = raw as { caption?: unknown; dataUrl?: unknown; mediaUrl?: unknown } | null;
   const dataUrl = typeof body?.dataUrl === "string" ? body.dataUrl : "";
+  const mediaUrl = typeof body?.mediaUrl === "string" ? body.mediaUrl.trim() : "";
   const caption = typeof body?.caption === "string" ? body.caption.trim() : "";
   if (caption.length > STORY_MAX) {
     return NextResponse.json({ error: `${STORY_MAX} caractères maximum` }, { status: 400 });
+  }
+
+  // Voie URL : les octets sont déjà sur le stockage objet, rien à
+  // re-encoder ici. On refuse tout ce qui n'est pas https pour ne pas
+  // transformer la story en relais vers une ressource locale ou `data:`.
+  if (mediaUrl) {
+    if (!MEDIA_URL.test(mediaUrl)) {
+      return NextResponse.json(
+        { error: "adresse de média invalide" },
+        { status: 400, headers: NO_STORE },
+      );
+    }
+    try {
+      const created = await getServerStoriesRepository().createStory(authorId, {
+        caption,
+        mediaUrl,
+      });
+      return NextResponse.json({ ok: true, id: created.id }, { headers: NO_STORE });
+    } catch (error) {
+      console.error(
+        "[stories] média refusé",
+        error instanceof Error ? error.message : String(error),
+      );
+      return NextResponse.json(
+        { error: "statut média indisponible" },
+        { status: 503, headers: NO_STORE },
+      );
+    }
   }
 
   const match = DATA_URL.exec(dataUrl);

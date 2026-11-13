@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar } from "./Avatar";
 import { CodeBlock } from "./CodeBlock";
@@ -30,6 +31,47 @@ const ACTION =
 
 /** Icône seule : même cible, sans largeur de texte. */
 const ACTION_ICON = `${ACTION} px-0`;
+
+/**
+ * Vidéo jointe à une publication.
+ *
+ * Deux détails font la différence entre « la vidéo ne se lance pas » et une
+ * lecture immédiate : le fragment `#t=0.1` demande la première image au lieu
+ * d'un rectangle noir tant qu'on n'a pas appuyé sur play (Safari n'affiche
+ * rien sans lui), et un échec de décodage devient un message lisible — un
+ * `.mov` en HEVC, courant sur iPhone, ne se lit ni dans Chrome ni dans
+ * Firefox, et une zone noire ne dit pas pourquoi.
+ */
+function InlineVideo({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return (
+      <a
+        href={src}
+        target="_blank"
+        rel="noreferrer"
+        className="mb-3 flex min-h-[var(--h-tap)] items-center justify-center
+          rounded-[var(--radius-input)] border border-line-2 bg-surface-2 px-4
+          text-center font-mono text-[12px] text-chalk-3"
+      >
+        Vidéo non lisible ici (format ou codec non pris en charge) — l’ouvrir
+      </a>
+    );
+  }
+
+  return (
+    <video
+      src={`${src}#t=0.1`}
+      controls
+      playsInline
+      preload="metadata"
+      onError={() => setFailed(true)}
+      className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+        border border-line-2 bg-surface-2 object-contain"
+    />
+  );
+}
 
 /**
  * Carte de post.
@@ -329,14 +371,7 @@ export function PostCard({
         {post.media_url ? (
           <Motion role="scale">
             {post.media_type === "video" ? (
-              <video
-                src={post.media_url}
-                controls
-                playsInline
-                preload="metadata"
-                className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
-                  border border-line-2 bg-surface-2 object-contain"
-              />
+              <InlineVideo src={post.media_url} />
             ) : (
               /* eslint-disable-next-line @next/next/no-img-element */
               <img

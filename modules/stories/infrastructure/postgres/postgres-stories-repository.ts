@@ -474,15 +474,16 @@ export class PostgresStoriesRepository implements StoriesRepository {
         height: number | null;
         durationMs: number | null;
       };
+      mediaUrl?: string;
     },
   ): Promise<{ id: string }> {
     try {
       return await this.dependencies.asUser(authorId, async (query) => {
         const rows = await query<{ id: string }>(
-          `insert into public.stories (author_id, caption)
-           values ($1, $2)
+          `insert into public.stories (author_id, caption, media_url)
+           values ($1, $2, $3)
            returning id::text as id`,
-          [authorId, input.caption],
+          [authorId, input.caption, input.mediaUrl ?? ""],
         );
         const id = rows[0]?.id;
         if (!id) throw new StoriesRepositoryError("create-story", "insertion-sans-ligne");
