@@ -252,6 +252,34 @@ La bascule se fait donc en fenêtre courte, avec une sauvegarde de chaque côté
 temporaire après la panne n'existent que là. Sans cette sauvegarde, revenir
 sur l'ancien hébergeur revient à perdre tout ce qui a été créé entre-temps.
 
+### 6.1 Reprise automatique dès que la base redémarre — `db:rescue`
+
+Une base arrêtée ne se sauvegarde pas, et personne n'est devant l'écran à la
+seconde où un fournisseur la rallume. `db:rescue` comble ce trou : il sonde la
+base jusqu'à ce qu'elle réponde, puis enchaîne **immédiatement** sur une
+sauvegarde chiffrée. Il ne modifie rien sur la source (`select 1` + lecture).
+
+```bash
+npm run db:rescue                    # surveille .env.remote pendant 60 min
+npm run db:rescue -- --wait=240      # 4 h (nuit, week-end)
+npm run db:rescue -- --interval=15   # sonde toutes les 15 s
+npm run db:rescue -- --once          # une seule tentative, diagnostic
+```
+
+Codes de sortie : `0` sauvegarde produite, `1` base jamais joignable dans le
+délai, `2` erreur d'exécution. Lancez-le dans un terminal qui reste ouvert (ou
+en service `systemd`, section 3.3) le jour où vous attendez un redémarrage :
+à la première réponse, l'archive est prise **avant** que l'application ne
+réécrive dessus.
+
+Enchaînement complet :
+
+1. `npm run db:rescue -- --wait=240` — attend et sauvegarde ;
+2. `npm run db:restore -- --file=<archive> --database-url="$DATABASE_URL_UNPOOLED"`
+   avec `DB_TARGET=remote` et `CONFIRM_REMOTE=<nom de la base>` — porte les
+données vers la base active ;
+3. relancer `/api/ready`, vérifier un compte et une publication.
+
 ## 7. Ce qui reste à faire
 
 - [x] Prendre une sauvegarde pré-migration et consigner son empreinte.

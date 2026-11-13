@@ -14,6 +14,7 @@
     "db:migrate:remote": "tsx scripts/db/migrate.ts --env=remote",
     "db:backup": "tsx scripts/db/backup.ts",
     "db:backup:remote": "tsx scripts/db/backup.ts --env=remote",
+    "db:rescue": "tsx scripts/db/rescue.ts --env=remote",
     "db:restore": "tsx scripts/db/restore.ts",
     "db:restore:remote": "tsx scripts/db/restore.ts --env=remote",
     "db:reset": "tsx scripts/db/reset.ts",
