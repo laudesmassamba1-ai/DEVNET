@@ -539,10 +539,11 @@
 .verify-badge-inline { width: 15px; height: 15px; }
 .verify-badge-lg { width: 20px; height: 20px; }
 
-/* Les deux silhouettes arrondies gardent un `border-radius` ; les neuf
-   autres se découpent au `clip-path` (un `clip-path` ne se combine pas
-   avec un `border-radius` : d'où les deux familles). L'encre claire va
-   aux teintes profondes, la sombre aux teintes pâles. */
+/* Les silhouettes arrondies (rond, carré, arche) gardent un
+   `border-radius` ; les huit autres se découpent au `clip-path` (un
+   `clip-path` ne se combine pas avec un `border-radius` : d'où les deux
+   familles). L'encre claire va aux teintes profondes, la sombre aux
+   teintes pâles. */
 .verify-shape-round {
   border-radius: 9999px;
   background: var(--gradient-ember);
@@ -577,8 +578,10 @@
   background: linear-gradient(135deg, #87C8C2 0%, #3F8C86 100%);
   color: rgba(255, 255, 255, 0.96);
 }
-.verify-shape-star4 {
-  clip-path: polygon(50% 0%, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0% 50%, 38% 38%);
+/* La clé de voûte : un trapèze posé sur sa base large. L'architecte ne
+   porte plus une étoile — une pierre taillée dit le métier. */
+.verify-shape-keystone {
+  clip-path: polygon(16% 6%, 84% 6%, 100% 94%, 0% 94%);
   background: linear-gradient(135deg, #9BA6CE 0%, #5A6699 100%);
   color: rgba(255, 255, 255, 0.96);
 }
@@ -587,8 +590,10 @@
   background: linear-gradient(135deg, #D59A92 0%, #A64F45 100%);
   color: rgba(255, 255, 255, 0.96);
 }
-.verify-shape-star6 {
-  clip-path: polygon(50% 0%, 60% 34%, 93% 25%, 69% 50%, 93% 75%, 60% 66%, 50% 100%, 40% 66%, 7% 75%, 31% 50%, 7% 25%, 40% 34%);
+/* L'arche : une porte ouverte, arrondie en haut. L'ambassadeur relie deux
+   rives ; il porte un passage, pas une étoile à six branches. */
+.verify-shape-arch {
+  border-radius: 9999px 9999px 16% 16%;
   background: linear-gradient(135deg, #5FB07F 0%, #2A6B4A 100%);
   color: rgba(255, 255, 255, 0.96);
 }
@@ -630,59 +635,32 @@
    Onze cachets avec ombrage cel-shading, lumières directionnelles
    et textures qui donnent profondeur et caractère. Les bords nets
    garantissent la lisibilité même à petit format. */
+/* La teinte vient de `.verify-shape-*` et de là seulement : cette règle
+   avait un `background: var(--gradient-ember)` qui, plus bas dans la
+   feuille, écrasait les onze couleurs par forme — toutes les pastilles
+   sortaient orange. Les ombres internes survivent à un `clip-path` ;
+   la profondeur externe passe par un `filter`, jamais par une ombre
+   portée, qu'une découpe rognerait. */
 .verify-badge-3d {
   position: relative;
   display: inline-flex;
   flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(255, 255, 255, 0.15);
-  --ce-highlight: inset 0 -2px 0 rgba(255, 255, 255, 0.2),\n                inset 0 2px 0 rgba(0, 0, 0, 0.1);
-  --ce-inner: inset 0 1px 0 rgba(255, 255, 255, 0.1),\n              inset 0 -1px 0 rgba(0, 0, 0, 0.05);
-  --ce-layer: absolute; inset: 0; border-radius: inherit; pointer-events: none;
-  background: var(--gradient-ember);
-  box-shadow: var(--ce-shadow), var(--ce-highlight), var(--ce-inner);
-  position: var(--ce-layer);
-  transition: box-shadow var(--d-fast) var(--ease-spring);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.14);
+  filter: drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+  transition: transform var(--d-fast) var(--ease-spring);
 }
 
 .verify-badge-3d:hover {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 4px 8px rgba(0, 0, 0, 0.4),\n             0 0 0 2px rgba(255, 255, 255, 0.25);
+  filter: drop-shadow(0 2px 3px rgba(35, 42, 29, 0.42));
 }
 
-/* Styles par forme pour le cel-shading : chaque forme a sa teinte
-   dédiée dans `.verify-shape-*` et son ombre portée correspondante. */
-.verify-shape-round.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(255, 184, 55, 0.2);
-}
-.verify-shape-diamond.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(183, 127, 201, 0.2);
-}
-.verify-shape-triangle.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(207, 169, 140, 0.2);
-}
-.verify-shape-pentagon.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(182, 200, 120, 0.2);
-}
-.verify-shape-hexagon.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(143, 203, 158, 0.2);
-}
-.verify-shape-octagon.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(135, 200, 194, 0.2);
-}
-.verify-shape-star4.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(155, 166, 206, 0.2);
-}
-.verify-shape-shield.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(213, 154, 146, 0.2);
-}
-.verify-shape-star6.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(95, 176, 127, 0.2);
-}
-.verify-shape-seal.verify-badge-3d {
-  --ce-shadow: 0 0 0 1px var(--color-line),\n             0 2px 4px rgba(0, 0, 0, 0.3),\n             0 0 0 2px rgba(231, 206, 132, 0.2);
-  filter: drop-shadow(0 0 0.75px rgba(201, 148, 67, 0.85))\n        drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
-}
+/* Plus de bloc par forme ici : les teintes vivent dans `.verify-shape-*`,
+   chacune avec son ombre interne. Les `--ce-shadow` d'autrefois n'étaient
+   lus par personne — et leur valeur contenait un `\\n` littéral. */
 
 /* Tilt 3D pour les badges au survol */
 .verify-badge-3d:hover {
@@ -1511,13 +1489,13 @@ input[type="search"]::-webkit-search-decoration {
     inset 0 0 0 1px rgba(255,240,200,0.28);
 }
 
-.verify-shape-star6 {
+.verify-shape-arch {
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.32),
     0 0 6px rgba(95,176,127,0.16);
 }
 
-.verify-shape-star4 {
+.verify-shape-keystone {
   box-shadow:
     inset 0 0 0 1px rgba(255,255,255,0.3),
     0 0 5px rgba(155,166,206,0.14);

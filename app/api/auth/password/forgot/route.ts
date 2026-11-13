@@ -27,7 +27,49 @@ function appOrigin(request: Request): string {
  * La réponse est volontairement identique pour une adresse inconnue et une
  * adresse connue. Si le service d'email n'est pas configuré, on répond 503 :
  * mieux vaut un échec visible qu'un faux « email envoyé ».
+ *
+ * Deux fournisseurs sont acceptés, dans cet ordre :
+ *
+ * 1. **EmailJS** (`EMAILJS_*`) — un modèle d'email est défini dans le
+ *    tableau de bord, on n'envoie que des variables. Attention : EmailJS
+ *    refuse par défaut les appels hors navigateur ; il faut activer
+ *    « API access » dans Account → Security, sinon la réponse est un 403
+ *    explicite.
+ * 2. **Resend** (`RESEND_API_KEY` + `EMAIL_FROM`) — l'ancien chemin, gardé
+ *    pour ne pas casser une installation déjà configurée.
  */
+
+/**
+ * Envoie le lien par EmailJS.
+ *
+ * `template_params` est le contrat du modèle : `to_email`, `reset_url`,
+ * `expires_minutes`. Le modèle doit les utiliser (`{{reset_url}}` dans le
+ * corps, `{{to_email}}` dans le destinataire).
+ */
+async function sendWithEmailjs(input: {
+  serviceId: string;
+  templateId: string;
+  publicKey: string;
+  privateKey?: string;
+  to: string;
+  resetUrl: string;
+}): Promise<Response | null> {
+  return fetch("https://api.emailjs.com/api/v1.0/email/send", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      service_id: input.serviceId,
+      template_id: input.templateId,
+      user_id: input.publicKey,
+      ...(input.privateKey ? { accessToken: input.privateKey } : {}),
+      template_params: {
+        to_email: input.to,
+        reset_url: input.resetUrl,
+        expires_minutes: 30,
+      },
+    }),
+  }).catch(() => null);
+}
 export async function POST(request: Request): Promise<NextResponse> {
   const body = await readObjectBody(request);
   const email = (body ? (stringField(body, "email") ?? "") : "").trim().toLowerCase();
@@ -38,9 +80,19 @@ export async function POST(request: Request): Promise<NextResponse> {
     );
   }
 
-  const apiKey = process.env.RESEND_API_KEY?.trim();
+  const resendKey = process.env.RESEND_API_KEY?.trim();
   const from = process.env.EMAIL_FROM?.trim();
-  if (!apiKey || !from) {
+  const emailjs = {
+    serviceId: process.env.EMAILJS_SERVICE_ID?.trim() ?? "",
+    templateId: process.env.EMAILJS_TEMPLATE_ID?.trim() ?? "",
+    publicKey: process.env.EMAILJS_PUBLIC_KEY?.trim() ?? "",
+    privateKey: process.env.EMAILJS_PRIVATE_KEY?.trim() ?? "",
+  };
+  const useEmailjs = Boolean(
+    emailjs.serviceId && emailjs.templateId && emailjs.publicKey,
+  );
+  const useResend = Boolean(resendKey && from);
+  if (!useEmailjs && !useResend) {
     return NextResponse.json(
       { error: "L'envoi d'emails n'est pas encore configuré." },
       { status: 503, headers: NO_STORE },
@@ -89,23 +141,39 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const resetUrl = `${appOrigin(request)}/reinitialiser-mot-de-passe?token=${encodeURIComponent(token)}`;
-  const emailResponse = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from,
-      to: email,
-      subject: "Réinitialiser ton mot de passe DevNet",
-      text: `Un lien pour choisir un nouveau mot de passe t'attend : ${resetUrl}\n\nIl expire dans 30 minutes et ne peut servir qu'une fois.`,
-      html: `<p>Un lien pour choisir un nouveau mot de passe t'attend :</p><p><a href="${resetUrl}">Choisir un nouveau mot de passe</a></p><p>Il expire dans 30 minutes et ne peut servir qu'une fois.</p>`,
-    }),
-  }).catch(() => null);
+
+  const emailResponse = useEmailjs
+    ? await sendWithEmailjs({
+        serviceId: emailjs.serviceId,
+        templateId: emailjs.templateId,
+        publicKey: emailjs.publicKey,
+        privateKey: emailjs.privateKey || undefined,
+        to: email,
+        resetUrl,
+      })
+    : await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${resendKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          from,
+          to: email,
+          subject: "Réinitialiser ton mot de passe DevNet",
+          text: `Un lien pour choisir un nouveau mot de passe t'attend : ${resetUrl}\n\nIl expire dans 30 minutes et ne peut servir qu'une fois.`,
+          html: `<p>Un lien pour choisir un nouveau mot de passe t'attend :</p><p><a href="${resetUrl}">Choisir un nouveau mot de passe</a></p><p>Il expire dans 30 minutes et ne peut servir qu'une fois.</p>`,
+        }),
+      }).catch(() => null);
 
   if (!emailResponse?.ok) {
-    console.error("[auth] envoi du lien de réinitialisation impossible", emailResponse?.status);
+    const detail = await emailResponse?.text().catch(() => "");
+    console.error(
+      "[auth] envoi du lien de réinitialisation impossible",
+      useEmailjs ? "emailjs" : "resend",
+      emailResponse?.status,
+      detail?.slice(0, 200),
+    );
     return NextResponse.json(
       { error: "L'email n'a pas pu être envoyé. Réessaie dans un instant." },
       { status: 502, headers: NO_STORE },

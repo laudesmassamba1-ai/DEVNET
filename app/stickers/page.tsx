@@ -4,13 +4,13 @@ import { useEffect, useRef, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Loading } from "@/components/Avatar";
 import { SectionIcon } from "@/components/SectionIcon";
+import { StickerFace } from "@/components/StickerFace";
 import { useSession } from "@/hooks/useSession";
 import { useToast } from "@/components/Toast";
 import {
   createImageSticker,
   fetchStickers,
   retireSticker,
-  stickerAssetUrl,
   type StickerRowView,
 } from "@/lib/stickers";
 
@@ -257,14 +257,21 @@ export default function StickerStudioPage() {
                 >
                   <div className="flex aspect-square items-center justify-center">
                     {sticker.status === "actif" ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={stickerAssetUrl(sticker.id)}
+                      /* Même rendu que la messagerie et les stories : une
+                         image du catalogue de la maison vient de
+                         `public/stickers/`, une image créée passe par la
+                         route d'actif. Le `<img>` direct pointait toujours
+                         sur la route et cassait la vignette en démo, où il
+                         n'y a pas de dépôt à interroger. */
+                      <StickerFace
+                        kind={sticker.kind}
+                        glyph={sticker.glyph}
+                        fg={sticker.fg}
+                        bg={sticker.bg}
+                        assetId={sticker.id}
+                        builtin={sticker.builtin}
+                        size={64}
                         alt={sticker.name}
-                        width={64}
-                        height={64}
-                        loading="lazy"
-                        className="rounded-[26%] object-cover"
                       />
                     ) : (
                       <span className="label-micro text-chalk-4">retiré</span>

@@ -44,9 +44,9 @@ export type BadgeShape =
   | "hexagon"
   | "octagon"
   | "square"
-  | "star4"
+  | "keystone"
   | "shield"
-  | "star6"
+  | "arch"
   | "seal";
 
 export interface VerifiedBadge {
@@ -116,9 +116,9 @@ const TIER_SHAPES: BadgeShape[] = [
   "hexagon", //  4 Contributeur
   "octagon", //  5 Bâtisseur
   "square", //   6 Pédagogue
-  "star4", //    7 Architecte
+  "keystone", // 7 Architecte
   "shield", //   8 Gardien
-  "star6", //    9 Ambassadeur
+  "arch", //     9 Ambassadeur
   "seal", //    10 Légende
 ];
 

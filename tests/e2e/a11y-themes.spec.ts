@@ -49,15 +49,30 @@ for (const theme of THEMES) {
       await page.goto(route.path, { waitUntil: "domcontentloaded" });
       await page.waitForTimeout(2_500);
 
-      await page.evaluate((value) => {
-        window.dispatchEvent(new CustomEvent("devnet:theme", { detail: value }));
-      }, theme.id);
-      await page.waitForTimeout(400);
-
-      const applied = await page.evaluate(
-        () => document.documentElement.dataset.theme ?? "absent",
-      );
-      expect(applied, `le thème ${theme.label} n'a pas été appliqué`).toBe(theme.id);
+      /* L'événement est **idempotent** : le renvoyer tant que le document
+         n'a pas basculé remplace l'attente fixe qui rendait ce test
+         instable. Sur une page lente à compiler, l'écouteur de
+         `ThemeApplier` pouvait ne pas être monté dans les 400 ms et
+         l'événement se perdait — le profil réappliquait alors son thème
+         sombre. La garde sur `data-theme` reste : si l'application ne
+         réagit jamais, le test échoue toujours. */
+      await expect
+        .poll(
+          async () => {
+            await page.evaluate((value) => {
+              window.dispatchEvent(new CustomEvent("devnet:theme", { detail: value }));
+            }, theme.id);
+            return page.evaluate(
+              () => document.documentElement.dataset.theme ?? "absent",
+            );
+          },
+          {
+            message: `le thème ${theme.label} n'a pas été appliqué`,
+            timeout: 10_000,
+            intervals: [250, 500, 1_000, 2_000],
+          },
+        )
+        .toBe(theme.id);
 
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
