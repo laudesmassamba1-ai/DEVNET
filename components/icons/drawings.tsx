@@ -82,7 +82,6 @@ export type GlyphName =
   | "flame"
   | "trophy"
   | "chart"
-  | "spark"
   | "medal"
   | "target"
   | "info"
@@ -104,13 +103,15 @@ export type GlyphName =
 export const GLYPHS: Record<GlyphName, ReactNode> = {
   /* ── Sections ───────────────────────────────────────────────────── */
 
-  // Le fil : un graphe qui se propage, pas un journal.
+  // Le fil : une chronologie qui se lit de haut en bas — trois repères,
+  // trois entrées. Le graphe de nœuds disait « partage » et brouillait la
+  // lecture à 16 px, où il ne restait qu'un « Y ».
   feed: (
     <>
-      <circle cx="6" cy="6" r="2.2" />
-      <circle cx="18" cy="7" r="1.8" />
-      <circle cx="9" cy="17" r="2.2" />
-      <path d="M8 7.4 15.9 7M7.2 8.1l1.2 6.8M11.1 16.3l5.3-6.9" />
+      <circle cx="5.2" cy="6.4" r="1.5" />
+      <circle cx="5.2" cy="12" r="1.5" />
+      <circle cx="5.2" cy="17.6" r="1.5" />
+      <path d="M9.4 6.4h9.4M9.4 12h9.4M9.4 17.6h6.4" />
     </>
   ),
 
@@ -127,18 +128,19 @@ export const GLYPHS: Record<GlyphName, ReactNode> = {
   // Deux bulles qui se répondent, décalées.
   messages: (
     <>
-      <path d="M3.5 6.2A2.2 2.2 0 0 1 5.7 4h7.6a2.2 2.2 0 0 1 2.2 2.2v4.1a2.2 2.2 0 0 1-2.2 2.2H7.4L3.5 15z" />
-      <path d="M9.5 12.2h8.8a2.2 2.2 0 0 1 2.2 2.2v3.4a2.2 2.2 0 0 1-2.2 2.2h-1.6L14 21.4v-1.4H9.5a2.2 2.2 0 0 1-2.2-2.2" />
+      <path d="M4 8.6A3.6 3.6 0 0 1 7.6 5h8.8A3.6 3.6 0 0 1 20 8.6v4.6a3.6 3.6 0 0 1-3.6 3.6h-6.1L5.6 20v-3.6a3.7 3.7 0 0 1-1.6-3.2z" />
+      <path d="M8.6 11.4h.01M12 11.4h.01M15.4 11.4h.01" />
     </>
   ),
 
-  // Un buste avec sa pastille d'état : une personne, pas un pion.
+  // Un buste avec sa pastille d'état : une personne, pas un pion. La
+  // pastille reste vide — un « + » dans ce rond faisait lire « ajouter un
+  // contact » là où le lien mène à son propre profil.
   profile: (
     <>
       <circle cx="12" cy="9" r="3.4" />
       <path d="M5.2 20c.6-3.3 3.3-5.3 6.8-5.3s6.2 2 6.8 5.3" />
       <circle cx="18.4" cy="17.6" r="2.1" />
-      <path d="M18.4 16.4v2.4" />
     </>
   ),
 
@@ -567,13 +569,6 @@ export const GLYPHS: Record<GlyphName, ReactNode> = {
     <>
       <path d="M4 4v16h16" />
       <path d="M8 16v-4M12 16V8M16 16v-6" />
-    </>
-  ),
-
-  spark: (
-    <>
-      <path d="M11.4 2.8c.6 4.6 2.2 6.2 6.8 6.8-4.6.6-6.2 2.2-6.8 6.8-.6-4.6-2.2-6.2-6.8-6.8 4.6-.6 6.2-2.2 6.8-6.8z" />
-      <path d="M18 15.2c.3 1.9.9 2.5 2.8 2.8-1.9.3-2.5.9-2.8 2.8-.3-1.9-.9-2.5-2.8-2.8 1.9-.3 2.5-.9 2.8-2.8z" />
     </>
   ),
 

@@ -96,7 +96,7 @@ export const VERIFY_BASE: VerifiedBadge = {
  * ici, parce que `Level` ne porte ni icône ni forme.
  */
 const TIER_ICONS: IconName[] = [
-  "spark", // 1 Nouveau
+  "plus", // 1 Nouveau
   "eye", // 2 Explorateur
   "code", // 3 Apprenti
   "branch", // 4 Contributeur

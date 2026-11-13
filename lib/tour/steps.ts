@@ -41,7 +41,7 @@ export interface TourStop {
 /** L'intro illustrée — trois écrans avant la visite des vraies pages. */
 export const INTRO_SLIDES: TourSlide[] = [
   {
-    icon: "spark",
+    icon: "compass",
     eyebrow: "Bienvenue",
     title: "DevNet, le réseau des développeurs africains",
     body: "Ici, on ne partage pas seulement des publications : on montre son travail, on lit du code, et on progresse ensemble.",

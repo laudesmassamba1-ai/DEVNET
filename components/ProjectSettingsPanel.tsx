@@ -77,7 +77,7 @@ const VISIBILITY_LABELS: Record<ProjectVisibility, string> = {
 /** Palette courte d'icônes de projet — uniquement des icônes existantes. */
 const EMOJI_CHOICES = [
   "package", "code", "terminal", "bolt", "layers", "grid", "server",
-  "droplet", "flame", "spark", "chart", "globe", "target", "star", "fork", "file",
+  "droplet", "flame", "heart", "chart", "globe", "target", "star", "fork", "file",
 ] as const;
 
 const inputCls =

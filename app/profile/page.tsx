@@ -574,11 +574,7 @@ export default function ProfilePage() {
             </div>
 
             {tab === "work" && (
-              <ProfileWorkPanel
-                profileId={profile.id}
-                xp={progress?.stats.xp}
-                levelTitle={progress ? levelFor(progress.stats.xp).title : undefined}
-              />
+              <ProfileWorkPanel profileId={profile.id} />
             )}
 
             {tab === "posts" && (

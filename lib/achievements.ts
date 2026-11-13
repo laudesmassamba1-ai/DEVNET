@@ -117,7 +117,7 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: "a-magnet", metric: "likes",
     label: "Attrape-lumière", hint: "Reçois des likes sur tes contributions",
-    icon: "spark", tiers: [25, 150, 1000],
+    icon: "heart", tiers: [25, 150, 1000],
   },
   {
     id: "a-endurance", metric: "streakBest",

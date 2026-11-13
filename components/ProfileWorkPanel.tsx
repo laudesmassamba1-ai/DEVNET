@@ -48,17 +48,7 @@ async function fetchRepos(): Promise<GithubRepo[] | null> {
   }
 }
 
-export function ProfileWorkPanel({
-  profileId,
-  xp,
-  levelTitle,
-}: {
-  profileId: string;
-  /** Score de progression, si la page le connaît déjà. */
-  xp?: number;
-  /** Palier atteint, pour ne pas recalculer le niveau ici. */
-  levelTitle?: string;
-}) {
+export function ProfileWorkPanel({ profileId }: { profileId: string }) {
   const toast = useToast();
   const [projects, setProjects] = useState<ProjectCardData[] | null>(null);
   const [groups, setGroups] = useState<WorkGroup[] | null>(null);
@@ -257,34 +247,24 @@ export function ProfileWorkPanel({
         >
           Score &amp; niveau
         </h2>
-        <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
-          <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
-            <div className="label-micro text-chalk-4">XP</div>
-            <div className="tnum mt-1 font-display text-[1.1rem] font-bold leading-none text-signal">
-              {xp ?? 0}
-            </div>
-          </div>
-          <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
-            <div className="label-micro text-chalk-4">Niveau</div>
-            <div className="mt-1 text-[12px] font-bold text-signal">
-              {levelTitle ?? "Nouveau"}
-            </div>
-          </div>
-          <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
-            <div className="label-micro text-chalk-4">Score moyen</div>
-            <div className="tnum mt-1 font-display text-[1.1rem] font-bold leading-none text-chalk">
-              {scores?.average ?? 0}
-            </div>
-            <div className="mt-0.5 text-[10px] uppercase tracking-[0.08em] text-chalk-4">
-              {scores && scores.count > 0
-                ? `sur ${scores.count} dépôt${scores.count > 1 ? "s" : ""}`
-                : "aucun dépôt"}
-            </div>
-          </div>
+        {/* XP, niveau et moyenne vivent déjà dans l'en-tête du profil :
+            on ne les répète pas ici. Cette section ne garde que ce qui se
+            lit à l'échelle du travail — le sommet et le nombre de dépôts
+            réellement notés. */}
+        <div className="mt-3 grid grid-cols-2 gap-2">
           <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
             <div className="label-micro text-chalk-4">Meilleur score</div>
             <div className="tnum mt-1 font-display text-[1.1rem] font-bold leading-none text-chalk">
               {scores?.best ?? 0}
+            </div>
+          </div>
+          <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+            <div className="label-micro text-chalk-4">Dépôts notés</div>
+            <div className="tnum mt-1 font-display text-[1.1rem] font-bold leading-none text-chalk">
+              {scores?.count ?? 0}
+            </div>
+            <div className="mt-0.5 text-[10px] uppercase tracking-[0.08em] text-chalk-4">
+              {scores && scores.count > 0 ? `moyenne ${scores.average}` : "aucun dépôt"}
             </div>
           </div>
         </div>
