@@ -50,6 +50,8 @@ export const NO_FILTERS: Filters = {
   sepia: 0,
 };
 
+import { bezierPath } from "./bezier";
+
 export interface BaseLayer {
   id: string;
   name: string;
@@ -205,8 +207,12 @@ export function createBezier(patch: Partial<BezierLayer> = {}): BezierLayer {
   return {
     ...base("bezier", "Courbe Bézier"),
     type: "bezier",
-    points: [[0.2, 0.5], [0.8, 0.5]],
-    controlPoints: [[0.1, 0.5], [0.9, 0.5]],
+    // Une courbe doit se voir comme une courbe dès qu'on l'ajoute. Les
+    // précédents points de contrôle étaient alignés sur les extrémités :
+    // le rendu était une droite, ce qui faisait croire que l'outil ne
+    // marchait pas.
+    points: [[0.12, 0.72], [0.88, 0.28]],
+    controlPoints: [[0.38, 0.02], [0.62, 0.98]],
     fill: "var(--color-signal)",
     stroke: "var(--color-void)",
     strokeWidth: 2,
@@ -474,24 +480,20 @@ export function drawLayers(
         }
       }
     } else if (layer.type === "bezier") {
-      ctx.strokeStyle = resolveCssValue(layer.stroke, "#16150F");
-      ctx.lineWidth = Math.max(1, Math.min(layer.strokeWidth, pw, ph));
-      ctx.beginPath();
-      const points = layer.points;
-      if (points.length >= 2) {
-        ctx.moveTo((points[0][0] / 100) * pw, (points[0][1] / 100) * ph);
-        for (let i = 1; i < points.length; i += 1) {
-          const p = points[i];
-          ctx.lineTo((p[0] / 100) * pw, (p[1] / 100) * ph);
+      // Même chaîne de chemin que l'aperçu : `Path2D` lit le format SVG, donc
+      // la courbe publiée est exactement celle qu'on a réglée à l'écran.
+      const d = bezierPath(layer.points, layer.controlPoints, pw, ph);
+      if (d) {
+        const path = new Path2D(d);
+        ctx.lineWidth = Math.max(1, layer.strokeWidth);
+        if (layer.fill && layer.fill !== "transparent") {
+          ctx.fillStyle = resolveCssValue(layer.fill, "#FBFAF7");
+          ctx.fill(path);
         }
-      }
-      if (layer.fill && layer.fill !== "transparent") {
-        ctx.fillStyle = resolveCssValue(layer.fill, "#FBFAF7");
-        ctx.fill();
-      }
-      if (layer.strokeWidth > 0) {
-        ctx.strokeStyle = resolveCssValue(layer.stroke, "#16150F");
-        ctx.stroke();
+        if (layer.strokeWidth > 0) {
+          ctx.strokeStyle = resolveCssValue(layer.stroke, "#16150F");
+          ctx.stroke(path);
+        }
       }
     }
     ctx.restore();

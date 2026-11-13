@@ -13,6 +13,7 @@
  * calcul du rendu (taille / 1080 × largeur). Un seul système, deux moteurs.
  */
 import { filterCss, isFiltered, type Layer, type TextLayer } from "@/lib/studio/editor";
+import { bezierPath } from "@/lib/studio/bezier";
 
 export type DragMode =
   | "move"
@@ -24,7 +25,9 @@ export type DragMode =
   | "nw"
   | "se"
   | "sw"
-  | "rotate";
+  | "rotate"
+  | `point:${number}`
+  | `control:${number}`;
 
 export const CORNERS: DragMode[] = ["nw", "ne", "sw", "se"];
 
@@ -34,14 +37,6 @@ const FONT_STACK: Record<TextLayer["font"], string> = {
   mono: "var(--font-mono)",
 };
 
-export function bezierPath(points: [number, number][], controlPoints: [number, number][], parentWidth: number): string {
-  const p0 = points?.[0] ?? [25, 25];
-  const p1 = points?.[1] ?? [75, 25];
-  const c0 = controlPoints?.[0] ?? [50, 50];
-  const p2 = points?.[2] ?? [75, 75];
-  return `M ${(p0[0] / 100) * parentWidth} ${(p0[1] / 100) * parentWidth} C ${(c0[0] / 100) * parentWidth} ${(c0[1] / 100) * parentWidth} ${(p1[0] / 100) * parentWidth} ${(p1[1] / 100) * parentWidth} C ${(p2[0] / 100) * parentWidth} ${(p2[1] / 100) * parentWidth}`;
-}
-
 export function StudioLayerView({
   layer,
   selected,
@@ -49,6 +44,7 @@ export function StudioLayerView({
   onSelect,
   onDragStart,
   registerVideo,
+  onBezierHandle,
 }: {
   layer: Layer;
   selected: boolean;
@@ -57,6 +53,8 @@ export function StudioLayerView({
   onSelect: () => void;
   onDragStart: (event: React.PointerEvent, mode: DragMode) => void;
   registerVideo: (element: HTMLVideoElement | null) => void;
+  /** Poignée de courbe tirée : le parent applique la géométrie. */
+  onBezierHandle?: (event: React.PointerEvent, mode: DragMode) => void;
 }) {
   const filter = isFiltered(layer.filters) ? filterCss(layer.filters) : undefined;
 
@@ -128,18 +126,23 @@ export function StudioLayerView({
         <svg
           width="100%"
           height="100%"
-          style={{
-            borderRadius: "var(--radius-input)"
-          }}
+          viewBox="0 0 100 100"
+          // La boîte du calque n'a pas forcément les proportions de la scène :
+          // on étire le repère 0–100 sur la boîte réelle.
+          preserveAspectRatio="none"
+          style={{ overflow: "visible" }}
         >
           <path
-            d={bezierPath(layer.points, layer.controlPoints, parentWidth)}
+            d={bezierPath(layer.points, layer.controlPoints, 100, 100)}
             stroke={layer.stroke || "var(--color-void)"}
-            strokeWidth={layer.strokeWidth || 2}
-            fill="none"
-            style={{strokeDasharray: "5, 5"}}
+            strokeWidth={Math.max(1, layer.strokeWidth)}
+            fill={layer.fill && layer.fill !== "transparent" ? layer.fill : "none"}
+            fillOpacity={0.25}
+            vectorEffect="non-scaling-stroke"
+            strokeLinecap="round"
           />
-        </svg>): layer.type === "video" ? (
+        </svg>
+      ) : layer.type === "video" ? (
         <video
           ref={registerVideo}
           src={layer.src}
@@ -169,6 +172,42 @@ export function StudioLayerView({
             borderRadius: `${layer.radius}px`,
           }}
         />
+      )}
+
+      {/*
+        Poignées de la courbe, en HTML et non dans le SVG : le SVG est
+        étiré sur la boîte du calque, donc un cercle y serait déformé et
+        sa zone de saisie deviendrait elliptique.
+      */}
+      {selected && !layer.locked && layer.type === "bezier" && onBezierHandle && (
+        <>
+          {layer.points.map((point, index) => (
+            <button
+              key={`point-${index}`}
+              type="button"
+              aria-label={`Déplacer le point ${index + 1} de la courbe`}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+                onBezierHandle(event, `point:${index}`);
+              }}
+              className="absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border border-void bg-chalk"
+              style={{ left: `${point[0] * 100}%`, top: `${point[1] * 100}%` }}
+            />
+          ))}
+          {layer.controlPoints.map((control, index) => (
+            <button
+              key={`control-${index}`}
+              type="button"
+              aria-label={`Déplacer le point de contrôle ${index + 1}`}
+              onPointerDown={(event) => {
+                event.stopPropagation();
+                onBezierHandle(event, `control:${index}`);
+              }}
+              className="absolute size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-void bg-signal"
+              style={{ left: `${control[0] * 100}%`, top: `${control[1] * 100}%` }}
+            />
+          ))}
+        </>
       )}
 
       {selected && !layer.locked && (

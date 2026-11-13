@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { AppShell, IconButton } from "@/components/AppShell";
 import { Avatar, EmptyState, Loading, PrimaryButton } from "@/components/Avatar";
 import { ProfileWorkPanel } from "@/components/ProfileWorkPanel";
+import { AvatarEditor } from "@/components/AvatarEditor";
 import { useToast } from "@/components/Toast";
 import { Icon } from "@/components/Icon";
 import { useTour } from "@/components/TourProvider";
@@ -930,6 +931,8 @@ function EditForm({
   const [color, setColor] = useState<AvatarColor>(profile.avatar_color);
   const [theme, setTheme] = useState(profile.theme ?? DEFAULT_THEME);
   const [links, setLinks] = useState<ProfileLink[]>(profile.links ?? []);
+  const [avatarUrl, setAvatarUrl] = useState(profile.avatar_url ?? "");
+  const [editingAvatar, setEditingAvatar] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const BIO_MAX = 240;
@@ -969,6 +972,7 @@ function EditForm({
       pays: pays.trim(),
       langages,
       avatar_color: color,
+      avatar_url: avatarUrl,
       theme,
       links: cleanLinks,
     });
@@ -994,19 +998,54 @@ function EditForm({
           avant d'enregistrer — sinon on choisit à l'aveugle. */}
       <div className="mb-5 flex items-center gap-3 rounded-[var(--radius-card)] border border-line-3 bg-surface p-3.5">
         <span
-          className={`grid h-14 w-14 shrink-0 place-items-center rounded-full border text-[20px] font-bold ${avatarClass(color)}`}
+          className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border text-[20px] font-bold ${avatarClass(color)}`}
         >
-          {(prenom.trim()[0] ?? "?").toUpperCase()}
+          {avatarUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element -- aperçu d'un média utilisateur, déjà compressé côté serveur
+            <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+          ) : (
+            (prenom.trim()[0] ?? "?").toUpperCase()
+          )}
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate font-display text-[15px] font-bold text-chalk">
             {prenom.trim() || "Sans prénom"}
           </p>
           <p className="truncate text-sm text-chalk-3">
             @{profile.pseudo} · {accountLabel(profile.account_type)}
           </p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setEditingAvatar(true)}
+              className="inline-flex h-[var(--h-tap)] items-center gap-1.5 rounded-[var(--radius-input)] border border-signal px-3 text-[12.5px] font-bold text-signal"
+            >
+              {avatarUrl ? "Changer la photo" : "Ajouter une photo"}
+            </button>
+            {avatarUrl && (
+              <button
+                type="button"
+                onClick={() => setAvatarUrl("")}
+                className="inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)] border border-line-3 px-3 text-[12.5px] font-bold text-chalk-3 hover:border-danger hover:text-danger"
+              >
+                Retirer
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
+      {editingAvatar && (
+        <AvatarEditor
+          currentUrl={avatarUrl || undefined}
+          name={profile.pseudo}
+          onCancel={() => setEditingAvatar(false)}
+          onApply={(url) => {
+            setAvatarUrl(url);
+            setEditingAvatar(false);
+          }}
+        />
+      )}
 
       <div className="mb-4">
         <label className={label}>Thème</label>

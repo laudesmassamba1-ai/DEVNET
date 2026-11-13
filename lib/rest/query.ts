@@ -485,6 +485,33 @@ function bodyRows(body: unknown): RestRow[] {
   throw new RestError(400, "PGRST102", "request body must be a JSON object");
 }
 
+/**
+ * Prépare une valeur pour `pg` selon le type de la colonne.
+ *
+ * `pg` traduit un tableau JavaScript en littéral de tableau PostgreSQL
+ * (`{…}`). Pour une colonne `json`/`jsonb`, ce littéral n'est pas du JSON :
+ * la base répond `invalid input syntax for type json` (22P02). C'est ce qui
+ * empêchait d'enregistrer les liens du profil, qui vivent dans une colonne
+ * `jsonb` et qui sont envoyés comme un tableau d'objets.
+ *
+ * Une chaîne déjà au format JSON est laissée telle quelle : la re-sérialiser
+ * doublerait l'encodage et stockerait un texte au lieu d'un document.
+ */
+function bindValue(table: RestTable, column: string, value: unknown): unknown {
+  if (value === undefined || value === null) return null;
+  const udt = table.columns.get(column)?.udt;
+  if (udt !== "json" && udt !== "jsonb") return value;
+  if (typeof value === "string") {
+    try {
+      JSON.parse(value);
+      return value;
+    } catch {
+      return JSON.stringify(value);
+    }
+  }
+  return JSON.stringify(value);
+}
+
 function mutationColumns(table: RestTable, rows: RestRow[]): string[] {
   const columns = [...new Set(rows.flatMap((row) => Object.keys(row)))];
   for (const column of columns) requireColumn(table, column);
@@ -546,7 +573,7 @@ export async function executeRest(input: RestInput): Promise<RestOutput> {
       const values: unknown[] = [];
       const tuples = rows.map((row) => {
         const tuple = columns.map((column) => {
-          values.push(row[column] ?? null);
+          values.push(bindValue(table, column, row[column]));
           return `$${values.length}`;
         });
         return `(${tuple.join(", ")})`;
@@ -583,7 +610,7 @@ export async function executeRest(input: RestInput): Promise<RestOutput> {
       const columns = mutationColumns(table, [patch]);
       const values = [...filter.values];
       const set = columns.map((column) => {
-        values.push(patch[column] ?? null);
+        values.push(bindValue(table, column, patch[column]));
         return `${quote(column)} = $${values.length}`;
       });
       const mutationSql =
