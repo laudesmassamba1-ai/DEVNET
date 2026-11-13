@@ -9,6 +9,7 @@ import {
 } from "@/lib/rest/query";
 import { withAnon, withUser } from "@/platform/infrastructure/postgres/with-user";
 import { dispatchDirectMessagePush } from "@/lib/push/notify-message";
+import { dispatchActivityPush } from "@/lib/push/notify-activity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -124,6 +125,12 @@ async function handle(
     // écrirait par la même route déclencherait la même chose.
     if (callerId && method === "POST" && path[0] === "direct_messages") {
       await dispatchDirectMessagePush(callerId, output.rows);
+    }
+
+    // Même principe pour un like ou un commentaire : la bannière part
+    // après l'écriture, vers la personne que le geste concerne.
+    if (callerId && method === "POST") {
+      await dispatchActivityPush(callerId, path[0], output.rows, body);
     }
 
     return successResponse(output, method);

@@ -14,6 +14,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { readStoryAction, StoriesRepositoryError } from "@/modules/stories";
 import { currentUserId } from "@/lib/api/server";
 import { getServerStoriesRepository } from "@/platform/server-container";
+import { dispatchStoryReplyPush } from "@/lib/push/notify-activity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -70,6 +71,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       case "reply": {
         const result = await repository.reply(readerId, action.value.storyId, action.value.body);
+        // La réponse est aussi un message privé : les appareils de
+        // l'auteur du statut sont prévenus sans attendre qu'il rouvre
+        // l'application. Le dépôt écrit en SQL direct, donc la
+        // passerelle REST ne voit pas ce message — d'où l'appel ici.
+        await dispatchStoryReplyPush({
+          actorId: readerId,
+          conversationId: result.conversationId,
+          body: action.value.body,
+        });
         return NextResponse.json(
           {
             ok: true,
