@@ -1,10 +1,11 @@
 /**
- * Prévenir les appareils d'une activité sur une publication ou un statut.
+ * Prévenir les appareils d'une activité sur une publication, un statut
+ * ou un groupe.
  *
  * Trois gestes, une seule règle : la personne qui reçoit la bannière est
  * celle que le geste concerne, et jamais celle qui l'a fait. Un like sur
- * son propre post, une réponse à son propre commentaire, un commentaire
- * sur sa propre story ne réveillent donc personne.
+ * son propre post, une réponse à son propre commentaire, un message dans
+ * son propre canal ne réveillent donc personne.
  *
  * Le déclenchement se fait après l'écriture réussie, jamais avant : une
  * bannière annonçant un like qui n'existe pas serait pire que pas de
@@ -152,6 +153,58 @@ async function pushComment(actorId: string, row: Row): Promise<void> {
 }
 
 /**
+ * `group_messages` — un message dans un canal de groupe.
+ *
+ * Tous les membres du groupe reçoivent la bannière, sauf l'auteur. La
+ * liste vient de `group_members`, pas du client : une personne absente du
+ * groupe ne doit pas pouvoir être notifiée en forgeant une requête.
+ */
+async function pushGroupMessage(actorId: string, row: Row): Promise<void> {
+  const groupId = uuid(row.group_id);
+  if (!groupId) return;
+
+  const pool = getPostgresPool();
+  const [members, group, actor] = await Promise.all([
+    pool.query<{ user_id: string }>(
+      `select user_id::text as user_id from public.group_members where group_id = $1`,
+      [groupId],
+    ),
+    pool.query<{ name: string }>(`select name from public.groups where id = $1`, [groupId]),
+    pool.query<{ prenom: string | null; pseudo: string | null }>(
+      `select prenom, pseudo from public.users where id = $1`,
+      [actorId],
+    ),
+  ]);
+
+  const recipients = members.rows.map((r) => r.user_id).filter((id) => id && id !== actorId);
+  if (recipients.length === 0) return;
+
+  const groupName = text(group.rows[0]?.name) || "Groupe";
+  const name = actor.rows[0]?.prenom || actor.rows[0]?.pseudo || "Quelqu'un";
+  const words = text(row.text);
+  const hasGif = Boolean(text(row.gif_url));
+  const hasSticker = Boolean(text(row.sticker_id));
+  const hasMedia = Boolean(text(row.media_url));
+  const detail = words
+    ? words
+    : hasGif
+      ? "a envoyé un GIF."
+      : hasSticker
+        ? "a envoyé un sticker."
+        : hasMedia
+          ? "a envoyé un média."
+          : "a envoyé un message.";
+
+  const channelId = uuid(row.channel_id) || groupId;
+  await deliver(recipients, {
+    title: groupName,
+    body: excerpt(`${name} : ${detail}`),
+    url: `/groups/${groupId}`,
+    tag: `group-${groupId}-${channelId}`,
+  });
+}
+
+/**
  * Réponse à un statut.
  *
  * Le dépôt des statuts écrit la réponse *et* le message privé dans le
@@ -216,6 +269,7 @@ export async function dispatchActivityPush(
   try {
     if (table === "post_likes") await pushLike(actorId, row);
     else if (table === "comments") await pushComment(actorId, row);
+    else if (table === "group_messages") await pushGroupMessage(actorId, row);
   } catch (error) {
     console.error(
       "[push] activité non poussée",

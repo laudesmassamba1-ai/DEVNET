@@ -58,6 +58,12 @@ export default function SettingsPage() {
   /** Abonnement push : la seule voie pour être prévenu écran verrouillé. */
   const [pushState, setPushState] = useState<PushState | "loading">("loading");
   const [pushBusy, setPushBusy] = useState(false);
+  /** Retour du test d'envoi : ce qui a été remis, ce qui a manqué. */
+  const [pushTest, setPushTest] = useState<{ busy: boolean; message: string; failed: boolean }>({
+    busy: false,
+    message: "",
+    failed: false,
+  });
 
   useEffect(() => {
     setNotifyState(notificationState());
@@ -82,6 +88,49 @@ export default function SettingsPage() {
     setPushBusy(true);
     setPushState(pushState === "on" ? await unsubscribeFromPush() : await subscribeToPush());
     setPushBusy(false);
+  }
+
+  /**
+   * Test réel : le serveur pousse à cet appareil, comme pour un message.
+   *
+   * C'est le seul moyen de distinguer « abonnement enregistré » de
+   * « bannière qui arrive vraiment ». Le message le dit sans promettre
+   * plus que ce que la route confirme.
+   */
+  async function sendTestPush() {
+    setPushTest({ busy: true, message: "", failed: false });
+    try {
+      const response = await fetch("/api/push/test", { method: "POST" });
+      const data = (await response.json()) as {
+        ok?: boolean;
+        devices?: number;
+        reason?: string;
+        error?: string;
+      };
+      if (response.ok && data.ok) {
+        setPushTest({
+          busy: false,
+          failed: false,
+          message: `Notification envoyée à ${data.devices ?? 1} appareil${(data.devices ?? 1) > 1 ? "s" : ""}. Verrouille l'écran pour la voir arriver.`,
+        });
+      } else if (data.reason === "aucun_appareil") {
+        setPushTest({
+          busy: false,
+          failed: true,
+          message: "Aucun appareil abonné pour ce compte : active d'abord l'alerte écran verrouillé.",
+        });
+      } else {
+        setPushTest({
+          busy: false,
+          failed: true,
+          message: data.error === "session requise"
+            ? "Session expirée : reconnecte-toi pour tester."
+            : "Le serveur n'a pas pu envoyer le test.",
+        });
+      }
+    } catch {
+      setPushTest({ busy: false, failed: true, message: "Réseau indisponible : test non envoyé." });
+    }
   }
 
   // `null` tant que rien n'a été touché : la valeur vient du profil, et
@@ -502,10 +551,21 @@ export default function SettingsPage() {
                 {pushState === "loading" ? (
                   <p className="text-[13px] text-chalk-4">Vérification des alertes à distance…</p>
                 ) : pushState === "on" ? (
+                  <>
                   <div className="flex flex-wrap items-center gap-3">
                     <p className="text-[13px] text-chalk-3">
                       Alertes écran verrouillé actives sur cet appareil.
                     </p>
+                    <button
+                      type="button"
+                      onClick={() => void sendTestPush()}
+                      disabled={pushTest.busy}
+                      className="lift-press flex h-(--h-tap) items-center justify-center
+                        rounded-(--radius-input) border border-line-3 bg-surface px-4
+                        text-[13px] font-bold text-chalk hover:border-signal disabled:opacity-60"
+                    >
+                      {pushTest.busy ? "Envoi…" : "Envoyer un test"}
+                    </button>
                     <button
                       type="button"
                       onClick={() => void togglePush()}
@@ -517,6 +577,15 @@ export default function SettingsPage() {
                       {pushBusy ? "Mise à jour…" : "Désactiver à distance"}
                     </button>
                   </div>
+                  {pushTest.message && (
+                    <p
+                      role={pushTest.failed ? "alert" : "status"}
+                      className={`text-[12px] ${pushTest.failed ? "text-warn" : "text-ok"}`}
+                    >
+                      {pushTest.message}
+                    </p>
+                  )}
+                  </>
                 ) : pushState === "off" ? (
                   <div className="flex flex-wrap items-center gap-3">
                     <p className="text-[13px] text-chalk-3">

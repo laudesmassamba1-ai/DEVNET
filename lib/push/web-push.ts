@@ -49,6 +49,21 @@ export function vapidPublicKey(): string | null {
   return pushConfigured() ? publicKey() : null;
 }
 
+/**
+ * Point de passage unique vers le réseau.
+ *
+ * Le test intégré remplace `send` pour observer ce qui partirait, sans
+ * contacter un service de push. L'objet est exporté pour cela : les
+ * modules de dispatch ne connaissent que `sendPushToUsers`.
+ */
+export const pushTransport = {
+  send: (
+    subscription: { endpoint: string; keys: { p256dh: string; auth: string } },
+    body: string,
+    options: { TTL: number; urgency: "high" },
+  ) => webpush.sendNotification(subscription, body, options),
+};
+
 let ready = false;
 
 function configure(): boolean {
@@ -98,8 +113,14 @@ export async function sendPushToUsers(
   }
   if (rows.length === 0) return;
 
-  // Une minute de validité : au-delà, un message est périmé et le
-  // téléphone le recevrait au milieu d'une autre conversation.
+  // Une journée de validité, pas une minute.
+  //
+  // Un iPhone verrouillé en mauvaise couverture est hors ligne : le
+  // service de push garde le message jusqu'à ce qu'il revienne. Avec
+  // une TTL courte, il le jetait avant — d'où des messages jamais
+  // annoncés alors qu'ils étaient bien écrits. Une bannière ancienne
+  // reste utile : elle ouvre la conversation, et l'écran montre l'état
+  // réel des messages lus.
   const body = JSON.stringify({
     title: payload.title,
     body: payload.body,
@@ -111,13 +132,13 @@ export async function sendPushToUsers(
   await Promise.all(
     rows.map(async (row) => {
       try {
-        await webpush.sendNotification(
+        await pushTransport.send(
           {
             endpoint: row.endpoint,
             keys: { p256dh: row.p256dh, auth: row.auth },
           },
           body,
-          { TTL: 60, urgency: "high" },
+          { TTL: 86_400, urgency: "high" },
         );
       } catch (error) {
         const status = (error as { statusCode?: number }).statusCode;
