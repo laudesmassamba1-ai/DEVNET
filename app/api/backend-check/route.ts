@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getPostgresPool, hasDatabaseUrl } from "@/platform/infrastructure/postgres/pool";
 
 /**
  * Sonde de disponibilité du backend, exécutée **côté serveur**.
@@ -11,6 +12,20 @@ import { NextResponse } from "next/server";
  * l'état (en ligne ou hors ligne) est une donnée, pas un échec.
  */
 export async function GET() {
+
+    // Base PostgreSQL directe configurée : c'est elle qui décide si on est en ligne.
+  if (hasDatabaseUrl()) {
+    try {
+      await getPostgresPool().query("select 1");
+      return NextResponse.json({ state: "online", source: "postgres" });
+    } catch {
+      return NextResponse.json({
+        state: "offline",
+        reason: "La base PostgreSQL ne répond pas.",
+      });
+    }
+  }
+
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

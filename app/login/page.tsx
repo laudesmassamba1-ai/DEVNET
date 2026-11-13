@@ -53,14 +53,34 @@ export default function Login() {
       setBusy(true);
       setError("");
       try {
-        const result = await supabase.auth.signInWithPassword({
-          email: emailToUse,
-          password,
-        });
-        if (result.error) {
-          setError(authErrorMessage(result.error));
-          setBusy(false);
-          return false;
+                if (isDemo) {
+          // Démonstration : le client local simule Supabase, on n'y touche pas.
+          const result = await supabase.auth.signInWithPassword({
+            email: emailToUse,
+            password,
+          });
+          if (result.error) {
+            setError(authErrorMessage(result.error));
+            setBusy(false);
+            return false;
+          }
+        } else {
+          const res = await fetch("/api/auth/connexion", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: emailToUse, password }),
+          });
+          if (!res.ok) {
+            setError(
+              res.status === 401
+                ? "Adresse e-mail ou mot de passe incorrect."
+                : res.status === 400
+                  ? "Remplis correctement les deux champs."
+                  : "Connexion indisponible. Réessaie dans un instant.",
+            );
+            setBusy(false);
+            return false;
+          }
         }
         if (pick) {
           // En démo, forcer la session sur le compte choisi en local
@@ -77,7 +97,8 @@ export default function Login() {
         setBusy(false);
       }
     },
-    [router, destination],
+    [router, destination, isDemo],
+
   );
 
   async function submit(e: React.FormEvent) {

@@ -38,8 +38,36 @@ async function resolveProfile(session: Session): Promise<User | null> {
   return result?.profile ?? null;
 }
 
+/** Session PostgreSQL : le cookie httpOnly n'est lisible que par le serveur. */
+async function pgSession(): Promise<{ id: string; email: string } | null> {
+  try {
+    const res = await withTimeout(
+      () => fetch("/api/auth/moi", { cache: "no-store" }),
+      SESSION_TIMEOUT_MS,
+    );
+    if (!res || !res.ok) return null;
+    const body = (await res.json()) as { user?: { id?: string; email?: string } };
+    return body.user?.id ? { id: body.user.id, email: body.user.email ?? "" } : null;
+  } catch {
+    return null;
+  }
+}
+
+/** PostgreSQL d'abord, Supabase en repli (comptes existants et mode démo). */
+async function currentSession(): Promise<Session | null> {
+  const pg = await pgSession();
+  // Seuls `user.id` et `user.email` sont lus par `getOrCreateProfile` et les écrans.
+  if (pg) return { user: { id: pg.id, email: pg.email } } as unknown as Session;
+
+  const result = (await withTimeout(
+    () => supabase.auth.getSession(),
+    SESSION_TIMEOUT_MS,
+  )) as { data: { session: Session | null } } | null;
+  return result?.data?.session ?? null;
+}
+
 /**
- * Résout la session + le profil de l'utilisateur courant.
+ *  Résout la session + le profil de l'utilisateur courant. 
  *
  * Le profil est créé s'il manque (filet pour les comptes antérieurs
  * au trigger `handle_new_user`).
@@ -65,11 +93,7 @@ export function useSession(): State & { retry: () => void; refresh: () => Promis
   // ligne `users` (type de compte, etc.) pour garder l'écran fidèle à la
   // base.
   const refresh = useCallback(async () => {
-    const result = (await withTimeout(
-      () => supabase.auth.getSession(),
-      SESSION_TIMEOUT_MS,
-    )) as { data: { session: Session | null } } | null;
-    const session = result?.data?.session ?? null;
+     const session = await currentSession();
     if (!session) return;
     const profile = await resolveProfile(session);
     if (profile) setState((prev) => ({ ...prev, profile }));
@@ -79,11 +103,7 @@ export function useSession(): State & { retry: () => void; refresh: () => Promis
     let alive = true;
 
     (async () => {
-      const result = (await withTimeout(
-        () => supabase.auth.getSession(),
-        SESSION_TIMEOUT_MS,
-      )) as { data: { session: Session | null } } | null;
-      const session = result?.data?.session ?? null;
+        const session = await currentSession();
 
       if (!session) {
         if (alive) setState({ session: null, profile: null, loading: false, failed: false });
