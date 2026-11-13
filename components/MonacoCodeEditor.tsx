@@ -3,14 +3,11 @@
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useRef, useState, type ComponentType } from "react";
 import type { EditorProps, OnMount } from "@monaco-editor/react";
-import type { Position, editor as MonacoEditor } from "monaco-editor";
 
 import { CodeEditor } from "@/components/CodeEditor";
 import { LoadingLogo } from "./LoadingLogo";
 import { useToast } from "@/components/Toast";
 import { useIsDesktop } from "@/hooks/useMediaQuery";
-import type { ExtensionCommand, ExtensionSnippet } from "@/lib/types";
-import { executableCommands } from "@/lib/extensions";
 import {
   DEVNET_THEME,
   DEVNET_THEME_NAME,
@@ -70,18 +67,6 @@ const Monaco = dynamic(
   },
 ) as unknown as ComponentType<EditorProps>;
 
-/**
- * Les langages sur lesquels on enregistre les extraits des extensions.
- *
- * Monaco enregistre un fournisseur de complétion **par langage** — il n'y a
- * pas de fournisseur « tous langages ». On couvre donc l'ensemble que
- * l'éditeur connaît, plus tout langage nommé par un extrait.
- */
-const SNIPPET_LANGUAGES = [
-  "javascript", "typescript", "python", "json", "html", "css", "markdown",
-  "java", "c", "cpp", "go", "rust", "php", "sql", "shell", "yaml", "xml",
-];
-
 export interface MonacoCodeEditorProps {
   path: string;
   value: string;
@@ -110,24 +95,6 @@ export interface MonacoCodeEditorProps {
    * figé pendant qu'on fait défiler le code.
    */
   onScrollChange?: (scrollTop: number) => void;
-  /**
-   * Les extraits des extensions activées (migration 029).
-   *
-   * On les enregistre comme **fournisseurs de complétion** Monaco : taper le
-   * préfixe propose le corps, qui se déploie avec ses tabulations. Les
-   * extraits arrivent souvent après le montage (requête réseau), ce que la
-   * référence `snippetsRef` absorbe sans réabonner Monaco.
-   */
-  snippets?: ExtensionSnippet[];
-  /**
-   * Les commandes des extensions activées (029).
-   *
-   * Elles rejoignent la palette de commandes de Monaco (`F1`) et insèrent
-   * leur corps au curseur, avec l'historique d'annulation normal. C'est le
-   * second apport d'une extension après la complétion — et le premier qui
-   * soit **déclenché par l'utilisateur** plutôt que deviné par l'éditeur.
-   */
-  commands?: ExtensionCommand[];
   readOnly?: boolean;
   /** Hauteur du cadre, en pixels. Monaco ne suit pas le contenu tout seul. */
   height?: number;
@@ -162,8 +129,6 @@ export function MonacoCodeEditor({
   onRun,
   onSelectionChange,
   onScrollChange,
-  snippets,
-  commands,
   readOnly = false,
   height = 460,
   fill = false,
@@ -215,25 +180,12 @@ export function MonacoCodeEditor({
   const runRef = useRef(onRun);
   const selectionRef = useRef(onSelectionChange);
   const scrollRef = useRef(onScrollChange);
-  const snippetsRef = useRef(snippets);
-  const commandsRef = useRef(commands);
-  /**
-   * Les actions Monaco déjà enregistrées pour les commandes d'extension.
-   *
-   * Elles sont remplacées à chaque nouveau manifeste : garder l'ancienne
-   * liste après une désinstallation laisserait dans `F1` une commande
-   * dont le code n'existe plus. `addAction` renvoie un `IDisposable`, et
-   * c'est lui qu'on jette — pas l'éditeur.
-   */
-  const actionsRef = useRef<{ dispose(): void }[]>([]);
   useEffect(() => {
     saveRef.current = onSave;
     runRef.current = onRun;
     selectionRef.current = onSelectionChange;
     scrollRef.current = onScrollChange;
-    snippetsRef.current = snippets;
-    commandsRef.current = commands;
-  }, [onSave, onRun, onSelectionChange, onScrollChange, snippets, commands]);
+  }, [onSave, onRun, onSelectionChange, onScrollChange]);
 
   // On interroge le chargeur pour **savoir** si Monaco arrivera. Le
   // composant seul ne dit rien en cas d'échec réseau : il reste sur son
@@ -268,52 +220,12 @@ export function MonacoCodeEditor({
     };
   }, []);
 
-  const registerCommands = useCallback(() => {
-    for (const action of actionsRef.current) action.dispose();
-    actionsRef.current = [];
-
-    const editor = editorRef.current;
-    if (!editor) return;
-
-    executableCommands(commandsRef.current).forEach((command, index) => {
-      const body = command.body ?? "";
-      const action = editor.addAction({
-        // Deux extensions peuvent déclarer le même `id` : l'identifiant
-        // Monaco doit être unique, sinon la seconde action écrase la
-        // première. L'index départage, pas le nom affiché.
-        id: `devnet.extension.${command.id}.${index}`,
-        label: command.title,
-        run: (ed) => {
-          const selection = ed.getSelection();
-          if (!selection) return;
-          ed.executeEdits("devnet-extension-command", [
-            { range: selection, text: body, forceMoveMarkers: true },
-          ]);
-          ed.focus();
-        },
-      });
-      actionsRef.current.push(action);
-    });
-  }, []);
-
-  // Les commandes arrivent **après** le montage (lecture réseau) : on les
-  // enregistre donc sur changement, et pas seulement dans `onMount`.
-  useEffect(() => {
-    registerCommands();
-  }, [commands, registerCommands]);
-
-  useEffect(() => () => {
-    for (const action of actionsRef.current) action.dispose();
-    actionsRef.current = [];
-  }, []);
-
   const beforeMount = useCallback((monaco: Parameters<NonNullable<EditorProps["beforeMount"]>>[0]) => {
     monaco.editor.defineTheme(DEVNET_THEME_NAME, DEVNET_THEME);
   }, []);
 
   const onMount = useCallback<OnMount>((editor, monaco) => {
     editorRef.current = editor;
-    registerCommands();
     // Les deux raccourcis annoncés par l'interface. Monaco a déjà `Ctrl+F`,
     // `Ctrl+/`, `F1`, etc. ; on n'ajoute que ce qui est propre à DevNet.
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
@@ -347,42 +259,6 @@ export function MonacoCodeEditor({
       editor.onDidDispose(() => sub.dispose());
     }
 
-    // Les extraits des extensions activées (029) : un fournisseur de
-    // complétion par langage. On enregistre une fois pour toutes sur un
-    // ensemble de langages, et le rappel relit `snippetsRef` — ainsi les
-    // extraits qui arrivent après le montage (requête asynchrone) sont pris
-    // en compte sans réenregistrer de fournisseur.
-    const snippetLangs = new Set<string>(SNIPPET_LANGUAGES);
-    for (const s of snippetsRef.current ?? []) {
-      if (s.language && s.language !== "*") snippetLangs.add(s.language);
-    }
-    for (const lang of snippetLangs) {
-      const provider = monaco.languages.registerCompletionItemProvider(lang, {
-        provideCompletionItems: (model: MonacoEditor.ITextModel, position: Position) => {
-          const word = model.getWordUntilPosition(position);
-          const range = new monaco.Range(
-            position.lineNumber, word.startColumn, position.lineNumber, word.endColumn,
-          );
-          const suggestions = (snippetsRef.current ?? [])
-            .filter((s) => s.language === "*" || s.language === lang)
-            .map((s) => ({
-              label: s.prefix,
-              kind: monaco.languages.CompletionItemKind.Snippet,
-              // Le corps est déjà au format de snippet VS Code (`${1:…}`),
-              // donc `InsertAsSnippet` déploie les tabulations attendues.
-              insertText: s.body,
-              insertTextRules:
-                monaco.languages.CompletionItemInsertTextRule.InsertAsSnippet,
-              documentation: s.description,
-              detail: "extrait",
-              range,
-            }));
-          return { suggestions };
-        },
-      });
-      editor.onDidDispose(() => provider.dispose());
-    }
-    
     // Seules les actions que Monaco expose vraiment en mode autonome.
     // Les raccourcis `workbench.action.*` (palette de commandes, aller au
     // fichier ou au symbole du projet) n'existent pas hors de VSCode complet :
@@ -416,7 +292,7 @@ export function MonacoCodeEditor({
       });
     }
     
-  }, [registerCommands]);
+  }, []);
 
   if (engine === "pending") {
     return (
@@ -448,7 +324,6 @@ export function MonacoCodeEditor({
   }
 
   const language = monacoLanguage(path);
-  const commandCount = executableCommands(commands).length;
 
   return (
     <div
@@ -531,14 +406,6 @@ export function MonacoCodeEditor({
 
       <div className="flex shrink-0 items-center gap-2 border-t border-line-3/70 bg-surface-3/40 px-2.5 py-1">
         <span className="label-micro text-chalk-4 tnum">{language}</span>
-        {commandCount > 0 && (
-          <span
-            className="font-mono text-[10px] text-chalk-4 tnum"
-            title="Les commandes des extensions activées sont dans la palette (F1)"
-          >
-            F1 · {commandCount} commande{commandCount > 1 ? "s" : ""}
-          </span>
-        )}
         {hasIntelliSense(path) && (
           <span className="sr-only">Analyse du langage activée</span>
         )}

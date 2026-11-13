@@ -37,35 +37,31 @@ const TERMS = [
     text: "Vous pouvez relier un projet à un dépôt GitHub avec votre propre compte. La connexion est personnelle, et le jeton d’accès n’est pas conservé en clair. Le projet DevNet reste la source de vérité : rien n’est envoyé vers GitHub sans une action explicite de votre part. Publier rend le code public, ce qui est une décision et non un effet de bord. Certaines fonctions dépendent de services tiers et de votre connexion ; DevNet ne garantit ni leur disponibilité ni leur continuité.",
   },
   {
-    title: "8. Extensions",
-    text: "Les extensions publiées sont des ensembles déclaratifs (extraits de code, réglages) et n’exécutent pas de code chez DevNet. En publiant une extension, vous garantissez disposer des droits nécessaires sur son contenu. Les extensions des autres s’installent sous votre responsabilité : vérifiez ce qu’elles ajoutent avant de les activer.",
-  },
-  {
-    title: "9. Modération",
+    title: "8. Modération",
     text: "Vous pouvez signaler un contenu depuis les outils proposés. DevNet peut examiner les signalements et retirer ou limiter l’accès à un contenu ou à un compte qui enfreint ces conditions ou la loi. Lorsque cela est possible, une mesure sera accompagnée d’une information et d’un moyen de la contester.",
   },
   {
-    title: "10. Disponibilité",
+    title: "9. Disponibilité",
     text: "Le service peut évoluer, être interrompu pour maintenance ou devenir temporairement indisponible. DevNet ne garantit pas une disponibilité continue ni la conservation permanente des données ; gardez une copie de vos travaux importants.",
   },
   {
-    title: "11. Données personnelles",
+    title: "10. Données personnelles",
     text: "Les données nécessaires au compte et aux fonctions utilisées sont traitées pour fournir le service, assurer sa sécurité et répondre aux obligations applicables. En démonstration, les données sont fictives et enregistrées localement dans le navigateur. Le détail des données traitées, des durées de conservation et des moyens d’exercer vos droits figure dans la politique de confidentialité, accessible depuis ces conditions et le pied de page.",
   },
   {
-    title: "12. Responsabilité",
+    title: "11. Responsabilité",
     text: "Dans les limites permises par la loi, vous restez responsable de vos usages, de vos contenus et des décisions prises à partir des scores ou recommandations. DevNet ne peut exclure les responsabilités que la loi rend impératives. Signalez rapidement tout incident ou contenu dangereux.",
   },
   {
-    title: "13. Modification et fin d’utilisation",
+    title: "12. Modification et fin d’utilisation",
     text: "Les présentes conditions peuvent être mises à jour pour refléter l’évolution du service ou de la réglementation. La version publiée indique sa date d’entrée en vigueur. Vous pouvez cesser d’utiliser DevNet et demander la fermeture de votre compte par les moyens de contact indiqués.",
   },
   {
-    title: "14. Droit applicable et litiges",
+    title: "13. Droit applicable et litiges",
     text: "Sous réserve des règles impératives applicables dans le pays où vous résidez, les présentes conditions sont régies par le droit de la République du Congo. Les parties chercheront d’abord une solution amiable; à défaut, le litige sera soumis aux juridictions compétentes conformément aux règles applicables.",
   },
   {
-    title: "15. Contact",
+    title: "14. Contact",
     text: "Pour toute question concernant ces conditions, un compte ou les données personnelles, écrivez à kichub404@gmail.com.",
   },
 ];

@@ -145,8 +145,17 @@ export default function FeedPage() {
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   /** Post dont on ouvre le fil de commentaires. */
   const [commentsFor, setCommentsFor] = useState<string | null>(null);
-  /** Au-delà de 1024 px, les commentaires tiennent dans une colonne à droite. */
-  const commentsDocked = useMediaQuery("(min-width: 1024px)");
+  /**
+   * Les commentaires ne s'ancrent à droite que si la place existe vraiment.
+   *
+   * 1280 px est le seuil calculé, pas un chiffre rond : le panneau de
+   * navigation (236 px) et les gouttières laissent alors ~1010 px, soit
+   * exactement la colonne de lecture (620) + l'écart (24) + le panneau
+   * (320). En dessous, les deux volets se marcheraient dessus et la
+   * colonne des posts se comprimerait — c'est précisément ce qu'on ne
+   * veut pas. Plus bas, la feuille du bas reste le bon outil.
+   */
+  const commentsDocked = useMediaQuery("(min-width: 1280px)");
 
   useEffect(() => {
     const openComposer = () => setOpen(true);
@@ -819,13 +828,31 @@ export default function FeedPage() {
   return (
     <AppShell
       path="~/fil"
+      wide
       action={
         <IconButton label="Mon profil" name="profile" onClick={() => router.push("/profile")} />
       }
     >
-      <div className="px-(--gutter) pt-3" data-feed-density={density}>
-        <div className="flex items-start gap-6">
-        <div className="min-w-0 flex-1">
+      <div className="px-(--gutter) pb-10 pt-3" data-feed-density={density}>
+        {/*
+          Deux volets, et **aucun écrasement**.
+
+          La coquille plafonnait la page à 720 px ; dès que le panneau de
+          commentaires s'ouvrait, il prenait 384 px sur ces 720 et la
+          colonne des posts tombait à ~310 px. Les cartes n'étaient pas
+          décalées, elles étaient comprimées — exactement l'inverse de ce
+          qu'on veut sur un grand écran.
+
+          Ici la page est `wide` et c'est **le couple** qui se centre : la
+          colonne de lecture garde sa mesure (620 px, une longueur de ligne
+          tenable) et le panneau se pose à sa droite. Ouvrir les
+          commentaires décale donc le fil vers la gauche et fait apparaître
+          la conversation en regard — les deux restent lisibles en même
+          temps. `shrink-0` sur la colonne garantit qu'elle ne se laisse
+          jamais comprimer par le panneau.
+        */}
+        <div className="mx-auto flex w-full max-w-[1000px] items-start justify-center gap-6">
+        <div className="w-full min-w-0 max-w-[720px] shrink-0 sm:max-w-[620px]">
         <div className="mb-3 flex min-h-11 items-center justify-between gap-3">
           <h1 className="font-display text-[22px] font-semibold tracking-[-0.03em]">
             Fil

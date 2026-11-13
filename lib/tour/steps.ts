@@ -207,14 +207,6 @@ export const TOUR_STOPS: TourStop[] = [
     body: "Des fils publics par thème : on y publie des posts et on s'y abonne par sujet. Pour discuter en direct, préférez un groupe.",
   },
   {
-    id: "extensions",
-    route: "/extensions",
-    target: "extensions-list",
-    icon: "grid",
-    title: "Les extensions",
-    body: "Des extraits et des commandes que l'on installe dans l'IDE pour écrire plus vite. Un manifeste, pas du code exécuté.",
-  },
-  {
     id: "notifications",
     route: "/notifications",
     target: "notifications-list",

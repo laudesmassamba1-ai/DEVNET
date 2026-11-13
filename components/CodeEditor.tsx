@@ -70,7 +70,7 @@ export function CodeEditor({
   // Le chemin dit le langage : passer le chemin à `normalizeLang`
   // renverrait toujours « text » (c'est un libellé humain qu'il attend),
   // et la couche de couleur — la raison d'être de l'éditeur — resterait
-  // unie. `guessLanguage` traduit l'extension en ce libellé.
+  // unie. `guessLanguage` traduit le suffixe du fichier en ce libellé.
   const lines = useMemo(() => toLines(highlight(value, guessLanguage(path))), [value, path]);
   const numbers = useMemo(() => value.split("\n").length, [value]);
 

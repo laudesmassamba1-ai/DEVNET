@@ -295,11 +295,20 @@ export function TourOverlay({
 
             <button
               type="button"
-              onClick={onSkipIntro}
+              onClick={onClose}
               className="ml-auto rounded-[var(--radius-input)] border border-transparent px-3
                 text-sm font-bold text-chalk-3 transition-colors hover:text-chalk"
             >
-              Passer
+              Quitter
+            </button>
+
+            <button
+              type="button"
+              onClick={onSkipIntro}
+              className="rounded-[var(--radius-input)] border border-transparent px-3
+                text-sm font-bold text-chalk-3 transition-colors hover:text-chalk"
+            >
+              Passer l&apos;intro
             </button>
 
             {slideIndex > 0 && (

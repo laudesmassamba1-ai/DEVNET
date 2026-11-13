@@ -115,10 +115,6 @@ const COMPOSITE_KEYS: Record<string, string[]> = {
   follows: ["follower_id", "followee_id"],
   group_members: ["group_id", "user_id"],
   community_members: ["community_id", "user_id"],
-  // 029 : on n'installe une extension qu'une fois. Sans cette clé, un second
-  // `install` créerait une ligne de plus et le compteur `installs` compterait
-  // deux fois la même personne — comme un like posé deux fois.
-  extension_installs: ["extension_id", "user_id"],
   conversation_members: ["conversation_id", "user_id"],
   // Depuis la migration 019, la clé de `project_sessions` est la paire
   // (projet, personne) : une session est une personne dans un projet, pas
@@ -258,14 +254,6 @@ const UPDATE_FORBIDDEN_COLUMNS: Record<string, string[]> = {
   communities: ["id", "slug", "created_by", "created_at", "member_count"],
   // 028 : une adhésion se règle en `role`, pas en réécrivant sa clé.
   community_members: ["community_id", "user_id", "joined_at"],
-  // 029 : l'identité d'une extension ne se réécrit pas. Un `slug` modifié
-  // casserait tous les liens d'installation, un `installs` réécrit à la main
-  // ferait mentir le compteur, et un `owner_id` réattribué s'approprierait le
-  // travail d'un autre. Le `revoke update (...)` de la 029 ferme ces colonnes.
-  extensions: ["id", "slug", "owner_id", "installs", "created_at"],
-  // 029 : on bascule `enabled` et on règle `settings`, on ne réassigne pas
-  // l'installation à quelqu'un d'autre ni à une autre extension.
-  extension_installs: ["extension_id", "user_id", "installed_at"],
   // 030 : une connexion garde son **identité**. On peut constater son
   // usage (`used_at`), pas la réattribuer à quelqu'un d'autre, ni la faire
   // pointer vers une autre destination sans repasser par une connexion
@@ -310,11 +298,6 @@ const OWNED_BY: Record<string, string> = {
   // connexion de quelqu'un d'autre — l'écart de confidentialité le plus
   // coûteux de la table.
   github_connections: "user_id",
-  // L'installation d'une extension est strictement personnelle (029,
-  // `extension_installs_read`) : savoir quelles extensions quelqu'un a
-  // activées ne regarde que lui. La place de marché, elle, reste publique —
-  // c'est `extensions`, et elle n'est pas dans cette table.
-  extension_installs: "user_id",
 };
 
 /**

@@ -39,7 +39,6 @@ ROUTES = [
     "/u/aminata_dev",
     "/messages",
     "/settings",
-    "/extensions",
 ]
 
 ANON_ROUTES = ["/login"]

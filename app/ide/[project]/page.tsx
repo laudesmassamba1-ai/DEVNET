@@ -14,7 +14,6 @@ import { CursorLayer } from "@/components/collab/CursorLayer";
 import { TeamChat } from "@/components/collab/TeamChat";
 import { useSession } from "@/hooks/useSession";
 import { useCollab } from "@/lib/collab/useCollab";
-import { fetchActiveContributions } from "@/lib/extensions";
 import { IDLE, runFile, type RunOutcome } from "@/lib/execution/runner";
 import { DEFAULT_BRANCH, branchErrorText, validateBranchName } from "@/lib/git/refs";
 import {
@@ -24,8 +23,8 @@ import {
   pathErrorText,
   type FileNode,
 } from "@/lib/git/paths";
-import { DEFAULT_EXTENSIONS, devcontainerJson, recommendedExtensions } from "@/lib/vscode/bridge";
-import type { ExtensionCommand, ExtensionSnippet, GitRef, Project } from "@/lib/types";
+import { devcontainerJson } from "@/lib/vscode/bridge";
+import type { GitRef, Project } from "@/lib/types";
 import {
   commitRepo,
   createBranch,
@@ -196,28 +195,6 @@ export default function IdePage() {
   const [outcome, setOutcome] = useState<RunOutcome>(IDLE);
   const abortRef = useRef<(() => void) | null>(null);
 
-  // Les contributions des extensions **activées** : extraits pour la
-  // complétion, commandes pour la palette (`F1`). Une seule lecture, une
-  // fois par session ; une extension désactivée ne contribue rien.
-  const [snippets, setSnippets] = useState<ExtensionSnippet[]>([]);
-  const [commands, setCommands] = useState<ExtensionCommand[]>([]);
-  useEffect(() => {
-    if (!profile?.id) {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSnippets([]);
-      setCommands([]);
-      return;
-    }
-    let alive = true;
-    fetchActiveContributions(profile.id).then((active) => {
-      if (!alive) return;
-      setSnippets(active.snippets);
-      setCommands(active.commands);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [profile?.id]);
 
   // Présence et fil d'équipe : la salle suit le fichier ouvert, pour qu'on
   // ne voie que les curseurs du fichier qu'on regarde. Défilement et volet
@@ -616,10 +593,6 @@ export default function IdePage() {
     );
   }, [project, projectId]);
 
-  const exportExtensions = useCallback(() => {
-    downloadText("extensions.json", recommendedExtensions(DEFAULT_EXTENSIONS));
-  }, []);
-
   if (missing) {
     return (
       <AppShell path="~/ide" immersive>
@@ -813,15 +786,6 @@ export default function IdePage() {
                 </button>
                 <button
                   type="button"
-                  onClick={exportExtensions}
-                  title="Exporter extensions.json"
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal"
-                >
-                  <Icon name="package" size={11} />
-                  extensions
-                </button>
-                <button
-                  type="button"
                   onClick={stopExec}
                   disabled={outcome.status !== "running" && outcome.status !== "loading"}
                   className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-warn hover:text-warn disabled:opacity-40"
@@ -880,8 +844,6 @@ export default function IdePage() {
                   onRun={execute}
                   onSelectionChange={(sel) => sendCursor(sel.anchor, sel.head)}
                   onScrollChange={setScrollTop}
-                  snippets={snippets}
-                  commands={commands}
                   fill
                 />
               ) : (

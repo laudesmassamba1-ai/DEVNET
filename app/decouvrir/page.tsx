@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { AppShell, IconButton } from "@/components/AppShell";
 import { Avatar, EmptyState, Loading } from "@/components/Avatar";
 import { CodeBlock } from "@/components/CodeBlock";
-import { ExtensionSlot } from "@/components/ExtensionSlot";
 import { Icon, asIconName, isIconName } from "@/components/Icon";
 import { Motion } from "@/components/Motion";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
@@ -85,7 +84,6 @@ export default function DiscoverPage() {
             <aside className="space-y-4 lg:sticky lg:top-[calc(var(--h-topbar)+12px)]">
               <NextStep xp={data.myXp} ready={!sessionLoading} signedIn={Boolean(profile)} />
               <Shortcuts />
-              <ExtensionSlot slot="discover.sidebar" />
               <section className="rounded-[var(--radius-card)] border border-dashed border-line-2 p-4">
                 <p className="label-micro text-chalk-4">Règle du vivier</p>
                 <p className="mt-2 text-sm leading-relaxed text-chalk-3">

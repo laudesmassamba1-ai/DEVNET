@@ -555,28 +555,31 @@ export default function ProfilePage() {
 
             <WovenBand tone="phosphor" className="mt-4" />
 
-            <div
-              role="tablist"
-              aria-label="Contenu du profil"
-              data-tour="profile-tabs"
-              className="flex overflow-x-auto border-b border-line-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              {TABS.map((t) => (
-                <button
-                  key={t.key}
-                  role="tab"
-                  type="button"
-                  aria-selected={tab === t.key}
-                  onClick={() => setTab(t.key)}
-                  className={`tab-underline min-w-0 flex-1 whitespace-nowrap px-1 py-3 text-[11px] font-bold
-                    tracking-[0.1em] uppercase transition-colors
-                    duration-[var(--d-fast)] ${tab === t.key
-                      ? "text-chalk"
-                      : "text-chalk-3 hover:bg-surface-2 hover:text-chalk"}`}
-                >
-                  {t.label}
-                </button>
-              ))}
+            <div className="relative -mx-(--gutter) border-b border-line-3 px-(--gutter)">
+              <div
+                role="tablist"
+                aria-label="Contenu du profil"
+                data-tour="profile-tabs"
+                className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {TABS.map((t) => (
+                  <button
+                    key={t.key}
+                    role="tab"
+                    type="button"
+                    aria-selected={tab === t.key}
+                    onClick={() => setTab(t.key)}
+                    className={`tab-underline min-h-[var(--h-tap)] shrink-0 snap-start whitespace-nowrap px-4 py-3 text-[11px] font-bold
+                      tracking-[0.1em] uppercase transition-colors
+                      duration-[var(--d-fast)] ${tab === t.key
+                        ? "text-chalk"
+                        : "text-chalk-3 hover:bg-surface-2 hover:text-chalk"}`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+              <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[var(--color-surface)] to-transparent sm:hidden" />
             </div>
 
             {tab === "work" && (

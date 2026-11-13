@@ -208,8 +208,10 @@ export function CommentsPanel({
   /**
    * `docked` pose le fil dans une colonne à droite du contenu, sans voile
    * ni superposition : on lit les commentaires **et** les publications en
-   * même temps, comme sur Instagram ou YouTube. `sheet` garde la feuille
-   * du bas, seule tenable sur un écran de téléphone.
+   * même temps, comme sur Instagram ou YouTube. La colonne des posts garde
+   * sa largeur — c'est le couple qui se centre — donc ouvrir la
+   * conversation décale le fil au lieu de l'écraser. `sheet` garde la
+   * feuille du bas, seule tenable sur un écran de téléphone.
    */
   variant?: "sheet" | "docked";
 }) {
@@ -556,8 +558,9 @@ export function CommentsPanel({
     return (
       <aside
         aria-label="Commentaires"
-        className="sticky top-3 hidden max-h-[calc(100dvh-1.5rem)] w-96 shrink-0 flex-col
-          overflow-hidden rounded-panel border border-line-2 bg-surface shadow-sh-2 lg:flex"
+        className="sticky top-[calc(var(--h-topbar)+var(--h-banner,0px)+12px)] hidden
+          max-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px)-1.5rem)] w-80 shrink-0 flex-col
+          overflow-hidden rounded-panel border border-line-2 bg-surface shadow-sh-2 xl:flex"
       >
         <header className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
           <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3">

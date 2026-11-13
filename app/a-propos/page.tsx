@@ -37,10 +37,6 @@ const FEATURES = [
     text: "Relie un projet à un dépôt GitHub, importe un dépôt existant et synchronise tes commits dans les deux sens.",
   },
   {
-    title: "Extensions",
-    text: "Publie des extensions — extraits de code et réglages — et installe celles des autres pour adapter ton éditeur.",
-  },
-  {
     title: "Progression et score",
     text: "Gagne des paliers, des séries, des défis et des badges, et suis un score indicatif de la qualité de ton code.",
   },

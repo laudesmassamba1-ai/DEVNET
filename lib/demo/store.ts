@@ -1,7 +1,6 @@
 import {
   DEMO_COMMUNITIES, DEMO_COMMUNITY_MEMBERS,
-  DEMO_CONVERSATIONS, DEMO_DIRECT_MESSAGES, DEMO_EXTENSION_INSTALLS,
-  DEMO_EXTENSIONS, DEMO_GROUP_MESSAGES,
+  DEMO_CONVERSATIONS, DEMO_DIRECT_MESSAGES, DEMO_GROUP_MESSAGES,
   DEMO_GROUPS, DEMO_POSTS, DEMO_USERS,
 } from "./data";
 import {
@@ -124,13 +123,6 @@ export interface DemoStore {
    */
   communities: Row[];
   community_members: Row[];
-  /**
-   * La place de marché des extensions (migration 029) : des manifestes
-   * déclaratifs que l'IDE interprète, jamais du code exécuté.
-   */
-  extensions: Row[];
-  /** Installations d'extensions — strictement personnelles, avec `enabled`. */
-  extension_installs: Row[];
   /** Réactions par publication (migration 016). */
   reactions: Row[];
   /** Reposts (idem). */
@@ -186,17 +178,15 @@ export interface DemoStore {
  *
  * À monter dès que le seed change de contenu, pas seulement de forme.
  * v13 : un message privé de code et un message corrigé (migration 041).
- * v12 : les tables `extensions` et `extension_installs` (migration 029).
  * v11 : les tables `communities` et `community_members` (migration 028) et
  * la colonne `posts.community_id`.
  */
-const KEY = "devnet.demo.v13";
+const KEY = "devnet.demo.v14";
 
 const TABLES: (keyof DemoStore)[] = [
   "users", "posts", "groups",
   "group_messages", "conversations", "direct_messages", "conversation_members",
   "channels", "channel_members",
-  "extensions", "extension_installs",
   "projects", "project_members",
   "git_commits", "git_refs", "git_files", "git_commit_files", "post_projects",
   "notifications", "reports",
@@ -255,8 +245,6 @@ function seed(): DemoStore {
     group_members: structuredClone(DEMO_GROUP_MEMBERS) as unknown as Row[],
     communities: structuredClone(DEMO_COMMUNITIES) as unknown as Row[],
     community_members: structuredClone(DEMO_COMMUNITY_MEMBERS) as unknown as Row[],
-    extensions: structuredClone(DEMO_EXTENSIONS) as unknown as Row[],
-    extension_installs: structuredClone(DEMO_EXTENSION_INSTALLS) as unknown as Row[],
     issues: structuredClone(DEMO_ISSUES) as unknown as Row[],
     issue_comments: structuredClone(DEMO_ISSUE_COMMENTS) as unknown as Row[],
     project_pages: structuredClone(DEMO_PROJECT_PAGES) as unknown as Row[],
@@ -339,15 +327,6 @@ function syncCounters(store: DemoStore): DemoStore {
   for (const c of store.communities) {
     const id = c.id;
     c.member_count = count(store.community_members, (m) => m.community_id === id);
-  }
-
-  // Rejeu de `sync_extension_installs` (migration 029) : le nombre
-  // d'installations affiché sur une carte est un cache des lignes de
-  // `extension_installs`. Le recalculer ici évite qu'un compteur reste
-  // gonflé après une désinstallation.
-  for (const e of store.extensions) {
-    const id = e.id;
-    e.installs = count(store.extension_installs, (i) => i.extension_id === id);
   }
 
   // Rejeu du déclencheur `posts_sync_tags` (migration 007).

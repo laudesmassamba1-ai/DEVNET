@@ -260,12 +260,6 @@ const reads: QueryCase[] = [
     params: { limit: "1" },
   },
   {
-    name: "jointure extension author:users!extensions_owner_id_fkey",
-    table: "extensions",
-    select: `*, author:users!extensions_owner_id_fkey(${AUTHOR})`,
-    params: { limit: "1" },
-  },
-  {
     name: "jointure pull request author:users!pull_requests_author_id_fkey",
     table: "pull_requests",
     select: `*, author:users!pull_requests_author_id_fkey(${AUTHOR})`,

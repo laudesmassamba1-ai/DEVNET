@@ -8,7 +8,7 @@
  * `SectionIcon`. Aucune dépendance d'icônes n'est importée ici.
  *
  * `ICON_NAMES` reste la liste publique : les écrans, les réglages et les
- * extensions enregistrent des noms, pas des composants.
+ * Des noms sont enregistrés, pas des composants.
  */
 import { SectionIcon } from "./SectionIcon";
 
