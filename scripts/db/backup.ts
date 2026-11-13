@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import {
   chmodSync,
   closeSync,
@@ -131,6 +131,62 @@ async function dump(url: URL, target: "local" | "remote", output: number, image:
   }
 }
 
+/**
+ * Copie hors site de l'archive chiffrée.
+ *
+ * Le dump ne quitte la machine que **déjà chiffré** : ce qui est déposé sur
+ * le stockage distant est l'archive GPG, jamais le dump en clair.
+ *
+ * La destination est **Cloudflare R2** (`R2_*`), dans un préfixe distinct des
+ * médias applicatifs. Vercel Blob est volontairement exclu : le magasin
+ * connecté au projet est public, et une sauvegarde de base n'a rien à faire
+ * derrière une URL publique, même chiffrée.
+ *
+ * Sans configuration R2, l'étape est ignorée : une sauvegarde locale valide
+ * ne doit pas échouer parce que la copie hors site n'est pas configurée.
+ */
+async function uploadOffsite(
+  files: { path: string; name: string }[],
+): Promise<{ uploaded: string[]; skipped: string | null }> {
+  const endpoint = (process.env.R2_ENDPOINT?.trim() ?? "").replace(/\/+$/, "");
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID?.trim();
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY?.trim();
+  const bucket = process.env.R2_BUCKET?.trim();
+  if (!endpoint || !accessKeyId || !secretAccessKey || !bucket) {
+    return { uploaded: [], skipped: "R2 non configuré (R2_ENDPOINT / R2_BUCKET / clés)" };
+  }
+
+  const { AwsClient } = await import("aws4fetch");
+  const client = new AwsClient({
+    accessKeyId,
+    secretAccessKey,
+    service: "s3",
+    region: process.env.R2_REGION?.trim() || "auto",
+  });
+
+  // Le domaine public du magasin sert aussi les médias applicatifs : un
+  // objet déposé dessus est lisible par quiconque connaît son nom. Le
+  // préfixe porte donc un jeton aléatoire, et l'archive reste chiffrée.
+  const token = randomBytes(12).toString("hex");
+  const uploaded: string[] = [];
+  for (const file of files) {
+    const key = `db-backups/${token}/${file.name}`;
+    const response = await client.fetch(`${endpoint}/${bucket}/${key}`, {
+      method: "PUT",
+      body: new Uint8Array(readFileSync(file.path)),
+      headers: { "content-type": "application/octet-stream" },
+    });
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      throw new MigrationError(
+        `Copie hors site refusée pour ${file.name} (HTTP ${response.status}) : ${detail.slice(0, 200)}`,
+      );
+    }
+    uploaded.push(key);
+  }
+  return { uploaded, skipped: null };
+}
+
 function prune(directory: string, keep: number): string[] {
   const files = readdirSync(directory)
     .filter((name) => BACKUP_PATTERN.test(name))
@@ -139,8 +195,10 @@ function prune(directory: string, keep: number): string[] {
   const removed: string[] = [];
   for (const name of files.slice(keep)) {
     unlinkSync(path.join(directory, name));
-    const sidecar = path.join(directory, `${name}.sha256`);
-    if (existsSync(sidecar)) unlinkSync(sidecar);
+    for (const suffix of [".sha256", ".remote"]) {
+      const sidecar = path.join(directory, `${name}${suffix}`);
+      if (existsSync(sidecar)) unlinkSync(sidecar);
+    }
     removed.push(name);
   }
   return removed;
@@ -230,6 +288,24 @@ async function main(): Promise<void> {
   console.log(`SHA-256 : ${digest}`);
   console.log(`Chiffrement : GPG AES-256 (phrase ${passphraseFile})`);
   if (removed.length > 0) console.log(`Rotation : ${removed.length} ancienne(s) sauvegarde(s) supprimée(s).`);
+
+  // Copie hors site : chiffrée d'abord, donc l'archive — pas les données en
+  // clair — est le seul objet qui sort de la machine.
+  if (process.argv.includes("--upload")) {
+    const result = await uploadOffsite([
+      { path: encryptedPath, name: path.basename(encryptedPath) },
+      { path: sidecarPath, name: path.basename(sidecarPath) },
+    ]);
+    if (result.skipped) {
+      console.log(`Copie hors site : ignorée (${result.skipped}).`);
+    } else {
+      // La clé distante est notée à côté de l'archive : sans elle, un
+      // préfixe aléatoire rendrait la restauration impossible à retrouver.
+      writeFileSync(`${encryptedPath}.remote`, `${result.uploaded.join("\n")}\n`, { mode: 0o600 });
+      console.log(`Copie hors site : ${result.uploaded.length} objet(s) déposé(s).`);
+      for (const name of result.uploaded) console.log(`  ${name}`);
+    }
+  }
 }
 
 main().catch((error: unknown) => {

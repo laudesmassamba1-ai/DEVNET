@@ -23,5 +23,7 @@ if [ -z "${DATABASE_URL_UNPOOLED:-}" ]; then
   exit 2
 fi
 
+# `--upload` dépose l’archive **déjà chiffrée** hors site (R2, préfixe db-backups/).
+# Sans jeton, la copie est ignorée sans faire échouer la sauvegarde locale.
 export DB_TARGET=remote
-exec npx tsx scripts/db/backup.ts --database-url="$DATABASE_URL_UNPOOLED" "$@"
+exec npx tsx scripts/db/backup.ts --database-url="$DATABASE_URL_UNPOOLED" --upload "$@"
