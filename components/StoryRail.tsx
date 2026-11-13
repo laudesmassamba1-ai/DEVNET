@@ -157,18 +157,27 @@ export function StoryRail({
               )}
             </button>
 
+            {/* La pastille garde sa taille visuelle, mais la cible tactile
+                fait 44 px : sur un 320 px, 22 px se rate une fois sur
+                trois au pouce. Elle est centrée sur le coin bas-droit du
+                cercle, comme avant. */}
             {mine && (
               <button
                 type="button"
                 onClick={onPublish}
                 aria-label="Publier une nouvelle story"
                 title="Publier une nouvelle story"
-                className="absolute top-9 -right-0.5 flex size-[22px] items-center
-                  justify-center rounded-full border-[1.5px] border-void bg-signal
-                  text-void transition-transform hover:scale-105"
-                style={{ boxShadow: "var(--shadow-sh-1)" }}
+                className="absolute top-[25px] -right-[13px] flex size-11 items-center
+                  justify-center rounded-full"
               >
-                <Icon name="plus" size={12} strokeWidth={2.6} />
+                <span
+                  className="flex size-[22px] items-center justify-center rounded-full
+                    border-[1.5px] border-void bg-signal text-void
+                    transition-transform active:scale-95"
+                  style={{ boxShadow: "var(--shadow-sh-1)" }}
+                >
+                  <Icon name="plus" size={12} strokeWidth={2.6} />
+                </span>
               </button>
             )}
           </div>

@@ -249,7 +249,7 @@ function SearchScreen() {
                   setQuery("");
                   clearTag();
                 }}
-                className="absolute top-1/2 right-2 flex size-9 -translate-y-1/2 items-center
+                className="absolute top-1/2 right-1 flex size-11 -translate-y-1/2 items-center
                   justify-center text-chalk-4 transition-colors hover:text-signal"
               >
                 <Icon name="close" size={14} strokeWidth={2} />
@@ -293,7 +293,7 @@ function SearchScreen() {
               type="button"
               aria-selected={tab === value}
               onClick={() => setTab(value)}
-              className={`-mb-0.5 flex items-center gap-1.5 tab-underline px-3 py-2
+              className={`-mb-0.5 flex min-h-(--h-tap) items-center gap-1.5 tab-underline px-3
                 font-mono text-[11.5px] font-bold uppercase tracking-[0.12em]
                 transition-colors duration-[var(--d-fast)]
                 ${tab === value

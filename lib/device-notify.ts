@@ -99,6 +99,107 @@ export async function showNotification(input: {
   }
 }
 
+/**
+ * Abonnement aux notifications poussées.
+ *
+ * La bannière locale (ci-dessus) ne vit que tant que l'application est
+ * ouverte. Le push, lui, réveille le service worker : c'est le seul
+ * moyen d'être prévenu sur un écran verrouillé.
+ *
+ * Trois refus possibles, et ils ne se confondent pas : pas de clé VAPID
+ * côté serveur, pas de permission côté navigateur, pas de service worker
+ * actif. Chacun se dit à l'écran des réglages.
+ */
+export type PushState = "unsupported" | "denied" | "off" | "on" | "error";
+
+/** Clé VAPID : base64url vers les octets attendus par `pushManager`. */
+function decodeKey(base64: string): Uint8Array<ArrayBuffer> | null {
+  const padding = "=".repeat((4 - (base64.length % 4)) % 4);
+  const normalized = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
+  try {
+    const raw = atob(normalized);
+    const bytes = new Uint8Array(raw.length);
+    for (let index = 0; index < raw.length; index += 1) bytes[index] = raw.charCodeAt(index);
+    return bytes;
+  } catch {
+    return null;
+  }
+}
+
+async function pushConfig(): Promise<{ configured: boolean; publicKey: string | null }> {
+  try {
+    const response = await fetch("/api/push/subscription", { cache: "no-store" });
+    if (!response.ok) return { configured: false, publicKey: null };
+    const data = (await response.json()) as { configured?: boolean; publicKey?: string | null };
+    return { configured: Boolean(data.configured), publicKey: data.publicKey ?? null };
+  } catch {
+    return { configured: false, publicKey: null };
+  }
+}
+
+export async function subscribeToPush(): Promise<PushState> {
+  if (!notificationsSupported() || !("serviceWorker" in navigator)) return "unsupported";
+  if (notificationState() !== "granted") return "denied";
+
+  const config = await pushConfig();
+  if (!config.configured || !config.publicKey) return "unsupported";
+  const key = decodeKey(config.publicKey);
+  if (!key) return "error";
+
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const existing = await registration.pushManager.getSubscription();
+    const subscription =
+      existing ??
+      (await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: key,
+      }));
+
+    const response = await fetch("/api/push/subscription", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: subscription.toJSON() }),
+    });
+    return response.ok ? "on" : "error";
+  } catch {
+    return "error";
+  }
+}
+
+export async function unsubscribeFromPush(): Promise<PushState> {
+  if (!("serviceWorker" in navigator)) return "unsupported";
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    if (!subscription) return "off";
+    await fetch("/api/push/subscription", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ subscription: subscription.toJSON() }),
+    }).catch(() => undefined);
+    await subscription.unsubscribe().catch(() => undefined);
+    return "off";
+  } catch {
+    return "error";
+  }
+}
+
+/** L'appareil est-il déjà abonné, et le serveur peut-il pousser ? */
+export async function currentPushState(): Promise<PushState> {
+  if (!("serviceWorker" in navigator)) return "unsupported";
+  const config = await pushConfig();
+  if (!config.configured) return "unsupported";
+  if (notificationState() === "denied") return "denied";
+  try {
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.getSubscription();
+    return subscription ? "on" : "off";
+  } catch {
+    return "error";
+  }
+}
+
 let audio: AudioContext | null = null;
 
 /** Débloque l'audio au premier geste — iOS l'exige. */

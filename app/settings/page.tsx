@@ -11,9 +11,13 @@ import { Icon } from "@/components/Icon";
 import { Loading } from "@/components/Avatar";
 import { accountLabel } from "@/lib/utils";
 import {
+  currentPushState,
   notificationState,
   requestNotifications,
+  subscribeToPush,
   unlockAudio,
+  unsubscribeFromPush,
+  type PushState,
 } from "@/lib/device-notify";
 import { asVerificationStatus, VERIFY_STATUS_LABEL } from "@/lib/verification";
 import { broadcastTheme, DEFAULT_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
@@ -51,8 +55,14 @@ export default function SettingsPage() {
   /** Permission d'afficher des bannières sur cet appareil. */
   const [notifyState, setNotifyState] = useState<ReturnType<typeof notificationState>>("default");
   const [notifyBusy, setNotifyBusy] = useState(false);
+  /** Abonnement push : la seule voie pour être prévenu écran verrouillé. */
+  const [pushState, setPushState] = useState<PushState | "loading">("loading");
+  const [pushBusy, setPushBusy] = useState(false);
 
-  useEffect(() => setNotifyState(notificationState()), []);
+  useEffect(() => {
+    setNotifyState(notificationState());
+    void currentPushState().then(setPushState);
+  }, []);
 
   async function enableNotifications() {
     setNotifyBusy(true);
@@ -61,6 +71,17 @@ export default function SettingsPage() {
     const next = await requestNotifications();
     setNotifyState(next === "unsupported" ? "unsupported" : next);
     setNotifyBusy(false);
+    if (next === "granted") {
+      setPushBusy(true);
+      setPushState(await subscribeToPush());
+      setPushBusy(false);
+    }
+  }
+
+  async function togglePush() {
+    setPushBusy(true);
+    setPushState(pushState === "on" ? await unsubscribeFromPush() : await subscribeToPush());
+    setPushBusy(false);
   }
 
   // `null` tant que rien n'a été touché : la valeur vient du profil, et
@@ -473,10 +494,59 @@ export default function SettingsPage() {
             </p>
 
             {notifyState === "granted" ? (
-              <p className="mt-4 flex items-center gap-2 text-[13px] font-semibold text-ok">
-                <Icon name="check" size={14} strokeWidth={2.4} />
-                Activées sur cet appareil
-              </p>
+              <div className="mt-4 space-y-3">
+                <p className="flex items-center gap-2 text-[13px] font-semibold text-ok">
+                  <Icon name="check" size={14} strokeWidth={2.4} />
+                  Bannières activées sur cet appareil
+                </p>
+                {pushState === "loading" ? (
+                  <p className="text-[13px] text-chalk-4">Vérification des alertes à distance…</p>
+                ) : pushState === "on" ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-[13px] text-chalk-3">
+                      Alertes écran verrouillé actives sur cet appareil.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void togglePush()}
+                      disabled={pushBusy}
+                      className="lift-press flex h-(--h-tap) items-center justify-center
+                        rounded-(--radius-input) border border-line-3 bg-surface px-4
+                        text-[13px] font-bold text-chalk hover:border-signal disabled:opacity-60"
+                    >
+                      {pushBusy ? "Mise à jour…" : "Désactiver à distance"}
+                    </button>
+                  </div>
+                ) : pushState === "off" ? (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <p className="text-[13px] text-chalk-3">
+                      Pour être prévenu écran verrouillé, active l&apos;alerte à distance.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => void togglePush()}
+                      disabled={pushBusy}
+                      className="lift-press flex h-(--h-tap) items-center justify-center
+                        rounded-(--radius-input) border border-signal bg-signal px-4
+                        text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
+                    >
+                      {pushBusy ? "Activation…" : "Activer écran verrouillé"}
+                    </button>
+                  </div>
+                ) : pushState === "unsupported" ? (
+                  <p className="text-[13px] text-chalk-4">
+                    Les alertes écran verrouillé ne sont pas disponibles (clés VAPID absentes ou appareil non compatible). Les bannières et le son fonctionnent tant que DevNet est ouvert.
+                  </p>
+                ) : pushState === "denied" ? (
+                  <p className="text-[13px] text-warn">
+                    Les bannières sont refusées : l&apos;alerte écran verrouillé ne peut pas s&apos;activer.
+                  </p>
+                ) : (
+                  <p className="text-[13px] text-warn">
+                    L&apos;activation à distance a échoué. Réessaie depuis l&apos;application installée.
+                  </p>
+                )}
+              </div>
             ) : notifyState === "denied" ? (
               <p className="mt-4 text-[13px] text-warn">
                 Refusées dans le navigateur. Il faut les réactiver dans ses réglages —

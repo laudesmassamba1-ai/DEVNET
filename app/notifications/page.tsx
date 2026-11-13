@@ -461,7 +461,7 @@ export default function NotificationsPage() {
                   type="button"
                   onClick={() => void dismiss(group)}
                   aria-label="Supprimer cette notification"
-                  className="flex w-9 shrink-0 items-center justify-center border-l
+                  className="flex w-11 shrink-0 items-center justify-center border-l
                     border-line text-chalk-4 transition-colors
                     duration-[var(--d-fast)] hover:border-danger hover:text-danger"
                 >

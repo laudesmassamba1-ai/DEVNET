@@ -403,7 +403,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                 href={`https://github.com/${connection.login}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-6 min-w-0 flex-1 items-center font-mono text-[12px] font-bold text-signal-d hover:underline"
+                className="inline-flex min-h-(--h-tap) min-w-0 flex-1 items-center font-mono text-[12px] font-bold text-signal-d hover:underline"
               >
                 @{connection.login}
               </a>
@@ -411,7 +411,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                 href={`https://github.com/${connection.login}?tab=repositories`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-6 items-center font-mono text-[10.5px] font-bold text-chalk-3 hover:text-signal-d"
+                className="inline-flex min-h-(--h-tap) items-center font-mono text-[10.5px] font-bold text-chalk-3 hover:text-signal-d"
               >
                 {repos ? `${repos.length} dépôts` : "Dépôts"}
               </a>
@@ -419,7 +419,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                 type="button"
                 disabled={disconnecting}
                 onClick={() => void disconnect()}
-                className="inline-flex h-6 items-center font-mono text-[10.5px] font-bold text-danger disabled:opacity-50"
+                className="inline-flex min-h-(--h-tap) items-center font-mono text-[10.5px] font-bold text-danger disabled:opacity-50"
               >
                 {disconnecting ? "…" : "Déconnecter"}
               </button>

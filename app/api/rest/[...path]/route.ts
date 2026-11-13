@@ -8,6 +8,7 @@ import {
   type RestQuery,
 } from "@/lib/rest/query";
 import { withAnon, withUser } from "@/platform/infrastructure/postgres/with-user";
+import { dispatchDirectMessagePush } from "@/lib/push/notify-message";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -116,6 +117,15 @@ async function handle(
     const output = callerId
       ? await withUser(callerId, run)
       : await withAnon(run);
+
+    // Un message direct qui vient d'être écrit prévient les appareils
+    // des autres participants. La passerelle reste le seul chemin : le
+    // navigateur n'a rien à déclencher lui-même, et un client tiers qui
+    // écrirait par la même route déclencherait la même chose.
+    if (callerId && method === "POST" && path[0] === "direct_messages") {
+      await dispatchDirectMessagePush(callerId, output.rows);
+    }
+
     return successResponse(output, method);
   } catch (error) {
     if (error instanceof RestError) return errorResponse(error);

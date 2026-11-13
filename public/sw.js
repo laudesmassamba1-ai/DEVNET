@@ -1,4 +1,4 @@
-const VERSION = "devnet-pwa-v2";
+const VERSION = "devnet-pwa-v3";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const OFFLINE_URL = "/offline.html";
@@ -56,6 +56,40 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("message", (event) => {
   if (event.data?.type === "SKIP_WAITING") self.skipWaiting();
+});
+
+/*
+ * Notification poussée depuis le serveur — application fermée incluse.
+ *
+ * Le contenu est déjà déchiffré par le navigateur : il arrive en clair
+ * dans `event.data`, et rien de personnel n'est écrit dans le cache.
+ * Le badge est mis à jour ici aussi, sinon l'icône resterait muette
+ * alors qu'une bannière vient de s'afficher.
+ */
+self.addEventListener("push", (event) => {
+  let payload = { title: "DevNet", body: "Nouveau message", url: "/messages" };
+  try {
+    payload = { ...payload, ...(event.data ? event.data.json() : {}) };
+  } catch {
+    if (event.data) payload.body = event.data.text();
+  }
+
+  event.waitUntil(
+    (async () => {
+      await self.registration.showNotification(payload.title, {
+        body: payload.body,
+        tag: payload.tag || "devnet",
+        icon: "/icons/icon-192.png",
+        badge: "/icons/icon-96.png",
+        data: { url: payload.url || "/messages" },
+      });
+      try {
+        if (self.navigator.setAppBadge) await self.navigator.setAppBadge();
+      } catch {
+        /* l'appareil ne gère pas le badge */
+      }
+    })(),
+  );
 });
 
 /*
