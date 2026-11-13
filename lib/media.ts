@@ -32,14 +32,27 @@ export type UploadedMedia = {
 const MB = 1024 * 1024;
 
 /**
- * Photos et vidéos : 4 Mo.
+ * Plafond d'envoi : 4 Mo, images comme vidéos.
  *
- * La limite est celle du corps de requête des fonctions Vercel (4,5 Mo).
- * La dépasser côté client évite un 413 opaque rendu par la plateforme avant
- * même que `/api/media` puisse expliquer le refus.
+ * Ce n'est pas un choix arbitraire : c'est le corps de requête que les
+ * fonctions Vercel acceptent (4,5 Mo). Au-delà, la plateforme renvoie un
+ * 413 opaque avant même que `/api/media` puisse s'expliquer. Le client
+ * s'arrête donc juste en dessous, avec un message lisible.
  */
 export const MAX_IMAGE_BYTES = 4 * MB;
 export const MAX_VIDEO_BYTES = 4 * MB;
+
+/**
+ * Plafond de **sélection** d'une photo : 20 Mo.
+ *
+ * Une photo est redimensionnée à 1920 px et réencodée en WebP avant
+ * l'envoi : ce qu'on choisit n'est presque jamais ce qu'on téléverse. Le
+ * refus portait donc sur un fichier qui n'aurait jamais été envoyé tel
+ * quel, et écartait les photos de téléphone (5 à 8 Mo courantes) pour un
+ * poids qui n'existait plus après compression. La vidéo n'est pas
+ * réencodée : sa limite de sélection reste celle de l'envoi.
+ */
+export const MAX_IMAGE_INPUT_BYTES = 20 * MB;
 /** Démonstration : tout le store local doit tenir dans ~5 Mo. */
 const DEMO_MAX_BYTES = 1.6 * MB;
 
@@ -159,6 +172,14 @@ export async function uploadMedia(file: File): Promise<UploadResult> {
   const kind = mediaKindOf(file);
   if (!kind) {
     return { ok: false, error: "Formats acceptés : photos et vidéos." };
+  }
+
+  // Photos : on borne la sélection, pas le fichier compressé.
+  if (kind === "image" && file.size > MAX_IMAGE_INPUT_BYTES) {
+    return {
+      ok: false,
+      error: `Photo trop lourde (${formatBytes(file.size)}) — ${formatBytes(MAX_IMAGE_INPUT_BYTES)} maximum avant compression.`,
+    };
   }
 
   const prepared = kind === "image" ? await compressImage(file) : file;

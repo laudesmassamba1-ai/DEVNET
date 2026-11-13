@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell, IconButton } from "@/components/AppShell";
 import { EmptyState, Loading, PrimaryButton, Spinner } from "@/components/Avatar";
@@ -1315,11 +1316,24 @@ export default function FeedPage() {
 
             Rien ne s'affiche si le compte n'a aucun projet : on ne propose
             pas de lien vers une liste vide. */}
-        {myProjects.length > 0 && (
-          <div className="mb-4">
-            <p className="prompt-label mb-2 text-chalk-2">
-              projet <span className="text-chalk-4">— facultatif</span>
+        <div className="mb-4">
+          <p className="prompt-label mb-2 text-chalk-2">
+            projet <span className="text-chalk-4">— facultatif</span>
+          </p>
+          {myProjects.length === 0 ? (
+            /*
+              Ne rien afficher laissait croire que la fonction avait
+              disparu : un compte sans projet ne voyait aucun moyen d'en
+              rattacher un, ni même de découvrir que c'était possible.
+            */
+            <p className="text-[12.5px] leading-relaxed text-chalk-4">
+              Aucun dépôt pour l’instant.{" "}
+              <Link href="/projects" className="text-signal underline-offset-2 hover:underline">
+                Créez un projet
+              </Link>{" "}
+              pour pouvoir rattacher vos publications à du code.
             </p>
+          ) : (
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
@@ -1355,8 +1369,8 @@ export default function FeedPage() {
                 </button>
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="mt-1 flex gap-2.5">
           <button type="button" onClick={resetSheet}

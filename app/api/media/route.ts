@@ -21,6 +21,9 @@ export const dynamic = "force-dynamic";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 // Corps de requête Vercel : 4,5 Mo. On laisse une marge pour le multipart.
+// 4 Mo : plafond du corps de requête Vercel (4,5 Mo). Au-delà, la plateforme
+// renvoie un 413 avant d'atteindre cette route — la borne ici sert surtout
+// aux appels directs, hors plateforme.
 const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 const MAX_VIDEO_BYTES = 4 * 1024 * 1024;
 const PATH = /^[A-Za-z0-9][A-Za-z0-9._-]{0,119}$/;

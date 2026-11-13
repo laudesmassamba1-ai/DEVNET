@@ -8,6 +8,11 @@ import { Icon, asIconName } from "@/components/Icon";
 import { StudioInspector } from "@/components/studio/StudioInspector";
 import { StudioLayerView, type DragMode } from "@/components/studio/StudioLayerView";
 import {
+  formatBytes,
+  MAX_IMAGE_INPUT_BYTES,
+  MAX_VIDEO_BYTES,
+} from "@/lib/media";
+import {
   canvasToBlob,
   createBezier,
   createMedia,
@@ -87,7 +92,6 @@ function applyDrag(
 }
 
 const MAX_HISTORY = 50;
-const MAX_FILE_BYTES = 4 * 1024 * 1024;
 
 export type StudioMediaSource = {
   url: string;
@@ -316,8 +320,11 @@ export function StudioEditor({
 
   function chooseFile(file: File | undefined, kind: "image" | "video") {
     if (!file) return;
-    if (file.size > MAX_FILE_BYTES) {
-      setError("Fichier trop lourd : 4 Mo maximum.");
+    // Mêmes plafonds que le reste de l'application : l'atelier ne doit pas
+    // refuser un fichier que le compositeur accepterait.
+    const max = kind === "image" ? MAX_IMAGE_INPUT_BYTES : MAX_VIDEO_BYTES;
+    if (file.size > max) {
+      setError(`Fichier trop lourd : ${formatBytes(max)} maximum.`);
       return;
     }
     const url = URL.createObjectURL(file);
