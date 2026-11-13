@@ -330,8 +330,16 @@ export function CommentsPanel({
   }, [comments]);
 
   async function send() {
-    if (!postId || !me || busy) return;
-    if (!canSendMessage(text, attachment ?? undefined)) return;
+    if (busy) return;
+    if (!postId) return;
+    if (!me) {
+      toast("Connecte-toi pour commenter", "err");
+      return;
+    }
+    if (!canSendMessage(text, attachment ?? undefined)) {
+      toast("Écris un commentaire ou joins un GIF", "err");
+      return;
+    }
     setBusy(true);
     const { error } = await addComment(
       postId,
@@ -343,7 +351,7 @@ export function CommentsPanel({
     setBusy(false);
 
     if (error) {
-      toast("Commentaire non posté", "err");
+      toast(error || "Commentaire non posté", "err");
       return;
     }
     setText("");

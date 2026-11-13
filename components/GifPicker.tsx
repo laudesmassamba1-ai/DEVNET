@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Icon } from "./Icon";
 import { Sheet } from "./Sheet";
-import { searchGifs, type Gif, type GifProvider } from "@/lib/gifs";
+import { isAllowedGifUrl, searchGifs, type Gif, type GifProvider } from "@/lib/gifs";
 
 /**
  * Choix d'un GIF pour une publication.
@@ -32,6 +32,22 @@ export function GifPicker({
   const [state, setState] = useState<"loading" | "ready" | "error">("loading");
   const [message, setMessage] = useState("");
   const [configured, setConfigured] = useState(true);
+  const [directUrl, setDirectUrl] = useState("");
+
+  function pickDirect() {
+    const url = directUrl.trim();
+    if (!isAllowedGifUrl(url)) return;
+    onPick({
+      id: url.slice(-24),
+      url,
+      preview: url,
+      alt: "GIF",
+      width: 0,
+      height: 0,
+    });
+    setDirectUrl("");
+    onClose();
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -87,13 +103,32 @@ export function GifPicker({
       {state === "error" && (
         <div className="rounded-[var(--radius-input)] border border-line-2 bg-surface-2 px-3.5 py-3">
           <p className="text-[13px] font-semibold text-chalk">
-            {configured ? "Les GIF sont indisponibles" : "Les GIF ne sont pas configurés"}
+            {configured ? "La recherche de GIF est indisponible" : "Recherche de GIF non configurée"}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-chalk-3">
             {configured
               ? message
-              : "Ajoute une clé TENOR_API_KEY (ou GIPHY_API_KEY) au fichier .env de l'installation, puis recharge la page."}
+              : "Aucune clé de recherche (Tenor/Giphy) n'est définie. Tu peux quand même coller l'adresse d'un GIF hébergé sur Tenor ou Giphy ci-dessous."}
           </p>
+          <div className="mt-3 flex gap-2">
+            <input
+              value={directUrl}
+              onChange={(e) => setDirectUrl(e.target.value)}
+              aria-label="Adresse du GIF"
+              placeholder="https://media.tenor.com/…"
+              className="h-10 min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-3
+                bg-surface px-3 text-[13px] placeholder:text-chalk-4"
+            />
+            <button
+              type="button"
+              onClick={pickDirect}
+              disabled={!isAllowedGifUrl(directUrl.trim())}
+              className="h-10 shrink-0 rounded-[var(--radius-input)] border border-signal bg-signal
+                px-3 font-mono text-[11px] font-bold uppercase tracking-wide text-void disabled:opacity-40"
+            >
+              Utiliser
+            </button>
+          </div>
         </div>
       )}
 
@@ -136,6 +171,29 @@ export function GifPicker({
             </span>
             GIF fournis par {provider === "tenor" ? "Tenor" : "Giphy"}.
           </p>
+          <div className="mt-3 border-t border-line pt-3">
+            <p className="mb-1.5 text-[12px] text-chalk-3">Ou colle l'adresse directe d'un GIF (Tenor/Giphy)</p>
+            <div className="flex gap-2">
+              <input
+                value={directUrl}
+                onChange={(e) => setDirectUrl(e.target.value)}
+                aria-label="Adresse directe du GIF"
+                placeholder="https://media.tenor.com/…"
+                className="h-10 min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-3
+                  bg-surface px-3 text-[13px] placeholder:text-chalk-4"
+              />
+              <button
+                type="button"
+                onClick={pickDirect}
+                disabled={!isAllowedGifUrl(directUrl.trim())}
+                className="h-10 shrink-0 rounded-[var(--radius-input)] border border-line-3
+                  bg-surface px-3 font-mono text-[11px] font-bold uppercase tracking-wide text-chalk
+                  hover:border-signal disabled:opacity-40"
+              >
+                Utiliser
+              </button>
+            </div>
+          </div>
         </>
       )}
     </Sheet>

@@ -316,29 +316,29 @@ function EditorShell({
       className="fixed inset-0 z-[var(--z-modal)] flex flex-col bg-void text-chalk"
       style={{ paddingTop: "var(--h-safe-top)", paddingBottom: "var(--h-safe-bottom)" }}
     >
-      <header className="flex items-center justify-between gap-3 px-4 py-3">
+      <header className="flex items-center justify-between gap-3 border-b border-line-2 bg-surface/95 px-4 py-2.5">
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex min-h-tap items-center gap-2 rounded-chip px-2 font-mono text-xs font-bold uppercase tracking-wide text-chalk-3 hover:text-chalk"
+          className="inline-flex min-h-tap items-center gap-2 rounded-[var(--radius-chip)] px-2 text-sm font-medium text-chalk-3 transition-colors hover:bg-surface-2 hover:text-chalk"
         >
           <Icon name="close" size={18} />
           Fermer
         </button>
-        <span className="font-mono text-xs uppercase tracking-wide text-chalk-3">
-          Statut
+        <span className="text-[13px] font-semibold tracking-wide text-chalk">
+          Nouveau statut
         </span>
         <button
           type="button"
           onClick={() => void publish()}
           disabled={busy}
-          className="inline-flex min-h-tap items-center gap-2 rounded-chip bg-signal px-4 font-mono text-xs font-bold uppercase tracking-wide text-void disabled:opacity-50"
+          className="inline-flex min-h-tap items-center justify-center rounded-[var(--radius-chip)] bg-signal px-4 text-sm font-semibold text-void transition-opacity disabled:opacity-50"
         >
           {busy ? "Envoi…" : "Publier"}
         </button>
       </header>
 
-      <div className="flex min-h-0 flex-1 items-center justify-center px-3">
+      <div className="flex min-h-0 flex-1 items-center justify-center bg-page px-4 py-4">
         <div
           ref={stageRef}
           onPointerDown={beginDrag}
@@ -346,7 +346,7 @@ function EditorShell({
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           onDoubleClick={() => setEditing(true)}
-          className="relative h-full max-h-full overflow-hidden rounded-xl"
+          className="relative h-full max-h-full overflow-hidden rounded-[var(--radius-card)] border border-line-2 shadow-sh-1"
           style={{
             aspectRatio: "9 / 16",
             background: source
@@ -429,47 +429,32 @@ function EditorShell({
         </p>
       ) : null}
 
-      <footer className="flex items-center gap-2 overflow-x-auto px-3 py-3 [scrollbar-width:none]">
-        <ToolButton label="Photo" icon="image" onClick={() => mediaInput.current?.click()} />
-        <ToolButton
-          label="Texte"
-          icon="edit"
-          active={editing}
-          onClick={() => setEditing(true)}
-        />
-        <ToolButton
-          label="Fond"
-          icon="droplet"
-          onClick={() => setBackground((value) => (value + 1) % BACKGROUNDS.length)}
-        />
-        <ToolButton
-          label="Taille"
-          icon="grid"
-          onClick={() => setSize((value) => (value + 1) % TEXT_SIZES.length)}
-        />
-        <ToolButton
-          label="Encre"
-          icon="sun"
-          onClick={() => setColor((value) => (value + 1) % TEXT_COLORS.length)}
-        />
-        <label htmlFor="status-composer-media" className="sr-only">
-          Photo ou vidéo du statut
-        </label>
-        <input
-          id="status-composer-media"
-          ref={mediaInput}
-          type="file"
-          accept="image/*,video/*"
-          className="sr-only"
-          onChange={(event) => {
-            pickFile(event.target.files?.[0] ?? null);
-            event.target.value = "";
-          }}
-        />
+      <footer className="border-t border-line-2 bg-surface/95 px-3 py-3">
+        <div className="mx-auto flex max-w-xl flex-wrap items-center justify-center gap-2">
+          <ToolButton label="Média" icon="image" onClick={() => mediaInput.current?.click()} />
+          <ToolButton label="Texte" icon="edit" active={editing} onClick={() => setEditing(true)} />
+          <ToolButton label="Fond" icon="droplet" onClick={() => setBackground((value) => (value + 1) % BACKGROUNDS.length)} />
+          <ToolButton label="Taille" icon="grid" onClick={() => setSize((value) => (value + 1) % TEXT_SIZES.length)} />
+          <ToolButton label="Couleur" icon="sun" onClick={() => setColor((value) => (value + 1) % TEXT_COLORS.length)} />
+          <label htmlFor="status-composer-media" className="sr-only">
+            Photo ou vidéo du statut
+          </label>
+          <input
+            id="status-composer-media"
+            ref={mediaInput}
+            type="file"
+            accept="image/*,video/*"
+            className="sr-only"
+            onChange={(event) => {
+              pickFile(event.target.files?.[0] ?? null);
+              event.target.value = "";
+            }}
+          />
+        </div>
+        <p className="mt-2 text-center text-[12px] text-chalk-3">
+          Glisse le texte pour le placer · double-clic pour modifier
+        </p>
       </footer>
-      <p className="pb-3 text-center font-mono text-xs uppercase tracking-wide text-chalk-3">
-        Glissez le texte pour le placer · double-clic pour le modifier
-      </p>
     </div>,
     document.body,
   );
@@ -491,8 +476,8 @@ function ToolButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`inline-flex min-h-tap items-center gap-1.5 rounded-chip border px-3 font-mono text-xs font-bold uppercase tracking-wide transition-colors
-        ${active ? "border-signal text-signal" : "border-line-3 text-chalk-3 hover:border-signal hover:text-signal"}`}
+      className={`inline-flex min-h-tap items-center gap-1.5 rounded-[var(--radius-chip)] border px-3 text-[13px] font-medium transition-colors
+        ${active ? "border-signal bg-signal/10 text-chalk" : "border-line-3 bg-surface text-chalk-3 hover:border-line-2 hover:text-chalk"}`}
     >
       <Icon name={icon} size={16} />
       {label}

@@ -404,9 +404,8 @@
 }
 
 @keyframes enterScale {
-  from { opacity: 0; transform: scale(0.965) translateY(8px); filter: blur(6px); }
-  62%  { opacity: 1; filter: blur(0); }
-  to   { opacity: 1; transform: none; filter: blur(0); }
+  from { opacity: 0; transform: scale(0.985) translateY(6px); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* `enterSoft` : le fondu « matière » d'iOS. Rien ne glisse, rien ne
@@ -414,9 +413,8 @@
    dépose. Réservé aux plans rapprochés (héros, en-têtes, cartes uniques)
    où le coût d'un filtre est payé une fois, jamais par une liste. */
 @keyframes enterSoft {
-  from { opacity: 0; transform: scale(0.992); filter: blur(9px); }
-  60%  { opacity: 1; filter: blur(0); }
-  to   { opacity: 1; transform: none; filter: blur(0); }
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* Entrée de bulle, directionnelle. Un message écrit par soi entre par la
@@ -781,6 +779,7 @@
     overflow-x: clip;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   ::selection { background: var(--color-signal); color: var(--color-void); }
@@ -790,6 +789,10 @@
   ::-webkit-scrollbar-thumb { background: var(--color-line-3); border-radius: 999px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--color-signal); }
   * { scrollbar-width: thin; scrollbar-color: var(--color-line-3) var(--color-page); }
+
+  img, video, canvas {
+    image-rendering: auto;
+  }
 
   button { font-family: inherit; cursor: pointer; }
 
@@ -1644,11 +1647,8 @@ input[type="search"]::-webkit-search-decoration {
    ============================================================ */
 
 .story-stage {
-  --story-stage-bg: #07080a;
-  background:
-    radial-gradient(120% 80% at 50% 0%, rgba(255, 92, 53, 0.10), transparent 60%),
-    radial-gradient(90% 60% at 50% 100%, rgba(23, 233, 165, 0.06), transparent 70%),
-    var(--story-stage-bg);
+  --story-stage-bg: #0b0b0c;
+  background: var(--story-stage-bg);
 }
 
 .story-stage::before {
@@ -1656,17 +1656,11 @@ input[type="search"]::-webkit-search-decoration {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.16;
-  mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.28));
 }
 
 .story-stage::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: radial-gradient(70% 55% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+  content: none;
 }
 
 .story-stage > * {
@@ -1675,26 +1669,25 @@ input[type="search"]::-webkit-search-decoration {
 }
 
 .story-aperture {
-  border-radius: 2px;
-  filter: drop-shadow(0 0 26px rgba(255, 92, 53, 0.18));
+  border-radius: var(--radius-card);
 }
 
 .story-frame {
-  border-radius: 0;
-  border: 1px solid rgba(236, 233, 223, 0.09);
+  border-radius: calc(var(--radius-card) - 2px);
+  border: 1px solid var(--color-line-2);
+  background: var(--color-void);
 }
 
 .story-credit {
   padding-bottom: 0.5rem;
-  background: linear-gradient(to bottom, rgba(7, 8, 10, 0.88), transparent);
+  background: linear-gradient(to bottom, rgba(11, 11, 12, 0.92), rgba(11, 11, 12, 0));
 }
 
 .story-control {
-  border: 1px solid rgba(236, 233, 223, 0.16);
-  border-radius: 2px;
-  background: rgba(7, 8, 10, 0.45);
-  backdrop-filter: blur(6px);
-  transition: border-color var(--d-fast), color var(--d-fast), background-color var(--d-fast);
+  border: 1px solid var(--color-line-2);
+  border-radius: var(--radius-chip);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  transition: border-color var(--d-fast), color var(--d-fast), background-color var(--d-fast), transform var(--d-fast);
 }
 
 .story-control:hover {

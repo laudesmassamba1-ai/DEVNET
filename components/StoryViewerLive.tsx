@@ -577,7 +577,7 @@ export function StoryViewer({
           <span key={story.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-void/25">
             <span
               key={`${story.id}-${paused}-${replyOpen}`}
-              className={`block h-full origin-left rounded-full bg-signal ${
+              className={`block h-full origin-left rounded-full bg-signal will-change-transform ${
                 i < index ? "scale-x-100" : i === index ? "animate-[storyBar_linear_forwards]" : "scale-x-0"
               }`}
               style={
@@ -585,7 +585,6 @@ export function StoryViewer({
                   ? {
                       animationDuration: `${STORY_MS}ms`,
                       animationPlayState: paused || replyOpen ? "paused" : "running",
-                      // Sous réduction de mouvement, on garde un repère fixe.
                       animationName: reduced ? "none" : undefined,
                       transform: reduced ? "scaleX(1)" : undefined,
                       opacity: reduced ? 0.4 : undefined,
@@ -648,7 +647,7 @@ export function StoryViewer({
           onClick={onClose}
           aria-label="Fermer"
           className="story-control flex size-11 items-center justify-center
-            text-chalk hover:bg-signal hover:text-void"
+            text-chalk hover:border-signal hover:text-signal"
         >
           <SectionIcon name="close" size={16} strokeWidth={1.9} />
         </button>
@@ -658,8 +657,8 @@ export function StoryViewer({
         <div className="h-full w-full max-w-[min(100%,540px)]">
           <div
             ref={surfaceRef}
-            className="story-aperture relative h-full p-0"
-            style={{ background: "var(--story-ring-gradient)" }}
+            className="story-aperture relative h-full p-[1px]"
+            style={{ background: "var(--color-line-2)" }}
             onDoubleClick={() => void like()}
             onClick={(event) => {
               if (!placing) return;
@@ -700,10 +699,10 @@ export function StoryViewer({
                    n'est pas répété sous une image — l'éditeur l'a déjà
                    gravé dans l'export, et deux fois le même mot, c'est
                    une faute d'affichage, pas une légende. */
-                <div className="grid min-h-0 flex-1 place-items-center px-6">
+                <div className="grid min-h-0 flex-1 place-items-center bg-surface px-8 py-16">
                   <p className="story-caption max-h-[70%] overflow-y-auto whitespace-pre-wrap
-                    text-center text-[22px] leading-[1.35] font-extrabold text-chalk">
-                    {current.caption}
+                    text-center text-[24px] leading-[1.4] font-semibold text-chalk">
+                    {current.caption || ""}
                   </p>
                 </div>
               )}
