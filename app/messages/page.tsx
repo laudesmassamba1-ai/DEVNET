@@ -19,7 +19,6 @@ import { badgeFor, xpOf } from "@/lib/verification";
 import { loadAuthorXp } from "@/lib/author-xp";
 import { api } from "@/lib/api/client";
 import { uploadMedia } from "@/lib/media";
-import { StatusComposer } from "@/components/StatusComposer";
 import { useSession } from "@/hooks/useSession";
 import { useTyping } from "@/hooks/useTyping";
 import { clockTime } from "@/lib/utils";
@@ -70,14 +69,6 @@ export default function MessagesPage() {
   const [active, setActive] = useState<Peer | null>(null);
   const [messages, setMessages] = useState<MessageRow[] | null>(null);
   const [text, setText] = useState("");
-  const [studioOpen, setStudioOpen] = useState(false);
-  /** Média importé, encore local : il ouvre l'atelier avant tout envoi. */
-  const [studioSource, setStudioSource] = useState<{
-    file: File;
-    url: string;
-    kind: "image" | "video";
-    name: string;
-  } | null>(null);
   const [openNew, setOpenNew] = useState(false);
   /** Recherche dans la **liste** des conversations : filtre d'affichage. */
   const [search, setSearch] = useState("");
@@ -918,32 +909,20 @@ export default function MessagesPage() {
    * une fausse promesse. La préférence est un droit de réception, pas
    * une censure (le texte continue de passer).
    */
-  function closeStudio() {
-    setStudioSource((current) => {
-      if (current) URL.revokeObjectURL(current.url);
-      return null;
-    });
-    setStudioOpen(false);
-  }
-
-  /** Importer un média ouvre l'atelier ; l'envoi part à l'export. */
-  function openStudioWith(file: File) {
+  /**
+   * Un média dans un message privé part **tel quel** : la conversation
+   * n'est pas un atelier. On refuse tôt si le destinataire n'accepte pas
+   * les médias, puis on téléverse et on envoie.
+   */
+  function attachMedia(file: File) {
     if (!profile || !active) return;
-    if (active.other?.dm_media === false) {
-      return toast("Ce contact n'accepte pas les photos et vidéos.", "err");
-    }
     const kind = file.type.startsWith("video/")
       ? "video"
       : file.type.startsWith("image/")
         ? "image"
         : null;
     if (!kind) return toast("Choisis une photo ou une vidéo.", "err");
-    const url = URL.createObjectURL(file);
-    setStudioSource((current) => {
-      if (current) URL.revokeObjectURL(current.url);
-      return { file, url, kind, name: file.name };
-    });
-    setStudioOpen(true);
+    void sendMedia(file);
   }
 
   async function sendMedia(file: File) {
@@ -1276,23 +1255,6 @@ export default function MessagesPage() {
                 <div ref={endRef} />
 
               </div>
-              <StatusComposer
-                open={studioOpen}
-                onClose={closeStudio}
-                    initialMedia={
-                  studioSource
-                    ? { url: studioSource.url, kind: studioSource.kind, name: studioSource.name }
-                    : null
-                }
-                sourceFile={studioSource?.file ?? null}
-                onLayersChange={setText}
-                onUse={(file) => {
-                  void sendMedia(file);
-                }}
-                onUseSource={(file) => {
-                  void sendMedia(file);
-                }}
-              />
               <ComposerBar>
                 {editing && (
                   <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
@@ -1339,20 +1301,8 @@ export default function MessagesPage() {
                       <MessageAttachmentButtons
                         disabled={!active || sending || uploadingMedia}
                         onGif={(gif) => void send({ kind: "gif", gif })}
-                        onMedia={(file) => openStudioWith(file)}
+                        onMedia={attachMedia}
                       />
-                      <button
-                        type="button"
-                        onClick={() => setStudioOpen(true)}
-                        disabled={!active || sending || uploadingMedia}
-                        aria-label="Ouvrir l'atelier"
-                        title="Ouvrir l'atelier"
-                        className="mo-press flex size-[var(--h-input)] shrink-0 items-center
-                          justify-center rounded-full border border-line-3 bg-surface
-                          text-chalk-4 transition-colors hover:text-signal disabled:opacity-40"
-                      >
-                        <Icon name="studio" size={18} strokeWidth={1.8} />
-                      </button>
                     </>
                   }
                   onTyping={notifyTyping}

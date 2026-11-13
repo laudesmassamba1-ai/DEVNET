@@ -10,7 +10,6 @@ import { Sheet } from "@/components/Sheet";
 import { GroupReceipt } from "@/components/Receipt";
 import { MessageExtras, ReplyQuote } from "@/components/MessageExtras";
 import { MessageAttachmentButtons, MessageAttachmentView } from "@/components/MessageAttachments";
-import { StatusComposer } from "@/components/StatusComposer";
 import { TypingLine } from "@/components/TypingDots";
 import { ChatComposer, ComposerBar } from "@/components/ChatComposer";
 import { useToast } from "@/components/Toast";
@@ -63,14 +62,6 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
   const [loaded, setLoaded] = useState<{ channelId: string; rows: GroupMessage[] } | null>(null);
   const [text, setText] = useState("");
-  const [studioOpen, setStudioOpen] = useState(false);
-  /** Média importé, encore local : il ouvre l'atelier avant tout envoi. */
-  const [studioSource, setStudioSource] = useState<{
-    file: File;
-    url: string;
-    kind: "image" | "video";
-    name: string;
-  } | null>(null);
   const [asCode, setAsCode] = useState(false);
   const [sending, setSending] = useState(false);
   /** Fichier en cours de téléversement avant l'envoi du message. */
@@ -451,16 +442,11 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
     toast(`Envoyé · +${messagePoints(asCode)} pts`);
   }
 
-  function closeStudio() {
-    setStudioSource((current) => {
-      if (current) URL.revokeObjectURL(current.url);
-      return null;
-    });
-    setStudioOpen(false);
-  }
-
-  /** Importer un média ouvre l'atelier ; l'envoi part à l'export. */
-  function openStudioWith(file: File) {
+  /**
+   * Un média dans un canal part **tel quel** : le canal n'est pas un
+   * atelier de statut. On choisit le type, on téléverse, on envoie.
+   */
+  function attachMedia(file: File) {
     if (!active) return;
     const kind = file.type.startsWith("video/")
       ? "video"
@@ -468,12 +454,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         ? "image"
         : null;
     if (!kind) return toast("Choisis une photo ou une vidéo.", "err");
-    const url = URL.createObjectURL(file);
-    setStudioSource((current) => {
-      if (current) URL.revokeObjectURL(current.url);
-      return { file, url, kind, name: file.name };
-    });
-    setStudioOpen(true);
+    void sendMedia(file);
   }
 
   /** Envoyer une photo ou une vidéo dans le canal courant. */
@@ -874,23 +855,6 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             <div ref={endRef} />
 
           </div>
-          <StatusComposer
-            open={studioOpen}
-            onClose={closeStudio}
-            initialMedia={
-              studioSource
-                ? { url: studioSource.url, kind: studioSource.kind, name: studioSource.name }
-                : null
-            }
-            sourceFile={studioSource?.file ?? null}
-            onLayersChange={setText}
-            onUse={(file) => {
-              void sendMedia(file);
-            }}
-            onUseSource={(file) => {
-              void sendMedia(file);
-            }}
-          />
           <ComposerBar>
             {replyTo && (
               <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
@@ -917,20 +881,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   <MessageAttachmentButtons
                     disabled={!active || sending || uploadingMedia}
                     onGif={(gif) => void send({ kind: "gif", gif })}
-                    onMedia={(file) => openStudioWith(file)}
+                    onMedia={attachMedia}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setStudioOpen(true)}
-                    disabled={!active || sending || uploadingMedia}
-                    aria-label="Ouvrir l'atelier"
-                    title="Ouvrir l'atelier"
-                    className="mo-press flex size-[var(--h-input)] shrink-0 items-center
-                      justify-center rounded-full border border-line-3 bg-surface
-                      text-chalk-4 transition-colors hover:text-signal disabled:opacity-40"
-                  >
-                    <Icon name="studio" size={18} strokeWidth={1.8} />
-                  </button>
                 </>
               }
               onTyping={notifyTyping}

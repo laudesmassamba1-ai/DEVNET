@@ -90,8 +90,11 @@ export class PostgresStoriesRepository implements StoriesRepository {
   constructor(private readonly dependencies: PostgresStoriesDependencies) {}
 
   async fetchFeed(readerId: string | null): Promise<StoryFeed> {
-    const catalog = await this.fetchCatalog();
-    if (!readerId) return { stories: [], catalog };
+    // Le catalogue part en parallèle : il ne dépend pas du lecteur, et
+    // l'attendre en série ajoutait une transaction entière au temps
+    // d'ouverture des stories.
+    const catalogPromise = this.fetchCatalog();
+    if (!readerId) return { stories: [], catalog: await catalogPromise };
 
     let rows: StoryRow[];
     try {
@@ -125,12 +128,20 @@ export class PostgresStoriesRepository implements StoriesRepository {
       throw new StoriesRepositoryError("list-stories", pgCode(error), { cause: error });
     }
 
+    const catalog = await catalogPromise;
     if (rows.length === 0) return { stories: [], catalog };
 
-    let stickers: StickerRow[] = [];
+    const ids = rows.map((row) => String(row.id));
+    // Stickers et médias dans la même transaction : deux allers-retours au
+    // lieu de deux transactions complètes, qui coûtaient chacune leur
+    // poignée de main avec Postgres.
+    let payload: {
+      stickers: StickerRow[];
+      media: { story_id: string; mime: string }[];
+    };
     try {
-      stickers = await this.dependencies.asUser(readerId, (query) =>
-        query<StickerRow>(
+      payload = await this.dependencies.asUser(readerId, async (query) => {
+        const stickers = await query<StickerRow>(
           `select ss.id, ss.story_id::text as story_id, ss.sticker_id,
                   st.kind, st.glyph, st.name,
                   case when st.owner_id is null then '' else st.fg end as fg,
@@ -140,19 +151,19 @@ export class PostgresStoriesRepository implements StoriesRepository {
              join public.stickers st on st.id = ss.sticker_id
             where ss.story_id = any($1::uuid[])
             order by ss.z, ss.created_at`,
-          [rows.map((row) => String(row.id))],
-        ),
-      );
+          [ids],
+        );
+        const media = await query<{ story_id: string; mime: string }>(
+          "select story_id::text as story_id, mime from public.story_media where story_id = any($1::uuid[])",
+          [ids],
+        ).catch(() => [] as { story_id: string; mime: string }[]);
+        return { stickers, media };
+      });
     } catch (error) {
       throw new StoriesRepositoryError("list-stories", pgCode(error), { cause: error });
     }
 
-    const media = await this.dependencies.asUser(readerId, (query) =>
-      query<{ story_id: string; mime: string }>(
-        "select story_id::text as story_id, mime from public.story_media where story_id = any($1::uuid[])",
-        [rows.map((row) => String(row.id))],
-      ),
-    ).catch(() => [] as { story_id: string; mime: string }[]);
+    const { stickers, media } = payload;
     const mediaByStory = new Map(media.map((row) => [String(row.story_id), row.mime]));
 
     const byStory = new Map<string, PlacedSticker[]>();

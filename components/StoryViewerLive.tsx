@@ -145,6 +145,8 @@ export function StoryViewer({
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  /** Suppression en cours — évite le double appui sur la corbeille. */
+  const [deleting, setDeleting] = useState(false);
 
   // Stickers : choix, puis placement au toucher.
   const [trayOpen, setTrayOpen] = useState(false);
@@ -226,6 +228,10 @@ export function StoryViewer({
   }, [current, me]);
 
   const next = useCallback(() => {
+    // On ne tourne pas la page sous les doigts de quelqu'un qui écrit :
+    // une réponse en cours doit rester en face de la story à laquelle
+    // elle répond.
+    if (replyOpen) return;
     if (index + 1 >= stories.length) {
       onClose();
       return;
@@ -236,16 +242,17 @@ export function StoryViewer({
     setDraft("");
     setTrayOpen(false);
     setPlacing(null);
-  }, [index, stories.length, onClose]);
+  }, [index, stories.length, onClose, replyOpen]);
 
   const prev = useCallback(() => {
+    if (replyOpen) return;
     setIndex((i) => (i === 0 ? 0 : i - 1));
     setFeedback(null);
     setReplyOpen(false);
     setDraft("");
     setTrayOpen(false);
     setPlacing(null);
-  }, []);
+  }, [replyOpen]);
 
   // Avance automatique : suspendue par la composition, le catalogue,
   // le placement, le survol du contenu et un onglet caché.
@@ -336,6 +343,7 @@ export function StoryViewer({
     }
     setDraft("");
     setReplyOpen(false);
+    setPaused(false);
     setFeedback({ kind: "ok", text: "Réponse envoyée en privé" });
   }
 
@@ -615,10 +623,20 @@ export function StoryViewer({
         {isMine && onDelete && (
           <button
             type="button"
-            onClick={() => onDelete(current.id)}
+            disabled={deleting}
+            onClick={async () => {
+              if (deleting) return;
+              setDeleting(true);
+              // La liste est tenue par le parent : c'est lui qui sait
+              // quelle story reste à montrer après celle-ci.
+              await onDelete(current.id);
+              setDeleting(false);
+              setFeedback({ kind: "ok", text: "Story supprimée" });
+            }}
             aria-label="Supprimer cette story"
+            title="Supprimer cette story"
             className="story-control flex size-11 items-center justify-center
-              text-chalk/70 hover:text-danger"
+              text-chalk/70 transition-colors hover:text-danger disabled:opacity-40"
           >
             <SectionIcon name="trash" size={15} />
           </button>
@@ -660,29 +678,35 @@ export function StoryViewer({
                   controls
                   playsInline
                   preload="metadata"
-                  className="min-h-0 w-full flex-1 bg-void object-contain"
+                  className="absolute inset-0 h-full w-full bg-void object-contain"
                 />
               ) : mediaById[current.id] ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={storyMediaUrl(current.id)}
                   alt=""
-                  className="min-h-0 w-full flex-1 bg-void object-contain"
+                  className="absolute inset-0 h-full w-full bg-void object-cover"
                 />
               ) : current.media_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={current.media_url}
                   alt=""
-                  className="min-h-0 w-full flex-1 bg-void object-contain"
+                  className="absolute inset-0 h-full w-full bg-void object-cover"
                 />
-              ) : null}
-
-              <p className="story-caption max-h-[30%] shrink-0 overflow-y-auto whitespace-pre-wrap
-                bg-gradient-to-t from-void via-void/85 to-transparent px-4 pb-5 pt-8
-                text-[16.5px] leading-[1.6] text-chalk">
-                {current.caption}
-              </p>
+              ) : (
+                /* Un statut sans média est du texte, et rien d'autre :
+                   il se lit au centre, comme dans l'éditeur. Le texte
+                   n'est pas répété sous une image — l'éditeur l'a déjà
+                   gravé dans l'export, et deux fois le même mot, c'est
+                   une faute d'affichage, pas une légende. */
+                <div className="grid min-h-0 flex-1 place-items-center px-6">
+                  <p className="story-caption max-h-[70%] overflow-y-auto whitespace-pre-wrap
+                    text-center text-[22px] leading-[1.35] font-extrabold text-chalk">
+                    {current.caption}
+                  </p>
+                </div>
+              )}
 
               {/*
                 Stickers posés — positionnés en fraction de la surface.
@@ -859,7 +883,10 @@ export function StoryViewer({
             </button>
             <button
               type="button"
-              onClick={() => setReplyOpen(false)}
+              onClick={() => {
+                setReplyOpen(false);
+                setPaused(false);
+              }}
               aria-label="Fermer la réponse"
               className="story-control flex size-11 items-center justify-center text-chalk/70"
             >
@@ -920,7 +947,10 @@ export function StoryViewer({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => setReplyOpen(true)}
+              onClick={() => {
+                setPaused(true);
+                setReplyOpen(true);
+              }}
               disabled={isMine || !me}
               className="story-control flex h-11 flex-1 items-center gap-2 px-3
                 text-[13px] text-chalk/70 disabled:opacity-40"

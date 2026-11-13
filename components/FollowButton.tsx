@@ -63,6 +63,13 @@ export function FollowButton({
     setKnown(defaultFollowing);
     setFollowing(defaultFollowing);
   }
+  // Le parent qui **oublie** l'état (session en cours de chargement) ne
+  // doit pas effacer ce qu'on sait déjà : un `undefined` signifie « je ne
+  // sais plus », pas « je ne suis plus ». Le bouton garde donc sa valeur
+  // et ne revient pas à « suivre » sous le doigt.
+  if (defaultFollowing === undefined && known !== undefined) {
+    setKnown(undefined);
+  }
 
   // Sans état connu, on le demande — sauf pour les liens dont on sait
   // qu'ils ne peuvent pas exister (soi-même, ou pas de session).

@@ -80,42 +80,74 @@ export function StoryRail({
 
       <div className="-mx-(--gutter) flex gap-3 overflow-x-auto px-(--gutter) pb-2">
         {/* Le cercle d'écriture passe en tête quand on peut publier : c'est
-            l'action, et une action se place là où l'œil arrive. */}
+            l'action, et une action se place là où l'œil arrive.
+
+            S'il y a déjà une story à soi, le cercle **ouvre cette story**
+            — c'est là qu'on la regarde et qu'on la supprime. Publier reste
+            possible par la pastille « + » posée dessus : un cercle qui ne
+            ferait qu'ajouter une story rendrait les siennes inaccessibles
+            depuis le rail. */}
         {onPublish && (
-          <button
-            type="button"
-            onClick={onPublish}
-            className="group flex w-[80px] shrink-0 flex-col items-center gap-1.5"
-          >
-            <span
-              className="relative flex size-[54px] items-center justify-center
-                rounded-full border-[1.5px] border-dashed border-line-3 bg-surface p-[2px]
-                transition-transform group-hover:-translate-y-0.5"
+          <div className="relative flex w-[80px] shrink-0 flex-col items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => (mine && me ? onOpen(me) : onPublish())}
+              className="group flex w-[80px] flex-col items-center gap-1.5"
             >
-              <span className="flex size-full items-center justify-center rounded-full bg-page">
-                <Avatar
-                  name={mine?.author?.prenom ?? "moi"}
-                  color={mine?.author?.avatar_color ?? "av-lime"}
-                  className="size-[38px] border-0 text-[14px]"
-                />
-              </span>
               <span
-                className="absolute -right-0.5 -bottom-0.5 flex size-[18px] items-center
-                  justify-center rounded-full border-[1.5px] border-void bg-signal text-void"
+                className={`relative flex size-[54px] items-center justify-center
+                  rounded-full p-[2px] transition-transform group-hover:-translate-y-0.5
+                  ${mine ? "" : "border-[1.5px] border-dashed border-line-3 bg-surface"}`}
+              >
+                {mine && (
+                  <span
+                    aria-hidden
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background: "var(--story-ring-gradient)",
+                      WebkitMask: "radial-gradient(circle, transparent 62%, black 63%)",
+                      mask: "radial-gradient(circle, transparent 62%, black 63%)",
+                    }}
+                  />
+                )}
+                <span className="flex size-full items-center justify-center rounded-full bg-page">
+                  <Avatar
+                    name={mine?.author?.prenom ?? "moi"}
+                    color={mine?.author?.avatar_color ?? "av-lime"}
+                    className="size-[38px] border-0 text-[14px]"
+                  />
+                </span>
+              </span>
+              {/* Pas de troncature ici : le libellé tient dans la largeur du
+                  cercle, et « Votre st… » ne dit plus ce qu'on peut faire. */}
+              <span className="label-micro w-full whitespace-nowrap text-center leading-tight text-chalk-2">
+                {mine ? "vous" : "Votre story"}
+              </span>
+              {mine && mine.items.length > 1 && (
+                <span className="label-micro flex w-full items-center justify-center text-chalk-4">
+                  {mine.items.length}
+                </span>
+              )}
+            </button>
+
+            {mine && (
+              <button
+                type="button"
+                onClick={onPublish}
+                aria-label="Publier une nouvelle story"
+                title="Publier une nouvelle story"
+                className="absolute top-9 -right-0.5 flex size-[22px] items-center
+                  justify-center rounded-full border-[1.5px] border-void bg-signal
+                  text-void transition-transform hover:scale-105"
                 style={{ boxShadow: "var(--shadow-sh-1)" }}
               >
-                <Icon name="plus" size={11} strokeWidth={2.4} />
-              </span>
-            </span>
-            {/* Pas de troncature ici : le libellé tient dans la largeur du
-                cercle, et « Votre st… » ne dit plus ce qu'on peut faire. */}
-            <span className="label-micro w-full whitespace-nowrap text-center leading-tight text-chalk-2">
-              Votre story
-            </span>
-          </button>
+                <Icon name="plus" size={12} strokeWidth={2.6} />
+              </button>
+            )}
+          </div>
         )}
 
-        {groups.map((g) => (
+        {groups.filter((g) => !(onPublish && g.authorId === me)).map((g) => (
           <button
             key={g.authorId}
             type="button"
@@ -131,25 +163,28 @@ export function StoryRail({
                 rounded-full p-[2px] transition-transform group-hover:-translate-y-0.5
                 group-hover:animate-[pulse_1.8s_ease-continuous_infinite]"
             >
+              {/* L'anneau est un calque **frère** de l'avatar, jamais son
+                  parent : un masque s'applique aussi aux enfants, et posé
+                  sur le conteneur il effaçait le visage au centre du cercle.
+                  On ne voyait plus que des anneaux vides. */}
               <span
-                className="relative flex size-full items-center justify-center
-                  rounded-full border bg-void p-[2px]"
+                aria-hidden
+                className="absolute inset-0 rounded-full"
                 style={{
                   background: "var(--story-ring-gradient)",
                   WebkitMask: "radial-gradient(circle, transparent 62%, black 63%)",
                   mask: "radial-gradient(circle, transparent 62%, black 63%)",
                 }}
+              />
+              <span
+                className="flex size-full items-center justify-center
+                  rounded-full bg-page"
               >
-                <span
-                  className="flex size-full items-center justify-center
-                    rounded-full bg-page"
-                >
-                  <Avatar
-                    name={g.author?.prenom}
-                    color={g.author?.avatar_color}
-                    className="size-[38px] border-0 text-[14px]"
-                  />
-                </span>
+                <Avatar
+                  name={g.author?.prenom}
+                  color={g.author?.avatar_color}
+                  className="size-[38px] border-0 text-[14px]"
+                />
               </span>
             </span>
 

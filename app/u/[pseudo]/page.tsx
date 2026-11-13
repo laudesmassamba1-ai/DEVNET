@@ -131,12 +131,11 @@ export default function PublicProfilePage({
 
     if (profile) {
       setLikedIds(await fetchLikedPostIds(profile.id, found.posts.map((p) => p.id)));
-      if (found.user) {
-        setFollowing(undefined);
-        setFollowing(await isFollowing(profile.id, found.user.id));
-      } else {
-        setFollowing(undefined);
-      }
+      // On ne remet **pas** l'état à `undefined` avant de lire : la réponse
+      // arrive après un aller-retour, et le bouton afficherait « suivre »
+      // sur un profil qu'on suit déjà. On garde la dernière valeur connue,
+      // puis on la remplace par celle de la base.
+      setFollowing(found.user ? await isFollowing(profile.id, found.user.id) : undefined);
     } else {
       setFollowing(undefined);
     }
@@ -388,6 +387,11 @@ export default function PublicProfilePage({
               targetPseudo={user.pseudo}
               defaultFollowing={following}
               onChanged={(next, previous) => {
+                // Le parent retient le nouvel état : sans cela, un
+                // rechargement du profil (après un like, par exemple)
+                // repartirait de son ancienne valeur et le bouton
+                // reviendrait à « suivre » alors que le lien existe.
+                setFollowing(next);
                 // Le compteur est un cache serveur : on l'ajuste pour que
                 // le clic soit suivi d'un effet, et la prochaine lecture
                 // du profil remettra le chiffre exact par-dessus.
