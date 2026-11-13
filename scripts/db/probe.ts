@@ -57,6 +57,18 @@ function describeError(error: unknown): string {
   return String(error).replace(/\s+/g, " ").slice(0, 160);
 }
 
+/**
+ * TLS vu par le client. Indispensable derrière un pooler (Neon `-pooler`,
+ * PgBouncer) : le TLS y est terminé par le pooler, donc `pg_stat_ssl` côté
+ * serveur affiche `false` et une adresse de bouclage, alors que la liaison
+ * client → pooler est bien chiffrée.
+ */
+function clientTls(client: Client): boolean {
+  const stream = (client as unknown as { connection?: { stream?: { encrypted?: boolean } } })
+    .connection?.stream;
+  return stream?.encrypted === true;
+}
+
 function line(label: string, value: unknown): void {
   console.log(`  ${label.padEnd(26)} ${String(value)}`);
 }
@@ -139,10 +151,18 @@ async function main(): Promise<void> {
       )
     ).rows[0];
 
+    const socketTls = clientTls(client);
     console.log("\nTransport");
-    if (sslRow?.ssl) {
-      line("chiffrement", `TLS ${sslRow.tls ?? "?"} / ${sslRow.cipher ?? "?"}`);
+    if (socketTls) {
+      line(
+        "chiffrement",
+        sslRow?.ssl
+          ? `TLS ${sslRow.tls ?? "?"} / ${sslRow.cipher ?? "?"}`
+          : "TLS côté client (terminé par le pooler)",
+      );
       line("certificat vérifié", connection.verified ? "oui" : "non");
+    } else if (sslRow?.ssl) {
+      line("chiffrement", `TLS ${sslRow.tls ?? "?"} / ${sslRow.cipher ?? "?"} (côté serveur)`);
     } else {
       line("chiffrement", "AUCUN — arrêt");
     }
@@ -230,10 +250,10 @@ async function main(): Promise<void> {
     line(`médiane (${SAMPLE_COUNT} appels)`, `${median(samples).toFixed(1)} ms`);
     line("pire cas", `${Math.max(...samples).toFixed(1)} ms`);
 
-    if (!sslRow?.ssl && !localTarget) {
+    if (!socketTls && !sslRow?.ssl && !localTarget) {
       console.log("\n❌ TLS non négocié : aucune donnée réelle sur cette connexion.");
       process.exitCode = 1;
-    } else if (!sslRow?.ssl) {
+    } else if (!socketTls && !sslRow?.ssl) {
       console.log("\nℹ️  Cible locale, sans TLS : normal en développement.");
     }
   } finally {

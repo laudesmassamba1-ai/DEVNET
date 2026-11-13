@@ -91,3 +91,4 @@ CLAUDE.md
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.neon
