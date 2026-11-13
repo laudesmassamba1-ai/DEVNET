@@ -248,16 +248,18 @@ Constats :
 **Présents :** squelettes `loading` sur 15 segments, état vide soigné dans la
 plupart des listes, erreurs de service avec reprise, `not-found` global,
 `error.tsx` racine, `prefers-reduced-motion`, focus visible, cibles 44 px,
-bandeau de démonstration.
+bandeau de démonstration, PWA installable (manifeste, icônes, service worker,
+page de repli hors-ligne).
 
 **Absents :**
 
 - `global-error.tsx`, frontières d'erreur par section.
-- Pages 403, 500, maintenance, hors-ligne, session expirée, limite de débit,
-  fonction indisponible (hors coquille admin).
-- Bandeau hors-ligne, détection de reconnexion, file d'attente d'envoi.
+- Pages 403, 500, maintenance, session expirée, limite de débit, fonction
+  indisponible (hors coquille admin).
+- File d'attente d'envoi hors-ligne (le bandeau et la page de repli existent).
 - Bandeau cookies et préférences de consentement.
-- Manifeste PWA, service worker, invite d'installation.
+- Notifications push PWA (le manifeste, le service worker, l'installation et
+  la page hors-ligne sont livrés).
 - Palette de commandes, aide des raccourcis, carte de profil au survol,
   sélecteur de mentions, lightbox, visionneuse de code plein écran dédiée.
 - Toasts avec annulation (les toasts existent, sans « annuler »).

@@ -651,7 +651,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         {/* ── Discussion ── */}
         <div className="relative flex min-w-0 min-h-0 flex-1 flex-col">
           <header className="shrink-0 border-b border-edge glass-strong">
-            <div className="flex h-[var(--h-topbar)] items-center gap-2.5 px-3">
+            <div className="flex h-[var(--h-topbar)] items-center gap-2.5 px-3 safe-top">
               <button type="button" aria-label="Retour aux groupes"
                 onClick={() => router.push("/groups")}
                 className="mo-press flex size-[var(--h-tap)] shrink-0 items-center
@@ -930,7 +930,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                       justify-center rounded-full border border-line-3 bg-surface
                       text-chalk-4 transition-colors hover:text-signal disabled:opacity-40"
                   >
-                    <Icon name="spark" size={18} strokeWidth={1.8} />
+                    <Icon name="studio" size={18} strokeWidth={1.8} />
                   </button>
                 </>
               }

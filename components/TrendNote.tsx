@@ -37,7 +37,7 @@ export function TrendNote({
       className={`flex items-start gap-1.5 text-[10.5px] leading-snug text-chalk-4 ${className}`}
     >
       <Icon
-        name={trend === "baisse" ? "flag" : "spark"}
+        name={trend === "baisse" ? "flag" : "chart"}
         size={11}
         strokeWidth={1.8}
         className={`mt-0.5 shrink-0 ${tone}`}

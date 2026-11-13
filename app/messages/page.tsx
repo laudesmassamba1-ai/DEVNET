@@ -993,7 +993,8 @@ export default function MessagesPage() {
             <div className="fixed inset-0 z-[var(--z-sheet)] flex flex-col
               overlay-frost shell:static shell:bg-page shell:z-auto shell:h-full">
               <header className="flex h-[var(--h-topbar)] shrink-0 items-center gap-2.5
-                border-b-[var(--bw-heavy)] border-edge glass-strong px-4 text-chalk">
+                border-b-[var(--bw-heavy)] border-edge glass-strong px-4 text-chalk
+                safe-top">
                 <button type="button" aria-label="Fermer"
                   onClick={() => { setActive(null); setMessages(null); }}
                   className="mo-press -ml-1.5 flex size-[var(--h-tap)] items-center justify-center
@@ -1123,7 +1124,7 @@ export default function MessagesPage() {
                             className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-chip)]
                               border border-line-2 bg-surface-2/60 px-2.5 py-1.5"
                           >
-                            <Icon name="spark" size={11} strokeWidth={2.2} className="shrink-0 text-signal-d" />
+                            <Icon name="image" size={11} strokeWidth={2.2} className="shrink-0 text-signal-d" />
                             <span className="label-micro shrink-0 text-chalk-3">Story</span>
                             <span className="min-w-0 truncate text-[11.5px] text-chalk-2">
                               {storyCards[m.story_id] === null
@@ -1351,7 +1352,7 @@ export default function MessagesPage() {
                           justify-center rounded-full border border-line-3 bg-surface
                           text-chalk-4 transition-colors hover:text-signal disabled:opacity-40"
                       >
-                        <Icon name="spark" size={18} strokeWidth={1.8} />
+                        <Icon name="studio" size={18} strokeWidth={1.8} />
                       </button>
                     </>
                   }

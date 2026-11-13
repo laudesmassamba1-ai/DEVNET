@@ -218,7 +218,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                   font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                   text-chalk-3 hover:text-chalk"
               >
-                <Icon name="spark" size={12} />
+                <Icon name="refresh" size={12} />
                 tirer
               </button>
             </div>

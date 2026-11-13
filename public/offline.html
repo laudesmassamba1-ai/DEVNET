@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#11110E">
+    <meta name="robots" content="noindex">
+    <title>DevNet — hors ligne</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        background: #11110E;
+        color: #ECE9DF;
+      }
+      * { box-sizing: border-box; }
+      body {
+        min-height: 100dvh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding:
+          calc(2rem + env(safe-area-inset-top, 0px))
+          calc(1.25rem + env(safe-area-inset-right, 0px))
+          calc(2rem + env(safe-area-inset-bottom, 0px))
+          calc(1.25rem + env(safe-area-inset-left, 0px));
+        background:
+          radial-gradient(circle at 50% 12%, rgba(255, 122, 69, 0.14), transparent 42%),
+          #11110E;
+      }
+      main {
+        width: 100%;
+        max-width: 420px;
+        padding: 2rem;
+        border: 1px solid #35352D;
+        border-radius: 18px;
+        background: #191914;
+        text-align: center;
+      }
+      img {
+        width: 64px;
+        height: 64px;
+        margin: 0 auto 1.25rem;
+        border-radius: 16px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 1.45rem;
+        line-height: 1.2;
+        letter-spacing: -0.03em;
+      }
+      p {
+        margin: 0.85rem 0 0;
+        color: #9A978B;
+        font-size: 0.92rem;
+        line-height: 1.55;
+      }
+      button {
+        min-height: 44px;
+        margin-top: 1.5rem;
+        padding: 0 1.25rem;
+        border: 1px solid #FF7A45;
+        border-radius: 10px;
+        background: #FF7A45;
+        color: #11110E;
+        font: inherit;
+        font-size: 0.85rem;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      button:focus-visible {
+        outline: 2px solid #ECE9DF;
+        outline-offset: 3px;
+      }
+      .hint {
+        margin-top: 1rem;
+        color: #6B685E;
+        font-size: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img src="/logo.svg" alt="DevNet" width="64" height="64">
+      <h1>Tu es hors ligne</h1>
+      <p>
+        Cette page n'est pas encore disponible sans réseau. Vérifie ta connexion,
+        puis réessaie : DevNet reprendra là où tu étais.
+      </p>
+      <button type="button" onclick="location.reload()">Réessayer</button>
+      <p class="hint">Les pages déjà ouvertes peuvent rester accessibles.</p>
+    </main>
+  </body>
+</html>

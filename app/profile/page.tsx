@@ -437,8 +437,8 @@ export default function ProfilePage() {
                   <span className={`rounded-[var(--radius-chip)] border-[var(--bw-thin)] px-2 py-1 text-[10px]
                     font-bold tracking-[0.06em] uppercase
                     ${profile.account_type === "professional"
-                      ? "border-warn bg-warn/12 text-warn"
-                      : "border-ok bg-ok/12 text-ok"}`}
+                      ? "border-warn bg-warn text-page"
+                      : "border-ok bg-ok text-page"}`}
                   >
                     {accountLabel(profile.account_type)}
                   </span>
@@ -674,8 +674,8 @@ export default function ProfilePage() {
                     className={`inline-flex cursor-pointer rounded-[var(--radius-chip)] border-[var(--bw-thin)] px-2 py-1
                     text-[10px] font-bold tracking-[0.06em] uppercase transition-colors
                     ${profile.account_type === "professional"
-                      ? "border-warn bg-warn/12 text-warn hover:border-warn/70"
-                      : "border-ok bg-ok/12 text-ok hover:border-ok/70"}`}
+                      ? "border-warn bg-warn text-page hover:border-warn/70"
+                      : "border-ok bg-ok text-page hover:border-ok/70"}`}
                   >
                     {accountLabel(profile.account_type)}
                   </button>

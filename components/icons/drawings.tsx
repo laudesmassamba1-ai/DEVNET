@@ -33,6 +33,7 @@ export type GlyphName =
   | "reply"
   | "share"
   | "repost"
+  | "refresh"
   | "bookmark"
   | "follow"
   | "send"
@@ -235,6 +236,16 @@ export const GLYPHS: Record<GlyphName, ReactNode> = {
       <path d="m14.6 2.8 2.8 2.4-2.8 2.4" />
       <path d="M18.2 14.8v.8a3.2 3.2 0 0 1-3.2 3.2H6.8" />
       <path d="m9.4 21.2-2.8-2.4 2.8-2.4" />
+    </>
+  ),
+
+  // Recharger : deux flèches circulaires, sans confondre avec republier.
+  refresh: (
+    <>
+      <path d="M20 8.4V12h-3.6" />
+      <path d="M19.2 11.4a7.4 7.4 0 0 0-12.8-3.7L4 10" />
+      <path d="M4 15.6V12h3.6" />
+      <path d="M4.8 12.6a7.4 7.4 0 0 0 12.8 3.7L20 14" />
     </>
   ),
 

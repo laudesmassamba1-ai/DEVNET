@@ -155,7 +155,7 @@ export function MessageExtras({
           className="mo-press flex size-[32px] items-center justify-center rounded-[var(--radius-chip)]
             text-chalk-4 transition-colors hover:text-signal"
         >
-          <Icon name="spark" size={12} />
+          <Icon name="smile" size={12} />
         </button>
         <button
           type="button"

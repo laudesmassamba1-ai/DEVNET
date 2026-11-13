@@ -682,7 +682,7 @@ function ActionsCard({ repo }: { repo: RepoScore }) {
   return (
     <section className="rounded-[var(--radius-card)] border border-signal/40 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
-        <Icon name="spark" size={12} strokeWidth={1.8} />
+        <Icon name="target" size={12} strokeWidth={1.8} />
         à faire en premier
       </h3>
 
@@ -983,7 +983,7 @@ function MethodCard({ repo }: { repo: RepoScore }) {
         <ul className="mt-3 space-y-1 border-t border-line-2/20 pt-3">
           {repo.strengths.map((s) => (
             <li key={s} className="flex items-start gap-1.5 text-[11.5px] text-chalk-2">
-              <Icon name="spark" size={11} strokeWidth={1.8} className="mt-0.5 shrink-0 text-ok" />
+              <Icon name="check" size={11} strokeWidth={1.8} className="mt-0.5 shrink-0 text-ok" />
               {s}
             </li>
           ))}

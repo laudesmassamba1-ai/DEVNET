@@ -66,9 +66,18 @@ check(
   "état : horloge future refusée",
   openOAuthState(SECRET, sealed, "google", NOW - 61_000) === null,
 );
+// Le premier caractère de la signature porte six bits utiles : le changer
+// altère forcément le HMAC. Remplacer le **dernier** caractère pouvait au
+// contraire ne toucher que les bits de remplissage et laisser la signature
+// identique — un test qui échouait au hasard.
+const dot = sealed.indexOf(".");
+const signature = sealed.slice(dot + 1);
+const tampered = `${sealed.slice(0, dot + 1)}${
+  signature[0] === "A" ? "B" : "A"
+}${signature.slice(1)}`;
 check(
   "état : signature altérée refusée",
-  openOAuthState(SECRET, `${sealed.slice(0, -1)}x`, "google", NOW + 1_000) === null,
+  openOAuthState(SECRET, tampered, "google", NOW + 1_000) === null,
 );
 check(
   "état : mauvais secret refusé",

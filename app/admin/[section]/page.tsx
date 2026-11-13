@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { AdminConsoleNav } from "@/components/AdminConsoleNav";

@@ -429,7 +429,7 @@ export function StoryStudio({
                 rounded-input border border-line-3 bg-signal text-sm font-bold text-void
                 shadow-sh-2 disabled:opacity-40"
             >
-              <Icon name="spark" size={14} strokeWidth={2} />
+              <Icon name="send" size={14} strokeWidth={2} />
               {busy ? "Publication…" : "Publier · 24 h"}
             </button>
           </div>

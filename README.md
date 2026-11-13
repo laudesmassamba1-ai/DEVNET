@@ -65,6 +65,25 @@ Variables serveur : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
 `APP_PUBLIC_ORIGIN` doit être l'origine HTTPS exacte en production. Sans
 configuration, le bouton revient sur `/login` avec un message explicite.
 
+## Application installable (PWA)
+
+DevNet est installable sur Android, iOS et bureau. Le manifeste
+(`app/manifest.ts`) porte les icônes, les captures et les raccourcis Fil,
+Messages, Notifications et Recherche. Le service worker `public/sw.js`
+met en cache les ressources statiques et quelques pages publiques ; il ne
+met **jamais** en cache les réponses d'API ni les pages authentifiées.
+Une navigation sans réseau affiche `public/offline.html`.
+
+L'installation est proposée depuis les Paramètres et par un bandeau après
+quelques secondes sur mobile ou lorsque le navigateur émet
+`beforeinstallprompt`. iOS passe par Partager → « Sur l'écran d'accueil ».
+Les mises à jour attendent l'accord de l'utilisateur (`SKIP_WAITING`), puis
+rechargent l'application. Le service worker n'est enregistré qu'en
+production.
+
+Limites assumées : pas de notifications push ni de file d'attente d'envoi
+hors-ligne. Vérification : `npm run test:pwa`.
+
 ## Base de données
 
 La connexion applicative actuelle utilise encore la compatibilité Supabase.

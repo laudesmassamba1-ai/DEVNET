@@ -15,7 +15,7 @@ import { SectionIcon } from "./SectionIcon";
 export const ICON_NAMES = [
   "feed", "groups", "messages", "profile", "search", "notifications",
   "settings", "help", "logout", "dots",
-  "like", "comment", "share", "repost", "bookmark", "follow", "send",
+  "like", "heart", "comment", "reply", "share", "repost", "refresh", "bookmark", "follow", "send",
   "plus", "close", "check", "check-double", "edit", "trash", "copy", "link",
   "download", "image", "eye", "eye-off", "arrow-left",
   "chevron-down", "chevron-left", "chevron-right", "menu", "compass",
@@ -24,6 +24,7 @@ export const ICON_NAMES = [
   "pin", "star", "verified", "globe", "lock", "flame", "trophy", "chart",
   "spark", "medal", "fork", "target", "info", "flag", "smile", "droplet",
   "sun", "moon", "gif", "video", "pause", "volume", "volume-off",
+  "studio", "execute", "sticker",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

@@ -46,7 +46,7 @@ const TOOLS = [
   { id: "video", label: "Vidéo", icon: "video" },
   { id: "shapes", label: "Formes", icon: "square" },
   { id: "bezier", label: "Courbes", icon: "link" },
-  { id: "stickers", label: "Stickers", icon: "spark" },
+  { id: "stickers", label: "Stickers", icon: "sticker" },
 ] as const;
 
 function textOf(layers: Layer[]): string {

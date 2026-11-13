@@ -1178,7 +1178,7 @@ export default function FeedPage() {
               transition-colors duration-[var(--d-fast)]
               hover:border-signal hover:text-signal disabled:opacity-40"
           >
-            {mediaBusy ? <Spinner /> : <Icon name="spark" size={16} />}
+            {mediaBusy ? <Spinner /> : <Icon name="studio" size={16} />}
             {mediaBusy ? "Envoi…" : media ? "Modifier le média" : "Atelier"}
           </button>
         </div>

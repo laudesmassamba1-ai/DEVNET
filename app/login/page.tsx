@@ -28,7 +28,6 @@ const OAUTH_ERRORS: Record<string, string> = {
   failed: "Connexion impossible. Réessaie dans un instant.",
 };
 
-
 export default function Login() {
   return (
     <Suspense

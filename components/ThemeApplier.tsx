@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSession } from "@/hooks/useSession";
-import { applyTheme } from "@/lib/theme";
+import { applyTheme, normalizeTheme } from "@/lib/theme";
 
 /**
  * Applique le thème de l'utilisateur à `document.documentElement`.
@@ -19,15 +19,34 @@ import { applyTheme } from "@/lib/theme";
 export function ThemeApplier() {
   const { profile } = useSession();
 
+  /**
+   * Choix explicite en attente de confirmation par le profil.
+   *
+   * Un profil lent peut se résoudre **après** l'aperçu des Paramètres et
+   * réappliquer son ancien thème : l'utilisateur voit alors son choix
+   * annulé sous ses yeux. Tant que le profil n'a pas rejoint la valeur
+   * demandée, l'aperçu reste prioritaire ; dès qu'il la rejoint, on rend
+   * la main aux données.
+   */
+  const explicitTheme = useRef<string | null>(null);
+
   useEffect(() => {
-    if (profile?.theme) applyTheme(profile.theme);
+    if (!profile?.theme) return;
+    const stored = normalizeTheme(profile.theme);
+    if (explicitTheme.current !== null) {
+      if (stored === explicitTheme.current) explicitTheme.current = null;
+      return;
+    }
+    applyTheme(stored);
   }, [profile?.theme]);
 
   // Le changement de thème depuis les Paramètres ne passe pas par une
   // relecture du profil : cet écouteur l'applique sans rechargement.
   useEffect(() => {
     const onTheme = (event: Event) => {
-      applyTheme((event as CustomEvent<string>).detail);
+      const theme = normalizeTheme((event as CustomEvent<string>).detail);
+      explicitTheme.current = theme;
+      applyTheme(theme);
     };
     window.addEventListener("devnet:theme", onTheme);
     return () => window.removeEventListener("devnet:theme", onTheme);

@@ -53,7 +53,7 @@ const FEATURES = [
 export default function AboutPage() {
   return (
     <main className="mo-rise min-h-dvh px-5">
-      <header className="mx-auto flex h-[var(--h-topbar)] max-w-[900px] items-center border-b border-line-2">
+      <header className="mx-auto flex h-[var(--h-topbar)] max-w-[900px] items-center border-b border-line-2 safe-top">
         <Link href="/" className="font-display text-lg font-bold text-chalk">
           DevNet<span className="text-signal">.</span>
         </Link>

@@ -225,7 +225,7 @@ défaut. **Backend** : `existe`, `partiel`, `absent`, `statique`.
 | M15 | 403 | absente | P0 | statique | Tous | Admin renvoie 404 ; aucun écran d'accès refusé explicite. |
 | M16 | 500 / erreur globale | absente | P0 | statique | Tous | `error.tsx` racine côté client seulement ; pas de `global-error`. |
 | M17 | Maintenance | absente | P1 | absent | Tous | Aucun mode maintenance ni lecture seule. |
-| M18 | Hors-ligne | absente | P1 | absent | Tous | Aucun bandeau, aucune file d'attente, aucun service worker. |
+| M18 | Hors-ligne | partielle | P1 | partiel | Tous | Page de repli, cache statique et bandeau hors-ligne ; pas de file d'attente d'envoi ni de cache des pages privées. |
 | M19 | Session expirée | absente | P0 | absent | Tous | Redirection silencieuse vers `/login`, sans explication ni retour au contexte. |
 | M20 | Limite de débit atteinte | absente | P2 | absent | Tous | Aucun écran ni délai affiché. |
 | M21 | Fonction indisponible | partielle | P1 | statique | Tous | Les modules admin ont un état honnête ; les autres surfaces n'ont pas d'état dédié. |
@@ -283,7 +283,7 @@ défaut. **Backend** : `existe`, `partiel`, `absent`, `statique`.
 | P7 | Palette de commandes | absente | P1 | n/a | Membre | Pas de `Cmd/Ctrl+K`. |
 | P8 | Aide des raccourcis | absente | P1 | n/a | Membre | Raccourcis `g m n s p b v` non documentés dans l'UI. |
 | P9 | Toasts avec annulation | partielle | P1 | n/a | Membre | Toasts présents ; aucune action « annuler ». |
-| P10 | PWA et installation | absente | P2 | absent | Tous | Pas de manifeste ni de service worker. |
+| P10 | PWA et installation | complète | P2 | n/a | Tous | Manifeste, icônes, raccourcis, captures, service worker, page hors-ligne, installation Android/iOS/bureau et mise à jour. |
 | P11 | Visite guidée | complète | P1 | n/a | Membre | `TourProvider`, arrêts, reprise locale. |
 | P12 | Nouveautés | absente | P2 | absent | Tous | Aucun panneau. |
 | P13 | Widget de retour d'expérience | absente | P2 | absent | Tous | Aucun canal. |

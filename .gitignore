@@ -49,6 +49,12 @@ dev-server.log
 # captures d'écran de diagnostic
 *.png
 
+# ressources PWA versionnées (manifeste)
+!public/icons/
+!public/icons/*.png
+!public/screenshots/
+!public/screenshots/*.png
+
 # état local de Supabase (secrets, cache CLI, dump de la base locale)
 /supabase/.temp/
 /supabase/seed.sql

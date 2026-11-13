@@ -316,7 +316,7 @@ export function Sidebar({
         glass shell:flex"
     >
       {/* Marque */}
-      <div className="flex h-[var(--h-topbar)] shrink-0 items-center gap-2.5
+      <div className="flex h-[calc(var(--h-topbar)-var(--h-safe-top))] shrink-0 items-center gap-2.5
         border-b-[var(--bw-thin)] border-line px-4">
         <Logo size={26} className="mo-pop" key={path} />
         <span className="font-display text-[1.15rem] font-bold

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { AppShell } from "@/components/AppShell";
+import { usePwa } from "@/components/PwaManager";
 import { useSession } from "@/hooks/useSession";
 import { Icon } from "@/components/Icon";
 import { Loading } from "@/components/Avatar";
@@ -19,7 +20,7 @@ import {
 } from "@/lib/ui-preferences";
 
 const inputCls =
-  "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
+  "h-[var(--h-input)] w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
   "shadow-sh-1 transition-[box-shadow,border-color] placeholder:text-chalk-4 " +
   "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
@@ -214,7 +215,7 @@ export default function SettingsPage() {
         </p>
 
         <div className="mt-8 space-y-6">
-          <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
+          <section className="rounded-(--radius-card) border border-line-2 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="profile" size={18} strokeWidth={2} />
               Informations du compte
@@ -244,7 +245,7 @@ export default function SettingsPage() {
                   {" · "}
                   <Link
                     href="/profile?tab=settings"
-                    className="inline-flex min-h-[var(--h-tap)] items-center font-bold text-signal hover:underline"
+                    className="inline-flex min-h-(--h-tap) items-center font-bold text-signal hover:underline"
                   >
                     gérer →
                   </Link>
@@ -253,7 +254,7 @@ export default function SettingsPage() {
             </dl>
           </section>
 
-          <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
+          <section className="rounded-(--radius-card) border border-line-2 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="lock" size={18} strokeWidth={2} />
               Sécurité
@@ -287,7 +288,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={pwBusy}
-                  className="lift-press mt-1 flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
+                  className="lift-press mt-1 flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
                 >
                   {pwBusy ? "Enregistrement…" : "Changer le mot de passe"}
                 </button>
@@ -295,7 +296,7 @@ export default function SettingsPage() {
             </form>
           </section>
 
-          <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
+          <section className="rounded-(--radius-card) border border-line-2 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="sun" size={18} strokeWidth={2} />
               Apparence
@@ -309,7 +310,7 @@ export default function SettingsPage() {
                 onClick={() => void saveTheme(DEFAULT_THEME)}
                 disabled={themeBusy}
                 aria-pressed={theme === DEFAULT_THEME}
-                className={`lift-press flex h-[var(--h-tap)] items-center justify-center gap-2 rounded-[var(--radius-input)] border px-3 text-[12px] font-bold ${
+                className={`lift-press flex h-(--h-tap) items-center justify-center gap-2 rounded-(--radius-input) border px-3 text-[12px] font-bold ${
                   theme === DEFAULT_THEME
                     ? "border-signal bg-signal text-void"
                     : "border-line-3 bg-surface text-chalk hover:border-signal"
@@ -323,7 +324,7 @@ export default function SettingsPage() {
                 onClick={() => void saveTheme(LIGHT_THEME)}
                 disabled={themeBusy}
                 aria-pressed={theme === "light"}
-                className={`lift-press flex h-[var(--h-tap)] items-center justify-center gap-2 rounded-[var(--radius-input)] border px-3 text-[12px] font-bold ${
+                className={`lift-press flex h-(--h-tap) items-center justify-center gap-2 rounded-(--radius-input) border px-3 text-[12px] font-bold ${
                   theme === "light"
                     ? "border-signal bg-signal text-void"
                     : "border-line-3 bg-surface text-chalk hover:border-signal"
@@ -348,7 +349,7 @@ export default function SettingsPage() {
                     type="button"
                     onClick={() => saveDensity(value)}
                     aria-pressed={feedDensity === value}
-                    className={`min-h-[var(--h-tap)] rounded-[var(--radius-input)] border px-3
+                    className={`min-h-(--h-tap) rounded-(--radius-input) border px-3
                       text-[12px] font-semibold ${
                         feedDensity === value
                           ? "border-signal bg-signal text-void"
@@ -360,7 +361,7 @@ export default function SettingsPage() {
                 ))}
               </div>
             </fieldset>
-            <label className="mt-5 flex min-h-[var(--h-tap)] items-center justify-between gap-4 border-t border-line-2 pt-4">
+            <label className="mt-5 flex min-h-(--h-tap) items-center justify-between gap-4 border-t border-line-2 pt-4">
               <span>
                 <span className="block text-[13px] font-semibold text-chalk">Réduire les animations</span>
                 <span className="mt-1 block text-[12px] text-chalk-4">
@@ -371,7 +372,7 @@ export default function SettingsPage() {
                 type="checkbox"
                 checked={reduceMotion}
                 onChange={(event) => saveMotionPreference(event.target.checked)}
-                className="size-5 shrink-0 accent-[var(--color-signal)]"
+                className="size-5 shrink-0 accent-(--color-signal)"
               />
             </label>
             {(appearanceMessage || appearanceError) && (
@@ -384,7 +385,9 @@ export default function SettingsPage() {
             )}
           </section>
 
-          <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
+          <PwaInstallSection />
+
+          <section className="rounded-(--radius-card) border border-line-2 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="notifications" size={18} strokeWidth={2} />
               Notifications
@@ -395,7 +398,7 @@ export default function SettingsPage() {
             </p>
             <Link
               href="/notifications"
-              className="mt-3 inline-flex min-h-[var(--h-tap)] items-center gap-2
+              className="mt-3 inline-flex min-h-(--h-tap) items-center gap-2
                 font-semibold text-signal hover:underline"
             >
               Ouvrir le centre de notifications
@@ -403,7 +406,7 @@ export default function SettingsPage() {
             </Link>
           </section>
 
-          <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
+          <section className="rounded-(--radius-card) border border-line-2 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="messages" size={18} strokeWidth={2} />
               Messages
@@ -411,7 +414,7 @@ export default function SettingsPage() {
             <p className="mt-2 text-[13px] leading-relaxed text-chalk-3">
               Choisissez ce que vous acceptez de recevoir en conversation privée.
             </p>
-            <label className="mt-4 flex min-h-[var(--h-tap)] items-center justify-between gap-4 border-t border-line-2 pt-4">
+            <label className="mt-4 flex min-h-(--h-tap) items-center justify-between gap-4 border-t border-line-2 pt-4">
               <span>
                 <span className="block text-[13px] font-semibold text-chalk">
                   Accepter les photos et vidéos
@@ -426,7 +429,7 @@ export default function SettingsPage() {
                 checked={dmMedia}
                 disabled={dmMediaBusy || !profile}
                 onChange={(event) => void saveDmMedia(event.target.checked)}
-                className="size-5 shrink-0 accent-[var(--color-signal)] disabled:opacity-50"
+                className="size-5 shrink-0 accent-(--color-signal) disabled:opacity-50"
               />
             </label>
             {(dmMediaMessage || dmMediaError) && (
@@ -439,21 +442,21 @@ export default function SettingsPage() {
             )}
           </section>
 
-          <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 sm:p-6">
+          <section className="rounded-(--radius-card) border border-line-2 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="link" size={18} strokeWidth={2} />
               Liens utiles
             </h2>
             <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] font-bold text-chalk-3">
-              <Link href="/aide" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">Aide</Link>
-              <Link href="/confidentialite" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">Confidentialité</Link>
-              <Link href="/cgu" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">CGU</Link>
-              <Link href="/a-propos" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">À propos</Link>
-              <Link href="/setup" className="inline-flex min-h-[var(--h-tap)] items-center hover:text-chalk">Diagnostic</Link>
+              <Link href="/aide" className="inline-flex min-h-(--h-tap) items-center hover:text-chalk">Aide</Link>
+              <Link href="/confidentialite" className="inline-flex min-h-(--h-tap) items-center hover:text-chalk">Confidentialité</Link>
+              <Link href="/cgu" className="inline-flex min-h-(--h-tap) items-center hover:text-chalk">CGU</Link>
+              <Link href="/a-propos" className="inline-flex min-h-(--h-tap) items-center hover:text-chalk">À propos</Link>
+              <Link href="/setup" className="inline-flex min-h-(--h-tap) items-center hover:text-chalk">Diagnostic</Link>
             </div>
           </section>
 
-          <section className="rounded-[var(--radius-card)] border border-warn/40 bg-surface p-5 sm:p-6">
+          <section className="rounded-(--radius-card) border border-warn/40 bg-surface p-5 sm:p-6">
             <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
               <Icon name="flag" size={18} strokeWidth={2} />
               Suppression du compte
@@ -462,7 +465,7 @@ export default function SettingsPage() {
               La suppression automatisée n&apos;est pas disponible. Aucun bouton de cette page
               ne supprimera tes données ni ne désactivera ton compte.
             </p>
-            <Link href="/aide" className="mt-3 inline-flex min-h-[var(--h-tap)] items-center font-semibold text-signal hover:underline">
+            <Link href="/aide" className="mt-3 inline-flex min-h-(--h-tap) items-center font-semibold text-signal hover:underline">
               Consulter l&apos;aide
             </Link>
           </section>
@@ -472,7 +475,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={signOut}
-              className="lift-press flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border border-line-3 bg-surface px-5 text-[13px] font-bold text-chalk hover:border-signal"
+              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-line-3 bg-surface px-5 text-[13px] font-bold text-chalk hover:border-signal"
             >
               Se déconnecter
             </button>
@@ -481,5 +484,72 @@ export default function SettingsPage() {
       </div>
 
     </AppShell>
+  );
+}
+
+function PwaInstallSection() {
+  const { installed, canInstall, isIos, updateReady, install, applyUpdate } = usePwa();
+
+  return (
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface p-5 sm:p-6">
+      <h2 className="flex items-center gap-2 font-display text-lg font-bold text-chalk">
+        <Icon name="download" size={18} strokeWidth={2} />
+        Application
+      </h2>
+
+      {installed ? (
+        <p className="mt-3 flex items-start gap-2 text-sm leading-relaxed text-chalk-3">
+          <Icon name="check" size={16} className="mt-0.5 shrink-0 text-ok" />
+          DevNet est installée sur cet appareil. Elle s&apos;ouvre en plein écran,
+          comme une application native.
+        </p>
+      ) : canInstall ? (
+        <>
+          <p className="mt-2 text-sm leading-relaxed text-chalk-3">
+            Installe DevNet pour l&apos;ouvrir en plein écran et la lancer plus vite.
+          </p>
+          <button
+            type="button"
+            onClick={() => void install()}
+            className="lift-press mt-4 flex h-(--h-tap) items-center justify-center gap-2
+              rounded-(--radius-input) border border-signal bg-signal px-5
+              text-sm font-bold text-void shadow-sh-2"
+          >
+            <Icon name="download" size={16} />
+            Installer DevNet
+          </button>
+        </>
+      ) : isIos ? (
+        <div className="mt-2 text-sm leading-relaxed text-chalk-3">
+          <p>Pour installer DevNet sur ton iPhone ou iPad :</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5">
+            <li>Ouvre cette page dans Safari.</li>
+            <li>Appuie sur le bouton Partager.</li>
+            <li>Choisis « Sur l&apos;écran d&apos;accueil ».</li>
+          </ol>
+        </div>
+      ) : (
+        <p className="mt-2 text-sm leading-relaxed text-chalk-3">
+          Ouvre le menu de ton navigateur puis choisis « Installer DevNet » ou
+          « Ajouter à l&apos;écran d&apos;accueil ». L&apos;installation est aussi
+          proposée automatiquement quand le navigateur le permet.
+        </p>
+      )}
+
+      {updateReady && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 border-t border-line-2 pt-4">
+          <p className="text-sm text-chalk-3">Une nouvelle version est prête.</p>
+          <button
+            type="button"
+            onClick={applyUpdate}
+            className="flex h-(--h-tap) items-center justify-center rounded-(--radius-input)
+              border border-line-3 bg-surface px-4 text-xs font-bold text-chalk
+              hover:border-signal"
+          >
+            Recharger
+          </button>
+        </div>
+      )}
+    </section>
   );
 }

@@ -3,11 +3,13 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import { BackendGate } from "@/components/BackendGate";
 import { EventPump } from "@/components/EventPump";
+import { PwaManager } from "@/components/PwaManager";
 import { SplashScreen } from "@/components/SplashScreen";
 import { ThemeApplier } from "@/components/ThemeApplier";
 import { ToastProvider } from "@/components/Toast";
 import { TourProvider } from "@/components/TourProvider";
 import { DEFAULT_THEME, LIGHT_THEME, THEME_STORAGE_KEY } from "@/lib/theme";
+import { PWA_ICONS, PWA_SHORT_NAME, PWA_THEME_COLOR } from "@/lib/pwa";
 import { REDUCED_MOTION_KEY } from "@/lib/ui-preferences";
 import "./globals.css";
 
@@ -44,11 +46,28 @@ export const metadata: Metadata = {
   title: "DevNet — Le réseau des développeurs africains",
   description:
     "La plateforme d'échange entre étudiants et professionnels du numérique en Afrique.",
-  icons: { icon: "/logo.svg" },
+  applicationName: PWA_SHORT_NAME,
+  appleWebApp: {
+    capable: true,
+    title: PWA_SHORT_NAME,
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: { telephone: false },
+  icons: {
+    icon: [
+      { url: PWA_ICONS.icon48, sizes: "48x48", type: "image/png" },
+      { url: PWA_ICONS.icon192, sizes: "192x192", type: "image/png" },
+      { url: PWA_ICONS.icon512, sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: PWA_ICONS.appleTouch, sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.svg",
+  },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#11110E",
+  themeColor: PWA_THEME_COLOR,
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -118,10 +137,12 @@ export default function RootLayout({
             Elle ne s'arme toutefois que lorsque la session porte un
             profil, et jamais sur les écrans publics.
           */}
-          <TourProvider>
-            <BackendGate>{children}</BackendGate>
-            <EventPump />
-          </TourProvider>
+          <PwaManager>
+            <TourProvider>
+              <BackendGate>{children}</BackendGate>
+              <EventPump />
+            </TourProvider>
+          </PwaManager>
         </ToastProvider>
       </body>
     </html>

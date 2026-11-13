@@ -188,7 +188,7 @@ export function AppShell({
             className="sticky top-[var(--h-banner,0px)] z-[var(--z-sticky)] relative flex
               h-[var(--h-topbar)] items-stretch justify-between
               border-b-[var(--bw-heavy)] border-edge glass-strong
-              rounded-none"
+              rounded-none safe-top"
           >
             {/* La barre de progression de navigation : tracée à chaque
                 changement de route, de gauche à droite, puis rendue à

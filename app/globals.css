@@ -211,9 +211,11 @@
   --bw-accent: 3px;
 
   /* ── Hauteurs fixes ── */
-  --h-topbar:    56px;
+  --h-safe-top:    env(safe-area-inset-top, 0px);
+  --h-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --h-topbar:    calc(56px + var(--h-safe-top));
   --h-status:    22px;
-  --h-bottomnav: 60px;
+  --h-bottomnav: calc(60px + var(--h-safe-bottom));
   --h-input:     44px;
   --h-tap:       44px;   /* cible tactile minimale, règle dure */
   /* Action secondaire d'une barre d'outils : pas de la navigation, donc
@@ -862,6 +864,15 @@
 .text-phosphor { color: var(--color-phosphor-d); }
 
 /* ── Utilitaires ── */
+
+@utility pwa-toast {
+  bottom: calc(var(--h-bottomnav) + var(--h-status) + var(--space-md));
+  z-index: var(--z-toast);
+}
+
+@utility safe-top {
+  padding-top: var(--h-safe-top);
+}
 
 @utility label {
   font-family: var(--font-sans);

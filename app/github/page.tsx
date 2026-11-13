@@ -125,7 +125,7 @@ export default function GithubPage() {
       action={
         <IconButton
           label="Rafraîchir"
-          name="spark"
+          name="refresh"
           dataTour="github-refresh"
           onClick={() => void load()}
         />
