@@ -54,7 +54,7 @@ function LevelCard({ stats }: { stats: ProgressStats }) {
 
   return (
     <section className="relative overflow-hidden rounded-[var(--radius-card)] border
-      border-signal/35 bg-surface-2 p-4 text-chalk shadow-sh-2">
+      border-level/35 bg-surface-2 p-4 text-chalk shadow-sh-2">
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="prompt-label mb-2 text-chalk-4">
@@ -67,7 +67,7 @@ function LevelCard({ stats }: { stats: ProgressStats }) {
         </div>
 
         <div className="shrink-0 text-right">
-          <div className="tnum font-display text-[2.1rem] font-bold leading-none text-signal"
+          <div className="tnum font-display text-[2.1rem] font-bold leading-none text-level"
           >
             {stats.xp}
           </div>
@@ -89,7 +89,7 @@ function LevelCard({ stats }: { stats: ProgressStats }) {
         </div>
         <div className="h-[10px] w-full border border-line-2/30 bg-void/10">
           <div
-            className="mo-grow h-full bg-gradient-to-r from-signal to-ok transition-[width] duration-500"
+            className="mo-grow h-full bg-gradient-to-r from-level to-ok transition-[width] duration-500"
             style={{
               width: `${pct}%`,
               backgroundSize: "200% 100%",

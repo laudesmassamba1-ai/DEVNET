@@ -30,7 +30,14 @@ import { fetchConnection } from "@/lib/github/connect";
 import { fetchProjectsByUser, summarizeRepoScores } from "@/lib/repo";
 import { api } from "@/lib/api/client";
 import { updateProfile } from "@/lib/api/profile";
-import { applyTheme, broadcastTheme, DEFAULT_THEME, LIGHT_THEME, SAVANE_THEME } from "@/lib/theme";
+import {
+  applyTheme,
+  broadcastTheme,
+  DEFAULT_THEME,
+  LIGHT_THEME,
+  SAVANE_LIGHT_THEME,
+  SAVANE_THEME,
+} from "@/lib/theme";
 import { useSession } from "@/hooks/useSession";
 import { useProgress } from "@/hooks/useProgress";
 import { loadLeaderboard, type LeaderEntry } from "@/lib/progress";
@@ -46,6 +53,7 @@ const THEMES = [
   { id: DEFAULT_THEME, label: "Encre", icon: "moon" },
   { id: LIGHT_THEME, label: "Papier", icon: "sun" },
   { id: SAVANE_THEME, label: "Savane", icon: "globe" },
+  { id: SAVANE_LIGHT_THEME, label: "Savane clair", icon: "compass" },
 ] as const;
 
 type Tab = "posts" | "work" | "progress" | "infos" | "settings";

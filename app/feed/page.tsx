@@ -853,7 +853,7 @@ export default function FeedPage() {
         <IconButton label="Mon profil" name="profile" onClick={() => router.push("/profile")} />
       }
     >
-      <div className="px-(--gutter) pb-10 pt-3" data-feed-density={density}>
+      <div className="px-(--gutter) pb-8 pt-2" data-feed-density={density}>
         {/*
           Deux volets, et **aucun écrasement**.
 

@@ -1039,7 +1039,7 @@ export default function MessagesPage() {
                 </div>
               )}
 
-              <div className="chat-wall min-h-0 flex-1 overflow-y-auto px-4 pt-4 pb-4">
+              <div className="chat-wall min-h-0 flex-1 overflow-y-auto px-3 pt-3 pb-3">
                 {/* La bande de contexte précède les messages : c'est la
                     première chose qu'on voit en ouvrant une conversation — ce
                     que l'autre fait en ce moment, pour écrire en sachant qui
@@ -1074,7 +1074,7 @@ export default function MessagesPage() {
                     <div
                       key={m.id}
                       id={`dm-msg-${m.id}`}
-                      className={`${mine ? "mo-msg-in" : "mo-msg-in-alt"} group/message mb-2 flex flex-col
+                      className={`${mine ? "mo-msg-in" : "mo-msg-in-alt"} group/message mb-1.5 flex flex-col
                         ${mine ? "items-end" : "items-start"}`}
                     >
                       {parent && (
@@ -1089,8 +1089,8 @@ export default function MessagesPage() {
                           }
                         />
                       )}
-                      <div className={`max-w-[78%] rounded-[var(--radius-input)] border px-3.5 py-2.5
-                        text-[13.5px] leading-[1.55] break-words whitespace-pre-wrap
+                      <div className={`max-w-[82%] rounded-[var(--radius-input)] border px-3 py-2
+                        text-[13.5px] leading-[1.5] break-words whitespace-pre-wrap
                         ${m.is_code
                           ? "border-l-[5px] border-line-2 border-l-signal glass-flat font-mono text-[12px] leading-[1.6] text-chalk-2"
                           : mine
@@ -1241,7 +1241,7 @@ export default function MessagesPage() {
                 })}
 
                 {find.trim() && (
-                  <p className="px-1 pb-1 pt-2 text-[11px] text-chalk-4">
+                  <p className="px-1 pb-0.5 pt-1.5 text-[11px] text-chalk-4">
                     {visible?.length ?? 0} résultat{(visible?.length ?? 0) > 1 ? "s" : ""}{" "}
                     sur {messages?.length ?? 0} messages
                   </p>
@@ -1333,11 +1333,11 @@ export default function MessagesPage() {
             n'est ouverte. */}
         <aside className={`${active ? "hidden" : "block"} shell:block shell:order-1
           shell:overflow-y-auto`}>
-          <div className="px-(--gutter) pt-3 shell:px-3 shell:pt-2">
+          <div className="px-(--gutter) pt-2 shell:px-3 shell:pt-2">
         <input value={search} onChange={(e) => setSearch(e.target.value)}
           aria-label="Rechercher une conversation"
           placeholder="Rechercher…"
-            className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+            className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
               px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
               focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]" />
 
@@ -1356,8 +1356,8 @@ export default function MessagesPage() {
 
             return (
             <button key={conv.id} type="button" onClick={() => void openConversation(peer)}
-              className={`depth-card mo-rise mb-[9px] flex w-full items-center gap-3.5
-                rounded-[var(--radius-card)] border glass-flat p-3.5 text-left
+              className={`depth-card mo-rise mb-1.5 flex w-full items-center gap-3
+                rounded-[var(--radius-card)] border glass-flat p-2.5 text-left
                 ${unread > 0 ? "border-signal" : "border-line-2/60"}`}
               style={{ animationDelay: `${cascade(i)}ms` }}>
               <Avatar name={other?.prenom} color={other?.avatar_color} src={other?.avatar_url} />
@@ -1396,7 +1396,7 @@ export default function MessagesPage() {
       <Sheet open={openNew} onClose={() => setOpenNew(false)} title="Nouvelle conversation">
         <input value={userSearch} aria-label="Rechercher un pseudo" onChange={(e) => setUserSearch(e.target.value)}
           placeholder="Rechercher un pseudo…"
-          className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+          className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
             px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
 
         {users.length === 0 && (
@@ -1405,7 +1405,7 @@ export default function MessagesPage() {
 
         {users.map((u) => (
           <button key={u.id} type="button" onClick={() => openWith(u)}
-            className="mb-[9px] flex w-full items-center gap-3.5 rounded-[var(--radius-card)] border
+            className="mb-1.5 flex w-full items-center gap-3 rounded-[var(--radius-card)] border
               border-line-3 bg-surface p-3 shadow-sh-1 transition-[transform,box-shadow]
               hover:-translate-x-[2px] hover:-translate-y-[2px] hover:bg-surface-2 hover:shadow-sh-2">
             <Avatar name={u.prenom} color={u.avatar_color} src={u.avatar_url} />

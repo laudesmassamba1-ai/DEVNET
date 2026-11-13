@@ -393,7 +393,7 @@ export default function SettingsPage() {
             <p className="mt-1 text-[13px] text-chalk-3">
               Le thème suit ton compte ; les options de lecture restent sur cet appareil.
             </p>
-            <div className="mt-4 grid grid-cols-3 gap-2">
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
               {THEMES.map((entry) => (
                 <button
                   key={entry.id}

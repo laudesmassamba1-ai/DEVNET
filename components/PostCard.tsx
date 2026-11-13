@@ -229,7 +229,7 @@ export function PostCard({
             une liaison, pas un séparateur. */}
         <Motion
           role="slide"
-          className="mt-6 w-px flex-1"
+          className="mt-5 w-px flex-1"
           style={{ transformOrigin: "top" }}
         >
           <span className="block h-full w-px bg-line" />
@@ -244,7 +244,7 @@ export function PostCard({
         {/* ── En-tête ── */}
         <Motion
           role="rise"
-          className="mb-2.5 flex items-center gap-2.5"
+          className="mb-2 flex items-center gap-2.5"
         >
           <Avatar
             name={name}
@@ -253,7 +253,7 @@ export function PostCard({
             /* Un anneau, pas une lueur : le cachet se lit à son filet.
                Une ombre colorée autour de l'avatar faisait briller la
                personne vérifiée — le privilège devenait un reflet. */
-            className={author?.verified ? "ring-1 ring-signal/45" : ""}
+            className={author?.verified ? "ring-1 ring-level/50" : ""}
           />
           <div className="min-w-0 flex-1">
             {pseudo ? (
@@ -305,7 +305,7 @@ export function PostCard({
             à recopier le pseudo. */}
         <Motion
           role="slide"
-          className="feed-post__text mb-3.5 text-[15px] leading-[1.66] break-words
+          className="feed-post__text mb-2.5 text-[15px] leading-[1.6] break-words
             whitespace-pre-wrap text-chalk-2"
         >
           {splitContent(post.text).map((segment, i) =>
@@ -357,7 +357,7 @@ export function PostCard({
               alt={post.gif_alt || "GIF joint à la publication"}
               loading="lazy"
               decoding="async"
-              className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+              className="mb-2.5 max-h-[420px] w-full rounded-[var(--radius-input)]
                 border border-line-2 bg-surface-2 object-contain"
             />
           </Motion>
@@ -379,7 +379,7 @@ export function PostCard({
                 alt="Photo jointe à la publication"
                 loading="lazy"
                 decoding="async"
-                className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+                className="mb-2.5 max-h-[420px] w-full rounded-[var(--radius-input)]
                   border border-line-2 bg-surface-2 object-contain"
               />
             )}
@@ -403,7 +403,7 @@ export function PostCard({
             <button
               type="button"
               onClick={() => onOpenProject?.(project.id)}
-              className="mb-3 inline-flex min-h-[var(--h-tap)] items-center gap-1.5
+              className="mb-2.5 inline-flex min-h-[var(--h-tap)] items-center gap-1.5
                 rounded-[var(--radius-chip)] border border-line-3 px-3 font-mono
                 text-[12px] text-chalk-3 transition-colors duration-[var(--d-fast)]
                 hover:border-signal hover:text-signal"

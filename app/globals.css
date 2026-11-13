@@ -26,6 +26,11 @@
   --color-signal-d:   #FF7A45;
   --color-signal-fill:#FF7A45;
 
+  /* Distinction — anneau de vérification, palier, story. Alias de
+     l'action par défaut (l'app n'avait qu'une couleur d'accent) ; les
+     thèmes Savane le passent à l'or. */
+  --color-level:      var(--color-signal);
+
   /* ── Vivant : la donnée qui bouge ───────────────────────────────
       Présence, sonde en direct, ticks lus, compteurs actifs. Vert
       franc — jamais sur un bouton, jamais en fond. */
@@ -370,7 +375,9 @@
 
   /* ── Distinction : or, et progression : vert ── */
   --color-gold: #D6A84F;
+  --color-gold-d: #B98B33;
   --color-forest: #087F5B;
+  --color-level: var(--color-gold);
 
   /* ── Sémantique ── */
   --color-phosphor: #20BFA9;
@@ -421,7 +428,7 @@
   --gradient-ember:      var(--color-gold);
   --gradient-phosphor:   var(--color-signal);
   --gradient-aura:       none;
-  --story-ring-gradient: linear-gradient(135deg, var(--color-gold), var(--color-signal));
+  --story-ring-gradient: linear-gradient(135deg, var(--color-gold), var(--color-gold-d));
 
   /* ── Densité : coque plus basse, rayons plus courts ── */
   --space-md: 10px;
@@ -500,6 +507,183 @@
 :root[data-theme="savane"] kbd,
 :root[data-theme="savane"] samp {
   font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THÈME SAVANE CLAIR — le même pays, en plein jour
+
+   Ivoire en fond, encre verte pour le texte, turquoise d'action assombri
+   jusqu'à 5,2:1 (le turquoise vif du thème nuit serait illisible sur
+   ivoire), or plus profond pour les distinctions. Même densité, mêmes
+   familles : c'est le même thème sous une autre lumière, pas une
+   quatrième direction graphique.
+   ══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="savane-clair"] {
+  color-scheme: light;
+
+  --color-void: #0B1715;
+  --color-page: #F4F1E8;
+  --color-page-end: #EDE9DC;
+  --color-surface: #FBFAF3;
+  --color-surface-2: #F0EDE1;
+  --color-surface-3: #E7E3D5;
+
+  --color-chalk: #0B1715;
+  --color-chalk-2: #23302B;
+  --color-chalk-3: #4A5B53;
+  --color-chalk-4: #5B6B62;
+
+  --color-line: #DDD7C6;
+  --color-line-2: #CFC8B4;
+  --color-line-3: #BDB5A0;
+  --color-edge: #DDD7C6;
+
+  /* Action : turquoise assombri — 5,2:1 sur ivoire, avec l'ivoire dessus. */
+  --color-signal: #0A7263;
+  --color-signal-d: #085C50;
+  --color-signal-fill: #0A7263;
+  --color-signal-soft: #7FD3C4;
+
+  /* Distinction : or profond, 4,8:1 sur ivoire. */
+  --color-gold: #8A6218;
+  --color-gold-d: #6E4C10;
+  --color-forest: #087F5B;
+  --color-level: var(--color-gold);
+
+  --color-phosphor: #0A7263;
+  --color-phosphor-d: #087F5B;
+  --color-ok: #256E4E;
+  --color-danger: #A6351F;
+  --color-warn: #8A6218;
+  --color-info: #3E6558;
+
+  --color-av-lime-bg:   #DDE8B4;  --color-av-lime-fg:   #33400F;
+  --color-av-sage-bg:   #CDE4D3;  --color-av-sage-fg:   #173A26;
+  --color-av-pink-bg:   #F2CDB8;  --color-av-pink-fg:   #5A2A0F;
+  --color-av-orange-bg: #F1DCA8;  --color-av-orange-fg: #4A340A;
+  --color-av-violet-bg: #DCC9E4;  --color-av-violet-fg: #3F1F4A;
+
+  --shadow-sh-1: 0 8px 22px rgb(11 23 21 / 10%);
+  --shadow-sh-2: var(--shadow-sh-1);
+  --shadow-sh-3: 0 16px 34px rgb(11 23 21 / 14%);
+  --shadow-drop: none;
+  --shadow-drop-lg: var(--shadow-sh-1);
+  --shadow-action: none;
+  --shadow-inset-signal: inset 0 -3px 0 var(--color-signal);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
+  --shadow-sh-signal-top: 0 -6px 0 var(--color-signal);
+  --glow-signal: 0 0 10px rgb(10 114 99 / 22%);
+  --shadow-avatar-ring: 0 0 0 2px var(--color-page), 0 0 0 4px var(--color-line-2),
+    0 0 10px 1px rgb(138 98 24 / 28%);
+
+  --glass-bg: var(--color-surface);
+  --glass-bg-strong: var(--color-surface-2);
+  --glass-refract: none;
+  --glass-refract-strong: none;
+  --glass-lens: none;
+  --glass-sheen: none;
+  --glass-rim: none;
+  --overlay-veil-bg: rgb(11 23 21 / 42%);
+  --overlay-blur: none;
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-brut: none;
+  --shadow-brut-lg: var(--shadow-sh-1);
+
+  --gradient-amber-fire: var(--color-gold);
+  --gradient-ember:      var(--color-gold);
+  --gradient-phosphor:   var(--color-signal);
+  --gradient-aura:       none;
+  --story-ring-gradient: linear-gradient(135deg, var(--color-gold), var(--color-gold-d));
+
+  /* Même densité que le thème nuit. */
+  --space-md: 10px;
+  --space-lg: 14px;
+  --space-xl: 20px;
+  --space-2xl: 28px;
+  --gutter:   14px;
+  --radius-chip:  4px;
+  --radius-input: 6px;
+  --radius-card:  8px;
+  --h-topbar:    calc(52px + var(--h-safe-top));
+  --h-bottomnav: calc(56px + var(--h-safe-bottom));
+  --h-action:    40px;
+
+  --text-body:    0.9375rem;  --lh-body:    1.48;
+  --text-caption: 0.75rem;    --lh-caption: 1.38;
+  --text-label:   0.6875rem;  --lh-label:   1.25;
+  --text-micro:   0.6875rem;  --lh-micro:   1.25;
+  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-grotesk), ui-monospace, monospace;
+  --font-label:   var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --color-code-bg:      #EDE9DC;
+  --color-code-plain:   #14201C;
+  --color-code-keyword: #0A7263;
+  --color-code-string:  #8A6218;
+  --color-code-number:  #256E4E;
+  --color-code-function:#3E6558;
+  --color-code-type:    #7A5A16;
+  --color-code-comment: #66756C;
+  --color-code-punct:   #23302B;
+}
+
+:root[data-theme="savane-clair"] body {
+  background-color: var(--color-page);
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, rgb(10 114 99 / 10%), transparent 70%);
+  background-repeat: no-repeat;
+}
+
+:root[data-theme="savane-clair"] .bg-signal {
+  color: #F4F1E8;
+}
+
+:root[data-theme="savane-clair"] .text-signal {
+  color: var(--color-signal-d);
+}
+
+:root[data-theme="savane-clair"] h1,
+:root[data-theme="savane-clair"] h2,
+:root[data-theme="savane-clair"] h3,
+:root[data-theme="savane-clair"] .font-display {
+  letter-spacing: -0.018em;
+  line-height: 1.1;
+}
+
+:root[data-theme="savane-clair"] .label-micro {
+  font-family: var(--font-label);
+  letter-spacing: 0.06em;
+}
+
+:root[data-theme="savane-clair"] pre,
+:root[data-theme="savane-clair"] code,
+:root[data-theme="savane-clair"] kbd,
+:root[data-theme="savane-clair"] samp {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   L'OR COMME MARQUE DE DISTINCTION — sur les deux thèmes Savane
+
+   Le palier d'un cachet reste sa **forme** (rond, losange, sceau…),
+   mais la teinte devient une famille d'or au lieu de onze teintes
+   disparates : la Savane signe ses distinctions. L'encre reste sombre
+   sur l'or (8,3:1), et l'anneau d'administration se lisait déjà en or.
+   ══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="savane"] .verify-badge,
+:root[data-theme="savane-clair"] .verify-badge {
+  background: linear-gradient(135deg, #F0DBA6 0%, #D6A84F 52%, #A87C2B 100%);
+  color: #20160A;
+  box-shadow: inset 0 0 0 1px rgb(255 246 220 / 55%);
+  filter:
+    drop-shadow(0 0 0.7px rgb(214 168 79 / 70%))
+    drop-shadow(0 1px 1.5px rgb(16 24 20 / 32%));
+}
+
+:root[data-theme="savane-clair"] .verify-badge {
+  background: linear-gradient(135deg, #E8CD8C 0%, #C0912F 52%, #8A6218 100%);
 }
 
 [data-code-variant="paper"] {
@@ -1806,6 +1990,41 @@ input[type="search"]::-webkit-search-decoration {
 [data-feed-density="compact"] .feed-post__actions button {
   min-height: 32px;
   border-radius: 2px;
+}
+
+/* ── Densité mobile du fil ─────────────────────────────────────────────
+
+   Sur un iPhone, une carte confortable réservait 24 px de rembourrage
+   vertical pour un texte qui en mérite 16 : trois cartes tenaient à
+   peine dans un écran, et le fil se lisait comme une suite de fiches.
+   On resserre uniquement sous 640 px — le bureau garde son air, le
+   téléphone gagne deux cartes visibles. La cible tactile des actions
+   ne bouge pas (44 px, règle dure) : c'est l'espace autour qui se
+   resserre, pas les boutons. */
+@media (max-width: 640px) {
+  [data-feed-density="comfortable"] .feed-post {
+    margin-bottom: 0.6rem;
+  }
+
+  [data-feed-density="comfortable"] .feed-post__content {
+    padding-block: 0.95rem;
+    padding-inline: 0.85rem;
+  }
+
+  [data-feed-density="comfortable"] .feed-post__text {
+    font-size: 15px;
+    line-height: 1.54;
+    margin-bottom: 0.75rem;
+  }
+
+  [data-feed-density="compact"] .feed-post__content {
+    padding-block: 0.5rem;
+    padding-inline: 0.65rem;
+  }
+
+  [data-feed-density="compact"] .feed-post__text {
+    margin-bottom: 0.35rem;
+  }
 }
 
 /* ============================================================

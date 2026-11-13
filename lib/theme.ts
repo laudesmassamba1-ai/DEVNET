@@ -35,6 +35,14 @@ export const LIGHT_THEME = "light";
 export const SAVANE_THEME = "savane";
 
 /**
+ * Savane en plein jour : ivoire, encre verte, or profond.
+ *
+ * Même densité et mêmes familles que la version nuit — c'est la même
+ * direction graphique sous une autre lumière, pas un quatrième univers.
+ */
+export const SAVANE_LIGHT_THEME = "savane-clair";
+
+/**
  * Thèmes proposés à l'utilisateur, dans l'ordre d'affichage.
  *
  * Une seule liste : les Paramètres et le profil piochent dedans, et
@@ -46,6 +54,7 @@ export const THEMES = [
   { id: DEFAULT_THEME, label: "Encre", hint: "Le défaut, sombre et chaud.", icon: "moon" },
   { id: LIGHT_THEME, label: "Papier", hint: "Ivoire, encre, lumière du jour.", icon: "sun" },
   { id: SAVANE_THEME, label: "Savane", hint: "Vert profond, or, turquoise.", icon: "globe" },
+  { id: SAVANE_LIGHT_THEME, label: "Savane clair", hint: "Ivoire, encre verte, or profond.", icon: "compass" },
 ] as const;
 
 /** Copie locale du thème — lue avant l'hydratation, pour éviter le flash. */
