@@ -2440,22 +2440,18 @@ a,
    les blocs de thème. Désactivé = retour exact au rendu plat.
    ══════════════════════════════════════════════════════════════════ */
 :root[data-liquid="true"] {
-  --glass-bg:        color-mix(in srgb, var(--color-surface) 58%, transparent);
-  --glass-bg-strong: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  /* Transparence franche : la matière vient du flou et des bords,
+     jamais d'un voile blanc. Le remplissage ne fait que créditer
+     suffisamment la dalle pour la lisibilité du texte. */
+  --glass-bg:        color-mix(in srgb, var(--color-surface) 36%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--color-surface) 60%, transparent);
   --glass-refract:        blur(20px) saturate(1.9);
   --glass-refract-strong: blur(26px) saturate(1.9);
   --glass-lens:           blur(34px) saturate(2);
-  --glass-sheen:
-    linear-gradient(135deg,
-      rgb(255 255 255 / 0.20) 0%,
-      rgb(255 255 255 / 0.04) 34%,
-      rgb(255 255 255 / 0.02) 55%,
-      rgb(255 255 255 / 0.12) 100%);
+  --glass-sheen: none;
   --glass-rim:
-    inset 0 1px 0 rgb(255 255 255 / 0.48),
-    inset 0 -1px 0 rgb(0 0 0 / 0.24),
-    inset 1px 0 0 rgb(255 255 255 / 0.14),
-    inset 0 0 20px rgb(255 255 255 / 0.05);
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 -1px 0 rgb(0 0 0 / 0.28);
 
   /* ── Réfraction sur les bordures ──
      La lumière qui traverse le bord se dédouble : une frange chaude
@@ -2479,8 +2475,8 @@ a,
   --overlay-blur: blur(24px) saturate(1.6);
   /* Les feuilles flottent : voile plus profond, panneau givré. */
   --overlay-veil-bg: color-mix(in srgb, var(--color-void) 62%, transparent);
-  --overlay-frost-bg: color-mix(in srgb, var(--color-surface) 74%, transparent);
-  --overlay-panel-bg: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  --overlay-frost-bg: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  --overlay-panel-bg: color-mix(in srgb, var(--color-surface) 70%, transparent);
 
   /* ── La pilule de verre (iOS) ──
      Les contrôles ronds — icône seule, onglet de navigation — deviennent
@@ -2488,15 +2484,11 @@ a,
      haut lumineux, ombre interne basse (la pilule est **convexe**).
      La matière vit dans des jetons dédiés : hors mode liquide ils sont
      absents, la pilule reste plate — aucun composant ne change. */
-  --pill-sheen: linear-gradient(180deg,
-    rgb(255 255 255 / 0.16) 0%,
-    rgb(255 255 255 / 0.02) 42%,
-    rgb(255 255 255 / 0.09) 100%);
+  --pill-sheen: none;
   --pill-refract: blur(16px) saturate(1.8);
   --pill-rim:
-    inset 0 1px 0 rgb(255 255 255 / 0.5),
-    inset 0 -1px 0 rgb(0 0 0 / 0.26),
-    inset 0 0 12px rgb(255 255 255 / 0.06);
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    inset 0 -1px 0 rgb(0 0 0 / 0.30);
   --pill-drop: 0 8px 20px -10px rgb(0 0 0 / 0.45);
   --page-wash:
     radial-gradient(60% 45% at 12% 8%, color-mix(in srgb, var(--color-signal) 22%, transparent), transparent 70%),
@@ -2606,11 +2598,11 @@ a,
    jamais une couleur. */
 :root[data-theme="light"][data-liquid="true"],
 :root[data-theme="savane-clair"][data-liquid="true"] {
-  --glass-sheen:
-    linear-gradient(135deg,
-      rgb(255 255 255 / 0.55) 0%,
-      rgb(255 255 255 / 0.08) 40%,
-      rgb(255 255 255 / 0.30) 100%);
+  --glass-sheen: none;
+  /* Sur ivoire, le verre clair ne peut pas être aussi transparent que
+     sur encre : le remplissage remonte un peu, reste loin d'un voile. */
+  --glass-bg:        color-mix(in srgb, var(--color-surface) 52%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--color-surface) 68%, transparent);
   --glass-chroma:
     inset  1px  1px 0 color-mix(in srgb, var(--color-signal) 26%, transparent),
     inset -1px -1px 0 color-mix(in srgb, var(--color-phosphor) 20%, transparent);
