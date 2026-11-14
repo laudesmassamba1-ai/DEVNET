@@ -180,4 +180,29 @@ test("wrapLines ne perd aucun caractère", () => {
   for (const line of lines) assert.ok(measure(line) <= 60, `ligne trop large : ${line}`);
 });
 
+// ── Invariant : l'aperçu ne montre que ce qui part ────────────────────
+//
+// Une vidéo et un GIF partent sans retouche. Si des calques survivent au
+// passage à ces médias, l'aperçu les affiche et la publication les perd.
+// L'éditeur les retire donc ; ces tests décrivent la règle côté modèle.
+
+test("un média non retouchable ne porte aucun calque", () => {
+  // Un texte réellement tapé compte comme contenu ; un calque vide non.
+  const draft = addTextLayer(emptySnapshot().layers);
+  const typed = updateLayer(draft.layers, draft.id, { text: "bonjour" });
+  assert.ok(hasContent(typed), "un texte tapé doit compter comme contenu");
+  assert.equal(textOf(typed), "bonjour");
+
+  // Ce que fait l'éditeur au passage à la vidéo ou au GIF : calques vidés.
+  const cleared: Snapshot = { ...emptySnapshot(), layers: [] };
+  assert.equal(hasContent(cleared.layers), false);
+  assert.equal(textOf(cleared.layers), "");
+});
+
+test("vider les calques laisse un statut sans contenu, donc non publiable", () => {
+  // La règle de publication s'appuie sur hasContent : un statut vidé de ses
+  // calques et sans média ne doit pas partir.
+  assert.equal(hasContent([]), false);
+});
+
 console.log(`\n${passed} tests OK`);

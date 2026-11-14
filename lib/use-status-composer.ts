@@ -162,6 +162,13 @@ export function useStatusComposer(options: {
     if (next.kind === "video") {
       setDrawing(false);
       setStickersOpen(false);
+      // Une vidéo part intacte : rien n'est dessiné dessus. Les calques
+      // posés avant elle (texte, sticker, tracé) restaient dans l'aperçu
+      // mais n'atteignaient jamais le fichier publié — on voyait un texte
+      // qui n'existait pas. On les retire, et l'aperçu redevient vrai.
+      setSelectedId(null);
+      setEditingId(null);
+      setLayers([]);
     }
   }
 
@@ -173,6 +180,10 @@ export function useStatusComposer(options: {
     setGif(next);
     setDrawing(false);
     setStickersOpen(false);
+    // Même raison que pour la vidéo : un GIF part en lien, sans retouche.
+    setSelectedId(null);
+    setEditingId(null);
+    setLayers([]);
   }
 
   function removeMedia() {
