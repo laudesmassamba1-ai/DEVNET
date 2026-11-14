@@ -122,6 +122,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
   return (
     <nav
       data-tour="nav-main"
+      data-shell="dock"
       aria-label="Navigation principale"
       data-allow-tiny
       className="fixed inset-x-0 bottom-0 z-(--z-nav) grid grid-cols-5
@@ -324,6 +325,7 @@ export function Sidebar({
   return (
     <aside
       data-tour="nav-main"
+      data-shell="side"
       className="sticky top-[var(--h-banner,0px)] hidden h-[calc(100dvh-var(--h-banner,0px))]
         w-59 shrink-0 flex-col rounded-(--radius-card) border-r-(--bw-heavy) border-edge
         glass shell:flex"

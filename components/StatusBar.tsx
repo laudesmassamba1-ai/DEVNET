@@ -71,6 +71,7 @@ export function StatusBar({ path }: { path?: string }) {
   return (
     <div
       data-allow-tiny
+      data-shell="statusbar"
       className="fixed inset-x-0 bottom-(--h-bottomnav) z-(--z-nav)
         h-(--h-status) border-t border-edge glass-strong shell:hidden
         rounded-(--radius-card)"

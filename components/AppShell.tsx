@@ -185,6 +185,7 @@ export function AppShell({
 
         <div className="min-w-0 flex-1">
           <header
+            data-shell="topbar"
             className="sticky top-[var(--h-banner,0px)] z-(--z-sticky) relative flex
               h-(--h-topbar) items-stretch justify-between
               border-b-(--bw-heavy) border-edge glass-strong

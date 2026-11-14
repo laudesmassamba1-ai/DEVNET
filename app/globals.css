@@ -2491,9 +2491,183 @@ a,
     inset 0 -1px 0 rgb(0 0 0 / 0.30);
   --pill-drop: 0 8px 20px -10px rgb(0 0 0 / 0.45);
   --page-wash:
-    radial-gradient(60% 45% at 12% 8%, color-mix(in srgb, var(--color-signal) 22%, transparent), transparent 70%),
-    radial-gradient(55% 50% at 92% 18%, color-mix(in srgb, var(--color-moss, #8FAF4E) 18%, transparent), transparent 70%),
-    radial-gradient(70% 60% at 50% 110%, color-mix(in srgb, var(--color-signal) 14%, transparent), transparent 70%);
+    /* ── Le canvas liquide ──
+       Le verre ne se réfracte que sur ce qui est vivant derrière lui :
+       un champ de couleurs franches posées en larges taches fixes. Sans
+       canvas coloré, le liquide n'est qu'un gris flou. */
+    radial-gradient(52% 40% at 10% 4%, color-mix(in srgb, var(--color-signal) 30%, transparent), transparent 70%),
+    radial-gradient(46% 42% at 92% 12%, color-mix(in srgb, var(--color-moss, #8FAF4E) 24%, transparent), transparent 70%),
+    radial-gradient(40% 36% at 78% 46%, color-mix(in srgb, var(--color-av-violet-bg, #DBC4DF) 14%, transparent), transparent 70%),
+    radial-gradient(44% 40% at 12% 68%, color-mix(in srgb, var(--color-warn) 16%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 55% 112%, color-mix(in srgb, var(--color-signal) 20%, transparent), transparent 72%),
+    linear-gradient(175deg, #16130E 0%, #101008 58%, #0B0A07 100%);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MODE DESIGN LIQUIDE — la philosophie change avec la matière
+
+   Poser du verre sur l'interface plate ne suffit pas : une interface
+   en verre liquide a ses propres lois, et elles ne sont pas celles de
+   l'encre sur papier.
+
+   1. **Le contenu flotte sur un canvas vivant.** Les surfaces ne sont
+      plus des boîtes bordées empilées sur un fond : ce sont des dalles
+      de verre posées sur un champ de couleurs. La hiérarchie vient de
+      la profondeur (flou, ombre, liseré), pas du trait.
+   2. **Zéro bordure sec sur les contenants.** Un bord dessiné au trait
+      dit « boîte » ; le bord du verre est une *arête lumineuse*. Les
+      filets entre lignes restent — ils séparent, ils n'enferment pas.
+   3. **Rayons généreux.** Le verre poli casse mal : les angles vifs
+      sont des défauts de matière. Cartes 18 px, champs 12 px, puces
+      10 px, boutons d'action en pilule.
+   4. **Les barres détachées.** La barre de titre, la barre basse et le
+      panneau latéral ne sont plus des bandes plein-bord : ce sont des
+      îles flottantes, détachées du cadre par une marge de respiration.
+   5. **L'action reste pleine.** Le bouton d'action ne devient pas de
+      verre : sur un fond de verre, une cible pleine et franche reste le
+      seul repère non-ambigu.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Rayons de verre ── */
+:root[data-liquid="true"] {
+  --radius-card:  18px;
+  --radius-input: 12px;
+  --radius-chip:  10px;
+}
+
+/* ── Les dalles : bord transparent, la matière porte l'arête ──
+   Le trait de bordure disparaît ; ce qui reste est fonctionnel (le
+   1 px de layout) et invisible. L'arête est dessinée par le rim, la
+   réfraction chromatique et l'ombre. */
+:root[data-liquid="true"] .depth-card,
+:root[data-liquid="true"] .glass-card,
+:root[data-liquid="true"] .glass-flat,
+:root[data-liquid="true"] .feed-post {
+  border-color: transparent;
+  background-color: var(--glass-bg);
+  background-image: none;
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+}
+
+/* La carte de fil a sa propre surface (bg-surface/30) : même matière,
+   même arête, même survol que depth-card. */
+:root[data-liquid="true"] .feed-post {
+  position: relative;
+  transition:
+    transform var(--d-base) var(--ease-spring),
+    background-color var(--d-fast) var(--ease-continuous);
+}
+
+:root[data-liquid="true"] .feed-post::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--bw-thick));
+  border-radius: inherit;
+  box-shadow: var(--glass-rim-lit);
+  opacity: 0;
+  transition: opacity var(--d-slow) var(--ease-continuous);
+  pointer-events: none;
+}
+
+:root[data-liquid="true"] .feed-post:hover {
+  transform: translateY(-2px);
+}
+
+:root[data-liquid="true"] .feed-post:hover::after {
+  opacity: 1;
+}
+
+/* Les boîtes `bg-surface` courantes (panneaux internes, champs de
+   panneaux) gagnent la matière sans changer leur role. */
+:root[data-liquid="true"] .glass-flat {
+  backdrop-filter: var(--glass-refract);
+}
+
+/* ── Les barres détachées : îles flottantes ── */
+
+/* Barre de titre : une île posée sous la zone sûre, détachée du cadre. */
+:root[data-liquid="true"] [data-shell="topbar"] {
+  top: calc(var(--h-banner, 0px) + 8px);
+  margin-inline: 10px;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+}
+
+/* Barre basse : un dock flottant, détaché du bord et du bas sûr. */
+:root[data-liquid="true"] [data-shell="dock"] {
+  left: 14px;
+  right: 14px;
+  bottom: calc(var(--h-safe-bottom) + 12px);
+  border: none;
+  border-radius: 24px;
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop-lg);
+}
+
+/* Barre d'état : une capsule de verre flottant au-dessus du dock —
+   elle masque le contenu qui arrive derrière elle et s'aligne sur le
+   retrait du dock. */
+:root[data-liquid="true"] [data-shell="statusbar"] {
+  left: 14px;
+  right: 14px;
+  bottom: calc(var(--h-safe-bottom) + var(--h-bottomnav) + 16px);
+  border: none;
+  border-radius: 999px;
+  background-color: var(--overlay-frost-bg);
+  background-image: none;
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim);
+}
+
+/* Panneau latéral (bureau) : une île verticale. */
+:root[data-liquid="true"] [data-shell="side"] {
+  margin: 10px 0 10px 10px;
+  height: calc(100dvh - var(--h-banner, 0px) - 20px);
+  border-right: none;
+  border-radius: 20px;
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+}
+
+/* Le contenu ne colle plus aux barres flottantes : une marge de
+   respiration sous la barre de titre et au-dessus du dock. */
+:root[data-liquid="true"] [data-shell="topbar"] + * {
+  scroll-margin-top: 8px;
+}
+
+/* ── L'action reste pleine, en pilule ── */
+:root[data-liquid="true"] button.bg-signal {
+  border-radius: 999px;
+}
+
+/* ── Les feuilles : dalles flottantes, pas des tiroirs collés ── */
+:root[data-liquid="true"] .sheet-glass {
+  background-color: var(--overlay-frost-bg);
+  backdrop-filter: var(--overlay-blur);
+  border: none;
+  margin-inline: 8px;
+  border-radius: 24px;
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop-lg);
+}
+
+/* Le voile derrière une feuille : plus léger, le canvas doit rester
+   lisible derrière le verre. */
+:root[data-liquid="true"] .overlay-veil {
+  background-color: color-mix(in srgb, var(--color-void) 40%, transparent);
+}
+
+/* ── Thème clair : même philosophie, lumière pastel ──
+   Le canvas ivoire reçoit des taches pastel ; le verre reste lisible
+   grâce à son remplissage plus élevé (déjà posé plus haut). */
+:root[data-theme="light"][data-liquid="true"],
+:root[data-theme="savane-clair"][data-liquid="true"] {
+  --page-wash:
+    radial-gradient(50% 38% at 10% 4%, color-mix(in srgb, var(--color-signal) 16%, transparent), transparent 70%),
+    radial-gradient(44% 40% at 92% 12%, color-mix(in srgb, var(--color-phosphor) 13%, transparent), transparent 70%),
+    radial-gradient(40% 36% at 78% 46%, color-mix(in srgb, var(--color-av-violet-bg, #DBC4DF) 26%, transparent), transparent 70%),
+    radial-gradient(42% 38% at 12% 66%, color-mix(in srgb, var(--color-warn) 12%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 55% 112%, color-mix(in srgb, var(--color-signal) 10%, transparent), transparent 72%),
+    linear-gradient(175deg, #FAF8F2 0%, #F5F2EA 60%, #EFECE2 100%);
 }
 
 /* ── 3D : la dalle se soulève et son bord accroche la lumière ──
