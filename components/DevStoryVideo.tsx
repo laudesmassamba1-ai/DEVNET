@@ -11,11 +11,18 @@ import { useEffect, useRef, useState } from "react";
  * Dix secondes, muet, une lecture — pas de boucle : une pub qui tourne
  * en rond fatigue, et le bouton « rejouer » est là pour la reprise.
  *
- * Deux garde-fous du contrat d'expérience :
- * - `muted` + `playsInline` : la vidéo n'exécute rien, ne sonne jamais
- *   sans geste, et se lit sur iOS même sans geste ;
+ * Garde-fous du contrat d'expérience :
+ * - l'attribut `muted` est posé **dans le DOM au montage** (ref) : React
+ *   ne le sérialise pas (défaut connu), et iOS n'autorise l'autoplay
+ *   que si l'attribut existe quand la source est évaluée — sans lui,
+ *   la lecture ne démarre jamais ;
+ * - `playsInline` : iOS lit en ligne, jamais en plein écran volé ;
+ * - une relance explicite à `canplay` : si la politique du navigateur
+ *   a écarté l'autoplay, on tente `play()` une fois — et si elle est
+ *   refusée, le bouton `❯` prend la relève (l'échec est assumé, pas
+ *   un faux départ) ;
  * - `prefers-reduced-motion` : pas de lecture automatique — l'affiche
- *   (pose finale du film) tient la place, un clic lance la lecture.
+ *   (pose finale du film) tient la place, le clic est la gâchette.
  */
 
 const VIDEO_SRC = "/motion/devnet-story.mp4";
@@ -25,6 +32,7 @@ export function DevStoryVideo({ className = "" }: { className?: string }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [reduced, setReduced] = useState(false);
   const [ended, setEnded] = useState(false);
+  const [blocked, setBlocked] = useState(false);
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
@@ -36,42 +44,59 @@ export function DevStoryVideo({ className = "" }: { className?: string }) {
     return () => query.removeEventListener("change", onChange);
   }, []);
 
-  function play() {
+  /** Le muted passe par le ref AVANT la première évaluation de la
+      source : React ne sérialise pas l'attribut (défaut connu), et iOS
+      n'autorise l'autoplay que si l'ATTRIBUT existe dans le HTML — la
+      propriété seule ne suffit pas. On force donc les deux. */
+  const attach = (el: HTMLVideoElement | null) => {
+    videoRef.current = el;
+    if (el) {
+      el.muted = true;
+      el.setAttribute("muted", "");
+    }
+  };
+
+  function start() {
     const video = videoRef.current;
     if (!video) return;
     video.currentTime = 0;
     setEnded(false);
-    void video.play();
+    video.play().catch(() => setBlocked(true));
   }
 
   return (
     <div className={`flex flex-col items-center gap-2 ${className}`}>
       <video
-        ref={videoRef}
+        ref={attach}
         src={VIDEO_SRC}
         poster={POSTER_SRC}
         muted
         playsInline
         autoPlay={!reduced}
-        preload="metadata"
+        preload="auto"
+        onCanPlay={() => {
+          const video = videoRef.current;
+          if (!video || reduced || !video.autoplay) return;
+          if (video.paused && video.currentTime === 0) {
+            video.play().catch(() => setBlocked(true));
+          }
+        }}
         onEnded={() => setEnded(true)}
         className="w-full rounded-(--radius-card) border border-line-2 bg-surface"
         aria-label="Un développeur photographie un bug, publie sur DevNet en demandant de l'aide, et l'aide arrive en commentaires jusqu'au fix."
       />
       <button
         type="button"
-        onClick={play}
+        onClick={start}
         className={`mo-press flex min-h-(--h-tap) items-center gap-2 rounded-(--radius-input)
-          border border-line-2 px-4 font-mono text-12 font-bold text-chalk-2
-          transition-colors hover:border-signal hover:text-signal
-          ${reduced && !ended ? "" : ""}`}
+          border px-4 font-mono text-12 font-bold transition-colors
+          ${blocked || reduced
+            ? "border-signal text-signal"
+            : "border-line-2 text-chalk-2 hover:border-signal hover:text-signal"}`}
       >
         <span aria-hidden>❯</span>
-        {reduced ? "lire le film" : "rejouer"}
+        {reduced ? "lire le film" : blocked ? "lire la vidéo" : "rejouer"}
       </button>
-      {/* Sous mouvement réduit, la lecture n'est jamais lancée par le
-          navigateur : le poster tient, le clic est la seule gâchette.
-          (Le poster est la pose finale du film — le dénouement.) */}
       {reduced ? (
         <span className="sr-only">
           Le film est en pause ; appuie sur « lire le film » pour le lancer.
@@ -81,9 +106,7 @@ export function DevStoryVideo({ className = "" }: { className?: string }) {
         <span className="font-mono text-12 text-chalk-4">
           C&apos;est ça, DevNet — ton bug, ta preuve, ton réseau.
         </span>
-      ) : (
-        <span className="sr-only">Fin du film.</span>
-      )}
+      ) : null}
     </div>
   );
 }
