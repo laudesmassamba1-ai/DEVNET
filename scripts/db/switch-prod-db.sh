@@ -67,16 +67,16 @@ fi
 
 echo ""
 echo "1/5  DATABASE_URL"
-printf '%s' "$DB_URL" | npx vercel env update DATABASE_URL production
+npx vercel env update DATABASE_URL production --value "$DB_URL" --sensitive --yes
 
 echo "2/5  DATABASE_URL_UNPOOLED"
-printf '%s' "$DB_URL" | npx vercel env update DATABASE_URL_UNPOOLED production
+npx vercel env update DATABASE_URL_UNPOOLED production --value "$DB_URL" --sensitive --yes
 
 echo "3/5  PG_POOL_MAX=3"
 # max_connections = 100 sur Systalink ; à 10 par instance, onze instances
 # concurrentes suffiraient à saturer la base. Trois laisse de la marge.
-printf '3' | npx vercel env add PG_POOL_MAX production --force 2>/dev/null \
-  || printf '3' | npx vercel env update PG_POOL_MAX production
+npx vercel env update PG_POOL_MAX production --value "3" --sensitive --yes 2>/dev/null \
+  || npx vercel env add PG_POOL_MAX production --value "3" --sensitive --yes
 
 echo "4/5  redéploiement"
 npx vercel --prod --yes
@@ -96,12 +96,11 @@ let s="";process.stdin.on("data",d=>s+=d).on("end",()=>{
 });')"
 echo "Après  : stickers servis par la prod = $after"
 
-if [[ "$after" == "$before" ]]; then
-  echo ""
-  echo "ATTENTION : la date n'a pas changé. La prod sert peut-être encore l'ancienne"
-  echo "base, ou le cache de déploiement n'est pas encore basculé. Relancer la"
-  echo "vérification dans une minute avant de conclure."
-else
-  echo ""
-  echo "Bascule confirmée : la prod sert désormais la base Systalink."
-fi
+# La date des stickers ne prouve rien : l'import a copié Neon dans Systalink,
+# donc les deux bases portent les mêmes lignes. La preuve réelle est la
+# connexion applicative vue depuis la base cible.
+echo ""
+echo "Preuve par les connexions : la prod doit apparaître sur Systalink"
+curl -s -m 20 "$PROD_URL/api/ready" -o /dev/null
+sleep 2
+npx tsx scripts/db/check-prod-connections.ts || true
