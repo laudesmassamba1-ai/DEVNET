@@ -1,10 +1,11 @@
 # Capacités de la base — mesures et état
 
 - **Dernière mesure locale** : 2026-11-09 (PostgreSQL 18.3)
-- **Dernière mesure distante** : 2026-11-12 (PostgreSQL 18.3, sonde `verify-full`)
+- **Dernière mesure distante** : 2026-11-14 (PostgreSQL 18.3, TLS `require`)
 - **Cible distante** : `postgres-dbaas-postgres-devnet-devnet.systalinkdatabases.com:33072`, base `devnet`, rôle `devnet_u`
-- **Statut distant** : **52 migrations appliquées**, rôles RLS créés, `search_path` effectif, TLS `verify-full` validé ; le mot de passe a été réaligné par le support sur la valeur exposée, sa rotation par la console reste à faire ; l'application n'est pas encore basculée sur cette base
-- **Sauvegarde** : dump chiffré GPG du 2026-11-09 restauré en local (52/58/178/90/35/14, RLS et stories verts) ; clé encore locale, copie hors site à faire
+- **Statut distant** : **71 migrations appliquées**, 61 tables, 178 politiques RLS, **données de Neon importées le 2026-11-14** (43 comptes, 2831 lignes) ; l'application locale pointe dessus, **la production Vercel pointe encore sur Neon**
+- **Capacité mesurée (2026-11-14)** : `max_connections` = 100, 16 connexions actives au repos, 3 réservées superutilisateur, rôle `devnet_u` sans limite de connexions, base 23 Mo
+- **Sauvegarde** : dumps `pg_dump` du 2026-11-14 hors dépôt (`~/.devnet-backups/`, permissions 600) — Neon source et Systalink avant import ; dump chiffré GPG du 2026-11-09 restauré en local
 
 ## 1. Miroir local mesuré
 
@@ -164,3 +165,72 @@ consigné. Aucune décision distante n'est prise avant la mesure des privilèges
 - Mode dégradé applicatif : le mode démonstration existant reste le repli visible.
 - `db:migrate` est en **simulation par défaut** ; `--apply` est obligatoire pour écrire.
 - `DB_TARGET=remote` exige `CONFIRM_REMOTE=<nom_de_la_base>` ; `db:reset` est refusé.
+
+## Import des données Neon → Systalink (2026-11-14)
+
+L'application pointait sur Neon en production alors que la cible est Systalink.
+Les données ont été copiées avec `scripts/db/import-from-source.ts`.
+
+| Élément | Valeur |
+|---|---|
+| Lignes copiées | **2831** sur 61 tables |
+| Comptes | 43 (`public.users` et `auth.users` alignés) |
+| Contenus | 6 posts, 14 stories, 7 projets, 2220 lignes de git, 38 identifiants |
+| `schema_migrations` | **non copiée** : Systalink garde ses 71 migrations |
+| Transaction | unique, aucune écriture partielle |
+| Déclencheurs | désactivés pendant le chargement, **tous réactivés** (0 restant) |
+
+### Trois obstacles rencontrés, et pourquoi
+
+1. **`session_replication_role` refusé** — `devnet_u` n'est pas superutilisateur
+   (42501). Remplacé par `alter table … disable trigger user`, que le
+   propriétaire des tables a le droit de faire.
+2. **`auth.users` est parent de `public.users`** — la couche de compatibilité
+   Supabase fait de `auth.users` la racine des comptes. Copier `public.users`
+   seul violait `users_id_fkey`. `auth.users` est donc copiée d'abord.
+3. **`on_auth_user_created` recréait les comptes** — ce déclencheur insère dans
+   `public.users` à chaque insertion dans `auth.users`, d'où une collision de
+   clé primaire. Il est désactivé le temps de la copie, puis réactivé.
+
+Le script refuse d'écrire sans `--confirm=<nom_de_la_base>`, simule par défaut,
+et vérifie chaque table après coup. Il ne touche jamais au schéma.
+
+### Vérifications après import
+
+- `test:db-rls` 17/17, `test:auth-postgres` 35/35, `test:rest-gateway` 51/51
+- suite complète : 0 échec ; `npm run build` passe
+- parcours réel : inscription, session, feed avec les vrais posts, stories avec médias
+
+## Bascule de la production Vercel
+
+La production (`https://devnet-brown.vercel.app`) sert **encore Neon** : les
+stickers y portent la date du 2026-11-13 09:23, alors que la base Systalink
+importée porte celle du 2026-11-09.
+
+La mutation des variables d'environnement de production n'est pas déléguée à
+l'agent (garde-fou de l'environnement, qui bloque `vercel env update/remove`
+sur `production`). La bascule se fait donc par script :
+
+```bash
+./scripts/db/switch-prod-db.sh            # simulation
+./scripts/db/switch-prod-db.sh --apply    # applique et vérifie
+```
+
+Le script met à jour `DATABASE_URL`, `DATABASE_URL_UNPOOLED`, pose
+`PG_POOL_MAX=3`, redéploie, puis compare la date des stickers avant/après pour
+prouver la bascule.
+
+### Pourquoi `PG_POOL_MAX=3`
+
+`max_connections` vaut 100 sur Systalink, dont 3 réservées au superutilisateur.
+Le pool applicatif est de 10 par instance (`platform/infrastructure/postgres/pool.ts`).
+À 11 instances Vercel simultanées, la base serait saturée et les requêtes
+partiraient en `53300`. Trois par instance laisse de la marge.
+
+### TLS
+
+L'URL Systalink porte `sslmode=require`. `resolvePostgresConnection` le traduit
+en `{ rejectUnauthorized: false }` : le transport est chiffré, mais l'identité du
+serveur n'est pas prouvée. `DATABASE_CA_CERT` est déjà posé en production ; il
+reste inutilisé tant que le mode n'est pas passé à `verify-full`, ce qui demande
+le certificat racine de Systalink (ticket ouvert).
