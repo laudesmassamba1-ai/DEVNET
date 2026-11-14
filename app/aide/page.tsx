@@ -106,7 +106,7 @@ export default function HelpPage() {
         <Link href="/" className="font-display text-lg font-bold text-chalk">
           DevNet<span className="text-signal">.</span>
         </Link>
-        <Link href="/a-propos" className="ml-auto text-[13px] font-bold text-chalk-3 hover:text-chalk">
+        <Link href="/a-propos" className="ml-auto text-13 font-bold text-chalk-3 hover:text-chalk">
           À propos
         </Link>
       </header>
@@ -128,7 +128,7 @@ export default function HelpPage() {
               <div className="mt-3 space-y-4">
                 {group.items.map((item) => (
                   <div key={item.q} className="rounded-(--radius-card) border border-line-2 bg-surface p-4">
-                    <h3 className="font-display text-[15px] font-bold text-chalk">{item.q}</h3>
+                    <h3 className="font-display text-15 font-bold text-chalk">{item.q}</h3>
                     <p className="mt-1.5 text-sm leading-relaxed text-chalk-3">{item.a}</p>
                   </div>
                 ))}

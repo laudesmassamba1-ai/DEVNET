@@ -199,6 +199,7 @@ export const DEMO_STORIES: Story[] = [
     author_id: "u-koffi",
     caption: "Le registre des coopératives tourne enfin. Trois jours de retard, un typage strict, et cette boucle.",
     media_url: "",
+    audience: "public" as const,
     created_at: fromNow(-3 * HOUR),
     // Vivante : encore vingt heures, comme une story qui vient d'être
     // postée.
@@ -209,6 +210,7 @@ export const DEMO_STORIES: Story[] = [
     author_id: "u-aminata",
     caption: "Présentation de mon modèle aujourd'hui. J'espère que mes coefficients ne surapprennent pas.",
     media_url: "",
+    audience: "public" as const,
     created_at: fromNow(-50 * MIN),
     expires_at: fromNow(23 * HOUR),
   },
@@ -217,6 +219,7 @@ export const DEMO_STORIES: Story[] = [
     author_id: "u-thabo",
     caption: "Writeup du CTF publié. L'injection était encore dans un ORDER BY concaténé.",
     media_url: "",
+    audience: "public" as const,
     created_at: fromNow(-2 * 24 * HOUR),
     // Périmée : elle ne doit apparaître nulle part, ni dans le rail, ni
     // dans le compteur de stories.

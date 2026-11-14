@@ -47,7 +47,7 @@ export function TypingLine({ names }: { names: string[] }) {
   if (names.length === 0) return null;
 
   return (
-    <div className="mo-fade mb-2 flex items-center gap-2 px-1 text-[11.5px] text-chalk-3">
+    <div className="mo-fade mb-2 flex items-center gap-2 px-1 text-12 text-chalk-3">
       <TypingDots />
       <span className="truncate">
         {names.length === 1

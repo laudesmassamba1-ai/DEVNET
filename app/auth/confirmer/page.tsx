@@ -111,14 +111,14 @@ export default function ConfirmEmailPage() {
 
         {invalid && !checking && (
           <div className="mt-7 rounded-(--radius-card) border border-warn/60 bg-surface p-5 text-center">
-            <p className="font-display text-[15px] font-bold text-chalk">Lien invalide ou expiré.</p>
+            <p className="font-display text-15 font-bold text-chalk">Lien invalide ou expiré.</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk-3">
               Le lien de confirmation a expiré ou est déjà utilisé. Tu peux te reconnecter
               pour demander un nouveau renvoi.
             </p>
             <Link
               href="/login"
-              className="mt-4 inline-flex text-[13px] font-bold text-signal hover:underline"
+              className="mt-4 inline-flex text-13 font-bold text-signal hover:underline"
             >
               Retour à la connexion
             </Link>
@@ -127,7 +127,7 @@ export default function ConfirmEmailPage() {
 
         {ok && !checking && (
           <div className="mt-7 rounded-(--radius-card) border border-ok/50 bg-surface p-5 text-center">
-            <p className="font-display text-[15px] font-bold text-chalk">Email confirmé.</p>
+            <p className="font-display text-15 font-bold text-chalk">Email confirmé.</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk-3">
               Ton adresse email est vérifiée. Tu peux accéder à ton espace.
             </p>
@@ -139,13 +139,13 @@ export default function ConfirmEmailPage() {
             <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
               <Link
                 href="/feed"
-                className="inline-flex text-[13px] font-bold text-signal hover:underline"
+                className="inline-flex text-13 font-bold text-signal hover:underline"
               >
                 Aller au fil
               </Link>
               <Link
                 href="/login"
-                className="inline-flex text-[13px] font-bold text-chalk-3 hover:text-chalk"
+                className="inline-flex text-13 font-bold text-chalk-3 hover:text-chalk"
               >
                 Retour à la connexion
               </Link>

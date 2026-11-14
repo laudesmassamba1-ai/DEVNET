@@ -236,7 +236,7 @@ function SearchScreen() {
               data-tour="search-input"
               autoFocus
               className="h-(--h-tap) w-full rounded-(--radius-input) border
-                border-line-3 bg-surface pr-10 pl-8 text-[14px] shadow-sh-1
+                border-line-3 bg-surface pr-10 pl-8 text-14 shadow-sh-1
                 transition-[transform,box-shadow] duration-(--d-base)
                 ease-(--ease-spring) placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -294,7 +294,7 @@ function SearchScreen() {
               aria-selected={tab === value}
               onClick={() => setTab(value)}
               className={`-mb-0.5 flex min-h-(--h-tap) items-center gap-1.5 tab-underline px-3
-                font-mono text-[11.5px] font-bold uppercase tracking-[0.12em]
+                font-mono text-12 font-bold uppercase tracking-[0.12em]
                 transition-colors duration-(--d-fast)
                 ${tab === value
                   ? "text-signal"
@@ -346,7 +346,7 @@ function SearchScreen() {
               <Avatar name={u.prenom} color={u.avatar_color} />
               <span className="min-w-0 flex-1">
                 <span className="flex items-center gap-1.5">
-                  <span className="truncate font-display text-[15px] font-bold text-chalk">
+                  <span className="truncate font-display text-15 font-bold text-chalk">
                     {u.prenom}
                   </span>
                   {u.verified && (

@@ -84,6 +84,19 @@
 | QA-004 | P2 | `scripts/db/test-migrate.ts` | Le test attendait « 62 migrations » et la dernière « 062 » alors que le dossier en contient 68 : `test:db-migrate` échouait à chaque ajout. | Assertions sur la sélection, l'ordre et la première migration ; plus de total figé. | `npm run test:db-migrate` vert. | `corrigé` |
 | QA-005 | P2 | `scripts/ux-scan.mjs` | `textOf`, `TINY`, `CSS_COLOR` inutilisés. | Supprimés (les variantes globales restent utilisées). | `npm run lint` : avertissements ramenés de 9 à 4. | `corrigé` |
 
+## Passe du 2026-11-14 — mise à jour
+
+Le registre maître `DEVNET-EXECUTION-LEDGER.md` (section 10) fait foi pour
+les statuts de cette passe. Les corrections locales principales sont :
+SEC-002 (retrait de `service_role` du runtime), SEC-012 (vérification de
+l’objet multipart), MEDIA-003 (purge idempotente), STORY-003 (audience +
+RLS + tests), STORY-004 (`null`/`[]`), STORY-005 (pagination), UI-004
+(cinq destinations) et UI-006 (320→1024).
+
+Le backup distant a été exécuté avant toute écriture :
+`devnet-remote-20261114T013251Z.dump.gpg`, GPG AES-256. Aucune migration
+distante n’a été appliquée.
+
 ## Ce qui reste bloquant pour la production
 
 1. Rotation effective des secrets exposés et retrait de `service_role` du rôle applicatif (SEC-001/SEC-002).

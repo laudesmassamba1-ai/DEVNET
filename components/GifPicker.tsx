@@ -84,7 +84,7 @@ export function GifPicker({
         placeholder="Chercher un GIF…"
         autoFocus
         className="mb-3 h-(--h-input) w-full rounded-(--radius-input)
-          border border-line-3 bg-surface px-3.5 text-[16px] shadow-sh-1
+          border border-line-3 bg-surface px-3.5 text-base shadow-sh-1
           placeholder:text-chalk-4
           focus:shadow-[3px_3px_0_var(--color-signal)]"
       />
@@ -102,7 +102,7 @@ export function GifPicker({
 
       {state === "error" && (
         <div className="rounded-(--radius-input) border border-line-2 bg-surface-2 px-3.5 py-3">
-          <p className="text-[13px] font-semibold text-chalk">
+          <p className="text-13 font-semibold text-chalk">
             {configured ? "La recherche de GIF est indisponible" : "Recherche de GIF non configurée"}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-chalk-3">
@@ -117,14 +117,14 @@ export function GifPicker({
               aria-label="Adresse du GIF"
               placeholder="https://media.tenor.com/…"
               className="h-10 min-w-0 flex-1 rounded-(--radius-input) border border-line-3
-                bg-surface px-3 text-[16px] placeholder:text-chalk-4"
+                bg-surface px-3 text-base placeholder:text-chalk-4"
             />
             <button
               type="button"
               onClick={pickDirect}
               disabled={!isAllowedGifUrl(directUrl.trim())}
               className="h-10 shrink-0 rounded-(--radius-input) border border-signal bg-signal
-                px-3 font-mono text-[11px] font-bold uppercase tracking-wide text-void disabled:opacity-40"
+                px-3 font-mono text-12 font-bold uppercase tracking-wide text-void disabled:opacity-40"
             >
               Utiliser
             </button>
@@ -133,7 +133,7 @@ export function GifPicker({
       )}
 
       {state === "ready" && results.length === 0 && (
-        <p className="py-2 text-[13px] text-chalk-3">
+        <p className="py-2 text-13 text-chalk-3">
           Aucun GIF pour cette recherche. Essaie un mot plus large.
         </p>
       )}
@@ -186,14 +186,14 @@ export function GifPicker({
             aria-label="Adresse directe du GIF"
             placeholder="https://media.tenor.com/…"
             className="h-10 min-w-0 flex-1 rounded-(--radius-input) border border-line-3
-              bg-surface px-3 text-[16px] placeholder:text-chalk-4"
+              bg-surface px-3 text-base placeholder:text-chalk-4"
           />
           <button
             type="button"
             onClick={pickDirect}
             disabled={!isAllowedGifUrl(directUrl.trim())}
             className="h-10 shrink-0 rounded-(--radius-input) border border-signal bg-signal
-              px-3 font-mono text-[11px] font-bold uppercase tracking-wide text-void disabled:opacity-40"
+              px-3 font-mono text-12 font-bold uppercase tracking-wide text-void disabled:opacity-40"
           >
             Utiliser
           </button>

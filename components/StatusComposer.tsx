@@ -17,6 +17,7 @@ import { createPortal } from "react-dom";
 import { GifPicker } from "@/components/GifPicker";
 import { Icon } from "@/components/Icon";
 import type { Gif } from "@/lib/gifs";
+import type { StoryAudience } from "@/lib/stories";
 
 const STAGE_W = 1080;
 const STAGE_H = 1920;
@@ -95,10 +96,10 @@ type ComposerProps = {
   initialMedia?: { url: string; kind: "image" | "video"; name?: string } | null;
   /** Fichier choisi avant l'ouverture. */
   sourceFile?: File | null;
-  onUse: (file: File) => void | Promise<void>;
-  onUseSource?: (file: File) => void | Promise<void>;
+  onUse: (file: File, audience: StoryAudience) => void | Promise<void>;
+  onUseSource?: (file: File, audience: StoryAudience) => void | Promise<void>;
   /** GIF choisi : il part en **lien**, animé, sans passer par le canvas. */
-  onUseGif?: (gif: Gif) => void | Promise<void>;
+  onUseGif?: (gif: Gif, audience: StoryAudience) => void | Promise<void>;
   onLayersChange?: (text: string) => void;
 };
 
@@ -124,6 +125,7 @@ function EditorShell({
   onLayersChange,
 }: ComposerProps) {
   const [text, setText] = useState("");
+  const [audience, setAudience] = useState<StoryAudience>("public");
   const [editing, setEditing] = useState(true);
   const [background, setBackground] = useState(0);
   const [color, setColor] = useState(0);
@@ -356,7 +358,7 @@ function EditorShell({
       }
       setBusy(true);
       try {
-        await onUseGif(gif);
+        await onUseGif(gif, audience);
         onClose();
       } catch {
         setError("La publication du GIF a échoué. Réessaie.");
@@ -374,7 +376,7 @@ function EditorShell({
     if (source?.kind === "video" && source.file.size > 0) {
       setBusy(true);
       try {
-        await (onUseSource ?? onUse)(source.file);
+        await (onUseSource ?? onUse)(source.file, audience);
         onClose();
       } catch {
         setError("La publication de la vidéo a échoué. Réessaie.");
@@ -395,7 +397,7 @@ function EditorShell({
         type: "image/webp",
         lastModified: Date.now(),
       });
-      await onUse(file);
+      await onUse(file, audience);
       onClose();
     } catch {
       setError("La publication a échoué. Réessaie.");
@@ -421,7 +423,7 @@ function EditorShell({
           <Icon name="close" size={18} />
           Fermer
         </button>
-        <span className="text-[13px] font-semibold tracking-wide text-chalk">
+        <span className="text-13 font-semibold tracking-wide text-chalk">
           Nouveau statut
         </span>
         <button
@@ -528,6 +530,7 @@ function EditorShell({
               // barre reste là pour ajouter une légende.
               <button
                 type="button"
+                onPointerDown={(event) => event.stopPropagation()}
                 onClick={() => setEditing(true)}
                 className="rounded-chip bg-void/70 px-4 py-2 font-mono text-xs uppercase tracking-wide text-chalk"
               >
@@ -554,6 +557,35 @@ function EditorShell({
         l'écran : la scène devenait une vignette. Un éditeur de statut se
         juge à la place que prend l'image qu'on fabrique.
       */}
+      <div className="shrink-0 border-t border-line-2 bg-surface/95 px-3 py-1.5">
+        <div
+          role="radiogroup"
+          aria-label="Qui peut voir ce statut"
+          className="mx-auto flex max-w-xl gap-1.5"
+        >
+          {([
+            ["public", "Public"],
+            ["followers", "Abonnés"],
+            ["private", "Moi"],
+          ] as const).map(([value, label]) => (
+            <button
+              key={value}
+              type="button"
+              role="radio"
+              aria-checked={audience === value}
+              onClick={() => setAudience(value)}
+              className={`min-h-11 flex-1 rounded-input border px-2 font-mono text-12
+                transition-colors
+                ${audience === value
+                  ? "border-signal bg-signal/10 text-signal"
+                  : "border-line-2 text-chalk-3 hover:border-line-3"}`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       <footer className="shrink-0 border-t border-line-2 bg-surface/95 px-2 pb-1.5 pt-1">
         <div className="mx-auto flex max-w-xl items-stretch">
           <ToolItem

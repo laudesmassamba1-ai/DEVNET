@@ -185,14 +185,14 @@ export default function GithubPage() {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Filtrer vos dépôts"
                 className="h-(--h-input) w-full rounded-(--radius-input)
-                  border border-line-3 bg-surface pr-3 pl-9 font-mono text-[13px]
+                  border border-line-3 bg-surface pr-3 pl-9 font-mono text-13
                   shadow-sh-1 placeholder:text-chalk-4
                   focus:shadow-[3px_3px_0_var(--color-signal)]"
               />
             </label>
 
             {reloading && (
-              <p className="mb-2 font-mono text-[10.5px] tracking-[0.08em] text-chalk-4 uppercase">
+              <p className="mb-2 font-mono text-12 tracking-[0.08em] text-chalk-4 uppercase">
                 Actualisation…
               </p>
             )}
@@ -221,7 +221,7 @@ export default function GithubPage() {
                             size={12}
                             className="shrink-0 text-chalk-4"
                           />
-                          <span className="truncate font-mono text-[13px] font-bold text-chalk group-hover:text-signal">
+                          <span className="truncate font-mono text-13 font-bold text-chalk group-hover:text-signal">
                             {r.full_name}
                           </span>
                         </Link>
@@ -231,7 +231,7 @@ export default function GithubPage() {
                           </p>
                         )}
                         <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1
-                          font-mono text-[10.5px] tracking-[0.06em] text-chalk-4 uppercase">
+                          font-mono text-12 tracking-[0.06em] text-chalk-4 uppercase">
                           {r.language && <span>{r.language}</span>}
                           {r.pushed_at && <span>poussé {timeAgo(r.pushed_at)}</span>}
                         </div>
@@ -241,7 +241,7 @@ export default function GithubPage() {
                         onClick={() => void importRepo(r)}
                         disabled={busy !== null || !profile}
                         className="h-(--h-input) shrink-0 rounded-(--radius-chip)
-                          border border-signal bg-signal px-3 font-mono text-[11px]
+                          border border-signal bg-signal px-3 font-mono text-12
                           font-bold tracking-[0.1em] text-void uppercase shadow-sh-1
                           disabled:opacity-40"
                       >

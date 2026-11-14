@@ -4,14 +4,15 @@ import { demoSession } from "./session";
 /**
  * Porte de non-régression du contrat mobile.
  *
- * Trois largeurs réelles (iPhone SE, Android courant, iPhone 14), huit écrans.
+ * Six largeurs réelles (iPhone SE, Android courant, iPhone 14, grand
+ * téléphone, tablette, desktop), et douze écrans.
  * Le test échoue si :
  *  - la largeur du document dépasse le viewport (débordement de page) ;
  *  - un élément visible sort du viewport hors conteneur de défilement ;
  *  - un texte essentiel est rendu sous 12 px.
  *
  * Les seules exceptions sont explicites dans le DOM (`data-allow-tiny`) :
- * la navigation repasse à 11 px sous 340 px pour tenir six onglets, et la
+ * la navigation repasse à 11 px sous 340 px pour tenir cinq onglets, et la
  * ligne d'état terminal est décorative. Les liens inline ne sont pas testés
  * comme cibles tactiles (WCAG 2.5.8).
  */
@@ -24,8 +25,12 @@ const ROUTES = [
   "/groups",
   "/communities",
   "/projects/p-1",
+  "/decouvrir",
+  "/notifications",
+  "/signets",
+  "/aide",
 ];
-const WIDTHS = [320, 360, 390];
+const WIDTHS = [320, 360, 390, 430, 768, 1024];
 
 const SCAN = () => {
   const vw = window.innerWidth;
@@ -81,6 +86,7 @@ const SCAN = () => {
 
 for (const width of WIDTHS) {
   test(`aucun débordement ni texte < 12 px à ${width}px`, async ({ page }) => {
+    test.setTimeout(120_000);
     await page.setViewportSize({ width, height: 844 });
     await demoSession(page);
 

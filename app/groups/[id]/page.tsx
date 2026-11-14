@@ -584,7 +584,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   onClick={() => setActiveSlug(c.slug)}
                   aria-current={on ? "true" : undefined}
                   className={`relative flex w-full items-center gap-1.5
-                    rounded-(--radius-chip) px-2.5 py-2 text-left text-[13px]
+                    rounded-(--radius-chip) px-2.5 py-2 text-left text-13
                     transition-colors
                     ${on
                       ? "bg-surface-2 font-semibold text-signal"
@@ -600,7 +600,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
 
             <button type="button" onClick={() => setOpenNew(true)}
               className="flex w-full items-center gap-1.5 rounded-(--radius-chip)
-                px-2.5 py-2 text-left text-[13px] text-chalk-4 transition-colors
+                px-2.5 py-2 text-left text-13 text-chalk-4 transition-colors
                 hover:bg-surface-2/60 hover:text-chalk">
               <Icon name="plus" size={12} strokeWidth={2} />
               <span className="truncate">Nouveau canal</span>
@@ -652,11 +652,11 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   <Icon name={asIconName(group?.emoji, "groups")} size={16} strokeWidth={1.7} />
                 </span>
                 <div className="min-w-0">
-                  <div className="truncate text-[13.5px] font-bold text-chalk shell:hidden">
+                  <div className="truncate text-13 font-bold text-chalk shell:hidden">
                     {group?.name ?? "Groupe"}
                   </div>
                   <div className="flex items-baseline gap-2">
-                    <span className="font-mono text-[13px] font-bold text-chalk">
+                    <span className="font-mono text-13 font-bold text-chalk">
                       {active ? channelLabel(active) : "#"}
                     </span>
                     {active?.topic && (
@@ -772,7 +772,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                       />
                     )}
                     <div
-                      className={`rounded-(--radius-input) border px-3.5 py-2.5 text-[13.5px]
+                      className={`rounded-(--radius-input) border px-3.5 py-2.5 text-13
                         leading-[1.55] break-words whitespace-pre-wrap
                         ${m.is_code && !mine
                           ? "border-l-[5px] border-signal glass-flat font-mono text-12"
@@ -906,7 +906,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             onChange={(e) => setNewName(e.target.value)}
             placeholder="développement"
             className="h-(--h-input) w-full rounded-(--radius-input) border
-              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
+              border-line-3 bg-surface px-3.5 text-14 shadow-sh-1
               placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
           {/* Aperçu du slug : le nom affiché et le nom tapé diffèrent, et
@@ -931,7 +931,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             onChange={(e) => setNewTopic(e.target.value)}
             placeholder="À quoi sert ce canal ?"
             className="h-(--h-input) w-full rounded-(--radius-input) border
-              border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
+              border-line-3 bg-surface px-3.5 text-14 shadow-sh-1
               placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
         </div>
@@ -939,13 +939,13 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         <div className="mt-1 flex gap-2.5">
           <button type="button" onClick={() => setOpenNew(false)}
             className="rounded-(--radius-input) border border-transparent px-5
-              text-[13px] font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
+              text-13 font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
             Annuler
           </button>
           <button
             type="button" onClick={createChannel} disabled={creating}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
-              rounded-(--radius-input) border border-line-3 bg-signal text-[13px]
+              rounded-(--radius-input) border border-line-3 bg-signal text-13
               font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             {creating ? "Création…" : "Ouvrir le canal"}
@@ -976,7 +976,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                     color={m.user?.avatar_color}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-bold text-chalk">
+                    <p className="truncate text-13 font-bold text-chalk">
                       {m.user?.prenom ?? "Compte supprimé"}
                       {m.user?.verified && <VerifiedBadge tier={badgeFor(m.user, xpOf(m.user))} size="sm" className="ml-1.5" />}
                       {m.user?.account_type === "professional" && (
@@ -1060,7 +1060,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             onClick={() => void leaveGroup()}
             className="mo-press mt-4 flex h-[44px] w-full items-center justify-center gap-2
               rounded-(--radius-input) border border-danger bg-surface
-              text-[13px] font-bold text-danger transition-colors hover:bg-danger
+              text-13 font-bold text-danger transition-colors hover:bg-danger
               hover:text-void disabled:opacity-40"
           >
             <Icon name="logout" size={14} />

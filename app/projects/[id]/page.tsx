@@ -892,7 +892,7 @@ async function showDiff(sha: string) {
               type="button"
               onClick={() => router.push("/projects")}
               className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input)
-                border border-line-3 px-4 text-[13px] font-bold text-chalk-2
+                border border-line-3 px-4 text-13 font-bold text-chalk-2
                 hover:border-signal hover:text-signal"
             >
               Retour aux projets
@@ -1251,7 +1251,7 @@ async function showDiff(sha: string) {
             if (e.key === "Enter") void createNewBranch();
           }}
           className="mb-2 h-(--h-input) w-full rounded-(--radius-input)
-            border border-line-3 bg-surface px-3.5 font-mono text-[13px] shadow-sh-1
+            border border-line-3 bg-surface px-3.5 font-mono text-13 shadow-sh-1
              transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
@@ -1279,7 +1279,7 @@ async function showDiff(sha: string) {
             type="button"
             onClick={() => setNamingBranch(false)}
             className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
-              border border-transparent text-[13px] font-bold text-chalk-2
+              border border-transparent text-13 font-bold text-chalk-2
               hover:bg-surface-2 hover:text-chalk"
           >
             Annuler
@@ -1290,7 +1290,7 @@ async function showDiff(sha: string) {
             disabled={busy || branchCheck === null || !branchCheck.ok}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
               rounded-(--radius-input) border border-signal bg-signal
-              text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+              text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             <Icon name="branch" size={12} strokeWidth={2} />
             Créer
@@ -1307,7 +1307,7 @@ async function showDiff(sha: string) {
         onClose={() => setDropping(null)}
         title="Supprimer la branche"
       >
-        <p className="mb-4 text-[13px] leading-relaxed text-chalk-2">
+        <p className="mb-4 text-13 leading-relaxed text-chalk-2">
           La branche{" "}
           <span className="font-mono text-signal">{dropping}</span> et ses
           fichiers seront supprimés. Les révisions restent dans
@@ -1319,7 +1319,7 @@ async function showDiff(sha: string) {
             type="button"
             onClick={() => setDropping(null)}
             className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
-              border border-transparent text-[13px] font-bold text-chalk-2
+              border border-transparent text-13 font-bold text-chalk-2
               hover:bg-surface-2 hover:text-chalk"
           >
             Annuler
@@ -1330,7 +1330,7 @@ async function showDiff(sha: string) {
             disabled={busy}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
               rounded-(--radius-input) border border-danger bg-danger
-              text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+              text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             <Icon name="trash" size={12} strokeWidth={2} />
             Supprimer
@@ -1355,7 +1355,7 @@ async function showDiff(sha: string) {
             if (e.key === "Enter") void createFile();
           }}
           className="mb-2 h-(--h-input) w-full rounded-(--radius-input)
-            border border-line-3 bg-surface px-3.5 font-mono text-[13px] shadow-sh-1
+            border border-line-3 bg-surface px-3.5 font-mono text-13 shadow-sh-1
              transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
@@ -1368,7 +1368,7 @@ async function showDiff(sha: string) {
             type="button"
             onClick={() => setCreating(false)}
             className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
-              border border-transparent text-[13px] font-bold text-chalk-2
+              border border-transparent text-13 font-bold text-chalk-2
               hover:bg-surface-2 hover:text-chalk"
           >
             Annuler
@@ -1379,7 +1379,7 @@ async function showDiff(sha: string) {
             disabled={busy || !newPath.trim()}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
               rounded-(--radius-input) border border-signal bg-signal
-              text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+              text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             Créer
           </button>

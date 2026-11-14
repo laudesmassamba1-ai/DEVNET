@@ -195,7 +195,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
               onClick={() => setComposing(true)}
               className="mo-press inline-flex h-(--h-tap) items-center gap-2
                 rounded-(--radius-input) border border-signal bg-signal
-                px-4 text-[13px] font-bold text-void shadow-sh-2"
+                px-4 text-13 font-bold text-void shadow-sh-2"
             >
               <Icon name="plus" size={14} strokeWidth={2} />
               Ouvrir une issue
@@ -234,7 +234,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
 
                   <span className="min-w-0 flex-1">
                     <span
-                      className={`block text-[13px] leading-snug
+                      className={`block text-13 leading-snug
                         ${issue.status === "open" ? "text-chalk" : "text-chalk-3 line-through decoration-chalk-4/50"}`}
                     >
                       {issue.title}
@@ -399,7 +399,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           placeholder="Le registre écrase les livraisons de la veille"
           autoFocus
           className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
-            border border-line-3 bg-surface px-3.5 text-[13px] shadow-sh-1
+            border border-line-3 bg-surface px-3.5 text-13 shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
@@ -414,7 +414,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           rows={5}
           placeholder="Comment on l'a vu, ce qu'on attend."
           className="mb-5 w-full resize-y rounded-(--radius-input) border
-            border-line-3 bg-surface px-3.5 py-2.5 text-[13px] leading-relaxed
+            border-line-3 bg-surface px-3.5 py-2.5 text-13 leading-relaxed
             shadow-sh-1 transition-[transform,box-shadow]
             placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px
             focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -425,7 +425,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
             type="button"
             onClick={() => setComposing(false)}
             className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
-              border border-transparent text-[13px] font-bold text-chalk-2
+              border border-transparent text-13 font-bold text-chalk-2
               hover:bg-surface-2 hover:text-chalk"
           >
             Annuler
@@ -441,7 +441,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
             }
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
               rounded-(--radius-input) border border-signal bg-signal
-              text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+              text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             <Icon name="flag" size={12} strokeWidth={2} />
             Ouvrir

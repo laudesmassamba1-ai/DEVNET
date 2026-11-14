@@ -167,7 +167,7 @@ function LoginForm() {
               tracking-[-0.05em] text-chalk">
               DevNet<span className="text-signal">.</span>
             </h1>
-            <p className="mt-1.5 text-[13px] text-chalk-3">
+            <p className="mt-1.5 text-13 text-chalk-3">
               Fil, projets et échanges de développeurs.
             </p>
           </div>
@@ -182,7 +182,7 @@ function LoginForm() {
           <h2 className="font-display text-[1.5rem] font-bold tracking-[-0.035em] text-chalk">
             {isDemo ? "Démonstration" : "Connexion"}
           </h2>
-          <p className="mt-1 mb-5 text-[13px] text-chalk-3">
+          <p className="mt-1 mb-5 text-13 text-chalk-3">
             Accède à ton fil, tes projets et tes messages.
           </p>
 
@@ -199,7 +199,7 @@ function LoginForm() {
                     }}
                     className="lift-press flex h-(--h-tap) items-center justify-center gap-2
                       rounded-(--radius-input) border border-line-3 bg-surface px-3
-                      text-[13px] font-semibold text-chalk shadow-sh-2
+                      text-13 font-semibold text-chalk shadow-sh-2
                       transition-colors hover:border-signal aria-disabled:opacity-40"
                   >
                     {provider === "google" ? <GoogleMark /> : <GitHubMark />}
@@ -226,7 +226,7 @@ function LoginForm() {
                 <div className="flex items-center gap-2.5">
                   <Avatar name={demoPick.prenom} color={demoPick.avatar_color} size="md" />
                   <div>
-                    <p className="font-display text-[14px] font-bold text-chalk">
+                    <p className="font-display text-14 font-bold text-chalk">
                       @{demoPick.pseudo}
                     </p>
                     <p className="label-micro text-chalk-4">
@@ -272,7 +272,7 @@ function LoginForm() {
                         {u.followers > 0 ? `${u.followers} abonnés` : "neau"}
                       </p>
                       {u.verified && (
-                        <span className="mt-0.5 inline-flex items-center gap-1 label-micro text-[10px] uppercase text-signal">
+                        <span className="mt-0.5 inline-flex items-center gap-1 label-micro text-12 uppercase text-signal">
                           <Icon name="verified" size={9} />
                           vérifié
                         </span>
@@ -306,7 +306,7 @@ function LoginForm() {
                             @{u.pseudo}
                           </p>
                           <p className="truncate label-micro text-chalk-4">{u.ville}</p>
-                          <span className="mt-0.5 inline-flex items-center gap-1 label-micro text-[10px] uppercase text-info">
+                          <span className="mt-0.5 inline-flex items-center gap-1 label-micro text-12 uppercase text-info">
                             <Icon name="lock" size={9} />
                             administration
                           </span>
@@ -334,7 +334,7 @@ function LoginForm() {
                 disabled={busy}
                 className="lift-press flex h-(--h-tap) w-full items-center justify-center gap-2
                   rounded-(--radius-input) border border-signal bg-signal
-                  text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+                  text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
               >
                 {busy ? <Spinner /> : <>Entrer comme @{(demoPick ?? DEMO_ME).pseudo}</>}
               </button>
@@ -378,7 +378,7 @@ function LoginForm() {
                 aria-invalid={message ? true : undefined}
                 aria-describedby={message ? "login-error" : undefined}
                 className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5
-                  text-[14px]
+                  text-14
                   transition-[transform,box-shadow] duration-(--d-base) ease-(--ease-spring)
                   placeholder:text-chalk-4 focus-visible:ring-2 focus-visible:ring-signal/70
                   focus-visible:ring-offset-2 focus-visible:ring-offset-page"
@@ -402,7 +402,7 @@ function LoginForm() {
                   aria-invalid={message ? true : undefined}
                   aria-describedby={message ? "login-error" : undefined}
                   className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
-                    px-3.5 pr-12 text-[14px]
+                    px-3.5 pr-12 text-14
                     transition-[transform,box-shadow] duration-(--d-base) ease-(--ease-spring)
                     placeholder:text-chalk-4 focus-visible:ring-2 focus-visible:ring-signal/70
                     focus-visible:ring-offset-2 focus-visible:ring-offset-page"
@@ -443,7 +443,7 @@ function LoginForm() {
                 ${isDemo
                   ? "border-line-3 bg-surface text-chalk hover:border-signal"
                   : "border-signal bg-signal text-void"}
-                text-[13px] font-semibold shadow-sh-2 disabled:opacity-40`}
+                text-13 font-semibold shadow-sh-2 disabled:opacity-40`}
             >
               {busy ? <Spinner /> : "Se connecter"}
             </button>
@@ -458,7 +458,7 @@ function LoginForm() {
               Créer un compte
             </Link>
           </p>
-          <p className="mt-3 text-center text-[11px] text-chalk-4">
+          <p className="mt-3 text-center text-12 text-chalk-4">
             <Link href="/a-propos" className="hover:text-chalk-2">À propos</Link>
             {" · "}
             <Link href="/aide" className="hover:text-chalk-2">Aide</Link>

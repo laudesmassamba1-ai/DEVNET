@@ -255,7 +255,7 @@ export default function ProjectsPage() {
     >
       <div className="px-(--gutter) pt-3" data-tour="projects-list">
         <Motion role="slide" delay={40}>
-          <p className="mb-4 text-[13px] leading-relaxed text-chalk-3">
+          <p className="mb-4 text-13 leading-relaxed text-chalk-3">
             Chaque projet est un dépôt. Ceux qui recrutent affichent votre compatibilité.
           </p>
         </Motion>
@@ -302,7 +302,7 @@ export default function ProjectsPage() {
                 onClick={() => setOpen(true)}
                 className="mo-press inline-flex h-(--h-tap) items-center gap-2
                   rounded-(--radius-input) border border-signal bg-signal
-                  px-4 text-[13px] font-bold text-void shadow-sh-2"
+                  px-4 text-13 font-bold text-void shadow-sh-2"
               >
                 <Icon name="plus" size={14} strokeWidth={2} />
                 Nouveau projet
@@ -327,7 +327,7 @@ export default function ProjectsPage() {
                 onClick={() => setFilters(EMPTY_FILTERS)}
                 className="mo-press inline-flex h-(--h-tap) items-center gap-2
                   rounded-(--radius-input) border border-line-3 bg-surface
-                  px-4 text-[13px] font-bold text-chalk-2 shadow-sh-1"
+                  px-4 text-13 font-bold text-chalk-2 shadow-sh-1"
               >
                 <Icon name="close" size={14} strokeWidth={2} />
                 Effacer les filtres
@@ -358,7 +358,7 @@ export default function ProjectsPage() {
 
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-2">
-                        <span className="truncate font-display text-[15px] font-bold text-chalk">
+                        <span className="truncate font-display text-15 font-bold text-chalk">
                           {p.name}
                         </span>
                         <Icon
@@ -427,7 +427,7 @@ export default function ProjectsPage() {
                           }}
                           className="mo-press inline-flex h-(--h-tap) items-center justify-center gap-2
                             self-start rounded-(--radius-input) border border-signal bg-signal px-4
-                            text-[13px] font-bold text-void shadow-sh-2"
+                            text-13 font-bold text-void shadow-sh-2"
                         >
                           <Icon name="send" size={14} strokeWidth={2} />
                           Postuler
@@ -458,7 +458,7 @@ export default function ProjectsPage() {
           placeholder="registre-cooperatives"
           autoFocus
           className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
-            border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
+            border border-line-3 bg-surface px-3.5 text-14 shadow-sh-1
             transition-[transform,box-shadow] duration-(--d-base)
             ease-(--ease-spring) placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -474,7 +474,7 @@ export default function ProjectsPage() {
           rows={2}
           placeholder="Ce que ce dépôt fait, en une phrase."
           className="mb-4 w-full rounded-(--radius-input) border border-line-3
-            bg-surface px-3.5 py-3 text-[14px] shadow-sh-1
+            bg-surface px-3.5 py-3 text-14 shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
@@ -490,7 +490,7 @@ export default function ProjectsPage() {
               onChange={(e) => setLanguage(e.target.value)}
               placeholder="Python"
               className="h-(--h-input) w-full rounded-(--radius-input)
-                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
+                border border-line-3 bg-surface px-3.5 text-14 shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
@@ -504,7 +504,7 @@ export default function ProjectsPage() {
               value={stage}
               onChange={(e) => setStage(e.target.value as ProjectStage)}
               className="h-(--h-input) w-full rounded-(--radius-input)
-                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1
+                border border-line-3 bg-surface px-3 text-14 shadow-sh-1
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             >
               {PROJECT_STAGES.map((s) => (
@@ -515,7 +515,7 @@ export default function ProjectsPage() {
         </div>
 
         <span className="mb-1.5 block prompt-label text-chalk-2">recherche des membres</span>
-        <label className="mb-4 flex items-center gap-2.5 text-[13px] text-chalk-2">
+        <label className="mb-4 flex items-center gap-2.5 text-13 text-chalk-2">
           <input
             type="checkbox"
             checked={seeking}
@@ -536,7 +536,7 @@ export default function ProjectsPage() {
               onChange={(e) => setDemandLanguages(e.target.value)}
               placeholder="Python, SQL"
               className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
-                border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
+                border border-line-3 bg-surface px-3.5 text-14 shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
@@ -572,7 +572,7 @@ export default function ProjectsPage() {
             type="button"
             onClick={() => setOpen(false)}
             className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
-              border border-transparent text-[13px] font-bold text-chalk-2
+              border border-transparent text-13 font-bold text-chalk-2
               transition-colors hover:bg-surface-2 hover:text-chalk"
           >
             Annuler
@@ -583,7 +583,7 @@ export default function ProjectsPage() {
             disabled={busy}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
               rounded-(--radius-input) border border-signal bg-signal
-              text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+              text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             Créer le projet
           </button>
@@ -616,7 +616,7 @@ export default function ProjectsPage() {
               value={applyRole}
               onChange={(e) => setApplyRole(e.target.value)}
               className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
-                border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1
+                border border-line-3 bg-surface px-3 text-14 shadow-sh-1
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             >
               {(applyTo.demand_roles.length > 0
@@ -637,7 +637,7 @@ export default function ProjectsPage() {
               rows={3}
               placeholder="Ce que vous apportez, en deux phrases."
               className="mb-5 w-full rounded-(--radius-input) border border-line-3
-                bg-surface px-3.5 py-3 text-[14px] shadow-sh-1
+                bg-surface px-3.5 py-3 text-14 shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
@@ -647,7 +647,7 @@ export default function ProjectsPage() {
                 type="button"
                 onClick={() => setApplyTo(null)}
                 className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
-                  border border-transparent text-[13px] font-bold text-chalk-2
+                  border border-transparent text-13 font-bold text-chalk-2
                   transition-colors hover:bg-surface-2 hover:text-chalk"
               >
                 Annuler
@@ -658,7 +658,7 @@ export default function ProjectsPage() {
                 disabled={applying}
                 className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
                   rounded-(--radius-input) border border-signal bg-signal
-                  text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+                  text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
               >
                 <Icon name="send" size={14} strokeWidth={2} />
                 Envoyer
@@ -789,7 +789,7 @@ function CompatibilityBadge({
       title={`Compatibilité : ${label}`}
       className={`shrink-0 rounded-(--radius-input) border px-2 py-1 text-center ${color}`}
     >
-      <span className="tnum block font-display text-[16px] font-bold leading-none">{score}</span>
+      <span className="tnum block font-display text-base font-bold leading-none">{score}</span>
       <span className="mt-0.5 block font-mono text-12 uppercase tracking-[0.08em]">% compat.</span>
     </span>
   );

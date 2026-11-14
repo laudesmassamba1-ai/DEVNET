@@ -115,7 +115,7 @@ function WeeklyGoalCard({ profileId }: { profileId: string }) {
   return (
     <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
       <div className="mb-1 flex items-center justify-between gap-3">
-        <div className="text-[13.5px] font-bold">Objectif de la semaine</div>
+        <div className="text-13 font-bold">Objectif de la semaine</div>
         <select
           value={target}
           onChange={(e) => changeTarget(Number(e.target.value))}
@@ -459,7 +459,7 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <p className={`mb-3.5 text-[13.5px] leading-[1.6] ${profile.bio ? "text-chalk-2" : "text-chalk-4 italic"}`}>
+            <p className={`mb-3.5 text-13 leading-[1.6] ${profile.bio ? "text-chalk-2" : "text-chalk-4 italic"}`}>
               {profile.bio ||
                 "Aucune bio — clique sur l'icône crayon pour en ajouter une."}
             </p>
@@ -605,7 +605,7 @@ export default function ProfilePage() {
                         `esc()` ici pouvait couper une entité en deux au
                         milieu (`&l`), laissant un fragment illisible au
                         bord de l'aperçu. */}
-                    <div className="mb-2 line-clamp-3 whitespace-pre-wrap text-[13.5px] leading-[1.6]">
+                    <div className="mb-2 line-clamp-3 whitespace-pre-wrap text-13 leading-[1.6]">
                       {p.text.slice(0, 240)}
                     </div>
                     {p.has_code && (
@@ -657,7 +657,7 @@ export default function ProfilePage() {
                   <div className="label-micro mb-1.5 text-chalk-3">
                     Email
                   </div>
-                  <div className="text-[14px]">{profile.email}</div>
+                  <div className="text-14">{profile.email}</div>
                 </div>
                 {progress && progress.stats.activeDays.length > 0 && (
                   <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
@@ -671,7 +671,7 @@ export default function ProfilePage() {
                   <div className="label-micro mb-1.5 text-chalk-3">
                     Formation
                   </div>
-                  <div className="text-[14px]">
+                  <div className="text-14">
                     {[profile.filiere, profile.niveau].filter(Boolean).join(" — ") || "—"}
                   </div>
                 </div>
@@ -702,14 +702,14 @@ export default function ProfilePage() {
                 </div>
                 <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="label-micro mb-1.5 text-chalk-3">Membre depuis</div>
-                  <div className="text-[14px]">
+                  <div className="text-14">
                     {new Date(profile.created_at).toLocaleDateString("fr",
                       { year: "numeric", month: "long", day: "numeric" })}
                   </div>
                 </div>
                 <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="label-micro mb-2.5 text-chalk-3">Abonnements</div>
-                  <div className="flex gap-6 text-[14px]">
+                  <div className="flex gap-6 text-14">
                     <span>
                       <strong className="tnum text-chalk">{profile.followers}</strong>{" "}
                       abonné{profile.followers > 1 ? "s" : ""}
@@ -740,12 +740,12 @@ export default function ProfilePage() {
             {tab === "settings" && (
               <div className="mo-slide space-y-3 py-4">
                 <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
-                  <div className="mb-1 text-[13.5px] font-bold">Compte</div>
+                  <div className="mb-1 text-13 font-bold">Compte</div>
                   <div className="mb-4 text-sm text-chalk-3">{profile.email}</div>
                   <button type="button" onClick={logout}
                     className="flex h-(--h-tap) w-full items-center justify-center gap-2
                       rounded-(--radius-input) border border-danger bg-transparent
-                      text-[13px] font-bold text-danger transition-colors hover:bg-danger
+                      text-13 font-bold text-danger transition-colors hover:bg-danger
                       hover:text-chalk">
                     <Icon name="logout" size={14} strokeWidth={2} />
                     Se déconnecter
@@ -753,7 +753,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
-                  <div className="mb-1 text-[13.5px] font-bold">Type de compte</div>
+                  <div className="mb-1 text-13 font-bold">Type de compte</div>
                   <p className="mb-3 text-sm leading-[1.5] text-chalk-3">
                     Le type de compte décrit qui vous êtes ; il ne vérifie rien. Le
                     cachet se demande plus bas, et il s&apos;obtient après examen.
@@ -788,7 +788,7 @@ export default function ProfilePage() {
                   `attente` remplace `none`, `acceptee` remplace `attente`.
                 */}
                 <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
-                  <div className="mb-1 flex items-center gap-2 text-[13.5px] font-bold">
+                  <div className="mb-1 flex items-center gap-2 text-13 font-bold">
                     <Icon name="verified" size={14} strokeWidth={2} />
                     Vérification
                     <span className="rounded-(--radius-chip) border-(--bw-thin)
@@ -825,7 +825,7 @@ export default function ProfilePage() {
                       maxLength={400}
                       placeholder="Nom réel, lien GitHub ou professionnel, pourquoi ce cachet…"
                       className="mb-2 w-full resize-none rounded-(--radius-input)
-                        border border-line-2 bg-base px-3 py-2 text-[13px] text-chalk
+                        border border-line-2 bg-base px-3 py-2 text-13 text-chalk
                         placeholder:text-chalk-4 focus:border-signal"
                     />
                   )}
@@ -899,14 +899,14 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
-                  <div className="mb-1 text-[13.5px] font-bold">Mes données</div>
+                  <div className="mb-1 text-13 font-bold">Mes données</div>
                   <p className="mb-3 text-sm leading-[1.5] text-chalk-3">
                     Toutes vos données en un fichier JSON.
                   </p>
                   <button type="button" disabled={exporting} onClick={exportData}
                     className="flex h-(--h-tap) w-full items-center justify-center gap-2
                       rounded-(--radius-input) border border-line-2 bg-transparent
-                      text-[13px] font-bold text-chalk-2 transition-colors
+                      text-13 font-bold text-chalk-2 transition-colors
                       hover:border-signal hover:text-signal disabled:opacity-40">
                     <Icon name="download" size={14} strokeWidth={2} />
                     {exporting ? "Export en cours…" : "Exporter mes données"}
@@ -998,7 +998,7 @@ function EditForm({
   // Deux variantes du même champ : `inputBox` sans largeur, pour les champs
   // posés côte à côte (lignes de liens), et `inputCls` pleine largeur.
   const inputBox =
-    "h-(--h-input) rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
+    "h-(--h-input) rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-14 " +
     "shadow-sh-1 placeholder:text-chalk-4";
   const inputCls = `w-full ${inputBox}`;
   const label = "label mb-1.5 block text-chalk";
@@ -1021,7 +1021,7 @@ function EditForm({
           )}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-[15px] font-bold text-chalk">
+          <p className="truncate font-display text-15 font-bold text-chalk">
             {prenom.trim() || "Sans prénom"}
           </p>
           <p className="truncate text-sm text-chalk-3">
@@ -1031,7 +1031,7 @@ function EditForm({
             <button
               type="button"
               onClick={() => setEditingAvatar(true)}
-              className="inline-flex h-(--h-tap) items-center gap-1.5 rounded-(--radius-input) border border-signal px-3 text-[12.5px] font-bold text-signal"
+              className="inline-flex h-(--h-tap) items-center gap-1.5 rounded-(--radius-input) border border-signal px-3 text-12 font-bold text-signal"
             >
               {avatarUrl ? "Changer la photo" : "Ajouter une photo"}
             </button>
@@ -1039,7 +1039,7 @@ function EditForm({
               <button
                 type="button"
                 onClick={() => setAvatarUrl("")}
-                className="inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-3 text-[12.5px] font-bold text-chalk-3 hover:border-danger hover:text-danger"
+                className="inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-3 text-12 font-bold text-chalk-3 hover:border-danger hover:text-danger"
               >
                 Retirer
               </button>
@@ -1094,7 +1094,7 @@ function EditForm({
               onClick={() => setColor(c)}
               aria-label={`Couleur ${c}`}
               aria-pressed={color === c}
-              className={`mo-press grid h-10 w-10 place-items-center rounded-full border-2 text-[15px] font-bold
+              className={`mo-press grid h-10 w-10 place-items-center rounded-full border-2 text-15 font-bold
                 transition-transform ${avatarClass(c)} ${
                   color === c ? "scale-110 border-chalk" : "border-transparent opacity-70 hover:opacity-100"
                 }`}
@@ -1138,7 +1138,7 @@ function EditForm({
           rows={3}
           placeholder="Une ligne sur vous…"
           className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] shadow-sh-1 placeholder:text-chalk-4"
+            text-14 shadow-sh-1 placeholder:text-chalk-4"
         />
       </div>
 
@@ -1233,7 +1233,7 @@ function EditForm({
               type="button"
               onClick={() => setLinks((cur) => [...cur, { label: "", url: "" }])}
               className="flex h-(--h-tap) items-center justify-center gap-1.5 rounded-(--radius-input)
-                border border-dashed border-line-3 text-[13px] font-bold text-chalk-2
+                border border-dashed border-line-3 text-13 font-bold text-chalk-2
                 transition-colors hover:border-chalk-3 hover:text-chalk"
             >
               <Icon name="plus" size={16} /> Ajouter un lien
@@ -1244,13 +1244,13 @@ function EditForm({
 
       <div className="flex gap-2.5">
         <button type="button" onClick={onCancel}
-          className="rounded-(--radius-input) border border-transparent px-5 text-[13px]
+          className="rounded-(--radius-input) border border-transparent px-5 text-13
             font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
           Annuler
         </button>
         <button type="button" onClick={save} disabled={saving}
           className="mo-press flex h-(--h-tap) flex-1 items-center justify-center rounded-(--radius-input)
-            border border-line-3 bg-signal text-[13px] font-bold text-void shadow-sh-2
+            border border-line-3 bg-signal text-13 font-bold text-void shadow-sh-2
             disabled:opacity-40">
           Enregistrer
         </button>

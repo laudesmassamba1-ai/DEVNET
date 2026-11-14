@@ -369,7 +369,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                     <Icon name="groups" size={16} />
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-semibold">{group.name}</span>
+                    <span className="block truncate text-13 font-semibold">{group.name}</span>
                     <span className="mt-0.5 block font-mono text-12 text-chalk-3">
                       {group.member_count} membres · {ROLE_LABEL[group.role]}
                     </span>

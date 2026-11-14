@@ -103,11 +103,11 @@ function CommentRow({
 
       <div className="min-w-0 flex-1">
         <p className="flex flex-wrap items-baseline gap-1.5">
-          <span className="font-bold text-[13px] text-chalk">{name}</span>
+          <span className="font-bold text-13 text-chalk">{name}</span>
           {author?.verified && <VerifiedBadge tier={badgeFor(author, xpOf(author))} size="sm" className="translate-y-[1px]" />}
           {/* L'horodatage est secondaire : il s'oppose à la présence du
               pseudo, qui est l'information première. */}
-          <span className="font-mono text-[10.5px] text-chalk-4">
+          <span className="font-mono text-12 text-chalk-4">
             {relativeTime(comment.created_at)}
           </span>
         </p>
@@ -116,7 +116,7 @@ function CommentRow({
           gifAlt={comment.gif_alt}
           sticker={sticker}
         />
-        <p className="mt-1 text-[13.5px] leading-[1.55] break-words whitespace-pre-wrap text-chalk-2">
+        <p className="mt-1 text-13 leading-[1.55] break-words whitespace-pre-wrap text-chalk-2">
           {/* Même découpage que dans une publication : c'est ici qu'on
               cite le plus souvent quelqu'un, et un `@pseudo` qui ne mène
               nulle part obligerait à le retaper pour aller voir le
@@ -146,7 +146,7 @@ function CommentRow({
           onClick={() => onReply(comment)}
           disabled={!me || busy}
           className="mt-1.5 inline-flex min-h-[32px] items-center gap-1.5
-            font-mono text-[10.5px] font-bold tracking-[0.08em] text-chalk-3
+            font-mono text-12 font-bold tracking-[0.08em] text-chalk-3
             uppercase transition-colors hover:text-signal disabled:opacity-40"
         >
           <Icon name="command" size={11} strokeWidth={2} />
@@ -472,7 +472,7 @@ export function CommentsPanel({
             bandeau permanent afficherait « répondre à personne ». */}
         {replyTo && (
           <div className="mb-2 flex items-center gap-2 border border-line-2
-            bg-surface px-2.5 py-1.5 text-[11.5px] text-chalk-3">
+            bg-surface px-2.5 py-1.5 text-12 text-chalk-3">
             <Icon name="command" size={11} className="shrink-0 text-signal" />
             <span className="min-w-0 flex-1 truncate">
               Réponse à <span className="font-bold text-chalk">{replyTo.name}</span>
@@ -491,7 +491,7 @@ export function CommentsPanel({
         {attachment && (
           <div className="mb-2 flex items-center gap-2 rounded-input border border-line-2
             bg-surface-2/60 px-2.5 py-1.5">
-            <span className="min-w-0 flex-1 truncate text-[11.5px] text-chalk-2">
+            <span className="min-w-0 flex-1 truncate text-12 text-chalk-2">
               {attachment.kind === "sticker" ? "Sticker prêt à envoyer" : "GIF prêt à envoyer"}
             </span>
             <button
@@ -530,7 +530,7 @@ export function CommentsPanel({
             placeholder={me ? "Répondre…" : "Connecte-toi pour répondre"}
             disabled={!me}
             className="min-h-[42px] flex-1 resize-none rounded-(--radius-input)
-              border border-line-3 bg-surface px-3 py-2 text-[13.5px]
+              border border-line-3 bg-surface px-3 py-2 text-13
               leading-[1.55] text-chalk shadow-sh-1
               transition-[transform,box-shadow] placeholder:text-chalk-4
               focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]
@@ -554,7 +554,7 @@ export function CommentsPanel({
       {/* La limite est une information, pas une punition : elle n'apparaît
           qu'à partir de 80 %, sinon elle prendrait la place du texte. */}
       {text.length > 800 && (
-        <p className="tnum mt-1 text-right font-mono text-[10.5px] text-warn">
+        <p className="tnum mt-1 text-right font-mono text-12 text-warn">
           {text.length}/1000
         </p>
       )}
@@ -571,7 +571,7 @@ export function CommentsPanel({
           overflow-hidden rounded-panel border border-line-2 bg-surface shadow-sh-2 xl:flex"
       >
         <header className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
-          <h2 className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3">
+          <h2 className="font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3">
             Commentaires
           </h2>
           <button

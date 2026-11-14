@@ -59,7 +59,7 @@ export function StickerPicker({
 
       {stickers !== null && stickers.length === 0 && (
         <div className="rounded-(--radius-input) border border-line-2 bg-surface-2 px-3.5 py-3">
-          <p className="text-[13px] font-semibold text-chalk">{error}</p>
+          <p className="text-13 font-semibold text-chalk">{error}</p>
           <p className="mt-1 text-sm leading-relaxed text-chalk-3">
             Crée ton premier sticker juste ici — un sticker est une image, pas un
             emoji.

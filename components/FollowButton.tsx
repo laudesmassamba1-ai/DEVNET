@@ -153,7 +153,7 @@ export function FollowButton({
           following ? `Ne plus suivre ${targetPseudo}` : `Suivre ${targetPseudo}`
         }
         className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-(--radius-input)
-          border px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em]
+          border px-2.5 font-mono text-12 font-bold uppercase tracking-[0.1em]
           transition-[background-color,color,border-color] duration-(--d-fast)
           disabled:opacity-50
           ${following

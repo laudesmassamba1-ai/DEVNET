@@ -190,12 +190,12 @@ export default function StickerStudioPage() {
             <label
               htmlFor="sticker-file"
               className="inline-flex min-h-11 shrink-0 cursor-pointer items-center rounded-(--radius-chip)
-                border border-line-2 bg-surface-2 px-4 font-mono text-[10px] font-bold
+                border border-line-2 bg-surface-2 px-4 font-mono text-12 font-bold
                 uppercase tracking-[0.12em] text-chalk transition-colors hover:border-signal"
             >
               Choisir un fichier
             </label>
-            <span className="break-all font-mono text-[11px] text-chalk-3">
+            <span className="break-all font-mono text-12 text-chalk-3">
               {fileName || "Aucun fichier choisi"}
             </span>
           </div>
@@ -292,7 +292,7 @@ export default function StickerStudioPage() {
                   <p className="mt-1 truncate text-xs text-chalk" title={sticker.name}>
                     {sticker.name}
                   </p>
-                  <p className="text-[11px] text-chalk-3">
+                  <p className="text-12 text-chalk-3">
                     {sticker.visibility === "public" ? "public" : "privé"}
                     {sticker.byteSize > 0
                       ? ` · ${Math.round(sticker.byteSize / 1024)} Ko`
@@ -348,7 +348,7 @@ export default function StickerStudioPage() {
                     alt={sticker.name}
                   />
                 </div>
-                <p className="mt-1 truncate text-center text-[11px] text-chalk-3" title={sticker.name}>
+                <p className="mt-1 truncate text-center text-12 text-chalk-3" title={sticker.name}>
                   {sticker.name}
                 </p>
               </li>

@@ -8,6 +8,8 @@ import { defineConfig, devices } from "@playwright/test";
  * second Next quand un `npm run dev` écoute déjà : deux serveurs sur le même
  * port produisent des 500 trompeurs.
  */
+const port = process.env.PLAYWRIGHT_PORT ?? "3000";
+
 export default defineConfig({
   testDir: "./tests/e2e",
   timeout: 45_000,
@@ -15,13 +17,13 @@ export default defineConfig({
   fullyParallel: false,
   reporter: [["list"]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: `http://localhost:${port}`,
     trace: "retain-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
   webServer: {
-    command: "NEXT_PUBLIC_FORCE_DEMO=true npm run dev",
-    url: "http://localhost:3000/login",
+    command: `PORT=${port} NEXT_PUBLIC_FORCE_DEMO=true npm run dev`,
+    url: `http://localhost:${port}/login`,
     reuseExistingServer: true,
     timeout: 120_000,
   },

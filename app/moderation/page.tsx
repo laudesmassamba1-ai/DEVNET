@@ -124,7 +124,7 @@ export default function ModerationPage() {
         <h1 className="font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk">
           Signalements
         </h1>
-        <p className="mt-1 font-mono text-[11.5px] leading-relaxed text-chalk-4">
+        <p className="mt-1 font-mono text-12 leading-relaxed text-chalk-4">
           Vos contenus signalés. Vous seul voyez cette page.
         </p>
       </Motion>
@@ -145,7 +145,7 @@ export default function ModerationPage() {
               type="button"
               aria-selected={status === value}
               onClick={() => setStatus(value)}
-              className={`tab-underline px-3.5 py-2 font-mono text-[11.5px] font-bold
+              className={`tab-underline px-3.5 py-2 font-mono text-12 font-bold
                 uppercase tracking-[0.12em] transition-colors duration-(--d-fast)
                 ${status === value ? "text-signal" : "text-chalk-4 hover:text-chalk-2"}`}
             >
@@ -190,10 +190,10 @@ export default function ModerationPage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-[13px] font-bold text-chalk">
+                    <span className="text-13 font-bold text-chalk">
                       {reason?.label ?? r.reason}
                     </span>
-                    <span className="font-mono text-[11px] text-chalk-4">
+                    <span className="font-mono text-12 text-chalk-4">
                       sur {TARGET_LABEL[r.target_type]}
                     </span>
                     {done && (
@@ -213,7 +213,7 @@ export default function ModerationPage() {
                   {/* Qui a signalé n'est pas affiché : le signalant est
                       anonyme par construction, et afficher un nom
                       inviterait à le déduire du motif. */}
-                  <p className="mt-1.5 font-mono text-[10.5px] text-chalk-4">
+                  <p className="mt-1.5 font-mono text-12 text-chalk-4">
                     signalé {new Date(r.created_at).toLocaleDateString("fr-FR")}
                     {r.resolved_at &&
                       ` · classé le ${new Date(r.resolved_at).toLocaleDateString("fr-FR")}`}
@@ -229,7 +229,7 @@ export default function ModerationPage() {
                     disabled={busyId === r.id}
                     className="mo-press inline-flex h-8 flex-1 items-center justify-center
                       gap-1.5 rounded-(--radius-chip) border border-ok bg-ok/10
-                      font-mono text-[11px] font-bold uppercase tracking-[0.1em]
+                      font-mono text-12 font-bold uppercase tracking-[0.1em]
                       text-ok disabled:opacity-40"
                   >
                     <Icon name="check" size={12} strokeWidth={2.4} />
@@ -242,7 +242,7 @@ export default function ModerationPage() {
                     disabled={busyId === r.id}
                     className="mo-press inline-flex h-8 flex-1 items-center justify-center
                       gap-1.5 rounded-(--radius-chip) border border-line-3
-                      font-mono text-[11px] font-bold uppercase tracking-[0.1em]
+                      font-mono text-12 font-bold uppercase tracking-[0.1em]
                       text-chalk-3 disabled:opacity-40"
                   >
                     <Icon name="close" size={12} strokeWidth={2.4} />

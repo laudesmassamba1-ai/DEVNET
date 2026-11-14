@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-11-14T00:40:17.161Z",
-  "files": 221,
+  "generatedAt": "2026-11-14T02:22:36.445Z",
+  "files": 223,
   "metrics": {
     "iconButtonsWithoutLabel": 0,
     "fieldsWithoutLabelAssociation": 0,
@@ -9,9 +9,9 @@
     "blankLinksWithoutRel": 0,
     "positiveTabIndex": 0,
     "autoFocusUses": 8,
-    "tinyTextUses": 115,
+    "tinyTextUses": 0,
     "hardcodedColors": 2,
-    "arbitraryValues": 1124,
+    "arbitraryValues": 593,
     "outlineNone": 0,
     "focusVisibleUses": 15,
     "errorBoundaries": 1,
@@ -26,6 +26,6 @@
     "ariaInvalid": 6,
     "ariaDescribedBy": 6,
     "dialogElements": 7,
-    "generatedFrom": 221
+    "generatedFrom": 223
   }
 }

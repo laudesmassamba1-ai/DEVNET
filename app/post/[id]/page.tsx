@@ -185,7 +185,7 @@ export default function PostPage() {
                 onClick={() => router.push("/feed")}
                 className="inline-flex h-(--h-tap) items-center gap-2
                   rounded-(--radius-input) border border-line-2 px-4
-                  font-mono text-[11.5px] font-bold tracking-[0.12em]
+                  font-mono text-12 font-bold tracking-[0.12em]
                   text-chalk-3 uppercase transition-colors
                   duration-(--d-fast) hover:border-signal hover:text-signal"
               >

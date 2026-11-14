@@ -62,7 +62,7 @@ export default function SetupPage() {
           offline ? "bg-danger text-chalk" : "bg-ok text-chalk"
         }`}
       >
-        <p className="mb-1 text-[10px] font-bold uppercase tracking-[0.16em] opacity-70">
+        <p className="mb-1 text-12 font-bold uppercase tracking-[0.16em] opacity-70">
           {backend.state === "checking" ? "Vérification en cours" : "Statut"}
         </p>
         <p className="font-display text-[1.35rem] font-bold tracking-[-0.02em]">
@@ -78,13 +78,13 @@ export default function SetupPage() {
           <p className="mt-2 text-sm leading-[1.5] opacity-90">{backend.reason}</p>
         )}
         {backend.url && (
-          <p className="mt-2 font-mono text-[11px] opacity-75">{backend.url}</p>
+          <p className="mt-2 font-mono text-12 opacity-75">{backend.url}</p>
         )}
       </div>
 
       {offline && (
         <div className="mb-6 rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
-          <p className="text-[13px] leading-[1.6] text-chalk-2">
+          <p className="text-13 leading-[1.6] text-chalk-2">
             L&apos;application tourne sur un{" "}
             <strong className="text-chalk">backend local de démonstration</strong> :
             comptes, posts, groupes et messages fictifs, sur ce navigateur.
@@ -111,7 +111,7 @@ export default function SetupPage() {
         </div>
       )}
 
-      <h2 className="mb-3 text-[10px] font-bold uppercase tracking-[0.16em] text-chalk">
+      <h2 className="mb-3 text-12 font-bold uppercase tracking-[0.16em] text-chalk">
         Reconnecter un backend
       </h2>
 
@@ -119,11 +119,11 @@ export default function SetupPage() {
         {STEPS.map((s) => (
           <li key={s.title}
             className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
-            <h3 className="mb-1.5 text-[13.5px] font-bold">{s.title}</h3>
+            <h3 className="mb-1.5 text-13 font-bold">{s.title}</h3>
             <p className="text-sm leading-[1.6] text-chalk-2">{s.body}</p>
             {s.code && (
               <pre className="mt-3 overflow-x-auto rounded-(--radius-input) border-(--bw-thin)
-                border-line-2 bg-surface-2 px-3 py-2 font-mono text-[11px] text-chalk">
+                border-line-2 bg-surface-2 px-3 py-2 font-mono text-12 text-chalk">
                 {s.code}
               </pre>
             )}
@@ -144,14 +144,14 @@ export default function SetupPage() {
         <Link
           href="/feed"
           className="mo-press flex h-(--h-tap) flex-1 items-center justify-center
-            rounded-(--radius-input) border border-line-3 bg-surface text-[13px] font-bold text-chalk"
+            rounded-(--radius-input) border border-line-3 bg-surface text-13 font-bold text-chalk"
         >
           Retour à l&apos;application
         </Link>
         <Link
           href="/login"
           className="flex h-(--h-tap) items-center rounded-(--radius-input) border
-            border-line-3 px-4 text-[13px] font-bold transition-colors hover:bg-surface-2"
+            border-line-3 px-4 text-13 font-bold transition-colors hover:bg-surface-2"
         >
           Connexion
         </Link>

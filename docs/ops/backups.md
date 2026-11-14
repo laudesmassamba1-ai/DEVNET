@@ -97,6 +97,20 @@ Le dump inclut les objets fournisseur `pgaudit` et `pgbouncer`. Une restauration
 portable les exclut : elle obtient 90 fonctions `public` au lieu de 92, et ne
 recrée pas le schéma `pgbouncer` ni `_crunchypgbouncer`.
 
+### 3.3 Sauvegarde chiffrée du 2026-11-14
+
+Prise **avant** toute connexion d’écriture à la base Systalink, dans le cadre
+de la passe d’exécution. Aucune migration distante n’a été appliquée.
+
+| Élément | Valeur |
+|---|---|
+| Fichier | `~/.local/share/devnet/backups/devnet-remote-20261114T013251Z.dump.gpg` |
+| Taille | 68 765 octets |
+| Chiffrement | GPG AES-256, phrase de passe locale `600` |
+| SHA-256 | `8691356c9cd7ef9614d6930afcccc1ef45aa9b4bfe1c1c4cfb4f4eecc5cb4402` |
+| Cible | base `devnet`, hôte masqué, lecture seule |
+| Écriture distante | aucune |
+
 Planification proposée, hors CI :
 
 - tâche quotidienne appelant `npm run db:backup:remote` avec la phrase de passe

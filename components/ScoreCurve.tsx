@@ -177,7 +177,7 @@ export function GuideLegend({
         />
       </svg>
       <span className="label-micro text-chalk-4">{label}</span>
-      <span className="tnum font-mono text-[11.5px] text-chalk-2">{Math.round(value)}</span>
+      <span className="tnum font-mono text-12 text-chalk-2">{Math.round(value)}</span>
     </p>
   );
 }

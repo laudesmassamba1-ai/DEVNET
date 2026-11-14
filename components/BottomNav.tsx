@@ -20,14 +20,17 @@ const LINKS: { href: string; label: string; icon: IconName; key: string }[] = [
   { href: "/profile", label: "Profil", icon: "profile", key: "profil" },
 ];
 
+// Cinq destinations au maximum : au-delà, les libellés se tronquent et la
+// barre cesse d'être lisible à 320 px. Découvrir reste accessible depuis la
+// feuille « Plus » et depuis la recherche du fil.
 const MOBILE_LINKS: { href: string; label: string; icon: IconName }[] = [
   { href: "/feed", label: "Fil", icon: "feed" },
-  { href: "/decouvrir", label: "Explorer", icon: "compass" },
   { href: "/messages", label: "Messages", icon: "messages" },
   { href: "/profile", label: "Profil", icon: "profile" },
 ];
 
 const MOBILE_MORE_LINKS: { href: string; label: string; icon: IconName }[] = [
+  { href: "/decouvrir", label: "Découvrir", icon: "compass" },
   { href: "/search", label: "Recherche", icon: "search" },
   { href: "/groups", label: "Groupes", icon: "groups" },
   { href: "/communities", label: "Communautés", icon: "globe" },
@@ -121,7 +124,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
       data-tour="nav-main"
       aria-label="Navigation principale"
       data-allow-tiny
-      className="fixed inset-x-0 bottom-0 z-(--z-nav) grid grid-cols-6
+      className="fixed inset-x-0 bottom-0 z-(--z-nav) grid grid-cols-5
         h-(--h-bottomnav) items-stretch border-t-(--bw-heavy)
         border-edge glass-strong pb-[env(safe-area-inset-bottom)]
         rounded-(--radius-card) shell:hidden"
@@ -135,7 +138,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             aria-current={active ? "page" : undefined}
             className={`relative mx-0 my-1 flex min-w-0 flex-col items-center
               justify-center gap-[4px] rounded-(--radius-chip)
-              text-12 max-[340px]:text-[11px] font-medium tracking-[-0.02em] normal-case
+              text-12 max-[340px]:text-12 font-medium tracking-[-0.02em] normal-case
               transition-[color,background-color] duration-(--d-fast)
               ease-(--ease-continuous) active:translate-y-px
               ${active
@@ -170,7 +173,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
         aria-haspopup="dialog"
         className="mo-press mx-0 my-1 flex min-w-0 flex-col items-center
           justify-center gap-[4px] rounded-(--radius-chip) bg-signal
-          text-12 max-[340px]:text-[11px] font-semibold text-void transition-opacity
+          text-12 max-[340px]:text-12 font-semibold text-void transition-opacity
           duration-(--d-fast) hover:opacity-90"
       >
         <Icon name="plus" size={20} strokeWidth={2} />
@@ -185,7 +188,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             aria-current={active ? "page" : undefined}
             className={`relative mx-0 my-1 flex min-w-0 flex-col items-center
               justify-center gap-[4px] rounded-(--radius-chip)
-              text-12 max-[340px]:text-[11px] font-medium tracking-[-0.02em] normal-case
+              text-12 max-[340px]:text-12 font-medium tracking-[-0.02em] normal-case
               transition-[color,background-color] duration-(--d-fast)
               ease-(--ease-continuous) active:translate-y-px
               ${active
@@ -205,7 +208,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
         aria-haspopup="dialog"
         className={`mo-press mx-0 my-1 flex min-w-0 flex-col items-center
           justify-center gap-[4px] rounded-(--radius-chip)
-          text-12 max-[340px]:text-[11px] font-medium tracking-[-0.02em] normal-case
+          text-12 max-[340px]:text-12 font-medium tracking-[-0.02em] normal-case
           transition-[color,background-color] duration-(--d-fast)
           ${moreActive || moreOpen
             ? "bg-surface-2 text-signal shadow-(--glass-rim)"
@@ -225,7 +228,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             type="button"
             onClick={() => setMoreOpen(false)}
             className="min-h-(--h-tap) rounded-(--radius-input)
-              px-3 text-[13px] text-chalk-3 hover:bg-surface-2"
+              px-3 text-13 text-chalk-3 hover:bg-surface-2"
           >
             Fermer
           </button>
@@ -240,7 +243,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
                 onClick={() => setMoreOpen(false)}
                 aria-current={active ? "page" : undefined}
                 className={`flex min-h-(--h-tap) items-center gap-3
-                  rounded-(--radius-input) px-3 text-[14px]
+                  rounded-(--radius-input) px-3 text-14
                   ${active ? "bg-surface-2 text-signal" : "text-chalk-2 hover:bg-surface-2"}`}
               >
                 <SectionIcon name={link.icon} size={18} />
@@ -254,7 +257,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
               onClick={() => setMoreOpen(false)}
               aria-current={pathname.startsWith("/admin") ? "page" : undefined}
               className={`flex min-h-(--h-tap) items-center gap-3
-                rounded-(--radius-input) px-3 text-[14px]
+                rounded-(--radius-input) px-3 text-14
                 ${pathname.startsWith("/admin")
                   ? "bg-surface-2 text-signal"
                   : "text-chalk-2 hover:bg-surface-2"}`}
@@ -270,7 +273,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
               href={link.href}
               onClick={() => setMoreOpen(false)}
               className="flex min-h-(--h-tap) items-center gap-3
-                rounded-(--radius-input) px-3 text-[14px] text-chalk-3
+                rounded-(--radius-input) px-3 text-14 text-chalk-3
                 hover:bg-surface-2"
             >
               {link.label}
@@ -350,7 +353,7 @@ export function Sidebar({
                   href={l.href}
                   aria-current={active ? "page" : undefined}
                   className={`relative mx-2 flex items-center gap-2.5 rounded-full
-                    px-3.5 py-2.5 text-[13.5px]
+                    px-3.5 py-2.5 text-13
                     transition-[color,background-color] duration-(--d-fast)
                     ease-(--ease-continuous)
                     ${active
@@ -375,7 +378,7 @@ export function Sidebar({
                   href={l.href}
                   aria-current={active ? "page" : undefined}
                   className={`relative flex items-center gap-2.5 py-2.5 pl-4 pr-3
-                    rounded-(--radius-input) text-[13.5px]
+                    rounded-(--radius-input) text-13
                     transition-[color,background-color] duration-(--d-fast)
                     ease-(--ease-continuous)
                     ${active
@@ -410,7 +413,7 @@ export function Sidebar({
                   href={l.href}
                   aria-current={active ? "page" : undefined}
                   className={`relative flex items-center gap-2.5 py-2.5 pl-4 pr-3
-                    rounded-(--radius-input) text-[13.5px]
+                    rounded-(--radius-input) text-13
                     transition-[color,background-color] duration-(--d-fast)
                     ease-(--ease-continuous)
                     ${active
@@ -439,7 +442,7 @@ export function Sidebar({
       <nav
         aria-label="Informations"
         className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 border-t-(--bw-thin)
-          border-line px-4 py-2 font-mono text-[10px] text-chalk-4"
+          border-line px-4 py-2 font-mono text-12 text-chalk-4"
       >
         <Link href="/settings" className="inline-flex items-center gap-1 hover:text-chalk-2">
           <Icon name="settings" size={9} strokeWidth={1.8} />

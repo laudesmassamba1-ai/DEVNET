@@ -255,7 +255,7 @@ export function PullRequestPanel({
               onClick={() => void ouvrirFeuille()}
               className="mo-press inline-flex h-(--h-tap) items-center gap-2
                 rounded-(--radius-input) border border-signal bg-signal
-                px-4 text-[13px] font-bold text-void shadow-sh-2"
+                px-4 text-13 font-bold text-void shadow-sh-2"
             >
               <Icon name="plus" size={14} strokeWidth={2} />
               Demander l&apos;intégration
@@ -301,7 +301,7 @@ export function PullRequestPanel({
           aria-label="Titre de la demande"
           placeholder="ce que cette branche change"
           className="mb-3 h-(--h-input) w-full border border-line-2
-            bg-surface-2 px-3 text-[13px] text-chalk
+            bg-surface-2 px-3 text-13 text-chalk
             focus:border-signal"
         />
 
@@ -315,7 +315,7 @@ export function PullRequestPanel({
           placeholder="pourquoi, et comment vérifier"
           rows={4}
           className="mb-4 w-full border border-line-2 bg-surface-2 p-3
-            text-[13px] leading-relaxed text-chalk focus:border-signal"
+            text-13 leading-relaxed text-chalk focus:border-signal"
         />
 
         <div className="flex gap-2">
@@ -324,7 +324,7 @@ export function PullRequestPanel({
             onClick={() => void soumettre()}
             disabled={occupé || titre.trim().length < 3 || apport?.length === 0}
             className="mo-press h-(--h-tap) flex-1 border border-signal
-              bg-signal px-4 text-[13px] font-bold text-void
+              bg-signal px-4 text-13 font-bold text-void
               disabled:opacity-40 disabled:hover:bg-signal"
           >
             Ouvrir la demande
@@ -333,7 +333,7 @@ export function PullRequestPanel({
             type="button"
             onClick={() => setComposant(false)}
             className="mo-press h-(--h-tap) border border-line-2 px-4
-              text-[13px] text-chalk-3 hover:border-chalk-4 hover:text-chalk"
+              text-13 text-chalk-3 hover:border-chalk-4 hover:text-chalk"
           >
             Annuler
           </button>
@@ -398,7 +398,7 @@ export function PullRequestPanel({
 
                   <span className="min-w-0 flex-1">
                     <span
-                      className={`block text-[13px] leading-snug
+                      className={`block text-13 leading-snug
                         ${pull.status === "ouverte" ? "text-chalk" : "text-chalk-3"}`}
                     >
                       {pull.title}

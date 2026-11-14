@@ -39,7 +39,7 @@ export function DMContext({ peer }: { peer: UserLite }) {
       if (!alive) return;
 
       const mine = stories
-        .filter((s) => s.author_id === peer.id)
+        ?.filter((s) => s.author_id === peer.id)
         .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))[0];
 
       if (mine) setStory(mine);
@@ -89,7 +89,7 @@ export function DMContext({ peer }: { peer: UserLite }) {
               <Icon name={asIconName(project.emoji, "layers")} size={11} strokeWidth={1.8} />
             </span>
             <span className="truncate">{project.name}</span>
-            <span className="flex shrink-0 items-center gap-1 font-mono text-[10.5px]
+            <span className="flex shrink-0 items-center gap-1 font-mono text-12
               text-chalk-4">
               <Icon name="branch" size={9} />
               {project.branch}

@@ -61,7 +61,7 @@ export function ProjectCard({
 
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className="truncate font-display text-[15px] font-bold text-chalk">
+            <span className="truncate font-display text-15 font-bold text-chalk">
               {project.name}
             </span>
             <Icon

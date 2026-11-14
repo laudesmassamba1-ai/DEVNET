@@ -104,6 +104,39 @@ test.describe("statuts", () => {
     expect(publie).toBe(true);
   });
 
+  test("le studio publie une story réservée aux abonnés", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await quietTour(page);
+    await page.goto("/feed");
+
+    await page.getByLabel("Publier une nouvelle story").click();
+    const composer = page.getByRole("dialog", { name: "Éditeur de statut" });
+    await expect(composer).toBeVisible();
+
+    await composer.getByRole("radio", { name: "Abonnés" }).click();
+    await expect(composer.getByRole("radio", { name: "Abonnés" })).toHaveAttribute(
+      "aria-checked",
+      "true",
+    );
+
+    // Choisir l'audience retire le focus du champ : l'éditeur repasse en
+    // mode « texte placé ». On rouvre le champ depuis la barre d'outils.
+    await composer.getByRole("button", { name: "Texte", exact: true }).click();
+    const caption = `audience-abonnes-${Date.now()}`;
+    await composer.getByRole("textbox", { name: "Texte du statut" }).fill(caption);
+    await composer.getByRole("button", { name: "Publier", exact: true }).click();
+    await expect(composer).toHaveCount(0);
+
+    const audience = await page.evaluate((text) => {
+      const key = Object.keys(localStorage).find((k) => /^devnet\.demo\.v\d+$/.test(k));
+      const data = key ? JSON.parse(localStorage.getItem(key) ?? "null") : null;
+      return (data?.stories ?? []).find(
+        (story: { caption?: string }) => story.caption === text,
+      )?.audience;
+    }, caption);
+    expect(audience).toBe("followers");
+  });
+
   test("le lecteur suit le clavier et ouvre la liste des vues", async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 768 });
     await quietTour(page);

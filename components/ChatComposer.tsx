@@ -101,7 +101,7 @@ export function ChatComposer({
         placeholder={placeholder}
         className="max-h-[132px] min-h-(--h-input) flex-1 resize-none
           rounded-(--radius-input) border border-line-3 bg-surface px-3.5
-          py-[10px] text-[16px] leading-[1.5] outline
+          py-[10px] text-base leading-[1.5] outline
           placeholder:text-chalk-4 focus:border-signal
           disabled:opacity-50"
       />

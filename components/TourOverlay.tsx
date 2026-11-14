@@ -267,12 +267,12 @@ export function TourOverlay({
           <h2 className="font-display text-[1.4rem] font-bold leading-tight tracking-[-0.02em] text-chalk">
             {slide.title}
           </h2>
-          <p className="mt-2.5 text-[13.5px] leading-[1.65] text-chalk-2">{slide.body}</p>
+          <p className="mt-2.5 text-13 leading-[1.65] text-chalk-2">{slide.body}</p>
 
           {slide.points && (
             <ul className="mt-4 flex flex-col gap-2">
               {slide.points.map((pt) => (
-                <li key={pt} className="flex items-start gap-2 text-[13px] leading-snug text-chalk-3">
+                <li key={pt} className="flex items-start gap-2 text-13 leading-snug text-chalk-3">
                   <span className="mt-[3px] text-signal">
                     <Icon name="check" size={12} strokeWidth={2.4} />
                   </span>
@@ -388,10 +388,10 @@ export function TourOverlay({
             <span className="flex size-7 shrink-0 items-center justify-center rounded-(--radius-input) bg-signal/15 text-signal-d">
               <Icon name={stop.icon} size={14} strokeWidth={1.9} />
             </span>
-            <h2 className="font-display text-[15px] font-bold tracking-[-0.01em] text-chalk">
+            <h2 className="font-display text-15 font-bold tracking-[-0.01em] text-chalk">
               {stop.title}
             </h2>
-            <span className="tnum ml-auto font-mono text-[10.5px] text-chalk-4">
+            <span className="tnum ml-auto font-mono text-12 text-chalk-4">
               {stopIndex + 1}/{total}
             </span>
           </div>
@@ -410,7 +410,7 @@ export function TourOverlay({
             />
           </div>
 
-          <p className="text-[13px] leading-[1.6] text-chalk-2">{stop.body}</p>
+          <p className="text-13 leading-[1.6] text-chalk-2">{stop.body}</p>
 
           <div className="mt-3.5 flex items-center gap-2">
             <button

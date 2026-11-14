@@ -17,6 +17,7 @@ import type {
   PlacedSticker,
   StickerCatalogEntry,
   StoriesRepository,
+  StoryCursor,
   StoryEntry,
   StoryFeed,
   StoryViewerEntry,
@@ -90,18 +91,18 @@ function num(value: number | string | null | undefined, fallback = 0): number {
 export class PostgresStoriesRepository implements StoriesRepository {
   constructor(private readonly dependencies: PostgresStoriesDependencies) {}
 
-  async fetchFeed(readerId: string | null): Promise<StoryFeed> {
+  async fetchFeed(readerId: string | null, cursor?: StoryCursor | null): Promise<StoryFeed> {
     // Le catalogue part en parallèle : il ne dépend pas du lecteur, et
     // l'attendre en série ajoutait une transaction entière au temps
     // d'ouverture des stories.
     const catalogPromise = this.fetchCatalog();
-    if (!readerId) return { stories: [], catalog: await catalogPromise };
+    if (!readerId) return { stories: [], catalog: await catalogPromise, nextCursor: null };
 
     let rows: StoryRow[];
     try {
       rows = await this.dependencies.asUser(readerId, (query) =>
         query<StoryRow>(
-          `select s.id, s.author_id, s.caption, s.media_url,
+          `select s.id, s.author_id, s.caption, s.media_url, s.audience,
                   s.created_at, s.expires_at, ${AUTHOR_JSON},
                   case when s.author_id = $1 then (
                     select count(*) from public.story_likes l where l.story_id = s.id
@@ -120,9 +121,10 @@ export class PostgresStoriesRepository implements StoriesRepository {
              from public.stories s
              left join public.users u on u.id = s.author_id
             where s.expires_at > now()
-            order by s.created_at desc
-            limit 60`,
-          [readerId],
+              and ($2::timestamptz is null or (s.created_at, s.id) < ($2::timestamptz, $3::uuid))
+            order by s.created_at desc, s.id desc
+            limit 61`,
+          [readerId, cursor?.createdAt ?? null, cursor?.id ?? null],
         ),
       );
     } catch (error) {
@@ -130,9 +132,20 @@ export class PostgresStoriesRepository implements StoriesRepository {
     }
 
     const catalog = await catalogPromise;
-    if (rows.length === 0) return { stories: [], catalog };
+    if (rows.length === 0) return { stories: [], catalog, nextCursor: null };
 
-    const ids = rows.map((row) => String(row.id));
+    // On lit 61 lignes : la 61e prouve qu'il reste une page, sans compter
+    // toute la table. Le curseur est la dernière ligne **rendue**.
+    const hasMore = rows.length > 60;
+    const pageRows = hasMore ? rows.slice(0, 60) : rows;
+    const nextCursor = hasMore
+      ? {
+          createdAt: iso(pageRows[pageRows.length - 1].created_at),
+          id: String(pageRows[pageRows.length - 1].id),
+        }
+      : null;
+
+    const ids = pageRows.map((row) => String(row.id));
     // Stickers et médias dans la même transaction : deux allers-retours au
     // lieu de deux transactions complètes, qui coûtaient chacune leur
     // poignée de main avec Postgres.
@@ -187,7 +200,7 @@ export class PostgresStoriesRepository implements StoriesRepository {
       byStory.set(String(sticker.story_id), list);
     }
 
-    const stories: StoryEntry[] = rows.map((row) => {
+    const stories: StoryEntry[] = pageRows.map((row) => {
       const { author, ...rest } = row;
       const story: StoryWithAuthor = {
         ...(rest as unknown as StoryWithAuthor),
@@ -208,7 +221,7 @@ export class PostgresStoriesRepository implements StoriesRepository {
       };
     });
 
-    return { stories, catalog };
+    return { stories, catalog, nextCursor };
   }
 
   async toggleLike(
@@ -468,6 +481,7 @@ export class PostgresStoriesRepository implements StoriesRepository {
     authorId: string,
     input: {
       caption: string;
+      audience?: "public" | "followers" | "private";
       media?: {
         bytes: Buffer;
         mime: string;
@@ -481,10 +495,10 @@ export class PostgresStoriesRepository implements StoriesRepository {
     try {
       return await this.dependencies.asUser(authorId, async (query) => {
         const rows = await query<{ id: string }>(
-          `insert into public.stories (author_id, caption, media_url)
-           values ($1, $2, $3)
+          `insert into public.stories (author_id, caption, media_url, audience)
+           values ($1, $2, $3, $4)
            returning id::text as id`,
-          [authorId, input.caption, input.mediaUrl ?? ""],
+          [authorId, input.caption, input.mediaUrl ?? "", input.audience ?? "public"],
         );
         const id = rows[0]?.id;
         if (!id) throw new StoriesRepositoryError("create-story", "insertion-sans-ligne");

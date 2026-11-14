@@ -14,6 +14,7 @@
  */
 import { put } from "@vercel/blob";
 import { AwsClient } from "aws4fetch";
+import { recordMetric } from "@/lib/metrics";
 
 interface ObjectStorage {
   endpoint: string;
@@ -211,9 +212,11 @@ export async function putMediaObject(
       cacheControlMaxAge: 31_536_000,
       token,
     });
+    recordMetric("media.storage.provider_total", 1, { provider: "vercel_blob" });
     return blob.url;
   }
 
+  recordMetric("media.storage.provider_total", 1, { provider: "r2" });
   const key = path.split("/").map(encodeURIComponent).join("/");
   // Copie dans un ArrayBuffer simple : `BodyInit` n'accepte pas un tampon
   // typé dont le buffer peut être partagé (SharedArrayBuffer).
@@ -236,4 +239,54 @@ export async function putMediaObject(
   }
 
   return `${storage.publicUrl}/${key}`;
+}
+
+/**
+ * Preuve minimale qu'un objet assemblé existe et que son contenu annoncé
+ * correspond aux octets. Le `HEAD` donne la taille réelle ; le `GET` avec
+ * `Range` ne lit que la signature, jamais le fichier entier.
+ *
+ * Cette inspection est volontairement séparée de `completeMultipartUpload` :
+ * elle peut échouer (propagation R2, cache, objet supprimé) et l'appelant
+ * doit alors supprimer l'objet avant de refuser l'envoi.
+ */
+export interface MediaObjectInspection {
+  bytes: number;
+  prefix: Uint8Array;
+  contentType: string | null;
+}
+
+export async function inspectMediaObject(url: string): Promise<MediaObjectInspection> {
+  const head = await fetch(url, { method: "HEAD", cache: "no-store" });
+  if (!head.ok) {
+    throw new Error(`inspection média ${head.status}`);
+  }
+  const bytes = Number(head.headers.get("content-length"));
+  if (!Number.isFinite(bytes) || bytes <= 0) {
+    throw new Error("inspection média — taille absente");
+  }
+
+  const range = await fetch(url, {
+    method: "GET",
+    headers: { Range: "bytes=0-63" },
+    cache: "no-store",
+  });
+  if (!range.ok && range.status !== 206) {
+    throw new Error(`inspection média ${range.status}`);
+  }
+
+  return {
+    bytes,
+    prefix: new Uint8Array(await range.arrayBuffer()),
+    contentType: head.headers.get("content-type"),
+  };
+}
+
+/** Supprime un objet refusé après assemblage (R2 uniquement). */
+export async function deleteMediaObject(key: string): Promise<void> {
+  const storage = readStorage();
+  if (!storage) return;
+  await storage.client
+    .fetch(objectUrl(storage, key), { method: "DELETE" })
+    .catch(() => undefined);
 }

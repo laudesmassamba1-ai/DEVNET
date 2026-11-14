@@ -103,7 +103,7 @@ export function AdminSecurity() {
           <h2 id="admin-security-title" className="font-display text-[18px] font-semibold">
             Sessions et identifiants
           </h2>
-          <p className="mt-1 max-w-prose text-[13px] leading-relaxed text-chalk-3">
+          <p className="mt-1 max-w-prose text-13 leading-relaxed text-chalk-3">
             Les empreintes de jetons ne sont jamais lues ni affichées.
           </p>
         </div>
@@ -120,7 +120,7 @@ export function AdminSecurity() {
 
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2">
-          <p className="text-[13px] text-danger">{error}</p>
+          <p className="text-13 text-danger">{error}</p>
           <button type="button" onClick={() => void load()} className="mt-2 text-12 font-semibold text-signal">
             Réessayer
           </button>
@@ -148,7 +148,7 @@ export function AdminSecurity() {
             ))}
           </dl>
 
-          <h3 className="mt-5 font-display text-[15px] font-semibold">Sessions récentes</h3>
+          <h3 className="mt-5 font-display text-15 font-semibold">Sessions récentes</h3>
           {data.sessions.length === 0 ? (
             <EmptyState title="Aucune session" />
           ) : (
@@ -161,10 +161,10 @@ export function AdminSecurity() {
                     className={session.active ? "text-ok" : "text-chalk-4"}
                   />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-semibold text-chalk">
+                    <p className="truncate text-13 font-semibold text-chalk">
                       {session.prenom} <span className="font-mono text-12 text-chalk-4">@{session.pseudo}</span>
                     </p>
-                    <p className="truncate font-mono text-[10.5px] text-chalk-4">
+                    <p className="truncate font-mono text-12 text-chalk-4">
                       {session.user_agent || "agent inconnu"} · créée le{" "}
                       {new Date(session.created_at).toLocaleString("fr-FR")}
                       {session.active ? " · active" : " · expirée"}
@@ -175,7 +175,7 @@ export function AdminSecurity() {
                     disabled={busyId === session.id || !session.active}
                     onClick={() => void revoke(session)}
                     className="min-h-(--h-tap) rounded-(--radius-chip) border border-line-3
-                      px-3 font-mono text-[10.5px] font-bold uppercase tracking-[0.1em]
+                      px-3 font-mono text-12 font-bold uppercase tracking-[0.1em]
                       text-chalk-3 hover:border-danger hover:text-danger disabled:opacity-30"
                   >
                     {busyId === session.id ? "…" : "révoquer"}

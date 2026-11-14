@@ -51,13 +51,7 @@ import { cascade } from "@/components/Motion";
 import type { Conversation, DirectMessage, UserLite } from "@/lib/types";
 import { canSendMessage, attachmentColumns, type MessageAttachment } from "@/lib/message-media";
 import { fetchStickers, type StickerRowView } from "@/lib/stickers";
-
-type Peer = { conv: Conversation; other: (UserLite & { xp?: number }) | null };
-
-/** Clé de conversation stable entre deux participants, triée. */
-function convKey(a: string, b: string): string {
-  return [a, b].sort().join("|");
-}
+import { convKey, filterConversations, type Peer } from "@/lib/conversations";
 
 /** Ajoute un message reçu à la liste affichée, sans doublon. */
 export default function MessagesPage() {
@@ -941,16 +935,8 @@ export default function MessagesPage() {
 
   // Filtre d'affichage de la liste : on cherche dans le prénom, le pseudo
   // et le dernier message. `null` (chargement) reste `null`.
-  const needle = search.trim().toLowerCase();
-  const visibleConvs = convs
-    ? convs.filter(
-        (p) =>
-          !needle ||
-          (p.other?.prenom ?? "").toLowerCase().includes(needle) ||
-          (p.other?.pseudo ?? "").toLowerCase().includes(needle) ||
-          (p.conv.last_message ?? "").toLowerCase().includes(needle),
-      )
-    : null;
+  const visibleConvs = filterConversations(convs, search);
+  const needle = search.trim();
 
   return (
     <AppShell
@@ -983,7 +969,7 @@ export default function MessagesPage() {
                 </button>
                 <Avatar name={peer.prenom} color={peer.avatar_color} src={peer.avatar_url} />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-display text-[13.5px] font-bold tracking-[-0.01em]">
+                  <div className="truncate font-display text-13 font-bold tracking-[-0.01em]">
                     {peer.prenom}
                     {peer.verified && <VerifiedBadge tier={badgeFor(peer, xpOf(peer))} size="sm" className="ml-1.5 translate-y-[1px]" />}
                   </div>
@@ -1090,7 +1076,7 @@ export default function MessagesPage() {
                         />
                       )}
                       <div className={`max-w-[82%] rounded-(--radius-input) border px-3 py-2
-                        text-[13.5px] leading-[1.5] break-words whitespace-pre-wrap
+                        text-13 leading-[1.5] break-words whitespace-pre-wrap
                         ${m.is_code
                           ? "border-l-[5px] border-line-2 border-l-signal glass-flat font-mono text-12 leading-[1.6] text-chalk-2"
                           : mine
@@ -1127,7 +1113,7 @@ export default function MessagesPage() {
                           <button
                             type="button"
                             onClick={() => void copyCode(m.text)}
-                            className="mb-1 flex items-center gap-1 font-mono text-[10px] font-bold
+                            className="mb-1 flex items-center gap-1 font-mono text-12 font-bold
                               uppercase tracking-[0.12em] text-chalk-4 transition-colors
                               hover:text-signal"
                           >
@@ -1162,7 +1148,7 @@ export default function MessagesPage() {
                             <span key={j}>{segment.text}</span>
                           ),
                         )}
-                        <div className={`mt-1 text-[10px] ${mine ? "text-chalk/60" : "text-chalk-4"}`}>
+                        <div className={`mt-1 text-12 ${mine ? "text-chalk/60" : "text-chalk-4"}`}>
                           {clockTime(m.created_at)}
                           {m.edited_at && (
                             <span
@@ -1338,7 +1324,7 @@ export default function MessagesPage() {
           aria-label="Rechercher une conversation"
           placeholder="Rechercher…"
             className="mb-3 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
-              px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
+              px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4
               focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]" />
 
           {visibleConvs === null && <Loading />}
@@ -1363,7 +1349,7 @@ export default function MessagesPage() {
               <Avatar name={other?.prenom} color={other?.avatar_color} src={other?.avatar_url} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[14px] font-bold">
+                  <span className="text-14 font-bold">
                     {other?.prenom ?? "Utilisateur"}
                   </span>
                   {other?.verified && <VerifiedBadge tier={badgeFor(other, xpOf(other))} size="sm" />}
@@ -1381,7 +1367,7 @@ export default function MessagesPage() {
                 )}
                 {unread > 0 && (
                   <span className="flex size-[18px] items-center justify-center
-                    rounded-full bg-signal font-mono text-[10px] font-bold leading-none text-void">
+                    rounded-full bg-signal font-mono text-12 font-bold leading-none text-void">
                     {unread > 9 ? "9+" : unread}
                   </span>
                 )}
@@ -1397,7 +1383,7 @@ export default function MessagesPage() {
         <input value={userSearch} aria-label="Rechercher un pseudo" onChange={(e) => setUserSearch(e.target.value)}
           placeholder="Rechercher un pseudo…"
           className="mb-3 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
+            px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4" />
 
         {users.length === 0 && (
           <p className="py-6 text-center text-sm text-chalk-3">Aucun membre trouvé</p>
@@ -1411,7 +1397,7 @@ export default function MessagesPage() {
             <Avatar name={u.prenom} color={u.avatar_color} src={u.avatar_url} />
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <span className="text-[13.5px] font-bold">{u.prenom}</span>
+                <span className="text-13 font-bold">{u.prenom}</span>
                 {u.verified && <VerifiedBadge tier={badgeFor(u, xpOf(u))} size="sm" />}
               </div>
               <span className="font-mono text-12 text-chalk-3">@{u.pseudo}</span>

@@ -1,7 +1,7 @@
 import { api } from "@/lib/api/client";
 import { isDemoMode } from "@/lib/backend";
 import { uploadMedia } from "@/lib/media";
-import type { StoryWithAuthor } from "@/lib/types";
+import type { StoryAudience, StoryWithAuthor } from "@/lib/types";
 import { STORY_REPLY_MAX } from "@/modules/stories";
 import type {
   PlacedSticker,
@@ -15,6 +15,7 @@ export type {
   PlacedSticker,
   PlaceStickerInput,
   StickerCatalogEntry,
+  StoryAudience,
   StoryEntry,
   StoryViewerEntry,
 };
@@ -73,13 +74,15 @@ export const STORY_MAX = 500;
  * démonstration (`READ_RULES.stories`). Le rejouer côté client serait un
  * filtre mort dans un cas et faux dans l'autre.
  */
-export async function fetchLiveStories(): Promise<StoryWithAuthor[]> {
+export async function fetchLiveStories(): Promise<StoryWithAuthor[] | null> {
   const { data, error } = await api
     .from("stories")
     .select(`*, author:users(${AUTHOR_COLUMNS})`)
     .order("created_at", { ascending: false });
 
-  if (error) return [];
+  // Une panne n'est pas « aucune story » : le rail doit pouvoir distinguer
+  // les deux et proposer de réessayer, au lieu d'afficher un vide trompeur.
+  if (error) return null;
   return (data as StoryWithAuthor[]) ?? [];
 }
 
@@ -99,6 +102,7 @@ export async function fetchLiveStories(): Promise<StoryWithAuthor[]> {
 export async function publishStory(
   authorId: string,
   caption: string,
+  audience: StoryAudience = "public",
 ): Promise<{ error: string | null }> {
   const clean = caption.trim();
   if (!clean) return { error: "Une story sans texte ne dit rien" };
@@ -106,7 +110,7 @@ export async function publishStory(
 
   const { error } = await api
     .from("stories")
-    .insert({ author_id: authorId, caption: clean });
+    .insert({ author_id: authorId, caption: clean, audience });
 
   return { error: error?.message ?? null };
 }
@@ -122,6 +126,7 @@ async function postStoryMedia(payload: {
   caption: string;
   dataUrl?: string;
   mediaUrl?: string;
+  audience: StoryAudience;
 }): Promise<{ id: string | null; error: string | null }> {
   try {
     const response = await fetch("/api/stories/media", {
@@ -156,6 +161,7 @@ export async function publishStoryMedia(
   file: File,
   /** Auteur — nécessaire en démonstration, où la route serveur n'a pas de session. */
   authorId?: string,
+  audience: StoryAudience = "public",
 ): Promise<{ id: string | null; error: string | null }> {
   const clean = caption.trim();
 
@@ -163,7 +169,7 @@ export async function publishStoryMedia(
   // répond 401 et la publication échouait sans le dire. On écrit donc la
   // ligne directement dans le moteur local, média compris.
   if (isDemoMode() && authorId) {
-    return insertDemoStory(authorId, clean, file);
+    return insertDemoStory(authorId, clean, file, audience);
   }
 
   const uploadFirst = file.type.startsWith("video/") || file.size > STORY_DATA_URL_MAX;
@@ -177,7 +183,7 @@ export async function publishStoryMedia(
     if (!url.startsWith("https://")) {
       return { id: null, error: "Stockage des vidéos indisponible" };
     }
-    return postStoryMedia({ caption: clean, mediaUrl: url });
+    return postStoryMedia({ caption: clean, mediaUrl: url, audience });
   }
 
   const dataUrl = await new Promise<string | null>((resolve) => {
@@ -189,7 +195,7 @@ export async function publishStoryMedia(
   });
   if (!dataUrl) return { id: null, error: "Lecture du fichier impossible" };
 
-  return postStoryMedia({ caption: clean, dataUrl });
+  return postStoryMedia({ caption: clean, dataUrl, audience });
 }
 
 /**
@@ -204,6 +210,7 @@ export async function publishStoryGif(
   caption: string,
   url: string,
   authorId?: string,
+  audience: StoryAudience = "public",
 ): Promise<{ id: string | null; error: string | null }> {
   const clean = caption.trim();
   if (!url.startsWith("https://")) return { id: null, error: "Adresse de GIF invalide" };
@@ -211,14 +218,14 @@ export async function publishStoryGif(
   if (isDemoMode() && authorId) {
     const { data, error } = await api
       .from("stories")
-      .insert({ author_id: authorId, caption: clean, media_url: url })
+      .insert({ author_id: authorId, caption: clean, media_url: url, audience })
       .select("id")
       .single();
     if (error) return { id: null, error: error.message };
     return { id: (data as { id?: string } | null)?.id ?? null, error: null };
   }
 
-  return postStoryMedia({ caption: clean, mediaUrl: url });
+  return postStoryMedia({ caption: clean, mediaUrl: url, audience });
 }
 
 /**
@@ -232,6 +239,7 @@ async function insertDemoStory(
   authorId: string,
   caption: string,
   file: File,
+  audience: StoryAudience,
 ): Promise<{ id: string | null; error: string | null }> {
   if (file.type.startsWith("video/")) {
     return {
@@ -249,7 +257,7 @@ async function insertDemoStory(
 
   const { data, error } = await api
     .from("stories")
-    .insert({ author_id: authorId, caption, media_url: dataUrl })
+    .insert({ author_id: authorId, caption, media_url: dataUrl, audience })
     .select("id")
     .single();
   if (error) return { id: null, error: error.message };
@@ -301,6 +309,7 @@ export async function deleteStory(id: string): Promise<{ error: string | null }>
 export interface StoryFeedResponse {
   stories: StoryEntry[];
   catalog: StickerCatalogEntry[];
+  nextCursor: { createdAt: string; id: string } | null;
 }
 
 const STORIES_API = "/api/stories";
@@ -321,9 +330,14 @@ async function failure(response: Response): Promise<string> {
  * panne. Le lecteur garde alors ce qu'il affiche au lieu de croire que
  * plus rien n'existe.
  */
-export async function fetchStoryFeed(): Promise<StoryFeedResponse | null> {
+export async function fetchStoryFeed(
+  cursor?: { createdAt: string; id: string } | null,
+): Promise<StoryFeedResponse | null> {
   try {
-    const response = await fetch(STORIES_API, {
+    const query = cursor
+      ? `?before=${encodeURIComponent(cursor.createdAt)}&beforeId=${encodeURIComponent(cursor.id)}`
+      : "";
+    const response = await fetch(`${STORIES_API}${query}`, {
       cache: "no-store",
       credentials: "same-origin",
       headers: { accept: "application/json" },

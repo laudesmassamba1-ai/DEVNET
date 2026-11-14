@@ -137,7 +137,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
 
   const inputCls =
     "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 " +
-    "bg-surface px-3.5 text-[14px] shadow-sh-1 transition-[transform,box-shadow] " +
+    "bg-surface px-3.5 text-14 shadow-sh-1 transition-[transform,box-shadow] " +
     "placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px " +
     "focus:shadow-[3px_3px_0_var(--color-signal)]";
 
@@ -148,7 +148,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
         <h2 className="font-display text-[1.05rem] font-bold tracking-[-0.02em] text-chalk">
           Ouvrir un compte
         </h2>
-        <p className="mt-1 font-mono text-[11px] leading-relaxed text-chalk-4">
+        <p className="mt-1 font-mono text-12 leading-relaxed text-chalk-4">
           Le compte est créé confirmé : son adresse est tenue pour vraie parce
           qu&apos;un administrateur la pose. En mode démo, l&apos;insertion se fait
           localement.
@@ -215,7 +215,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                 onClick={() => setPassword(generatePassword())}
                 className="mo-press inline-flex h-(--h-input) shrink-0 items-center
                   gap-1.5 rounded-(--radius-input) border border-line-3 px-3
-                  font-mono text-[11px] font-bold uppercase tracking-[0.1em]
+                  font-mono text-12 font-bold uppercase tracking-[0.1em]
                   text-chalk-3 hover:text-chalk"
               >
                 <Icon name="refresh" size={12} />
@@ -273,14 +273,14 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
             onClick={() => void submitNew()}
             className="mo-press inline-flex min-h-(--h-tap) items-center gap-1.5
               rounded-(--radius-chip) border border-signal bg-signal/10 px-3.5
-              font-mono text-[11px]
+              font-mono text-12
               font-bold uppercase tracking-[0.1em] text-signal disabled:opacity-40"
           >
             <Icon name="plus" size={12} strokeWidth={2.4} />
             {creating ? "création…" : "créer le compte"}
           </button>
 
-          <p className="font-mono text-[11px] text-chalk-4">
+          <p className="font-mono text-12 text-chalk-4">
             {giveRole
               ? "Rôle administrateur : accès complet à la console."
               : "Par défaut, le compte s'ouvrira comme membre ordinaire."}
@@ -288,7 +288,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
         </div>
 
         {formError && (
-          <p className="mt-3 border-l-2 border-danger pl-2.5 font-mono text-[11.5px] text-danger">
+          <p className="mt-3 border-l-2 border-danger pl-2.5 font-mono text-12 text-danger">
             {formError}
           </p>
         )}
@@ -301,7 +301,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
             Comptes
           </h2>
           {page && (
-            <span className="font-mono text-[11px] text-chalk-4">
+            <span className="font-mono text-12 text-chalk-4">
               {page.accounts.length} ligne{page.accounts.length > 1 ? "s" : ""}
             </span>
           )}
@@ -326,7 +326,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
               onClick={() => setSearch("")}
               className="mo-press inline-flex h-(--h-input) items-center gap-1.5
                 rounded-(--radius-input) border border-line-3 px-3 font-mono
-                text-[11px] font-bold uppercase tracking-[0.1em] text-chalk-3"
+                text-12 font-bold uppercase tracking-[0.1em] text-chalk-3"
             >
               <Icon name="close" size={12} />
               effacer
@@ -338,12 +338,12 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
 
         {page === null && loadError && (
           <div role="alert" className="my-4 border-l-2 border-danger bg-danger/8 p-4">
-            <p className="text-[13px] text-danger">{loadError}</p>
+            <p className="text-13 text-danger">{loadError}</p>
             <button
               type="button"
               onClick={() => void load()}
               className="mt-3 min-h-(--h-tap) rounded-(--radius-input)
-                border border-danger px-3 text-[13px] text-danger"
+                border border-danger px-3 text-13 text-danger"
             >
               Réessayer
             </button>
@@ -353,7 +353,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
         {page !== null && page.accounts.length === 0 && (
           <div className="py-6">
             <EmptyState title="Aucun compte" />
-            <p className="mt-3 text-center font-mono text-[11.5px] text-chalk-4">
+            <p className="mt-3 text-center font-mono text-12 text-chalk-4">
               {search ? "La recherche ne rend rien." : "L'annuaire est vide."}
             </p>
           </div>
@@ -371,13 +371,13 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
 
                 <div className="min-w-0 flex-1">
                   <p className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-[13.5px] font-bold text-chalk">{a.prenom}</span>
+                    <span className="text-13 font-bold text-chalk">{a.prenom}</span>
                     {a.is_admin && <VerifiedBadge tier={VERIFY_OFFICIAL} size="inline" />}
                     {!a.is_admin && a.verified && (
                       <VerifiedBadge size="inline" />
                     )}
                   </p>
-                  <p className="truncate font-mono text-[11px] text-chalk-4">
+                  <p className="truncate font-mono text-12 text-chalk-4">
                     @{a.pseudo} · {maskEmail(a.email)}
                   </p>
                   <p className="mt-1 flex flex-wrap items-center gap-2">
@@ -395,7 +395,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
 
                 <div className="shrink-0">
                   {a.id === selfId ? (
-                    <span className="font-mono text-[10.5px] text-chalk-4">toi</span>
+                    <span className="font-mono text-12 text-chalk-4">toi</span>
                   ) : (
                     <button
                       type="button"
@@ -403,7 +403,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                       onClick={() => void toggleRole(a)}
                       className={`mo-press inline-flex min-h-(--h-tap) items-center
                         gap-1.5 rounded-(--radius-chip) border px-3 font-mono
-                        text-[10.5px] font-bold uppercase
+                        text-12 font-bold uppercase
                         tracking-[0.1em] disabled:opacity-40 ${a.is_admin
                           ? "border-danger bg-danger/8 text-danger"
                           : "border-line-3 text-chalk-3 hover:border-signal hover:text-signal"}`}
@@ -418,7 +418,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
           ))}
 
         {page?.capped && (
-          <p className="mt-3 border-l-2 border-warn pl-2.5 font-mono text-[11px] text-warn">
+          <p className="mt-3 border-l-2 border-warn pl-2.5 font-mono text-12 text-warn">
             Lecture plafonnée : la liste s&apos;arrête, ce n&apos;est pas tout
             l&apos;annuaire. Affine la recherche.
           </p>

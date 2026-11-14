@@ -54,9 +54,18 @@ export interface StoryEntry extends StoryWithAuthor {
   stickers: PlacedSticker[];
 }
 
+export interface StoryCursor {
+  /** Horodatage de la dernière story de la page. */
+  createdAt: string;
+  /** Identifiant de cette story : départage deux créations simultanées. */
+  id: string;
+}
+
 export interface StoryFeed {
   stories: StoryEntry[];
   catalog: StickerCatalogEntry[];
+  /** `null` quand la page est la dernière. */
+  nextCursor: StoryCursor | null;
 }
 
 /**
@@ -83,7 +92,7 @@ export interface PlaceStickerInput {
 }
 
 export interface StoriesRepository {
-  fetchFeed(readerId: string | null): Promise<StoryFeed>;
+  fetchFeed(readerId: string | null, cursor?: StoryCursor | null): Promise<StoryFeed>;
   /** Bascule le like : `liked` est l'état **après** l'appel. */
   toggleLike(readerId: string, storyId: string): Promise<{ liked: boolean; likes: number }>;
   markSeen(readerId: string, storyId: string): Promise<void>;
@@ -120,6 +129,7 @@ export interface StoriesRepository {
     authorId: string,
     input: {
       caption: string;
+      audience?: "public" | "followers" | "private";
       media?: {
         bytes: Buffer;
         mime: string;

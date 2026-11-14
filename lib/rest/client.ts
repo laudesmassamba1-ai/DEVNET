@@ -25,12 +25,29 @@ export interface PostgrestError {
   hint?: string | null;
 }
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
+/** Charge utile d'un événement temps réel, sans `any` : chaque appelant
+ * vérifie les champs qu'il consomme. */
+export interface RealtimePayload<T = DynamicRow> {
+  new: T;
+  old: T;
+  eventType?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Ligne non typée par l'appelant. Le client reste une passerelle de
+ * compatibilité : les écrans qui connaissent leur schéma passent leur type
+ * (`from<Post>`), les autres reçoivent cette ligne permissive. La dérogation
+ * est isolée ici au lieu de couvrir tout le fichier.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DynamicRow = any;
+
 function pgError(message: string, code?: string): PostgrestError {
   return { name: "PostgrestError", message, code };
 }
 
-export interface QueryResult<T = any> {
+export interface QueryResult<T = DynamicRow> {
   data: T | null;
   error: PostgrestError | null;
   count: number | null;
@@ -111,7 +128,7 @@ function contentRangeCount(header: string | null): number | null {
 
 type SingleMode = "single" | "maybeSingle" | null;
 
-export class RestQueryBuilder<T = any> implements PromiseLike<QueryResult<T>> {
+export class RestQueryBuilder<T = DynamicRow> implements PromiseLike<QueryResult<T>> {
   private method: "GET" | "HEAD" | "POST" | "PATCH" | "DELETE" = "GET";
   private selectSpec: string | null = null;
   private filters: string[] = [];
@@ -146,20 +163,20 @@ export class RestQueryBuilder<T = any> implements PromiseLike<QueryResult<T>> {
     return this;
   }
 
-  insert(values: any | any[]): this {
+  insert(values: unknown): this {
     this.method = "POST";
     this.payload = values;
     return this;
   }
 
-  update(values: any): this {
+  update(values: unknown): this {
     this.method = "PATCH";
     this.payload = values;
     return this;
   }
 
   upsert(
-    values: any | any[],
+    values: unknown,
     options: { onConflict?: string; ignoreDuplicates?: boolean } = {},
   ): this {
     this.method = "POST";
@@ -389,7 +406,7 @@ interface StoredChannelHandler {
   event: string;
   table: string | null;
   filter: string | null;
-  callback: (payload: any) => void;
+  callback: (payload: RealtimePayload<DynamicRow>) => void;
 }
 
 interface SnapshotRow {
@@ -423,7 +440,7 @@ class LocalChannel {
 
   constructor(private readonly name: string) {}
 
-  on(
+  on<T = DynamicRow>(
     kind: "broadcast" | "postgres_changes",
     filter:
       | {
@@ -433,7 +450,7 @@ class LocalChannel {
           filter?: string;
         }
       | string,
-    callback: (payload: any) => void,
+    callback: (payload: RealtimePayload<T>) => void,
   ): this {
     const options = typeof filter === "string" ? null : filter;
     this.handlers.push({
@@ -441,7 +458,7 @@ class LocalChannel {
       event: typeof filter === "string" ? filter : (filter.event ?? "*"),
       table: options?.table ?? null,
       filter: options?.filter ?? null,
-      callback,
+      callback: callback as (payload: RealtimePayload<DynamicRow>) => void,
     });
     return this;
   }
@@ -457,7 +474,11 @@ class LocalChannel {
             if (!data?.event) return;
             for (const handler of this.handlers) {
               if (handler.kind === "broadcast" && handler.event === data.event) {
-                handler.callback({ payload: data.payload });
+                // Un broadcast ne porte pas de ligne `new`/`old` ; le
+                // contrat temps réel les réserve aux changements PostgreSQL.
+                handler.callback(
+                  { payload: data.payload } as unknown as RealtimePayload<DynamicRow>,
+                );
               }
             }
           };
@@ -884,19 +905,19 @@ export const restAuth: RestAuth = {
 };
 
 export interface RestClient {
-  from<T = any>(table: string): RestQueryBuilder<T>;
-  rpc<T = any>(name: string, args?: any): RestQueryBuilder<T>;
+  from<T = DynamicRow>(table: string): RestQueryBuilder<T>;
+  rpc<T = DynamicRow>(name: string, args?: Record<string, unknown>): RestQueryBuilder<T>;
   auth: RestAuth;
   channel(name: string): LocalChannel;
   removeChannel(channel: LocalChannel): Promise<void>;
 }
 
 export const restClient: RestClient = {
-  from<T = any>(table: string): RestQueryBuilder<T> {
+  from<T = DynamicRow>(table: string): RestQueryBuilder<T> {
     return new RestQueryBuilder<T>(table);
   },
 
-  rpc<T = any>(name: string, args: any = {}): RestQueryBuilder<T> {
+  rpc<T = DynamicRow>(name: string, args: Record<string, unknown> = {}): RestQueryBuilder<T> {
     const builder = new RestQueryBuilder<T>(`rpc/${name}`);
     builder.insert(args);
     return builder;

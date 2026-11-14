@@ -93,7 +93,7 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
           )}
 
           <span
-            className={`font-mono text-[11px] font-bold uppercase tracking-[0.12em] ${
+            className={`font-mono text-12 font-bold uppercase tracking-[0.12em] ${
               busy ? "text-chalk-3" : tone.text
             }`}
           >
@@ -106,7 +106,7 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
 
           <span className="ml-auto flex items-center gap-1.5">
             {outcome.status === "done" && (
-              <span className="tnum rounded-(--radius-chip) border border-line-3 bg-surface-2 px-1.5 py-0.5 font-mono text-[10.5px] text-chalk-3">
+              <span className="tnum rounded-(--radius-chip) border border-line-3 bg-surface-2 px-1.5 py-0.5 font-mono text-12 text-chalk-3">
                 {outcome.durationMs} ms
               </span>
             )}
@@ -117,7 +117,7 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
         </div>
 
         {loading && (
-          <p className="px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-chalk-4">
+          <p className="px-3 py-2.5 font-mono text-12 leading-relaxed text-chalk-4">
             Le moteur arrive — une fois pour toutes, puis il reste en
             mémoire. C&apos;est le seul moment où lancer prend du temps.
           </p>
@@ -161,20 +161,20 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
         )}
 
         {notice && (
-          <p className="border-t border-line-2/50 px-3 py-2 font-mono text-[11px] text-chalk-4">
+          <p className="border-t border-line-2/50 px-3 py-2 font-mono text-12 text-chalk-4">
             {notice}
           </p>
         )}
 
         {stopped && (
-          <p className="px-3 py-2.5 font-mono text-[11.5px] leading-relaxed text-chalk-4">
+          <p className="px-3 py-2.5 font-mono text-12 leading-relaxed text-chalk-4">
             Exécution interrompue. Le worker a été terminé — rien ne continue
             de tourner en arrière-plan.
           </p>
         )}
 
         {outcome.status === "done" && outcome.output.length === 0 && outcome.ok && (
-          <p className="px-3 py-2.5 font-mono text-[11.5px] text-chalk-4">
+          <p className="px-3 py-2.5 font-mono text-12 text-chalk-4">
             Aucune sortie — un code qui calcule sans afficher ne dit rien.
           </p>
         )}

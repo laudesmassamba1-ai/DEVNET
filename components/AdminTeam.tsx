@@ -70,13 +70,13 @@ export function AdminTeam() {
           Équipe d’administration
         </h2>
         {admins !== null && (
-          <p className="font-mono text-[11px] text-chalk-4 tnum">
+          <p className="font-mono text-12 text-chalk-4 tnum">
             {admins.length} compte{admins.length > 1 ? "s" : ""} avec le rôle
           </p>
         )}
       </div>
 
-      <p className="mt-2 max-w-prose text-[13px] leading-relaxed text-chalk-3">
+      <p className="mt-2 max-w-prose text-13 leading-relaxed text-chalk-3">
         Le modèle ne connaît aujourd’hui qu’un seul rôle,{" "}
         <code className="text-chalk-2">is_admin</code>. Les rôles granulaires
         (sécurité, analyste, approbation à deux) n’existent pas encore : cette
@@ -84,19 +84,19 @@ export function AdminTeam() {
       </p>
 
       {capped && (
-        <p className="mt-2 font-mono text-[11px] text-chalk-4">
+        <p className="mt-2 font-mono text-12 text-chalk-4">
           Liste plafonnée à 300 comptes lus : le total peut être plus élevé.
         </p>
       )}
 
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 p-4">
-          <p className="text-[13px] text-danger">{error}</p>
+          <p className="text-13 text-danger">{error}</p>
           <button
             type="button"
             onClick={() => void load()}
             className="mt-3 inline-flex min-h-(--h-tap) items-center rounded-(--radius-input)
-              border border-danger px-3 text-[13px] text-danger"
+              border border-danger px-3 text-13 text-danger"
           >
             Réessayer
           </button>
@@ -111,7 +111,7 @@ export function AdminTeam() {
             icon={<Icon name="groups" size={20} strokeWidth={1.5} />}
             title="Aucun administrateur"
           />
-          <p className="mt-3 text-center font-mono text-[11.5px] text-chalk-4">
+          <p className="mt-3 text-center font-mono text-12 text-chalk-4">
             Le rôle s’attribue depuis{" "}
             <Link href="/admin" className="font-bold text-signal">
               l’onglet Comptes
@@ -136,17 +136,17 @@ export function AdminTeam() {
 
             <div className="min-w-0 flex-1">
               <p className="flex flex-wrap items-baseline gap-1.5">
-                <span className="text-[13.5px] font-bold text-chalk">
+                <span className="text-13 font-bold text-chalk">
                   {account.prenom}
                 </span>
                 {account.verified && (
                   <VerifiedBadge tier={VERIFY_OFFICIAL} size="inline" />
                 )}
-                <span className="font-mono text-[11px] text-chalk-4">
+                <span className="font-mono text-12 text-chalk-4">
                   @{account.pseudo}
                 </span>
               </p>
-              <p className="mt-0.5 font-mono text-[10.5px] text-chalk-4">
+              <p className="mt-0.5 font-mono text-12 text-chalk-4">
                 {account.account_type === "professional" ? "professionnel" : "étudiant"}
                 {" · membre depuis "}
                 {new Date(account.created_at).toLocaleDateString("fr-FR")}

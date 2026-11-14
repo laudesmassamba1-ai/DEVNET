@@ -21,11 +21,14 @@ import {
   MULTIPART_MAX_BYTES,
   abortMultipartUpload,
   completeMultipartUpload,
+  deleteMediaObject,
+  inspectMediaObject,
   isMultipartCapable,
   multipartPartSize,
   presignPartUrl,
   startMultipartUpload,
 } from "@/lib/media-storage";
+import { matchesDeclaredType, sniffMedia } from "@/lib/media-signature";
 import { withUser } from "@/platform/infrastructure/postgres/with-user";
 
 export const runtime = "nodejs";
@@ -106,11 +109,14 @@ export async function POST(request: Request) {
     if (body.action === "complete") {
       const uploadId = String(body.uploadId ?? "");
       const mime = String(body.contentType ?? "");
-      const kind = kindOf(mime);
+      const declaredKind = kindOf(mime);
       const size = Number(body.size);
       const parts = Array.isArray(body.parts) ? body.parts : [];
-      if (!UPLOAD_ID.test(uploadId) || !kind) {
+      if (!UPLOAD_ID.test(uploadId) || !declaredKind) {
         return NextResponse.json({ error: "envoi invalide" }, { status: 400, headers: NO_STORE });
+      }
+      if (!Number.isFinite(size) || size <= 0 || size > MULTIPART_MAX_BYTES) {
+        return NextResponse.json({ error: "taille invalide" }, { status: 400, headers: NO_STORE });
       }
       if (parts.length === 0 || parts.length > 64) {
         return NextResponse.json({ error: "parties manquantes" }, { status: 400, headers: NO_STORE });
@@ -132,16 +138,44 @@ export async function POST(request: Request) {
 
       const url = await completeMultipartUpload(path, uploadId, normalized);
 
+      // Le `Content-Type` du client n'est pas une preuve : après assemblage,
+      // on lit la taille réelle et les premiers octets de l'objet. Un HTML
+      // renommé en `video/mp4` est supprimé et refusé, jamais enregistré.
+      let inspection;
+      try {
+        inspection = await inspectMediaObject(url);
+      } catch (error) {
+        await deleteMediaObject(path);
+        console.error("[media] objet assemblé illisible", error);
+        return NextResponse.json({ error: "objet assemblé illisible" }, { status: 502, headers: NO_STORE });
+      }
+      if (inspection.bytes !== size) {
+        await deleteMediaObject(path);
+        return NextResponse.json(
+          { error: "taille assemblée différente de la taille annoncée" },
+          { status: 400, headers: NO_STORE },
+        );
+      }
+      const sniffed = sniffMedia(inspection.prefix);
+      if (!sniffed || sniffed.kind !== declaredKind || !matchesDeclaredType(sniffed, mime)) {
+        await deleteMediaObject(path);
+        return NextResponse.json(
+          { error: "le contenu ne correspond pas au type annoncé" },
+          { status: 415, headers: NO_STORE },
+        );
+      }
+
       const inserted = await withUser(ownerId, (query) =>
         query<{ path: string }>(
           `insert into public.media_files (path, owner_id, mime, kind, bytes, byte_size, url)
            values ($1, $2, $3, $4, $5, $6, $7)
            on conflict (path) do nothing
            returning path`,
-          [path, ownerId, mime, kind, Buffer.alloc(0), Number.isFinite(size) ? size : 0, url],
+          [path, ownerId, sniffed.mime, sniffed.kind, Buffer.alloc(0), inspection.bytes, url],
         ),
       );
       if (inserted.length === 0) {
+        await deleteMediaObject(path);
         return NextResponse.json(
           { error: "ce nom de fichier est déjà pris" },
           { status: 409, headers: NO_STORE },

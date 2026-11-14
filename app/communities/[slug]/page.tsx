@@ -218,7 +218,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
                   {VISIBILITY_LABEL[community.visibility]}
                 </span>
               </div>
-              <p className="mt-1 text-[13px] leading-relaxed text-chalk-3">
+              <p className="mt-1 text-13 leading-relaxed text-chalk-3">
                 {community.description || "Pas encore de description."}
               </p>
               <p className="mt-1 font-mono text-12 text-chalk-4">
@@ -275,7 +275,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
               value={draft} onChange={(e) => setDraft(e.target.value)}
               rows={2} placeholder={`Publier dans ${community.name}…`}
               className="mb-2 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-                text-[14px] leading-[1.6] shadow-sh-1 placeholder:text-chalk-4
+                text-14 leading-[1.6] shadow-sh-1 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
             <div className="flex justify-end">
@@ -335,7 +335,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
             <input value={invite} aria-label="Inviter par pseudo" onChange={(e) => setInvite(e.target.value)}
               placeholder="Inviter par pseudo (@…)"
               className="h-(--h-input) flex-1 rounded-(--radius-input) border border-line-3 bg-surface
-                px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
+                px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4" />
             <button type="button" onClick={addInvite}
               className="mo-press rounded-(--radius-input) border border-line-3 bg-signal px-4
                 text-sm font-bold text-void shadow-sh-1">
@@ -403,7 +403,7 @@ function MemberRow({ m, staff, meId, onChangeRole, onRemove }: {
       px-2.5 py-2">
       <Avatar name={m.user?.prenom ?? "?"} color={m.user?.avatar_color} />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13px] font-bold text-chalk">
+        <p className="truncate text-13 font-bold text-chalk">
           {m.user?.prenom ?? "Compte supprimé"}
         </p>
         <p className="truncate font-mono text-12 text-chalk-4">@{m.user?.pseudo ?? "—"}</p>
@@ -500,19 +500,19 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
       <Field label="Nom">
         <input value={name} onChange={(e) => setName(e.target.value)}
           className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1" />
+            px-3.5 text-14 shadow-sh-1" />
       </Field>
 
       <Field label="Description">
         <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2}
           className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] shadow-sh-1 " />
+            text-14 shadow-sh-1 " />
       </Field>
 
       <Field label="Règlement intérieur">
         <textarea value={rules} onChange={(e) => setRules(e.target.value)} rows={4}
           className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] shadow-sh-1 " />
+            text-14 shadow-sh-1 " />
       </Field>
 
       <Field label="Visibilité">
@@ -545,7 +545,7 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
 
       <button type="button" onClick={save} disabled={busy}
         className="mo-press mb-5 flex h-(--h-tap) w-full items-center justify-center
-          rounded-(--radius-input) border border-line-3 bg-signal text-[13px] font-bold text-void
+          rounded-(--radius-input) border border-line-3 bg-signal text-13 font-bold text-void
           shadow-sh-2 disabled:opacity-40">
         Enregistrer
       </button>

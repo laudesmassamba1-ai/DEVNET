@@ -17,7 +17,7 @@ import { Avatar } from "./Avatar";
 import { Icon } from "./Icon";
 import { Sheet } from "./Sheet";
 import { useToast } from "./Toast";
-import { publishStory, publishStoryMedia, STORY_MAX } from "@/lib/stories";
+import { publishStory, publishStoryMedia, STORY_MAX, type StoryAudience } from "@/lib/stories";
 
 type StudioProfile = {
   id: string;
@@ -63,6 +63,7 @@ export function StoryStudio({
 }) {
   const toast = useToast();
   const [caption, setCaption] = useState("");
+  const [audience, setAudience] = useState<StoryAudience>("public");
   const [media, setMedia] = useState<DraftMedia | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,6 +75,7 @@ export function StoryStudio({
 
   function reset() {
     setCaption("");
+    setAudience("public");
     setBusy(false);
     setError(null);
     setDuration(null);
@@ -148,13 +150,13 @@ export function StoryStudio({
     setError(null);
     try {
       if (media) {
-        const { id, error: uploadError } = await publishStoryMedia(text, media.file, profile.id);
+        const { id, error: uploadError } = await publishStoryMedia(text, media.file, profile.id, audience);
         if (uploadError || !id) {
           setError(uploadError ?? "Réponse vide du serveur.");
           return;
         }
       } else {
-        const { error: publishError } = await publishStory(profile.id, text);
+        const { error: publishError } = await publishStory(profile.id, text, audience);
         if (publishError) {
           setError(publishError);
           return;
@@ -231,7 +233,7 @@ export function StoryStudio({
                     }}
                   >
                     <div className="flex size-full items-center justify-center px-6 text-center">
-                      <p className="font-display text-[15px] leading-snug text-chalk-4">
+                      <p className="font-display text-15 leading-snug text-chalk-4">
                         Dépose une photo ou une vidéo,
                         <br />
                         ou écris simplement.
@@ -304,13 +306,13 @@ export function StoryStudio({
                     rows={3}
                     maxLength={STORY_MAX}
                     placeholder="Ta légende…"
-                    className="w-full resize-none bg-transparent text-[15px] leading-snug
+                    className="w-full resize-none bg-transparent text-15 leading-snug
                       text-chalk placeholder:text-chalk/55"
                   />
                 </div>
 
                 {tooLong && (
-                  <span className="absolute inset-x-3 top-12 rounded-chip border border-warn/50 bg-void/80 px-2 py-1 font-mono text-[10px] text-warn backdrop-blur-sm">
+                  <span className="absolute inset-x-3 top-12 rounded-chip border border-warn/50 bg-void/80 px-2 py-1 font-mono text-12 text-warn backdrop-blur-sm">
                     {shownDuration} — la vidéo sera coupée à {VIDEO_MAX_SECONDS} s
                   </span>
                 )}
@@ -318,7 +320,7 @@ export function StoryStudio({
             </div>
           </div>
 
-          <div className="mx-auto mt-2 flex w-full max-w-[280px] items-center justify-between font-mono text-[10px] text-chalk-4 md:max-w-none">
+          <div className="mx-auto mt-2 flex w-full max-w-[280px] items-center justify-between font-mono text-12 text-chalk-4 md:max-w-none">
             <span>Aperçu · 9:16</span>
             <span className={nearLimit ? "tnum text-warn" : "tnum"}>
               {caption.length}/{STORY_MAX}
@@ -335,7 +337,7 @@ export function StoryStudio({
                 type="button"
                 onClick={removeMedia}
                 disabled={busy}
-                className="font-mono text-[10.5px] text-chalk-4 underline decoration-line-3 underline-offset-2 hover:text-danger"
+                className="font-mono text-12 text-chalk-4 underline decoration-line-3 underline-offset-2 hover:text-danger"
               >
                 Retirer
               </button>
@@ -352,7 +354,7 @@ export function StoryStudio({
                   <span className="block truncate text-xs font-bold text-chalk">
                     {media.file.name}
                   </span>
-                  <span className="block font-mono text-[10px] text-chalk-4">
+                  <span className="block font-mono text-12 text-chalk-4">
                     {media.kind === "video" ? "Vidéo" : "Photo"} · {formatSize(media.size)}
                     {shownDuration ? ` · ${shownDuration}` : ""}
                   </span>
@@ -361,7 +363,7 @@ export function StoryStudio({
                   type="button"
                   onClick={() => fileRef.current?.click()}
                   disabled={busy}
-                  className="shrink-0 rounded-chip border border-line-2 px-2 py-1 font-mono text-[10px] text-chalk-3 hover:border-signal hover:text-signal"
+                  className="shrink-0 rounded-chip border border-line-2 px-2 py-1 font-mono text-12 text-chalk-3 hover:border-signal hover:text-signal"
                 >
                   Changer
                 </button>
@@ -381,7 +383,7 @@ export function StoryStudio({
                 <Icon name="video" size={18} />
               </span>
               <span className="text-xs font-bold text-chalk-2">Photo ou vidéo</span>
-              <span className="font-mono text-[10px] leading-relaxed text-chalk-4">
+              <span className="font-mono text-12 leading-relaxed text-chalk-4">
                 Glisse un fichier ici · 6 Mo photo · 40 Mo vidéo · 15 s
               </span>
             </button>
@@ -405,7 +407,45 @@ export function StoryStudio({
             </p>
           )}
 
-          <p className="mt-3 text-[11.5px] leading-relaxed text-chalk-4">
+          <fieldset className="mt-4">
+            <legend className="label-micro text-chalk-3">Audience</legend>
+            <div
+              role="radiogroup"
+              aria-label="Qui peut voir ce statut"
+              className="mt-2 grid grid-cols-3 gap-1.5"
+            >
+              {([
+                ["public", "Public"],
+                ["followers", "Abonnés"],
+                ["private", "Moi"],
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  role="radio"
+                  aria-checked={audience === value}
+                  onClick={() => setAudience(value)}
+                  disabled={busy}
+                  className={`min-h-11 rounded-input border px-2 font-mono text-12
+                    transition-colors disabled:opacity-40
+                    ${audience === value
+                      ? "border-signal bg-signal/10 text-signal"
+                      : "border-line-2 text-chalk-3 hover:border-line-3"}`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-12 leading-relaxed text-chalk-4">
+              {audience === "public"
+                ? "Visible par tout le monde, même sans compte."
+                : audience === "followers"
+                  ? "Visible par les personnes qui te suivent."
+                  : "Visible par toi uniquement."}
+            </p>
+          </fieldset>
+
+          <p className="mt-3 text-12 leading-relaxed text-chalk-4">
             Le serveur re-encode chaque média : WebP borné à 1080 px pour une
             photo, MP4/H.264 720 px et 15 s au plus pour une vidéo. Le fichier
             d&apos;origine n&apos;est jamais publié tel quel.

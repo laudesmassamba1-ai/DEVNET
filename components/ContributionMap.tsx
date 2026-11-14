@@ -143,7 +143,7 @@ export function ContributionMap({
               <span
                 key={`${s.col}-${s.label}`}
                 className="label-micro absolute top-0 overflow-hidden whitespace-nowrap
-                  text-[9px] leading-[13px] text-chalk-4"
+                  text-12 leading-[13px] text-chalk-4"
                 style={{ left: s.col * STEP, maxWidth: s.span * STEP - GAP }}
               >
                 {s.label}

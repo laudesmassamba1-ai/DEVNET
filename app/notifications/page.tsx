@@ -316,7 +316,7 @@ export default function NotificationsPage() {
                 type="button"
                 aria-selected={filter === value}
                 onClick={() => setFilter(value)}
-                className={`-mb-0.5 flex min-h-(--h-tap) shrink-0 items-center tab-underline px-3 py-2 font-mono text-[11.5px]
+                className={`-mb-0.5 flex min-h-(--h-tap) shrink-0 items-center tab-underline px-3 py-2 font-mono text-12
                   font-bold tracking-[0.12em] uppercase transition-colors
                   duration-(--d-fast)
                   ${filter === value
@@ -415,7 +415,7 @@ export default function NotificationsPage() {
                   <div className="min-w-0 flex-1">
                     {group.kind === "challenge" ? (
                       <>
-                        <p className="text-[13.5px] font-bold">{KIND_LABEL.challenge} du jour</p>
+                        <p className="text-13 font-bold">{KIND_LABEL.challenge} du jour</p>
                         <p className="mt-1 text-12 text-chalk-4">
                           Trois défis vous attendent aujourd&apos;hui. Relevez-les sur votre profil.
                         </p>
@@ -429,11 +429,11 @@ export default function NotificationsPage() {
                             strokeWidth={2}
                             className="translate-y-px text-signal"
                           />
-                          <span className={`text-[13.5px] ${unreadGroup ? "font-bold" : "font-semibold"}`}>
+                          <span className={`text-13 ${unreadGroup ? "font-bold" : "font-semibold"}`}>
                             {name}
                           </span>
                           {actor?.verified && <VerifiedBadge tier={badgeFor(actor, xpOf(actor))} size="sm" className="translate-y-[1px]" />}
-                          <span className="text-[13px] text-chalk-3">
+                          <span className="text-13 text-chalk-3">
                             {notificationPhrase(group.kind, group.count)}
                           </span>
                           {group.count > 1 && (
@@ -480,7 +480,7 @@ export default function NotificationsPage() {
               disabled={loadingMore}
               className="inline-flex h-(--h-tap) items-center gap-2
                 rounded-(--radius-input) border border-line-2 px-4
-                font-mono text-[11.5px] font-bold tracking-[0.12em]
+                font-mono text-12 font-bold tracking-[0.12em]
                 text-chalk-3 uppercase transition-colors
                 duration-(--d-fast) hover:border-signal hover:text-signal
                 disabled:opacity-40"

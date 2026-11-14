@@ -106,7 +106,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
       <Motion role="rise">
         <div className="rounded-(--radius-card) border border-line-2 bg-surface px-4 py-3.5 shadow-sh-1">
           <div className="flex items-center gap-2">
-            <span className={`rounded-(--radius-chip) border px-2 py-0.5 font-mono text-[10.5px] ${STATUS[mine.status].className}`}>
+            <span className={`rounded-(--radius-chip) border px-2 py-0.5 font-mono text-12 ${STATUS[mine.status].className}`}>
               {STATUS[mine.status].label}
             </span>
             <span className="text-sm text-chalk-3">
@@ -114,7 +114,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
             </span>
           </div>
           {mine.message && (
-            <p className="mt-2 whitespace-pre-wrap text-[13px] leading-relaxed text-chalk-2">
+            <p className="mt-2 whitespace-pre-wrap text-13 leading-relaxed text-chalk-2">
               {mine.message}
             </p>
           )}
@@ -131,7 +131,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
         </h3>
 
         {pending.length === 0 && (
-          <p className="px-1 font-mono text-[11.5px] text-chalk-4">
+          <p className="px-1 font-mono text-12 text-chalk-4">
             aucune candidature en attente.
           </p>
         )}
@@ -144,20 +144,20 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
                   <Avatar name={a.prenom || a.pseudo} color={a.avatar_color} />
                   <div className="min-w-0 flex-1">
                     <p className="flex flex-wrap items-baseline gap-x-2">
-                      <span className="font-display text-[14px] font-bold text-chalk">
+                      <span className="font-display text-14 font-bold text-chalk">
                         {a.prenom || a.pseudo}
                       </span>
-                      <span className="font-mono text-[11px] text-chalk-4">@{a.pseudo}</span>
-                      <span className="rounded-(--radius-chip) border border-signal/40 bg-signal/10 px-1.5 py-0.5 font-mono text-[10.5px] text-signal-d">
+                      <span className="font-mono text-12 text-chalk-4">@{a.pseudo}</span>
+                      <span className="rounded-(--radius-chip) border border-signal/40 bg-signal/10 px-1.5 py-0.5 font-mono text-12 text-signal-d">
                         {roleLabel(a.role)}
                       </span>
                     </p>
                     {a.message && (
-                      <p className="mt-1 whitespace-pre-wrap text-[13px] leading-relaxed text-chalk-2">
+                      <p className="mt-1 whitespace-pre-wrap text-13 leading-relaxed text-chalk-2">
                         {a.message}
                       </p>
                     )}
-                    <p className="mt-1 font-mono text-[10.5px] text-chalk-4">
+                    <p className="mt-1 font-mono text-12 text-chalk-4">
                       {timeAgo(a.created_at)}
                     </p>
                   </div>
@@ -169,7 +169,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
                     onClick={() => decide(a.id, false)}
                     disabled={busyId === a.id}
                     className="mo-press inline-flex h-(--h-tap) items-center gap-1.5 rounded-(--radius-input)
-                      border border-line-3 px-3 text-[13px] font-bold text-chalk-2
+                      border border-line-3 px-3 text-13 font-bold text-chalk-2
                       transition-colors hover:border-danger hover:text-danger disabled:opacity-40"
                   >
                     <Icon name="close" size={14} strokeWidth={2} />
@@ -180,7 +180,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
                     onClick={() => decide(a.id, true)}
                     disabled={busyId === a.id}
                     className="mo-press inline-flex h-(--h-tap) items-center gap-1.5 rounded-(--radius-input)
-                      border border-signal bg-signal px-3.5 text-[13px] font-bold text-void
+                      border border-signal bg-signal px-3.5 text-13 font-bold text-void
                       shadow-sh-2 disabled:opacity-40"
                   >
                     {busyId === a.id ? <Spinner /> : <Icon name="check" size={14} strokeWidth={2.4} />}
@@ -205,17 +205,17 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
               >
                 <Avatar name={a.prenom || a.pseudo} color={a.avatar_color} />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-bold text-chalk-2">
+                  <p className="truncate text-13 font-bold text-chalk-2">
                     {a.prenom || a.pseudo}
-                    <span className="ml-2 font-mono text-[11px] font-normal text-chalk-4">
+                    <span className="ml-2 font-mono text-12 font-normal text-chalk-4">
                       {roleLabel(a.role)}
                     </span>
                   </p>
-                  <p className="font-mono text-[10.5px] text-chalk-4">
+                  <p className="font-mono text-12 text-chalk-4">
                     {timeAgo(a.created_at)}
                   </p>
                 </div>
-                <span className={`shrink-0 rounded-(--radius-chip) border px-2 py-0.5 font-mono text-[10.5px] ${STATUS[a.status].className}`}>
+                <span className={`shrink-0 rounded-(--radius-chip) border px-2 py-0.5 font-mono text-12 ${STATUS[a.status].className}`}>
                   {STATUS[a.status].label}
                 </span>
               </div>

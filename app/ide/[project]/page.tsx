@@ -71,12 +71,12 @@ function TreeNode({
     return (
       <li>
         <span
-          className="flex items-center gap-1.5 py-1 font-mono text-[11.5px] text-chalk-4"
+          className="flex items-center gap-1.5 py-1 font-mono text-12 text-chalk-4"
           style={pad}
         >
           <Icon name="layers" size={11} className="shrink-0" />
           <span className="truncate">{node.name}/</span>
-          <span className="tnum ml-auto text-[10.5px] text-chalk-4">
+          <span className="tnum ml-auto text-12 text-chalk-4">
             {node.count}
           </span>
         </span>
@@ -102,7 +102,7 @@ function TreeNode({
         onClick={() => onOpen(node.path)}
         aria-current={open === node.path ? "true" : undefined}
         style={pad}
-        className={`flex w-full items-center gap-1.5 py-1 text-left font-mono text-[11.5px]
+        className={`flex w-full items-center gap-1.5 py-1 text-left font-mono text-12
           transition-colors duration-(--d-fast)
           ${
             open === node.path
@@ -603,7 +603,7 @@ export default function IdePage() {
               type="button"
               onClick={() => router.push("/projects")}
               className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input)
-                border border-line-3 px-4 text-[13px] font-bold text-chalk-2
+                border border-line-3 px-4 text-13 font-bold text-chalk-2
                 hover:border-signal hover:text-signal"
             >
               Retour aux projets
@@ -634,7 +634,7 @@ export default function IdePage() {
         {/* ── Barre d’onglets ── */}
         <div className="flex h-[38px] items-center gap-1 border-b border-line-3 bg-surface-2/60 px-2">
           {openTabs.length === 0 && (
-            <span className="px-2 font-mono text-[11px] text-chalk-4">
+            <span className="px-2 font-mono text-12 text-chalk-4">
               Aucun fichier ouvert
             </span>
           )}
@@ -646,7 +646,7 @@ export default function IdePage() {
                 key={p}
                 type="button"
                 onClick={() => setOpen(p)}
-                className={`flex max-w-[220px] items-center gap-1.5 rounded-t-(--radius-chip) border-x border-t px-2.5 py-1 font-mono text-[11px] transition-colors
+                className={`flex max-w-[220px] items-center gap-1.5 rounded-t-(--radius-chip) border-x border-t px-2.5 py-1 font-mono text-12 transition-colors
                   ${
                     open === p
                       ? "border-line-3 bg-surface text-chalk"
@@ -680,7 +680,7 @@ export default function IdePage() {
             <div className="flex items-center justify-between border-b border-line-3 px-2.5 py-2">
               <span className="label-micro text-chalk-3">Fichiers</span>
               <span className="flex items-center gap-1.5">
-                <span className="tnum font-mono text-[10.5px] text-chalk-4">
+                <span className="tnum font-mono text-12 text-chalk-4">
                   {(files ?? []).length}
                 </span>
                 <button
@@ -704,7 +704,7 @@ export default function IdePage() {
                   <button
                     type="button"
                     onClick={() => setCreatingFile(true)}
-                    className="mo-press mt-3 inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-signal px-3 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-signal"
+                    className="mo-press mt-3 inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-signal px-3 font-mono text-12 font-bold uppercase tracking-[0.12em] text-signal"
                   >
                     <Icon name="plus" size={11} strokeWidth={2} />
                     créer un fichier
@@ -734,7 +734,7 @@ export default function IdePage() {
                   value={branch}
                   aria-label="Branche"
                   onChange={(e) => switchBranch(e.target.value)}
-                  className="mo-press h-[32px] rounded-(--radius-chip) border border-line-3 bg-surface px-2 font-mono text-[11px] text-chalk-2"
+                  className="mo-press h-[32px] rounded-(--radius-chip) border border-line-3 bg-surface px-2 font-mono text-12 text-chalk-2"
                 >
                   {branches.map((b) => (
                     <option key={b.name} value={b.name}>
@@ -745,7 +745,7 @@ export default function IdePage() {
                 <button
                   type="button"
                   onClick={() => setNamingBranch(true)}
-                  className="mo-press inline-flex h-[32px] items-center gap-1 rounded-(--radius-chip) border border-line-3 px-2 font-mono text-[11px] text-chalk-2 hover:border-signal hover:text-signal"
+                  className="mo-press inline-flex h-[32px] items-center gap-1 rounded-(--radius-chip) border border-line-3 px-2 font-mono text-12 text-chalk-2 hover:border-signal hover:text-signal"
                 >
                   <Icon name="plus" size={11} />
                   branche
@@ -754,7 +754,7 @@ export default function IdePage() {
                   <button
                     type="button"
                     onClick={() => setDropping(branch)}
-                    className="mo-press inline-flex h-[32px] items-center gap-1 rounded-(--radius-chip) border border-line-3 px-2 font-mono text-[11px] text-chalk-2 hover:border-danger hover:text-danger"
+                    className="mo-press inline-flex h-[32px] items-center gap-1 rounded-(--radius-chip) border border-line-3 px-2 font-mono text-12 text-chalk-2 hover:border-danger hover:text-danger"
                   >
                     <Icon name="close" size={11} />
                     supprimer
@@ -766,20 +766,20 @@ export default function IdePage() {
                 <button
                   type="button"
                   onClick={() => setChatOpen((v) => !v)}
-                  className={`mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em]
+                  className={`mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em]
                     ${chatOpen ? "border-signal text-signal" : "border-line-3 text-chalk-3 hover:border-signal hover:text-signal"}`}
                 >
                   <Icon name="messages" size={11} />
                   équipe
                   {cursors.length > 0 && (
-                    <span className="tnum text-[10px] text-signal">{cursors.length + 1}</span>
+                    <span className="tnum text-12 text-signal">{cursors.length + 1}</span>
                   )}
                 </button>
                 <button
                   type="button"
                   onClick={exportDevcontainer}
                   title="Exporter devcontainer.json"
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal"
                 >
                   <Icon name="code" size={11} />
                   devcontainer
@@ -788,7 +788,7 @@ export default function IdePage() {
                   type="button"
                   onClick={stopExec}
                   disabled={outcome.status !== "running" && outcome.status !== "loading"}
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-warn hover:text-warn disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-warn hover:text-warn disabled:opacity-40"
                 >
                   <Icon name="stop" size={11} strokeWidth={2.2} />
                   arrêter
@@ -797,7 +797,7 @@ export default function IdePage() {
                   type="button"
                   onClick={execute}
                   disabled={!current || busy}
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
                 >
                   <Icon name="bolt" size={11} strokeWidth={2} />
                   exécuter
@@ -806,7 +806,7 @@ export default function IdePage() {
                   type="button"
                   onClick={persist}
                   disabled={busy || !dirty}
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
                 >
                   <Icon name="check" size={11} strokeWidth={2} />
                   écrire
@@ -816,7 +816,7 @@ export default function IdePage() {
                   onClick={() => setDeletingFile(current?.path ?? null)}
                   disabled={!current || busy}
                   title="Supprimer le fichier ouvert"
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-danger hover:text-danger disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-danger hover:text-danger disabled:opacity-40"
                 >
                   <Icon name="trash" size={11} strokeWidth={2} />
                   effacer
@@ -825,7 +825,7 @@ export default function IdePage() {
                   type="button"
                   onClick={() => setCommitting(true)}
                   disabled={busy}
-                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
+                  className="mo-press inline-flex h-[32px] items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3 hover:border-signal hover:text-signal disabled:opacity-40"
                 >
                   <Icon name="plus" size={11} strokeWidth={2} />
                   commit
@@ -902,14 +902,14 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => setNamingBranch(false)}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-13 font-bold text-chalk-2 hover:border-chalk-2"
             >
               Annuler
             </button>
             <button
               type="button"
               onClick={createNewBranch}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-[13px] font-bold text-void hover:opacity-95"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-13 font-bold text-void hover:opacity-95"
             >
               Créer
             </button>
@@ -941,7 +941,7 @@ export default function IdePage() {
               placeholder="src/main.js"
               spellCheck={false}
             />
-            <p className="text-[11.5px] leading-relaxed text-chalk-4">
+            <p className="text-12 leading-relaxed text-chalk-4">
               Le dossier est créé au besoin. Si ce chemin existe déjà, rien
               n’est écrasé.
             </p>
@@ -950,7 +950,7 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => setCreatingFile(false)}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-13 font-bold text-chalk-2 hover:border-chalk-2"
             >
               Annuler
             </button>
@@ -958,7 +958,7 @@ export default function IdePage() {
               type="button"
               onClick={() => void createFile()}
               disabled={busy || newPath.trim().length === 0}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-[13px] font-bold text-void hover:opacity-95 disabled:opacity-40"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-13 font-bold text-void hover:opacity-95 disabled:opacity-40"
             >
               Créer
             </button>
@@ -978,7 +978,7 @@ export default function IdePage() {
             <span className="font-mono text-danger">{deletingFile}</span> sur
             la branche <span className="font-mono text-chalk-2">{branch}</span>.
           </p>
-          <p className="text-[11.5px] leading-relaxed text-chalk-4">
+          <p className="text-12 leading-relaxed text-chalk-4">
             Le fichier disparaît de l’état de travail. Les commits déjà
             enregistrés le conservent.
           </p>
@@ -986,7 +986,7 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => setDeletingFile(null)}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-13 font-bold text-chalk-2 hover:border-chalk-2"
             >
               Annuler
             </button>
@@ -994,7 +994,7 @@ export default function IdePage() {
               type="button"
               onClick={() => void removeFile()}
               disabled={busy}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-danger bg-danger px-4 text-[13px] font-bold text-void hover:opacity-95 disabled:opacity-40"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-danger bg-danger px-4 text-13 font-bold text-void hover:opacity-95 disabled:opacity-40"
             >
               Supprimer
             </button>
@@ -1016,14 +1016,14 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => setDropping(null)}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-13 font-bold text-chalk-2 hover:border-chalk-2"
             >
               Annuler
             </button>
             <button
               type="button"
               onClick={() => dropping && dropBranch(dropping)}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-danger bg-danger px-4 text-[13px] font-bold text-void hover:opacity-95"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-danger bg-danger px-4 text-13 font-bold text-void hover:opacity-95"
             >
               Supprimer
             </button>
@@ -1057,14 +1057,14 @@ export default function IdePage() {
             <button
               type="button"
               onClick={() => setCommitting(false)}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-[13px] font-bold text-chalk-2 hover:border-chalk-2"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-4 text-13 font-bold text-chalk-2 hover:border-chalk-2"
             >
               Annuler
             </button>
             <button
               type="button"
               onClick={commit}
-              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-[13px] font-bold text-void hover:opacity-95"
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-signal bg-signal px-4 text-13 font-bold text-void hover:opacity-95"
             >
               Enregistrer
             </button>

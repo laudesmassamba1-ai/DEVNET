@@ -93,7 +93,7 @@ export function ReportButton({
 
       <Sheet open={open} onClose={() => setOpen(false)} title="Signaler">
         <div className="px-(--gutter) pb-2">
-          <p className="mb-3 font-mono text-[11.5px] leading-relaxed text-chalk-4">
+          <p className="mb-3 font-mono text-12 leading-relaxed text-chalk-4">
             Transmis à son auteur — votre identité reste inconnue.
           </p>
 
@@ -164,8 +164,8 @@ export function ReportButton({
                     {chosen && <Icon name="check" size={9} strokeWidth={3} />}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[13px] font-bold">{r.label}</span>
-                    <span className="block font-mono text-[11px] text-chalk-4">{r.hint}</span>
+                    <span className="block text-13 font-bold">{r.label}</span>
+                    <span className="block font-mono text-12 text-chalk-4">{r.hint}</span>
                   </span>
                 </button>
               );
@@ -187,10 +187,10 @@ export function ReportButton({
                 maxLength={1000}
                 placeholder="Ce que tu as vu, sans interprétation."
                 className="w-full resize-none border border-line-2 bg-surface px-2.5 py-2
-                  text-[13px] leading-relaxed text-chalk outline
+                  text-13 leading-relaxed text-chalk outline
                   duration-(--d-fast) placeholder:text-chalk-4/60 focus:border-signal"
               />
-              <p className="mt-1 text-right font-mono text-[10.5px] text-chalk-4 tnum">
+              <p className="mt-1 text-right font-mono text-12 text-chalk-4 tnum">
                 {details.length}/1000
               </p>
             </div>

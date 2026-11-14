@@ -132,7 +132,7 @@ export default function FollowersPage({
           className="mx-auto flex max-w-[1200px] items-center gap-3 px-5 py-4 text-chalk-3 hover:text-chalk"
         >
           <Icon name="arrow-left" size={16} />
-          <span className="font-mono text-[11.5px] font-bold uppercase tracking-[0.08em]">
+          <span className="font-mono text-12 font-bold uppercase tracking-[0.08em]">
             retour au profil
           </span>
         </Link>
@@ -144,7 +144,7 @@ export default function FollowersPage({
             <Link
               key={k}
               href={`/u/${user?.pseudo ?? pseudo}/followers${k === "following" ? "?which=following" : ""}`}
-              className={`tab-underline px-3.5 py-2 font-mono text-[11.5px]
+              className={`tab-underline px-3.5 py-2 font-mono text-12
                 font-bold uppercase tracking-[0.12em] transition-colors
                 duration-(--d-fast)
                 ${kind === k ? "text-signal" : "text-chalk-4 hover:text-chalk-2"}`}
@@ -176,7 +176,7 @@ export default function FollowersPage({
               <Avatar name={u.prenom} color={u.avatar_color} size="md" />
               <div className="min-w-0 flex-1">
                 <p className="flex flex-wrap items-baseline gap-1.5">
-                  <span className="font-bold text-[13.5px] text-chalk truncate">
+                  <span className="font-bold text-13 text-chalk truncate">
                     {u.prenom}
                   </span>
                   {u.verified && (
@@ -186,11 +186,11 @@ export default function FollowersPage({
                     </span>
                   )}
                 </p>
-                <p className="mt-0.5 font-mono text-[11.5px] text-chalk-4 truncate">
+                <p className="mt-0.5 font-mono text-12 text-chalk-4 truncate">
                   @{u.pseudo}
                 </p>
                 {(u.filiere || u.niveau) && (
-                  <p className="mt-1 font-mono text-[11px] text-chalk-3">
+                  <p className="mt-1 font-mono text-12 text-chalk-3">
                     {[u.filiere, u.niveau].filter(Boolean).join(" · ")}
                   </p>
                 )}

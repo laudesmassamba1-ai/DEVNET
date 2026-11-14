@@ -191,7 +191,7 @@ export default function GroupsPage() {
           value={query} onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher un groupe…"
           className="mb-4 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
+            px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
@@ -236,7 +236,7 @@ export default function GroupsPage() {
           <input value={name} aria-label="Nom du groupe" onChange={(e) => setName(e.target.value)}
             placeholder="ex: Algo & Structures L2"
             className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5
-              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
+              text-14 shadow-sh-1 placeholder:text-chalk-4" />
         </div>
 
         <div className="mb-4">
@@ -246,7 +246,7 @@ export default function GroupsPage() {
           <textarea value={desc} aria-label="Description du groupe" onChange={(e) => setDesc(e.target.value)} rows={2}
             placeholder="À quoi sert ce groupe ?"
             className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
+              text-14 shadow-sh-1 placeholder:text-chalk-4" />
         </div>
 
         <div className="mb-4">
@@ -255,7 +255,7 @@ export default function GroupsPage() {
           </label>
           <select value={category} aria-label="Catégorie du groupe" onChange={(e) => setCategory(e.target.value)}
             className="h-(--h-input) w-full cursor-pointer rounded-(--radius-input) border border-line-3
-              bg-surface px-3.5 text-[14px] shadow-sh-1">
+              bg-surface px-3.5 text-14 shadow-sh-1">
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
           </select>
         </div>
@@ -282,13 +282,13 @@ export default function GroupsPage() {
 
         <div className="mt-1 flex gap-2.5">
           <button type="button" onClick={() => setOpen(false)}
-            className="rounded-(--radius-input) border border-transparent px-5 text-[13px]
+            className="rounded-(--radius-input) border border-transparent px-5 text-13
               font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
             Annuler
           </button>
           <button type="button" onClick={create} disabled={busy}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center rounded-(--radius-input)
-              border border-line-3 bg-signal text-[13px] font-bold text-void shadow-sh-2
+              border border-line-3 bg-signal text-13 font-bold text-void shadow-sh-2
               disabled:opacity-40">
             Créer
           </button>
@@ -321,7 +321,7 @@ function GroupRow({ g, joined, onJoin }: {
         </span>
       </span>
       <div className="min-w-0 flex-1">
-        <div className="text-[14px] font-bold">{g.name}</div>
+        <div className="text-14 font-bold">{g.name}</div>
         {g.description ? (
           <div className="mt-0.5 truncate text-12 text-chalk-3">{g.description}</div>
         ) : null}
@@ -331,7 +331,7 @@ function GroupRow({ g, joined, onJoin }: {
         </div>
       </div>
       {joined
-        ? <span aria-hidden="true" className="shrink-0 pl-1 font-mono text-[16px] text-chalk-4">›</span>
+        ? <span aria-hidden="true" className="shrink-0 pl-1 font-mono text-base text-chalk-4">›</span>
         : (
           <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onJoin?.(); }}
             className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-chip) border-(--bw-thin) border-line-3 bg-signal

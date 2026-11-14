@@ -131,7 +131,7 @@ export function ShareSheet({ open, onClose, url, title }: ShareSheetProps) {
             >
               <span className="flex items-center gap-2.5">
                 <Icon name={app.icon} size={14} strokeWidth={2} />
-                <span className="font-mono text-[13px]">{app.label}</span>
+                <span className="font-mono text-13">{app.label}</span>
               </span>
               {app.id === "copy" && <Icon name="check" size={12} strokeWidth={3} className="text-signal" />}
             </button>
@@ -146,7 +146,7 @@ export function ShareSheet({ open, onClose, url, title }: ShareSheetProps) {
           disabled={busy}
           className="mo-press mt-3 inline-flex h-(--h-tap) w-full items-center
             justify-center gap-2 rounded-(--radius-input) border border-line-2
-            bg-surface px-4 font-mono text-[11.5px] font-bold text-chalk-2
+            bg-surface px-4 font-mono text-12 font-bold text-chalk-2
             transition-colors hover:border-line-3 hover:text-chalk
             disabled:opacity-40"
         >

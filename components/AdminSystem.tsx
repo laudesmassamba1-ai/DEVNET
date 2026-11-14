@@ -90,7 +90,7 @@ export function AdminSystem() {
           <h2 id="admin-system-title" className="font-display text-[18px] font-semibold">
             État de la plateforme
           </h2>
-          <p className="mt-1 max-w-prose text-[13px] leading-relaxed text-chalk-3">
+          <p className="mt-1 max-w-prose text-13 leading-relaxed text-chalk-3">
             Mesures lues à l’instant, sans valeur de démonstration.
           </p>
         </div>
@@ -107,7 +107,7 @@ export function AdminSystem() {
 
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2">
-          <p className="text-[13px] text-danger">{error}</p>
+          <p className="text-13 text-danger">{error}</p>
           <button type="button" onClick={() => void load()} className="mt-2 text-12 font-semibold text-signal">
             Réessayer
           </button>
@@ -120,27 +120,27 @@ export function AdminSystem() {
         <>
           <dl className="mt-5 divide-y divide-line-2 border-y border-line-2">
             <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
-              <dt className="text-[13px] text-chalk-3">Base de données</dt>
-              <dd className={`font-mono text-[13px] font-semibold ${data.database.ok ? "text-ok" : "text-danger"}`}>
+              <dt className="text-13 text-chalk-3">Base de données</dt>
+              <dd className={`font-mono text-13 font-semibold ${data.database.ok ? "text-ok" : "text-danger"}`}>
                 {data.database.ok ? "En ligne" : "Indisponible"}
                 {data.database.latencyMs !== null ? ` · ${data.database.latencyMs} ms` : ""}
               </dd>
             </div>
             <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
-              <dt className="text-[13px] text-chalk-3">Région d’exécution</dt>
+              <dt className="text-13 text-chalk-3">Région d’exécution</dt>
               <dd className="font-mono text-12 text-chalk-2">{data.region ?? "locale / inconnue"}</dd>
             </div>
             <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
-              <dt className="text-[13px] text-chalk-3">Taille de la base</dt>
+              <dt className="text-13 text-chalk-3">Taille de la base</dt>
               <dd className="font-mono text-12 text-chalk-2">{formatBytes(data.sizeBytes)}</dd>
             </div>
             <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
-              <dt className="text-[13px] text-chalk-3">Dernière migration</dt>
+              <dt className="text-13 text-chalk-3">Dernière migration</dt>
               <dd className="font-mono text-12 text-chalk-2">{data.migration ?? "inconnue"}</dd>
             </div>
           </dl>
 
-          <h3 className="mt-5 font-display text-[15px] font-semibold">Volumes</h3>
+          <h3 className="mt-5 font-display text-15 font-semibold">Volumes</h3>
           <dl className="mt-2 grid grid-cols-2 gap-3 border-y border-line-2 py-4 sm:grid-cols-5">
             {([
               ["Comptes", "users"],
@@ -158,11 +158,11 @@ export function AdminSystem() {
             ))}
           </dl>
 
-          <h3 className="mt-5 font-display text-[15px] font-semibold">Services configurés</h3>
+          <h3 className="mt-5 font-display text-15 font-semibold">Services configurés</h3>
           <ul className="mt-2 divide-y divide-line-2 border-y border-line-2">
             {Object.entries(data.services).map(([key, enabled]) => (
               <li key={key} className="flex items-center justify-between gap-3 py-3">
-                <span className="text-[13px] text-chalk-3">{SERVICE_LABELS[key] ?? key}</span>
+                <span className="text-13 text-chalk-3">{SERVICE_LABELS[key] ?? key}</span>
                 <span className={`inline-flex items-center gap-1.5 font-mono text-12 font-semibold ${enabled ? "text-ok" : "text-chalk-4"}`}>
                   <Icon name={enabled ? "check" : "close"} size={12} strokeWidth={2.2} />
                   {enabled ? "configuré" : "absent"}
@@ -171,7 +171,7 @@ export function AdminSystem() {
             ))}
           </ul>
 
-          <p className="mt-4 font-mono text-[10.5px] text-chalk-4">
+          <p className="mt-4 font-mono text-12 text-chalk-4">
             Vérifié le {new Date(data.checkedAt).toLocaleString("fr-FR")}
             {data.environment ? ` · ${data.environment}` : ""}
           </p>

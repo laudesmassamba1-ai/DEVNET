@@ -236,11 +236,11 @@ function BadgeCard({ stats }: { stats: ProgressStats }) {
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="prompt-label text-chalk-2">Collection</h3>
-          <p className="mt-1 text-[11px] leading-snug text-chalk-4">
+          <p className="mt-1 text-12 leading-snug text-chalk-4">
             Clique sur une pièce pour voir comment on l&apos;obtient.
           </p>
         </div>
-        <span className="tnum shrink-0 font-mono text-[11px] leading-tight text-chalk-3">
+        <span className="tnum shrink-0 font-mono text-12 leading-tight text-chalk-3">
           {earned.length} / {badges.length}
         </span>
       </div>
@@ -279,7 +279,7 @@ function BadgeCard({ stats }: { stats: ProgressStats }) {
       {selected && (
         <div
           aria-live="polite"
-          className="mt-3 rounded-(--radius-card) border border-line-2 bg-surface-2 p-3 text-[11.5px] leading-snug text-chalk-3"
+          className="mt-3 rounded-(--radius-card) border border-line-2 bg-surface-2 p-3 text-12 leading-snug text-chalk-3"
         >
           <div className="mb-1.5 flex items-center gap-1.5">
             <Icon name={selected.icon} size={12} strokeWidth={2}
@@ -353,11 +353,11 @@ function LeaderboardCard({ rows }: { rows: LeaderEntry[] }) {
               <Avatar
                 name={r.prenom}
                 color={r.avatarColor}
-                className="size-[26px] border-(--bw-thin) text-[11px]"
+                className="size-[26px] border-(--bw-thin) text-12"
               />
 
               <span className="min-w-0 flex-1">
-                <span className="flex items-center gap-1.5 truncate text-[13px] font-bold">
+                <span className="flex items-center gap-1.5 truncate text-13 font-bold">
                   {r.me ? "Toi" : r.prenom}
                   {r.verified && (
                     <VerifiedBadge
@@ -433,7 +433,7 @@ function PerksCard({ stats }: { stats: ProgressStats }) {
     <section className="relative overflow-hidden rounded-(--radius-card) border border-signal/30 bg-surface-2 p-4 shadow-sh-2">
       <div className="relative mb-2 flex items-center justify-between">
         <h3 className="label text-chalk">Privilèges débloqués</h3>
-        <span className="rounded-full border border-signal/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-signal">
+        <span className="rounded-full border border-signal/40 px-2 py-0.5 text-12 font-semibold uppercase tracking-[0.18em] text-signal">
           palier {level}
         </span>
       </div>
@@ -444,8 +444,8 @@ function PerksCard({ stats }: { stats: ProgressStats }) {
               <Icon name={asIconName(p.icon, "package")} size={14} />
             </div>
             <div className="min-w-0">
-              <div className="text-[13px] font-semibold text-chalk">{p.title}</div>
-              <div className="text-[11.5px] text-chalk-3">{p.description}</div>
+              <div className="text-13 font-semibold text-chalk">{p.title}</div>
+              <div className="text-12 text-chalk-3">{p.description}</div>
             </div>
           </div>
         ))}
@@ -457,7 +457,7 @@ function PerksCard({ stats }: { stats: ProgressStats }) {
           </div>
           <div className="min-w-0">
             <div className="text-sm text-chalk">À venir · {next.title} (palier {next.level})</div>
-            <div className="text-[11.5px] text-chalk-3">{next.description}</div>
+            <div className="text-12 text-chalk-3">{next.description}</div>
           </div>
         </div>
       )}

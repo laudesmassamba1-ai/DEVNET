@@ -63,8 +63,8 @@ export function useTyping(channelName: string | null, me: string | null) {
 
     const channel = api
       .channel(channelName)
-      .on("broadcast", { event: "typing" }, ({ payload }: { payload: unknown }) => {
-        const signal = payload as { userId?: string; typing?: boolean } | null;
+      .on("broadcast", { event: "typing" }, (message) => {
+        const signal = message.payload as { userId?: string; typing?: boolean } | null;
         // On ignore son propre signal : l'auteur ne se voit pas taper.
         if (!signal?.userId || signal.userId === me) return;
 

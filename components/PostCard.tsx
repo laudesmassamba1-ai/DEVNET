@@ -36,7 +36,7 @@ const ACTION_ICON = `${ACTION} px-0`;
 /** Ligne de la feuille d'actions : même hauteur de cible que la barre. */
 const MENU_ROW =
   "flex min-h-(--h-tap) items-center gap-3 rounded-(--radius-input) " +
-  "px-3 text-left text-[14px] text-chalk-2 hover:bg-surface-2";
+  "px-3 text-left text-14 text-chalk-2 hover:bg-surface-2";
 
 /**
  * Vidéo jointe à une publication.
@@ -280,7 +280,7 @@ export function PostCard({
                 className="group/author -ml-0.5 flex min-h-(--h-tap) flex-col
                   justify-center py-1 text-left"
               >
-                <span className="inline-flex items-center gap-1.5 text-[14px]
+                <span className="inline-flex items-center gap-1.5 text-14
                   font-semibold transition-colors group-hover/author:text-signal">
                   {name}
                   {author?.verified && (
@@ -298,7 +298,7 @@ export function PostCard({
                 </span>
               </button>
             ) : (
-              <div className="text-[13.5px] font-semibold">{name}</div>
+              <div className="text-13 font-semibold">{name}</div>
             )}
             <div className="mt-1 font-mono text-12 text-chalk-4">
               {meta ? `${meta} · ` : ""}
@@ -322,7 +322,7 @@ export function PostCard({
             à recopier le pseudo. */}
         <Motion
           role="slide"
-          className="feed-post__text mb-2.5 text-[15px] leading-[1.6] break-words
+          className="feed-post__text mb-2.5 text-15 leading-[1.6] break-words
             whitespace-pre-wrap text-chalk-2"
         >
           {splitContent(post.text).map((segment, i) =>

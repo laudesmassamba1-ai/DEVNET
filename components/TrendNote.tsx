@@ -34,7 +34,7 @@ export function TrendNote({
 
   return (
     <p
-      className={`flex items-start gap-1.5 text-[10.5px] leading-snug text-chalk-4 ${className}`}
+      className={`flex items-start gap-1.5 text-12 leading-snug text-chalk-4 ${className}`}
     >
       <Icon
         name={trend === "baisse" ? "flag" : "chart"}

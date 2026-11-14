@@ -227,7 +227,7 @@ export function AvatarEditor({
           />
           {!image && (
             <div className="pointer-events-none absolute inset-0 grid place-items-center px-6 text-center">
-              <p className="text-[13px] leading-relaxed text-chalk-3">
+              <p className="text-13 leading-relaxed text-chalk-3">
                 Choisis une image pour la recadrer en carré.
               </p>
             </div>
@@ -282,7 +282,7 @@ export function AvatarEditor({
           <button
             type="button"
             onClick={onCancel}
-            className="min-h-(--h-tap) flex-1 rounded-(--radius-input) border border-line-3 text-[13px] font-semibold text-chalk-3"
+            className="min-h-(--h-tap) flex-1 rounded-(--radius-input) border border-line-3 text-13 font-semibold text-chalk-3"
           >
             Annuler
           </button>
@@ -290,7 +290,7 @@ export function AvatarEditor({
             type="button"
             onClick={() => void save()}
             disabled={!image || busy}
-            className="min-h-(--h-tap) flex-1 rounded-(--radius-input) border border-signal bg-signal text-[13px] font-bold text-void disabled:opacity-40"
+            className="min-h-(--h-tap) flex-1 rounded-(--radius-input) border border-signal bg-signal text-13 font-bold text-void disabled:opacity-40"
           >
             {busy ? "Envoi…" : "Utiliser cette photo"}
           </button>

@@ -69,14 +69,14 @@ export function TeamChat({
       <header className="flex shrink-0 items-center gap-2 border-b border-line-2 px-3 py-2">
         <Icon name="messages" size={14} className="text-chalk-3" />
         <span className="label-micro text-chalk-4">{title}</span>
-        <span className="ml-auto font-mono text-[10.5px] tnum text-chalk-4">
+        <span className="ml-auto font-mono text-12 tnum text-chalk-4">
           {messages.length}
         </span>
       </header>
 
       <div ref={listRef} className="min-h-0 flex-1 space-y-2.5 overflow-y-auto px-3 py-2.5">
         {empty ? (
-          <p className="py-6 text-center font-mono text-[11px] text-chalk-4">
+          <p className="py-6 text-center font-mono text-12 text-chalk-4">
             personne n&apos;a encore écrit — le fil vit le temps de la session
           </p>
         ) : (
@@ -89,7 +89,7 @@ export function TeamChat({
                 <span
                   aria-hidden="true"
                   className={`mt-0.5 flex size-[20px] shrink-0 items-center justify-center
-                    rounded-full border font-display text-[9px] font-bold
+                    rounded-full border font-display text-12 font-bold
                     ${avatarClass(message.color)}`}
                 >
                   {initials(name)}
@@ -97,13 +97,13 @@ export function TeamChat({
 
                 <div className="min-w-0 flex-1">
                   <p className="flex items-baseline gap-1.5">
-                    <span className="truncate font-mono text-[11px] text-chalk-2">{name}</span>
-                    {mine && <span className="font-mono text-[10px] text-signal-d">vous</span>}
-                    <span className="ml-auto shrink-0 font-mono text-[10px] tnum text-chalk-4">
+                    <span className="truncate font-mono text-12 text-chalk-2">{name}</span>
+                    {mine && <span className="font-mono text-12 text-signal-d">vous</span>}
+                    <span className="ml-auto shrink-0 font-mono text-12 tnum text-chalk-4">
                       {clockTime(message.at)}
                     </span>
                   </p>
-                  <p className="mt-0.5 whitespace-pre-wrap break-words text-[13px] leading-[1.45] text-chalk">
+                  <p className="mt-0.5 whitespace-pre-wrap break-words text-13 leading-[1.45] text-chalk">
                     {message.text}
                   </p>
                 </div>
@@ -124,7 +124,7 @@ export function TeamChat({
           sending={false}
         />
         {profile && (
-          <p className="mt-1 px-0.5 font-mono text-[10px] text-chalk-4">
+          <p className="mt-1 px-0.5 font-mono text-12 text-chalk-4">
             {profile.pseudo} — fil volatil, non conservé
           </p>
         )}

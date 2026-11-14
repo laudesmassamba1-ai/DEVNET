@@ -346,11 +346,14 @@ export interface MessagePin {
  * `expires_at` est ce qui la distingue d'une publication : elle
  * disparaît, donc ce qu'elle dit n'a pas besoin d'être vrai demain.
  */
+export type StoryAudience = "public" | "followers" | "private";
+
 export interface Story {
   id: string;
   author_id: string;
   caption: string;
   media_url: string;
+  audience: StoryAudience;
   created_at: string;
   expires_at: string;
 }

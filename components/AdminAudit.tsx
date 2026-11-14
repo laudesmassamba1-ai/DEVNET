@@ -77,7 +77,7 @@ export function AdminAudit() {
           <h2 id="admin-audit-title" className="font-display text-[18px] font-semibold">
             Journal d’audit
           </h2>
-          <p className="mt-1 max-w-prose text-[13px] leading-relaxed text-chalk-3">
+          <p className="mt-1 max-w-prose text-13 leading-relaxed text-chalk-3">
             Rôles, vérifications et classements de signalements. Le journal ne se modifie pas.
           </p>
         </div>
@@ -93,7 +93,7 @@ export function AdminAudit() {
 
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2">
-          <p className="text-[13px] text-danger">{error}</p>
+          <p className="text-13 text-danger">{error}</p>
           <button type="button" onClick={() => void load()} className="mt-2 text-12 font-semibold text-signal">
             Réessayer
           </button>
@@ -110,14 +110,14 @@ export function AdminAudit() {
           <Icon name="file" size={14} className="mt-0.5 text-chalk-4" />
           <div className="min-w-0 flex-1">
             <p className="flex flex-wrap items-baseline gap-1.5">
-              <span className="text-[13px] font-semibold text-chalk">
+              <span className="text-13 font-semibold text-chalk">
                 {ACTION_LABEL[entry.action] ?? entry.action}
               </span>
               {detail(entry) && (
                 <span className="font-mono text-12 text-chalk-3">{detail(entry)}</span>
               )}
             </p>
-            <p className="mt-1 font-mono text-[10.5px] text-chalk-4">
+            <p className="mt-1 font-mono text-12 text-chalk-4">
               par {entry.actor_pseudo ? `@${entry.actor_pseudo}` : "système"} ·{" "}
               {new Date(entry.created_at).toLocaleString("fr-FR")} · cible{" "}
               {entry.target_type}

@@ -182,7 +182,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
             disabled={busy}
             className="mo-press inline-flex h-(--h-tap) items-center gap-2
               rounded-(--radius-input) border border-signal bg-signal
-              px-4 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+              px-4 text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             <Icon name="plus" size={14} strokeWidth={2} />
             Écrire la première page
@@ -255,18 +255,18 @@ export function ProjectWikiPanel({ projectId }: Props) {
       <div className="min-w-0">
         {open && editing ? (
           <Motion role="scale" key={`edit-${open.id}`}>
-            <label className="mb-1 block font-mono text-[11px] text-chalk-3">titre</label>
+            <label className="mb-1 block font-mono text-12 text-chalk-3">titre</label>
             <input
               value={draftTitle}
               onChange={(e) => setDraftTitle(e.target.value)}
               aria-label="Titre de la page"
               placeholder="titre de la page"
               className="mb-3 h-(--h-input) w-full border border-line-2
-                bg-surface-2 px-3 font-display text-[15px] font-bold text-chalk
+                bg-surface-2 px-3 font-display text-15 font-bold text-chalk
                 outline focus:border-signal"
             />
 
-            <label className="mb-1 block font-mono text-[11px] text-chalk-3">
+            <label className="mb-1 block font-mono text-12 text-chalk-3">
               contenu · # titre, - liste, &gt; citation, ``` code
             </label>
             <textarea
@@ -287,7 +287,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                 onClick={() => void save()}
                 disabled={busy || draftTitle.trim().length === 0}
                 className="mo-press inline-flex h-(--h-tap) items-center gap-2
-                  border border-signal bg-signal px-4 text-[13px] font-bold
+                  border border-signal bg-signal px-4 text-13 font-bold
                   text-void disabled:opacity-40"
               >
                 <Icon name="check" size={14} strokeWidth={2} />
@@ -298,7 +298,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                 onClick={cancelEdit}
                 disabled={busy}
                 className="mo-press inline-flex h-(--h-tap) items-center
-                  border border-line-2 px-4 text-[13px] text-chalk-3
+                  border border-line-2 px-4 text-13 text-chalk-3
                   hover:border-chalk-4 hover:text-chalk disabled:opacity-40"
               >
                 Annuler
@@ -312,7 +312,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                 <h3 className="truncate font-display text-[1.15rem] font-bold text-chalk">
                   {open.title}
                 </h3>
-                <p className="mt-0.5 font-mono text-[11px] text-chalk-4">
+                <p className="mt-0.5 font-mono text-12 text-chalk-4">
                   @{open.author?.pseudo ?? "inconnu"} · modifiée {timeAgo(open.updated_at)}
                 </p>
               </div>
@@ -421,20 +421,20 @@ function Document({ body }: { body: string }) {
 
           case "paragraph":
             return (
-              <p key={i} className="text-[13.5px] leading-[1.7] text-chalk-2">
+              <p key={i} className="text-13 leading-[1.7] text-chalk-2">
                 {block.text}
               </p>
             );
 
           case "list":
             return block.ordered ? (
-              <ol key={i} className="ml-4 list-decimal space-y-1 text-[13.5px] leading-[1.6] text-chalk-2">
+              <ol key={i} className="ml-4 list-decimal space-y-1 text-13 leading-[1.6] text-chalk-2">
                 {block.items.map((item, j) => (
                   <li key={j}>{item}</li>
                 ))}
               </ol>
             ) : (
-              <ul key={i} className="space-y-1 text-[13.5px] leading-[1.6] text-chalk-2">
+              <ul key={i} className="space-y-1 text-13 leading-[1.6] text-chalk-2">
                 {block.items.map((item, j) => (
                   <li key={j} className="flex gap-2">
                     <span aria-hidden className="mt-1 text-signal">—</span>
@@ -449,7 +449,7 @@ function Document({ body }: { body: string }) {
               <blockquote
                 key={i}
                 className="border-l-2 border-signal bg-surface-2/60 px-3 py-2
-                  text-[13px] leading-[1.65] italic text-chalk-3"
+                  text-13 leading-[1.65] italic text-chalk-3"
               >
                 {block.text}
               </blockquote>

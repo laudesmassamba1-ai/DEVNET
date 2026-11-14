@@ -77,7 +77,7 @@ export function AdminRadar() {
           >
             Disponibilité du backend
           </h2>
-          <p className="mt-1 text-[13px] text-chalk-3">
+          <p className="mt-1 text-13 text-chalk-3">
             Une sonde réelle, sans métriques simulées.
           </p>
         </div>
@@ -86,7 +86,7 @@ export function AdminRadar() {
           onClick={() => void refresh()}
           disabled={loading}
           className="min-h-(--h-tap) rounded-(--radius-input)
-            border border-line-2 px-3 text-[13px] text-chalk
+            border border-line-2 px-3 text-13 text-chalk
             hover:bg-surface-2 disabled:opacity-50"
         >
           {loading ? "Actualisation…" : "Actualiser"}
@@ -97,7 +97,7 @@ export function AdminRadar() {
         <p
           role="alert"
           className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2
-            text-[13px] text-danger"
+            text-13 text-danger"
         >
           {probe
             ? `Donnée périmée : l'actualisation a échoué. ${error}`
@@ -108,9 +108,9 @@ export function AdminRadar() {
       {probe && (
         <dl className="mt-5 divide-y divide-line-2 border-y border-line-2">
           <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
-            <dt className="text-[13px] text-chalk-3">Backend PostgREST</dt>
+            <dt className="text-13 text-chalk-3">Backend PostgREST</dt>
             <dd
-              className={`font-mono text-[13px] font-semibold ${
+              className={`font-mono text-13 font-semibold ${
                 probe.state === "online" ? "text-ok" : "text-danger"
               }`}
             >
@@ -119,15 +119,15 @@ export function AdminRadar() {
             </dd>
           </div>
           <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
-            <dt className="text-[13px] text-chalk-3">Dernier contrôle</dt>
+            <dt className="text-13 text-chalk-3">Dernier contrôle</dt>
             <dd className="font-mono text-12 text-chalk-4">
               {checkedAt?.toLocaleString("fr-FR") ?? "Inconnu"}
             </dd>
           </div>
           {probe.reason && (
             <div className="py-3">
-              <dt className="text-[13px] text-chalk-3">Détail</dt>
-              <dd className="mt-1 break-words text-[13px] text-chalk-2">
+              <dt className="text-13 text-chalk-3">Détail</dt>
+              <dd className="mt-1 break-words text-13 text-chalk-2">
                 {probe.reason}
               </dd>
             </div>

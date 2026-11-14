@@ -130,7 +130,7 @@ export default function CommunitiesPage() {
           value={query} onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher une communauté…"
           className="mb-4 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
-            px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
+            px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
@@ -162,21 +162,21 @@ export default function CommunitiesPage() {
           <input value={name} onChange={(e) => setName(e.target.value)}
             placeholder="ex: Rust & systèmes"
             className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5
-              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
+              text-14 shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <Field label="Description">
           <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2}
             placeholder="À quoi sert cette communauté ?"
             className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
+              text-14 shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <Field label="Règlement intérieur">
           <textarea value={rules} onChange={(e) => setRules(e.target.value)} rows={3}
             placeholder="Une règle par ligne. Affiché en tête du fil."
             className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-              text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
+              text-14 shadow-sh-1 placeholder:text-chalk-4" />
         </Field>
 
         <Field label="Visibilité">
@@ -215,13 +215,13 @@ export default function CommunitiesPage() {
 
         <div className="mt-5 flex gap-2">
           <button type="button" onClick={() => setOpen(false)}
-            className="rounded-(--radius-input) border border-transparent px-5 text-[13px]
+            className="rounded-(--radius-input) border border-transparent px-5 text-13
               font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
             Annuler
           </button>
           <button type="button" onClick={create} disabled={busy}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center rounded-(--radius-input)
-              border border-line-3 bg-signal text-[13px] font-bold text-void shadow-sh-2
+              border border-line-3 bg-signal text-13 font-bold text-void shadow-sh-2
               disabled:opacity-40">
             Créer
           </button>

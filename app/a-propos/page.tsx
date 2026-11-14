@@ -53,7 +53,7 @@ export default function AboutPage() {
         <Link href="/" className="font-display text-lg font-bold text-chalk">
           DevNet<span className="text-signal">.</span>
         </Link>
-        <Link href="/login" className="ml-auto text-[13px] font-bold text-chalk-3 hover:text-chalk">
+        <Link href="/login" className="ml-auto text-13 font-bold text-chalk-3 hover:text-chalk">
           Connexion
         </Link>
       </header>

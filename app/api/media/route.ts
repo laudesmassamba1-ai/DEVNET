@@ -14,6 +14,7 @@ import sharp from "sharp";
 import { NextResponse } from "next/server";
 import { currentUserId } from "@/lib/api/server";
 import { putMediaObject } from "@/lib/media-storage";
+import { recordMetric } from "@/lib/metrics";
 import { matchesDeclaredType, sniffMedia } from "@/lib/media-signature";
 import { withUser } from "@/platform/infrastructure/postgres/with-user";
 
@@ -189,7 +190,11 @@ export async function POST(request: Request): Promise<NextResponse> {
   let remoteUrl = "";
   try {
     remoteUrl = (await putMediaObject(requested, new Uint8Array(bytes), mime)) ?? "";
+    if (!remoteUrl) {
+      recordMetric("media.storage.fallback_total", 1, { reason: "unconfigured" });
+    }
   } catch (error) {
+    recordMetric("media.storage.fallback_total", 1, { reason: "provider_error" });
     console.error("[media] stockage objet indisponible, repli PostgreSQL", error);
   }
 

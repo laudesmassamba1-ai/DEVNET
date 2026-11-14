@@ -27,6 +27,7 @@ import {
   fetchLiveStories,
   publishStoryGif,
   publishStoryMedia,
+  type StoryAudience,
 } from "@/lib/stories";
 import {
   fetchFeedHydrationCached as fetchFeedHydration,
@@ -48,59 +49,8 @@ import type { Gif } from "@/lib/gifs";
 import { OPEN_POST_COMPOSER_EVENT } from "@/lib/ui-events";
 import { FEED_DENSITY_KEY, type FeedDensity } from "@/lib/ui-preferences";
 import { FeedRepositoryError } from "@/modules/feed";
-
-const LANG_OPTIONS = [
-  "", "Python", "JavaScript", "TypeScript", "Java", "C / C++",
-  "PHP", "Kotlin", "Dart", "Go", "Rust", "Swift", "SQL", "HTML/CSS",
-];
-
-/**
- * Brouillon de publication.
- *
- * Le composeur enregistre son état à chaque frappe et le récupère au
- * retour sur le fil : un post pensé, interrompu par une navigation, ne
- * se perd pas. La publication (ou la fermeture) vide le brouillon — un
- * post envoyé est un post parti.
- */
-const DRAFT_KEY = "devnet:compose";
-type ComposerDraft = { text: string; code: string; lang: string; isCode: boolean };
-
-const EMPTY_DRAFT: ComposerDraft = { text: "", code: "", lang: "", isCode: false };
-
-function readDraft(): ComposerDraft {
-  if (typeof window === "undefined") return EMPTY_DRAFT;
-  try {
-    const raw = window.localStorage.getItem(DRAFT_KEY);
-    if (!raw) return EMPTY_DRAFT;
-    const d = JSON.parse(raw) as Partial<ComposerDraft>;
-    return {
-      text: typeof d.text === "string" ? d.text : "",
-      code: typeof d.code === "string" ? d.code : "",
-      lang: typeof d.lang === "string" ? d.lang : "",
-      isCode: Boolean(d.isCode),
-    };
-  } catch {
-    return EMPTY_DRAFT;
-  }
-}
-
-/**
- * Fusionne une page relue avec la liste affichée, sans casser le défilement.
- *
- * `refresh()` est appelé après chaque like, réaction ou repost : remplacer
- * toute la liste par la première page repliait le fil sous les yeux du
- * lecteur. Ici, on conserve les lignes déjà affichées, on ajoute celles
- * qu'on ne connaissait pas encore, et on retrie comme le serveur — qu'un
- * post surgisse en tête ou disparaisse de la lecture ne déplace jamais ce
- * qu'on est en train de lire.
- */
-function mergePosts(prev: PostWithAuthor[] | null, incoming: PostWithAuthor[]): PostWithAuthor[] {
-  const byId = new Map((prev ?? []).map((p) => [p.id, p]));
-  for (const p of incoming) if (!byId.has(p.id)) byId.set(p.id, p);
-  return [...byId.values()].sort((a, b) =>
-    a.created_at < b.created_at ? 1 : a.created_at > b.created_at ? -1 : 0,
-  );
-}
+import { LANG_OPTIONS, readDraft, saveDraft } from "@/lib/feed-composer";
+import { mergePosts } from "@/lib/feed-posts";
 
 export default function FeedPage() {
   const { profile } = useSession();
@@ -349,12 +299,7 @@ export default function FeedPage() {
   // ou fermeture) remet tout à vide : l'effet écrit alors un brouillon
   // vide, c'est-à-dire qu'il efface le précédent.
   useEffect(() => {
-    try {
-      window.localStorage.setItem(DRAFT_KEY, JSON.stringify({ text, code, lang, isCode }));
-    } catch {
-      // Stockage indisponible (navigation privée, quota) : on compose
-      // sans filet, jamais on ne bloque la saisie pour un brouillon.
-    }
+    saveDraft({ text, code, lang, isCode });
   }, [text, code, lang, isCode]);
 
   const draftRestored = useRef<boolean | null>(null);
@@ -597,8 +542,8 @@ export default function FeedPage() {
   }
 
   /** Publie le dessin de l'atelier comme statut de 24 h. */
-  async function publishStoryFromStudio(file: File) {
-    const { id, error } = await publishStoryMedia(storyText, file, profile?.id);
+  async function publishStoryFromStudio(file: File, audience: StoryAudience) {
+    const { id, error } = await publishStoryMedia(storyText, file, profile?.id, audience);
     if (error || !id) return toast(error ?? "Publication du statut impossible", "err");
     setStoryText("");
     await refreshStories();
@@ -606,8 +551,8 @@ export default function FeedPage() {
   }
 
   /** Le GIF reste un lien : son animation survit, contrairement à un export. */
-  async function publishStoryGifFromStudio(url: string) {
-    const { id, error } = await publishStoryGif(storyText, url, profile?.id);
+  async function publishStoryGifFromStudio(url: string, audience: StoryAudience) {
+    const { id, error } = await publishStoryGif(storyText, url, profile?.id, audience);
     if (error || !id) return toast(error ?? "Publication du statut impossible", "err");
     setStoryText("");
     await refreshStories();
@@ -996,7 +941,7 @@ export default function FeedPage() {
           <div
             role="alert"
             className="my-3 flex flex-wrap items-center justify-between gap-3
-              border border-line-2 px-4 py-3 text-[13px] text-chalk-2"
+              border border-line-2 px-4 py-3 text-13 text-chalk-2"
           >
             <span>{feedError}</span>
             <button
@@ -1142,7 +1087,7 @@ export default function FeedPage() {
           aria-label="Texte de la publication"
           placeholder="Partage une question, un extrait ou une avancée."
           className="mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] leading-[1.6] placeholder:text-chalk-4"
+            text-14 leading-[1.6] placeholder:text-chalk-4"
         />
 
         {/* Le GIF se choisit dans une feuille à part : la grille a besoin
@@ -1260,7 +1205,7 @@ export default function FeedPage() {
                 value={lang} onChange={(e) => setLang(e.target.value)}
                 className="h-(--h-input) w-full cursor-pointer
                   rounded-(--radius-input) border border-line-3 bg-surface
-                  px-3.5 text-[14px] shadow-sh-1"
+                  px-3.5 text-14 shadow-sh-1"
               >
                 {LANG_OPTIONS.map((l) => (
                   <option key={l} value={l}>{l || "Sélectionner…"}</option>
@@ -1306,7 +1251,7 @@ export default function FeedPage() {
               disparu : un compte sans projet ne voyait aucun moyen d'en
               rattacher un, ni même de découvrir que c'était possible.
             */
-            <p className="text-[12.5px] leading-relaxed text-chalk-4">
+            <p className="text-12 leading-relaxed text-chalk-4">
               Aucun dépôt pour l’instant.{" "}
               <Link href="/projects" className="text-signal underline-offset-2 hover:underline">
                 Créez un projet
@@ -1354,14 +1299,14 @@ export default function FeedPage() {
 
         <div className="mt-1 flex gap-2.5">
           <button type="button" onClick={resetSheet}
-            className="rounded-(--radius-input) border border-transparent px-5 text-[13px]
+            className="rounded-(--radius-input) border border-transparent px-5 text-13
               font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
             Annuler
           </button>
           <button
             type="button" onClick={publish} disabled={busy || mediaBusy}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
-              rounded-(--radius-input) border border-line-3 bg-signal text-[13px] font-bold
+              rounded-(--radius-input) border border-line-3 bg-signal text-13 font-bold
               text-void shadow-sh-2 disabled:opacity-40"
           >
             Publier
@@ -1378,11 +1323,11 @@ export default function FeedPage() {
           setStoryText("");
         }}
         onLayersChange={setStoryText}
-        onUse={(file) => {
-          void publishStoryFromStudio(file);
+        onUse={(file, audience) => {
+          void publishStoryFromStudio(file, audience);
         }}
-        onUseGif={(picked) => {
-          void publishStoryGifFromStudio(picked.url);
+        onUseGif={(picked, audience) => {
+          void publishStoryGifFromStudio(picked.url, audience);
         }}
       />
 

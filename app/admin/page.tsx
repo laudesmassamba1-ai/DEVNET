@@ -145,7 +145,7 @@ export default function AdminPage() {
               aria-controls="admin-tabpanel"
               aria-selected={tab === key}
               onClick={() => setTab(key)}
-              className={`tab-underline pb-1.5 font-mono text-[11.5px] font-bold
+              className={`tab-underline pb-1.5 font-mono text-12 font-bold
                 uppercase tracking-[0.12em] transition-colors
                 duration-(--d-fast) ${
                   tab === key ? "text-chalk" : "text-chalk-4 hover:text-chalk-2"
@@ -156,7 +156,7 @@ export default function AdminPage() {
           ))}
         </div>
 
-        <p className="mt-2 font-mono text-[11.5px] leading-relaxed text-chalk-4">
+        <p className="mt-2 font-mono text-12 leading-relaxed text-chalk-4">
           {tab === "overview"
             ? "Indicateurs agrégés du backend. Les modules non instrumentés restent signalés comme indisponibles."
             : tab === "files"
@@ -175,7 +175,7 @@ export default function AdminPage() {
         {!admin && (
           <div className="py-8">
             <EmptyState title="Réservé à l'administration" />
-            <p className="mt-3 text-center font-mono text-[11.5px] text-chalk-4">
+            <p className="mt-3 text-center font-mono text-12 text-chalk-4">
               Ton compte ne porte pas le rôle{" "}
               <code className="text-chalk-2">is_admin</code>.{" "}
               <Link href="/profile" className="font-bold text-signal">
@@ -193,12 +193,12 @@ export default function AdminPage() {
 
         {admin && tab === "files" && loadError && (
           <div role="alert" className="my-5 border-l-2 border-danger bg-danger/8 p-4">
-            <p className="text-[13px] text-danger">{loadError}</p>
+            <p className="text-13 text-danger">{loadError}</p>
             <button
               type="button"
               onClick={() => void load()}
               className="mt-3 min-h-(--h-tap) rounded-(--radius-input)
-                border border-danger px-3 text-[13px] text-danger"
+                border border-danger px-3 text-13 text-danger"
             >
               Réessayer
             </button>
@@ -208,7 +208,7 @@ export default function AdminPage() {
         {admin && tab === "files" && rows !== null && rows.length === 0 && (
           <div className="py-8">
             <EmptyState title="Aucune demande en attente" />
-            <p className="mt-3 text-center font-mono text-[11.5px] text-chalk-4">
+            <p className="mt-3 text-center font-mono text-12 text-chalk-4">
               Une demande posée depuis{" "}
               <Link href="/profile" className="font-bold text-signal">
                 le profil
@@ -232,10 +232,10 @@ export default function AdminPage() {
 
                 <div className="min-w-0 flex-1">
                   <p className="flex flex-wrap items-baseline gap-1.5">
-                    <span className="text-[13.5px] font-bold text-chalk">
+                    <span className="text-13 font-bold text-chalk">
                       {r.prenom}
                     </span>
-                    <span className="font-mono text-[11px] text-chalk-4">
+                    <span className="font-mono text-12 text-chalk-4">
                       @{r.pseudo}
                     </span>
                     <span className="label-micro text-chalk-4">
@@ -250,7 +250,7 @@ export default function AdminPage() {
                     </p>
                   )}
 
-                  <p className="mt-1.5 font-mono text-[10.5px] text-chalk-4">
+                  <p className="mt-1.5 font-mono text-12 text-chalk-4">
                     membre depuis{" "}
                     {new Date(r.created_at).toLocaleDateString("fr-FR")}
                   </p>
@@ -264,7 +264,7 @@ export default function AdminPage() {
                   disabled={busyId === r.id}
                   className="mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center
                     gap-1.5 rounded-(--radius-chip) border border-ok bg-ok/10
-                    font-mono text-[11px] font-bold uppercase tracking-[0.1em]
+                    font-mono text-12 font-bold uppercase tracking-[0.1em]
                     text-ok disabled:opacity-40"
                 >
                   <Icon name="check" size={12} strokeWidth={2.4} />
@@ -277,7 +277,7 @@ export default function AdminPage() {
                   disabled={busyId === r.id}
                   className="mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center
                     gap-1.5 rounded-(--radius-chip) border border-line-3
-                    font-mono text-[11px] font-bold uppercase tracking-[0.1em]
+                    font-mono text-12 font-bold uppercase tracking-[0.1em]
                     text-chalk-3 disabled:opacity-40"
                 >
                   <Icon name="close" size={12} strokeWidth={2.4} />
@@ -296,7 +296,7 @@ export default function AdminPage() {
                     disabled={busyId === r.id}
                     className="mo-press inline-flex min-h-(--h-tap) items-center justify-center
                       gap-1.5 rounded-(--radius-chip) border border-danger bg-danger/8
-                      font-mono text-[11px] font-bold uppercase tracking-[0.1em]
+                      font-mono text-12 font-bold uppercase tracking-[0.1em]
                       text-danger disabled:opacity-40"
                   >
                     <Icon name="lock" size={12} strokeWidth={2.4} />

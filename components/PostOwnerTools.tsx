@@ -47,7 +47,7 @@ export function PostOwnerTools({
           role="alertdialog"
           aria-label="Confirmer la suppression"
           className="mx-(--gutter) mb-3 flex flex-wrap items-center gap-2 border
-            border-danger bg-surface px-3.5 py-3 text-[13px] text-chalk shadow-sh-1"
+            border-danger bg-surface px-3.5 py-3 text-13 text-chalk shadow-sh-1"
         >
           <Icon name="trash" size={14} className="text-danger" />
           <span className="mr-auto">
@@ -57,7 +57,7 @@ export function PostOwnerTools({
             type="button"
             onClick={cancelDelete}
             className="rounded-(--radius-chip) border border-line-3 px-2.5 py-1.5
-              font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3
+              font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3
               transition-colors duration-(--d-fast) hover:text-chalk"
           >
             annuler
@@ -66,7 +66,7 @@ export function PostOwnerTools({
             type="button"
             onClick={confirmDelete}
             className="rounded-(--radius-chip) border border-danger bg-danger
-              px-2.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em]
+              px-2.5 py-1.5 font-mono text-12 font-bold uppercase tracking-[0.12em]
               text-void transition-transform duration-(--d-fast) active:translate-y-px"
           >
             supprimer
@@ -87,7 +87,7 @@ export function PostOwnerTools({
           rows={5}
           placeholder="Le texte du post…"
           className="mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
-            text-[14px] leading-[1.6] shadow-sh-1
+            text-14 leading-[1.6] shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
@@ -96,7 +96,7 @@ export function PostOwnerTools({
           <button
             type="button" onClick={cancelEdit}
             className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
-              border border-transparent text-[13px] font-bold text-chalk-2
+              border border-transparent text-13 font-bold text-chalk-2
               transition-colors hover:bg-surface-2 hover:text-chalk"
           >
             Annuler
@@ -104,7 +104,7 @@ export function PostOwnerTools({
           <button
             type="button" onClick={saveEdit} disabled={busy}
             className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
-              rounded-(--radius-input) border border-line-3 bg-signal text-[13px]
+              rounded-(--radius-input) border border-line-3 bg-signal text-13
               font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             Enregistrer

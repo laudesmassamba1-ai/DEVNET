@@ -123,7 +123,7 @@ export default function Register() {
   }
 
   const inputCls =
-    "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
+    "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-14 " +
     "outline transition-[transform,box-shadow] placeholder:text-chalk-4 " +
     "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
@@ -138,7 +138,7 @@ export default function Register() {
               tracking-[-0.05em] text-chalk">
               DevNet<span className="text-signal">.</span>
             </h1>
-            <p className="mt-1.5 text-[13px] text-chalk-3">
+            <p className="mt-1.5 text-13 text-chalk-3">
               Deux étapes pour créer ton compte DevNet.
             </p>
           </div>
@@ -273,7 +273,7 @@ export default function Register() {
               <button type="button" onClick={next}
                 className="lift-press flex h-(--h-tap) w-full items-center justify-center
                   rounded-(--radius-input) border border-line-3 bg-signal
-                  text-[13px] font-bold text-void shadow-sh-2"
+                  text-13 font-bold text-void shadow-sh-2"
               >
                 Continuer
               </button>
@@ -305,7 +305,7 @@ export default function Register() {
                       onClick={() => toggleLang(l)}
                       aria-pressed={langs.has(l)}
                       className={`rounded-(--radius-chip) border-(--bw-thin) px-3 py-1.5
-                        text-[11.5px] font-bold transition-[background-color,color,border-color]
+                        text-12 font-bold transition-[background-color,color,border-color]
                         duration-(--d-fast) ${langs.has(l)
                           ? "border-signal bg-signal/15 text-signal"
                           : "border-line-2 text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"}`}
@@ -376,7 +376,7 @@ export default function Register() {
                   disabled={busy || !acceptedTerms}
                   className="lift-press flex h-(--h-tap) w-full items-center justify-center gap-2
                     rounded-(--radius-input) border border-line-3 bg-signal
-                    text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+                    text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
                 >
                   {busy ? <Spinner /> : "Créer mon compte"}
                 </button>
@@ -392,7 +392,7 @@ export default function Register() {
               Se connecter
             </Link>
           </p>
-          <p className="mt-3 text-center text-[11px] text-chalk-4">
+          <p className="mt-3 text-center text-12 text-chalk-4">
             <Link href="/a-propos" className="hover:text-chalk-2">À propos</Link>
             {" · "}
             <Link href="/aide" className="hover:text-chalk-2">Aide</Link>

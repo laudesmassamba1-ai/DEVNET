@@ -49,7 +49,7 @@ export function Receipt({
       delay={0}
       aria-label={state === "lu" ? "Lu" : "Envoyé"}
       attrs={{ title: state === "lu" ? "Lu" : "Envoyé" }}
-      className={`ml-1.5 inline-block font-mono text-[10.5px] leading-none
+      className={`ml-1.5 inline-block font-mono text-12 leading-none
         transition-colors duration-(--d-fast)
         ${accent ? "text-signal" : "text-chalk-4"}`}
     >
@@ -71,7 +71,7 @@ export function GroupReceipt({ count, total }: { count: number; total: number })
 
   return (
     <span
-      className="ml-1.5 font-mono text-[10.5px] text-chalk-4"
+      className="ml-1.5 font-mono text-12 text-chalk-4"
       title={`Lu par ${count} sur ${total}`}
     >
       Lu par {count}/{total}

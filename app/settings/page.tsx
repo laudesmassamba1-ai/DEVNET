@@ -29,7 +29,7 @@ import {
 } from "@/lib/ui-preferences";
 
 const inputCls =
-  "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
+  "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-14 " +
   "shadow-sh-1 transition-[box-shadow,border-color] placeholder:text-chalk-4 " +
   "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
@@ -383,7 +383,7 @@ export default function SettingsPage() {
                 <button
                   type="submit"
                   disabled={pwBusy}
-                  className="lift-press mt-1 flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
+                  className="lift-press mt-1 flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-13 font-bold text-void shadow-sh-2 disabled:opacity-60"
                 >
                   {pwBusy ? "Enregistrement…" : "Changer le mot de passe"}
                 </button>
@@ -396,7 +396,7 @@ export default function SettingsPage() {
               <Icon name="sun" size={18} strokeWidth={2} />
               Apparence
             </h2>
-            <p className="mt-1 text-[13px] text-chalk-3">
+            <p className="mt-1 text-13 text-chalk-3">
               Le thème suit ton compte ; les options de lecture restent sur cet appareil.
             </p>
             <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
@@ -450,7 +450,7 @@ export default function SettingsPage() {
             </fieldset>
             <label className="mt-5 flex min-h-(--h-tap) items-center justify-between gap-4 border-t border-line-2 pt-4">
               <span>
-                <span className="block text-[13px] font-semibold text-chalk">Réduire les animations</span>
+                <span className="block text-13 font-semibold text-chalk">Réduire les animations</span>
                 <span className="mt-1 block text-12 text-chalk-4">
                   Désactive les mouvements de l’interface sur cet appareil.
                 </span>
@@ -479,7 +479,7 @@ export default function SettingsPage() {
               <Icon name="notifications" size={18} strokeWidth={2} />
               Notifications
             </h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-chalk-3">
+            <p className="mt-2 text-13 leading-relaxed text-chalk-3">
               Les alertes disponibles apparaissent dans le centre intégré. Les envois par email
               et les notifications push ne sont pas configurés.
             </p>
@@ -498,12 +498,12 @@ export default function SettingsPage() {
               <Icon name="messages" size={18} strokeWidth={2} />
               Messages
             </h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-chalk-3">
+            <p className="mt-2 text-13 leading-relaxed text-chalk-3">
               Choisissez ce que vous acceptez de recevoir en conversation privée.
             </p>
             <label className="mt-4 flex min-h-(--h-tap) items-center justify-between gap-4 border-t border-line-2 pt-4">
               <span>
-                <span className="block text-[13px] font-semibold text-chalk">
+                <span className="block text-13 font-semibold text-chalk">
                   Accepter les photos et vidéos
                 </span>
                 <span className="mt-1 block text-12 text-chalk-4">
@@ -534,7 +534,7 @@ export default function SettingsPage() {
               <Icon name="notifications" size={18} strokeWidth={2} />
               Alertes sur cet appareil
             </h2>
-            <p className="mt-2 text-[13px] leading-relaxed text-chalk-3">
+            <p className="mt-2 text-13 leading-relaxed text-chalk-3">
               Le son, la bannière et le chiffre sur l&apos;icône signalent un message reçu
               pendant que DevNet est ouvert. Sur iPhone, la bannière demande d&apos;abord
               l&apos;application ajoutée à l&apos;écran d&apos;accueil.
@@ -542,16 +542,16 @@ export default function SettingsPage() {
 
             {notifyState === "granted" ? (
               <div className="mt-4 space-y-3">
-                <p className="flex items-center gap-2 text-[13px] font-semibold text-ok">
+                <p className="flex items-center gap-2 text-13 font-semibold text-ok">
                   <Icon name="check" size={14} strokeWidth={2.4} />
                   Bannières activées sur cet appareil
                 </p>
                 {pushState === "loading" ? (
-                  <p className="text-[13px] text-chalk-4">Vérification des alertes à distance…</p>
+                  <p className="text-13 text-chalk-4">Vérification des alertes à distance…</p>
                 ) : pushState === "on" ? (
                   <>
                   <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-[13px] text-chalk-3">
+                    <p className="text-13 text-chalk-3">
                       Alertes écran verrouillé actives sur cet appareil.
                     </p>
                     <button
@@ -560,7 +560,7 @@ export default function SettingsPage() {
                       disabled={pushTest.busy}
                       className="lift-press flex h-(--h-tap) items-center justify-center
                         rounded-(--radius-input) border border-line-3 bg-surface px-4
-                        text-[13px] font-bold text-chalk hover:border-signal disabled:opacity-60"
+                        text-13 font-bold text-chalk hover:border-signal disabled:opacity-60"
                     >
                       {pushTest.busy ? "Envoi…" : "Envoyer un test"}
                     </button>
@@ -570,7 +570,7 @@ export default function SettingsPage() {
                       disabled={pushBusy}
                       className="lift-press flex h-(--h-tap) items-center justify-center
                         rounded-(--radius-input) border border-line-3 bg-surface px-4
-                        text-[13px] font-bold text-chalk hover:border-signal disabled:opacity-60"
+                        text-13 font-bold text-chalk hover:border-signal disabled:opacity-60"
                     >
                       {pushBusy ? "Mise à jour…" : "Désactiver à distance"}
                     </button>
@@ -586,7 +586,7 @@ export default function SettingsPage() {
                   </>
                 ) : pushState === "off" ? (
                   <div className="flex flex-wrap items-center gap-3">
-                    <p className="text-[13px] text-chalk-3">
+                    <p className="text-13 text-chalk-3">
                       Pour être prévenu écran verrouillé, active l&apos;alerte à distance.
                     </p>
                     <button
@@ -595,32 +595,32 @@ export default function SettingsPage() {
                       disabled={pushBusy}
                       className="lift-press flex h-(--h-tap) items-center justify-center
                         rounded-(--radius-input) border border-signal bg-signal px-4
-                        text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
+                        text-13 font-bold text-void shadow-sh-2 disabled:opacity-60"
                     >
                       {pushBusy ? "Activation…" : "Activer écran verrouillé"}
                     </button>
                   </div>
                 ) : pushState === "unsupported" ? (
-                  <p className="text-[13px] text-chalk-4">
+                  <p className="text-13 text-chalk-4">
                     Les alertes écran verrouillé ne sont pas disponibles (clés VAPID absentes ou appareil non compatible). Les bannières et le son fonctionnent tant que DevNet est ouvert.
                   </p>
                 ) : pushState === "denied" ? (
-                  <p className="text-[13px] text-warn">
+                  <p className="text-13 text-warn">
                     Les bannières sont refusées : l&apos;alerte écran verrouillé ne peut pas s&apos;activer.
                   </p>
                 ) : (
-                  <p className="text-[13px] text-warn">
+                  <p className="text-13 text-warn">
                     L&apos;activation à distance a échoué. Réessaie depuis l&apos;application installée.
                   </p>
                 )}
               </div>
             ) : notifyState === "denied" ? (
-              <p className="mt-4 text-[13px] text-warn">
+              <p className="mt-4 text-13 text-warn">
                 Refusées dans le navigateur. Il faut les réactiver dans ses réglages —
                 l&apos;application ne peut pas redemander.
               </p>
             ) : notifyState === "unsupported" ? (
-              <p className="mt-4 text-[13px] text-chalk-4">
+              <p className="mt-4 text-13 text-chalk-4">
                 Cet appareil ne prend pas en charge les bannières.
               </p>
             ) : (
@@ -630,7 +630,7 @@ export default function SettingsPage() {
                 disabled={notifyBusy}
                 className="lift-press mt-4 flex h-(--h-tap) items-center justify-center
                   rounded-(--radius-input) border border-signal bg-signal px-5
-                  text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
+                  text-13 font-bold text-void shadow-sh-2 disabled:opacity-60"
               >
                 {notifyBusy ? "Demande…" : "Activer les alertes"}
               </button>
@@ -642,7 +642,7 @@ export default function SettingsPage() {
               <Icon name="link" size={18} strokeWidth={2} />
               Liens utiles
             </h2>
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-[13px] font-bold text-chalk-3">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-13 font-bold text-chalk-3">
               <Link href="/aide" className="inline-flex min-h-(--h-tap) items-center hover:text-chalk">Aide</Link>
               <Link href="/confidentialite" className="inline-flex min-h-(--h-tap) items-center hover:text-chalk">Confidentialité</Link>
               <Link href="/cgu" className="inline-flex min-h-(--h-tap) items-center hover:text-chalk">CGU</Link>
@@ -670,7 +670,7 @@ export default function SettingsPage() {
             <button
               type="button"
               onClick={signOut}
-              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-line-3 bg-surface px-5 text-[13px] font-bold text-chalk hover:border-signal"
+              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-line-3 bg-surface px-5 text-13 font-bold text-chalk hover:border-signal"
             >
               Se déconnecter
             </button>

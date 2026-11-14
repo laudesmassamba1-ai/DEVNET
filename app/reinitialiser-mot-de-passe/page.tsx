@@ -6,7 +6,7 @@ import { api, usingDemoData } from "@/lib/api/client";
 import { Logo } from "@/components/Logo";
 
 const inputCls =
-  "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
+  "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-14 " +
   "shadow-sh-1 transition-[transform,box-shadow] placeholder:text-chalk-4 " +
   "focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]";
 
@@ -171,14 +171,14 @@ export default function ResetPasswordPage() {
 
         {invalid && !checking && !done && (
           <div className="mt-7 rounded-(--radius-card) border border-warn/60 bg-surface p-5 text-center">
-            <p className="font-display text-[15px] font-bold text-chalk">Lien invalide ou expiré.</p>
+            <p className="font-display text-15 font-bold text-chalk">Lien invalide ou expiré.</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk-3">
               Le lien de réinitialisation n’est plus valide. Demande un nouveau lien pour
               continuer.
             </p>
             <Link
               href="/mot-de-passe-oublie"
-              className="mt-4 inline-flex text-[13px] font-bold text-signal hover:underline"
+              className="mt-4 inline-flex text-13 font-bold text-signal hover:underline"
             >
               Demander un nouveau lien
             </Link>
@@ -187,7 +187,7 @@ export default function ResetPasswordPage() {
 
         {!checking && !invalid && done && (
           <div className="mt-7 rounded-(--radius-card) border border-ok/50 bg-surface p-5 text-center">
-            <p className="font-display text-[15px] font-bold text-chalk">Mot de passe mis à jour.</p>
+            <p className="font-display text-15 font-bold text-chalk">Mot de passe mis à jour.</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk-3">
               Tu peux désormais te connecter avec ton nouveau mot de passe.
             </p>
@@ -199,7 +199,7 @@ export default function ResetPasswordPage() {
             )}
             <Link
               href="/login"
-              className="mt-4 inline-flex text-[13px] font-bold text-signal hover:underline"
+              className="mt-4 inline-flex text-13 font-bold text-signal hover:underline"
             >
               Aller à la connexion
             </Link>
@@ -236,7 +236,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={busy}
-              className="lift-press flex h-(--h-tap) w-full items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
+              className="lift-press flex h-(--h-tap) w-full items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-13 font-bold text-void shadow-sh-2 disabled:opacity-60"
             >
               {busy ? "Enregistrement…" : "Changer le mot de passe"}
             </button>

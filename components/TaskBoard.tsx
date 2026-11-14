@@ -200,7 +200,7 @@ export function TaskBoard({
                 />
                 {col.label}
               </h3>
-              <span className="tnum font-mono text-[11px] text-chalk-4">
+              <span className="tnum font-mono text-12 text-chalk-4">
                 {tasks.filter((t) => t.status === col.id).length}
               </span>
             </header>
@@ -224,7 +224,7 @@ export function TaskBoard({
             >
               {tasks.filter((t) => t.status === col.id).length === 0 && (
                 <li className="flex flex-1 items-center justify-center py-6 text-center">
-                  <span className="font-mono text-[11px] text-chalk-4">
+                  <span className="font-mono text-12 text-chalk-4">
                     {col.id === "todo"
                       ? "ajoutez une tâche."
                       : "rien ici."}
@@ -248,7 +248,7 @@ export function TaskBoard({
                         hover:border-line-3 active:cursor-grabbing"
                     >
                       <div className="flex items-start gap-2">
-                        <p className="flex-1 text-[13px] leading-snug text-chalk">
+                        <p className="flex-1 text-13 leading-snug text-chalk">
                           {task.title}
                         </p>
                         <button
@@ -270,14 +270,14 @@ export function TaskBoard({
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 {task.language && (
                   <span className="inline-flex items-center gap-1 rounded-(--radius-chip)
-                    border border-line-2 px-1.5 py-0.5 font-mono text-[10.5px] text-chalk-3">
+                    border border-line-2 px-1.5 py-0.5 font-mono text-12 text-chalk-3">
                     <Icon name="code" size={11} strokeWidth={2} />
                     {task.language}
                   </span>
                 )}
 
                 <label className="inline-flex items-center gap-1.5 rounded-(--radius-chip)
-                  border border-line-2 px-1.5 py-0.5 font-mono text-[10.5px] text-chalk-3">
+                  border border-line-2 px-1.5 py-0.5 font-mono text-12 text-chalk-3">
                   <Icon name="profile" size={11} strokeWidth={2} />
                   <select
                     value={task.assignee ?? ""}
@@ -327,7 +327,7 @@ export function TaskBoard({
                   <Icon name="chevron-right" size={12} strokeWidth={2.2} />
                 </button>
 
-                <span className="ml-auto font-mono text-[10.5px] text-chalk-4">
+                <span className="ml-auto font-mono text-12 text-chalk-4">
                   {task.status === "done" && task.done_at
                     ? `terminé ${timeAgo(task.done_at)}`
                     : timeAgo(task.created_at)}
@@ -353,7 +353,7 @@ export function TaskBoard({
                     }}
                     placeholder="Nouvelle tâche…"
                     className="h-(--h-input) min-w-0 flex-1 rounded-(--radius-input)
-                      border border-line-2 bg-surface px-3 text-[13px] text-chalk
+                      border border-line-2 bg-surface px-3 text-13 text-chalk
                       placeholder:text-chalk-4 focus:border-signal"
                   />
                   <button

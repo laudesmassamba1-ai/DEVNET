@@ -30,7 +30,7 @@ export function AdminConsoleNav({ active }: { active: AdminModuleKey }) {
             <Icon name={module.icon} size={14} />
             {module.label}
             {module.status === "partiel" && (
-              <span className="text-[10px] text-chalk-4">partiel</span>
+              <span className="text-12 text-chalk-4">partiel</span>
             )}
           </Link>
         ))}
@@ -42,7 +42,7 @@ export function AdminConsoleNav({ active }: { active: AdminModuleKey }) {
           value={activeHref}
           onChange={(event) => router.push(event.target.value)}
           className="min-h-(--h-tap) w-full rounded-(--radius-input)
-            border border-line-2 bg-surface px-3 text-[14px] text-chalk
+            border border-line-2 bg-surface px-3 text-14 text-chalk
             focus-visible:outline-2 focus-visible:outline-offset-2
             focus-visible:outline-signal"
         >

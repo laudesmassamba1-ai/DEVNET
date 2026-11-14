@@ -114,7 +114,7 @@ function Hero({ data }: { data: Discover | null }) {
       <h1 className="mt-3 max-w-[20ch] font-display text-[clamp(1.75rem,4.2vw,2.7rem)] font-bold leading-[1.03] tracking-[-0.035em] text-chalk">
         Ce qui monte <span className="text-signal">se prouve</span>.
       </h1>
-      <p className="mt-3 max-w-[48ch] text-[13.5px] leading-relaxed text-chalk-3">
+      <p className="mt-3 max-w-[48ch] text-13 leading-relaxed text-chalk-3">
         Le Vivier ne classe pas des images. Il écoute les publications de code, les
         ateliers qui recrutent et les cercles qui s&apos;ouvrent — puis il montre ce
         qui mérite une visite.
@@ -192,10 +192,10 @@ function Section({
     <section>
       <header className="mb-3 flex items-baseline gap-3 border-b border-line-2 pb-2">
         <span className="label-micro text-signal">{index}</span>
-        <h2 className="font-display text-[15px] font-bold tracking-[-0.01em] text-chalk">
+        <h2 className="font-display text-15 font-bold tracking-[-0.01em] text-chalk">
           {title}
         </h2>
-        <span className="ml-auto hidden text-[11px] text-chalk-4 sm:block">{note}</span>
+        <span className="ml-auto hidden text-12 text-chalk-4 sm:block">{note}</span>
       </header>
       {children}
     </section>
@@ -213,16 +213,16 @@ function Rising({ rows }: { rows: LeaderEntry[] }) {
     <ol>
       {rows.map((r) => (
         <li key={r.id} className="flex items-center gap-3 border-b border-line py-2.5 last:border-0">
-          <span className={`tnum label w-5 shrink-0 text-[13px] ${r.rank === 1 ? "text-signal" : "text-chalk-4"}`}>
+          <span className={`tnum label w-5 shrink-0 text-13 ${r.rank === 1 ? "text-signal" : "text-chalk-4"}`}>
             {String(r.rank).padStart(2, "0")}
           </span>
           <Avatar
             name={r.prenom}
             color={r.avatarColor}
-            className="size-[28px] border-(--bw-thin) text-[11px]"
+            className="size-[28px] border-(--bw-thin) text-12"
           />
           <div className="min-w-0 flex-1">
-            <Link href={`/u/${r.pseudo}`} className="flex items-center gap-1.5 truncate text-[13.5px] font-semibold text-chalk hover:text-signal">
+            <Link href={`/u/${r.pseudo}`} className="flex items-center gap-1.5 truncate text-13 font-semibold text-chalk hover:text-signal">
               {r.me ? "Toi" : r.prenom}
               {r.verified && (
                 <VerifiedBadge
@@ -277,7 +277,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
         <Avatar
           name={author?.prenom ?? "?"}
           color={author?.avatar_color}
-          className="size-[24px] border-(--bw-thin) text-[10px]"
+          className="size-[24px] border-(--bw-thin) text-12"
         />
         <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold text-chalk">
           {author?.prenom ?? "Anonyme"}
@@ -287,7 +287,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
       </div>
 
       {proof.text && (
-        <p className={`mt-2.5 whitespace-pre-wrap text-[13px] leading-[1.55] text-chalk-2 ${featured ? "line-clamp-4" : "line-clamp-3"}`}>
+        <p className={`mt-2.5 whitespace-pre-wrap text-13 leading-[1.55] text-chalk-2 ${featured ? "line-clamp-4" : "line-clamp-3"}`}>
           {proof.text}
         </p>
       )}
@@ -303,7 +303,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
         </div>
       ) : (
         proof.code && (
-          <pre className="mt-2.5 max-h-[64px] overflow-hidden rounded-(--radius-input) border border-line bg-void/90 px-3 py-2 font-mono text-[10.5px] leading-[1.5] text-page/85">
+          <pre className="mt-2.5 max-h-[64px] overflow-hidden rounded-(--radius-input) border border-line bg-void/90 px-3 py-2 font-mono text-12 leading-[1.5] text-page/85">
             {proof.code.split("\n").slice(0, 3).join("\n")}
           </pre>
         )
@@ -316,7 +316,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
         <span className="label-micro flex items-center gap-1.5">
           <Icon name="comment" size={11} /> {proof.comments}
         </span>
-        <span className="ml-auto flex items-center gap-1 text-[11px] text-chalk-4 transition-colors group-hover:text-signal">
+        <span className="ml-auto flex items-center gap-1 text-12 text-chalk-4 transition-colors group-hover:text-signal">
           Lire <Icon name="chevron-right" size={11} />
         </span>
       </div>
@@ -337,7 +337,7 @@ function Ateliers({ ateliers }: { ateliers: Project[] }) {
             href={`/projects/${p.id}`}
             className="group flex items-start gap-3 rounded-(--radius-input) border border-line px-3 py-2.5 transition-colors hover:border-line-3 hover:bg-surface-2/50"
           >
-            <span className="grid size-9 shrink-0 place-items-center rounded-(--radius-input) border border-line bg-surface-2 text-[16px]">
+            <span className="grid size-9 shrink-0 place-items-center rounded-(--radius-input) border border-line bg-surface-2 text-base">
               {isIconName(p.emoji) ? (
                 <Icon name={p.emoji} size={16} />
               ) : /\p{Extended_Pictographic}/u.test(p.emoji) ? (
@@ -348,7 +348,7 @@ function Ateliers({ ateliers }: { ateliers: Project[] }) {
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2">
-                <span className="truncate text-[13.5px] font-semibold text-chalk">{p.name}</span>
+                <span className="truncate text-13 font-semibold text-chalk">{p.name}</span>
                 <span className="label-micro shrink-0 text-chalk-4">{stageSpec(p.stage).label}</span>
               </div>
               <p className="mt-0.5 line-clamp-1 text-12 text-chalk-3">{p.description}</p>
@@ -387,7 +387,7 @@ function Cercles({ cercles, joined }: { cercles: Community[]; joined: Set<string
             <Icon name={asIconName(c.icon, "globe")} size={16} />
           </span>
           <div className="min-w-0 flex-1">
-            <span className="block truncate text-[13.5px] font-semibold text-chalk">{c.name}</span>
+            <span className="block truncate text-13 font-semibold text-chalk">{c.name}</span>
             <span className="label-micro mt-0.5 block text-chalk-4">{c.member_count} membres</span>
           </div>
           {joined.has(c.id) ? (
@@ -422,7 +422,7 @@ function NextStep({ xp, ready, signedIn }: { xp?: number; ready: boolean; signed
     <section className="rounded-(--radius-card) border border-line-2 bg-surface p-4 depth-card">
       <p className="prompt-label text-chalk-2">Ta prochaine marche</p>
       <div className="mt-3 flex items-center gap-2">
-        <span className="font-display text-[15px] font-bold text-chalk">{level.title}</span>
+        <span className="font-display text-15 font-bold text-chalk">{level.title}</span>
         <span className="label-micro ml-auto text-chalk-4">palier {level.level}</span>
       </div>
       <div className="mt-2.5 h-[4px] overflow-hidden rounded-full bg-line-2">

@@ -344,7 +344,7 @@ export function GithubPanel({
                   onChange={(e) => setLogin(e.target.value)}
                   placeholder="koffi-devnet"
                   className="h-(--h-input) w-full rounded-(--radius-input)
-                    border border-line-3 bg-surface px-3 font-mono text-[13px]
+                    border border-line-3 bg-surface px-3 font-mono text-13
                     shadow-sh-1 placeholder:text-chalk-4
                     focus:shadow-[3px_3px_0_var(--color-signal)]"
                 />
@@ -366,7 +366,7 @@ export function GithubPanel({
           <div className="flex items-center gap-3">
             <Avatar name={connection.login} color="av-sage" />
             <div className="min-w-0 flex-1">
-              <div className="font-mono text-[13px] font-bold text-chalk">
+              <div className="font-mono text-13 font-bold text-chalk">
                 @{connection.login}
               </div>
               <div className="text-sm text-chalk-4">
@@ -417,7 +417,7 @@ export function GithubPanel({
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://github.com/koffi-devnet/cooperative"
                   className="h-(--h-input) w-full rounded-(--radius-input)
-                    border border-line-3 bg-surface px-3 font-mono text-[13px]
+                    border border-line-3 bg-surface px-3 font-mono text-13
                     shadow-sh-1 placeholder:text-chalk-4
                     focus:shadow-[3px_3px_0_var(--color-signal)]"
                 />
@@ -632,7 +632,7 @@ function ConnectionsSection({ me }: { me: string }) {
                     }
                     placeholder={p.identityPlaceholder}
                     className="h-(--h-input) w-full rounded-(--radius-input)
-                      border border-line-3 bg-surface px-3 font-mono text-[13px]
+                      border border-line-3 bg-surface px-3 font-mono text-13
                       shadow-sh-1 placeholder:text-chalk-4
                       focus:shadow-[3px_3px_0_var(--color-signal)]"
                   />
@@ -645,7 +645,7 @@ function ConnectionsSection({ me }: { me: string }) {
                       }
                       placeholder={p.endpointPlaceholder}
                       className="h-(--h-input) w-full rounded-(--radius-input)
-                        border border-line-3 bg-surface px-3 font-mono text-[13px]
+                        border border-line-3 bg-surface px-3 font-mono text-13
                         shadow-sh-1 placeholder:text-chalk-4
                         focus:shadow-[3px_3px_0_var(--color-signal)]"
                     />
@@ -768,7 +768,7 @@ function LinkedView({
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="font-mono text-[13px] font-bold text-chalk">
+        <span className="font-mono text-13 font-bold text-chalk">
           {repoSlug({ owner: link.owner, repo: link.repo })}
         </span>
         <span className="font-mono text-sm text-chalk-4">
@@ -1000,7 +1000,7 @@ function RepoPicker({
           onChange={(e) => setQ(e.target.value)}
           placeholder="Filtrer…"
           className="h-(--h-input) w-full rounded-(--radius-input) border
-            border-line-3 bg-surface px-3 font-mono text-[13px] shadow-sh-1
+            border-line-3 bg-surface px-3 font-mono text-13 shadow-sh-1
             placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
       </label>

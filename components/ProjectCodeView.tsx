@@ -533,7 +533,7 @@ afficherait une promesse permanente pour une action momentanée. */}
                 onClick={() => setCreating(true)}
                 className="mo-press inline-flex h-(--h-tap) items-center gap-2
                   rounded-(--radius-input) border border-signal bg-signal
-                  px-4 text-[13px] font-bold text-void shadow-sh-2"
+                  px-4 text-13 font-bold text-void shadow-sh-2"
               >
                 <Icon name="plus" size={14} strokeWidth={2} />
                 Nouveau fichier
@@ -584,7 +584,7 @@ afficherait une promesse permanente pour une action momentanée. */}
                 onChange={(e) => setMessage(e.target.value)}
                 placeholder="Ce que ce changement fait, en une ligne."
                 className="mb-3 h-(--h-input) w-full rounded-(--radius-input)
-                  border border-line-3 bg-surface-2 px-3.5 font-mono text-[13px]
+                  border border-line-3 bg-surface-2 px-3.5 font-mono text-13
                   outline transition-[transform,box-shadow]
                   duration-(--d-base) ease-(--ease-spring)
                   placeholder:text-chalk-4 focus:-translate-x-px
@@ -602,7 +602,7 @@ afficherait une promesse permanente pour une action momentanée. */}
                 }
                 className="mo-press flex h-(--h-tap) w-full items-center justify-center gap-2
                   rounded-(--radius-input) border border-signal bg-signal
-                  text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
+                  text-13 font-bold text-void shadow-sh-2 disabled:opacity-40"
               >
                 <Icon name="check" size={14} strokeWidth={2} />
                 Enregistrer la révision

@@ -77,10 +77,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "corps illisible" }, { status: 400, headers: NO_STORE });
   }
 
-  const body = raw as { caption?: unknown; dataUrl?: unknown; mediaUrl?: unknown } | null;
+  const body = raw as {
+    caption?: unknown;
+    dataUrl?: unknown;
+    mediaUrl?: unknown;
+    audience?: unknown;
+  } | null;
   const dataUrl = typeof body?.dataUrl === "string" ? body.dataUrl : "";
   const mediaUrl = typeof body?.mediaUrl === "string" ? body.mediaUrl.trim() : "";
   const caption = typeof body?.caption === "string" ? body.caption.trim() : "";
+  const audience =
+    body?.audience === "followers" || body?.audience === "private"
+      ? body.audience
+      : "public";
   if (caption.length > STORY_MAX) {
     return NextResponse.json({ error: `${STORY_MAX} caractères maximum` }, { status: 400 });
   }
@@ -100,6 +109,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const created = await getServerStoriesRepository().createStory(authorId, {
         caption,
         mediaUrl: resolved.url,
+        audience,
       });
       return NextResponse.json({ ok: true, id: created.id }, { headers: NO_STORE });
     } catch (error) {
@@ -137,6 +147,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const created = await getServerStoriesRepository().createStory(authorId, {
       caption,
       media: encoded.media,
+      audience,
     });
     return NextResponse.json({ ok: true, id: created.id }, { headers: NO_STORE });
   } catch (error) {

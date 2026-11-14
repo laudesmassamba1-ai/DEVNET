@@ -35,7 +35,7 @@ export function ChallengePanel({ challenges }: { challenges: Challenge[] }) {
           Défis du jour
         </span>
         {gain > 0 && (
-          <span className="tnum font-mono text-[11px] text-signal">+{gain} XP</span>
+          <span className="tnum font-mono text-12 text-signal">+{gain} XP</span>
         )}
       </h3>
 
@@ -63,19 +63,19 @@ export function ChallengePanel({ challenges }: { challenges: Challenge[] }) {
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="flex items-baseline gap-2">
-                    <span className={`text-[13px] font-bold ${c.done ? "text-signal" : "text-chalk"}`}>
+                    <span className={`text-13 font-bold ${c.done ? "text-signal" : "text-chalk"}`}>
                       {c.label}
                     </span>
                     {c.difficulty > 1 && (
-                      <span className="font-mono text-[10px] uppercase tracking-wider text-signal/70">
+                      <span className="font-mono text-12 uppercase tracking-wider text-signal/70">
                         ×{c.difficulty}
                       </span>
                     )}
-                    <span className="tnum ml-auto font-mono text-[10.5px] text-chalk-4">
+                    <span className="tnum ml-auto font-mono text-12 text-chalk-4">
                       {c.progress}/{c.target} · {c.xp} XP
                     </span>
                   </span>
-                  <span className="mt-0.5 block text-[11.5px] leading-snug text-chalk-3">
+                  <span className="mt-0.5 block text-12 leading-snug text-chalk-3">
                     {c.hint}
                   </span>
                 </span>

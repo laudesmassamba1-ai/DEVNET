@@ -37,13 +37,13 @@ export function AchievementsPanel({ counters }: { counters: AchievementCounters 
             <Icon name="trophy" size={12} strokeWidth={1.8} />
             Succès
           </h3>
-          <p className="mt-1 text-[11px] leading-snug text-chalk-4">
+          <p className="mt-1 text-12 leading-snug text-chalk-4">
             Clique sur un succès pour voir comment on l&apos;obtient.
           </p>
         </div>
-        <span className="tnum shrink-0 text-right font-mono text-[11px] leading-tight text-signal">
+        <span className="tnum shrink-0 text-right font-mono text-12 leading-tight text-signal">
           {score} pts
-          <span className="mt-0.5 block text-[10px] text-chalk-4">
+          <span className="mt-0.5 block text-12 text-chalk-4">
             {earnedCount}/{list.length} commencés
           </span>
         </span>
@@ -66,7 +66,7 @@ export function AchievementsPanel({ counters }: { counters: AchievementCounters 
       {selected && (
         <div
           aria-live="polite"
-          className="mt-3 rounded-(--radius-card) border border-line-2 bg-surface-2 p-3 text-[11.5px] leading-snug text-chalk-3"
+          className="mt-3 rounded-(--radius-card) border border-line-2 bg-surface-2 p-3 text-12 leading-snug text-chalk-3"
         >
           <div className="mb-1.5 flex items-center gap-1.5">
             <Icon name={selected.icon} size={12} strokeWidth={2} className="text-signal" />
@@ -100,7 +100,7 @@ export function AchievementsPanel({ counters }: { counters: AchievementCounters 
                 <li
                   key={tier}
                   className={`rounded-(--radius-chip) border px-1.5 py-0.5 font-mono
-                    text-[10px] uppercase tracking-[0.08em]
+                    text-12 uppercase tracking-[0.08em]
                     ${reached
                       ? "border-signal/60 bg-signal/12 text-signal"
                       : "border-line-2 text-chalk-4"}`}
@@ -114,7 +114,7 @@ export function AchievementsPanel({ counters }: { counters: AchievementCounters 
       )}
 
       {next && (
-        <p className="mt-3 border-t border-line-2 pt-2.5 text-[11.5px] leading-snug text-chalk-3">
+        <p className="mt-3 border-t border-line-2 pt-2.5 text-12 leading-snug text-chalk-3">
           <span className="font-bold text-signal">Prochain :</span>{" "}
           {next.label} — {Math.round(next.progress * 100)} % vers le palier suivant.
         </p>
@@ -173,11 +173,11 @@ function AchievementRow({
         />
         <span className={`text-sm font-bold ${tone}`}>{a.label}</span>
         {a.tier && (
-          <span className="font-mono text-[10px] uppercase tracking-wider text-signal/70">
+          <span className="font-mono text-12 uppercase tracking-wider text-signal/70">
             {a.tier}
           </span>
         )}
-        <span className="tnum ml-auto font-mono text-[10.5px] text-chalk-4">
+        <span className="tnum ml-auto font-mono text-12 text-chalk-4">
           {pct}%
         </span>
       </div>

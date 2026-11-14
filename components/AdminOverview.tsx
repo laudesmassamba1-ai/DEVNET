@@ -76,7 +76,7 @@ function MetricBlock({
       <dd className="mt-1 font-mono text-[22px] font-semibold tabular-nums text-chalk">
         {metric.value === null ? "—" : metric.value.toLocaleString("fr-FR")}
       </dd>
-      {metric.error && <p className="mt-1 text-[11px] text-warn">{metric.error}</p>}
+      {metric.error && <p className="mt-1 text-12 text-warn">{metric.error}</p>}
     </div>
   );
 }
@@ -147,7 +147,7 @@ function ActivityChart({
           );
         })}
       </svg>
-      <div className="flex items-center gap-2 text-[11px] text-chalk-4">
+      <div className="flex items-center gap-2 text-12 text-chalk-4">
         <span className="size-2 rounded-sm bg-signal" aria-hidden="true" />
         Publications créées
         {sampled && <span>· échantillon limité aux 1 000 plus récentes</span>}
@@ -212,7 +212,7 @@ export function AdminOverview() {
     <section className="border-b border-line-2" aria-labelledby="admin-overview-title">
       <div className="flex flex-wrap items-end justify-between gap-3 px-(--gutter) py-5">
         <div>
-          <p className="font-mono text-[11px] text-chalk-4">TABLEAU DE BORD</p>
+          <p className="font-mono text-12 text-chalk-4">TABLEAU DE BORD</p>
           <h2
             id="admin-overview-title"
             className="mt-1 font-display text-[22px] font-semibold tracking-[-0.03em] text-chalk"
@@ -235,7 +235,7 @@ export function AdminOverview() {
 
       {error && (
         <div role="alert" className="mx-(--gutter) mb-4 border-l-2 border-danger px-3 py-2">
-          <p className="text-[13px] text-danger">{error}</p>
+          <p className="text-13 text-danger">{error}</p>
           <button type="button" className="mt-2 text-12 font-semibold text-signal" onClick={() => void refresh()}>
             Réessayer
           </button>
@@ -254,10 +254,10 @@ export function AdminOverview() {
 
           <div className="mx-(--gutter) border-t border-line-2 pt-4 pb-5">
             <div className="mb-2 flex flex-wrap items-baseline justify-between gap-2">
-              <h3 className="font-display text-[15px] font-semibold text-chalk">
+              <h3 className="font-display text-15 font-semibold text-chalk">
                 Publications par semaine
               </h3>
-              <span className="font-mono text-[10px] text-chalk-4">
+              <span className="font-mono text-12 text-chalk-4">
                 8 semaines · vérifié {overview.checkedAt.toLocaleTimeString("fr-FR", {
                   hour: "2-digit",
                   minute: "2-digit",
@@ -265,7 +265,7 @@ export function AdminOverview() {
               </span>
             </div>
             {overview.activityError ? (
-              <p role="status" className="py-8 text-[13px] text-chalk-3">{overview.activityError}</p>
+              <p role="status" className="py-8 text-13 text-chalk-3">{overview.activityError}</p>
             ) : (
               <>
                 <ActivityChart weeks={overview.activity} sampled={overview.activitySampled} />

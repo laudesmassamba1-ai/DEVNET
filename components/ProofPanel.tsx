@@ -96,7 +96,7 @@ export function ProofPanel({
               </span>
               <span className="label-micro text-chalk-4">points de preuve</span>
             </div>
-            <p className="mt-2 font-mono text-[11.5px] text-chalk-3">
+            <p className="mt-2 font-mono text-12 text-chalk-3">
               {derived.list.length} preuve{derived.list.length > 1 ? "s" : ""}
               {" · "}
               {reputationSummary(reputationByLanguage(derived.list))}
@@ -121,7 +121,7 @@ export function ProofPanel({
             disabled={replaying}
             className="mo-press inline-flex h-(--h-tap) items-center gap-2
               rounded-(--radius-chip) border border-signal bg-signal px-3
-              font-mono text-[11px] font-bold uppercase tracking-[0.12em]
+              font-mono text-12 font-bold uppercase tracking-[0.12em]
               text-void disabled:opacity-50"
           >
             <Icon name="check-double" size={12} strokeWidth={2} />
@@ -131,7 +131,7 @@ export function ProofPanel({
           {report && (
             <p
               role="status"
-              className={`font-mono text-[11.5px] leading-snug ${
+              className={`font-mono text-12 leading-snug ${
                 report.allVerified ? "text-ok" : "text-danger"
               }`}
             >
@@ -145,7 +145,7 @@ export function ProofPanel({
         {report && !report.allVerified && (
           <ul className="relative mt-2 space-y-1">
             {report.broken.slice(0, 5).map((p) => (
-              <li key={p.id} className="font-mono text-[11px] text-danger">
+              <li key={p.id} className="font-mono text-12 text-danger">
                 {PROOF_KINDS[p.kind].label} · {p.subject}
               </li>
             ))}
@@ -172,8 +172,8 @@ export function ProofPanel({
                     strokeWidth={1.8}
                     className="shrink-0 text-chalk-3"
                   />
-                  <span className="font-mono text-[11.5px] text-chalk-2">{spec.label}</span>
-                  <span className="tnum ml-auto shrink-0 text-[11px] text-chalk-3">
+                  <span className="font-mono text-12 text-chalk-2">{spec.label}</span>
+                  <span className="tnum ml-auto shrink-0 text-12 text-chalk-3">
                     {count} × {spec.weight}
                   </span>
                 </div>
@@ -183,7 +183,7 @@ export function ProofPanel({
                     style={{ width: `${Math.round((count / maxWeight) * 100)}%` }}
                   />
                 </div>
-                <p className="mt-1 text-[10.5px] leading-snug text-chalk-4">{spec.certifies}</p>
+                <p className="mt-1 text-12 leading-snug text-chalk-4">{spec.certifies}</p>
               </li>
             );
           })}
@@ -211,13 +211,13 @@ export function ProofPanel({
                   className="mt-0.5 shrink-0 text-chalk-4"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-mono text-[11.5px] text-chalk-2">
+                  <p className="truncate font-mono text-12 text-chalk-2">
                     {spec.label}
                     {p.language && <span className="ml-1.5 text-chalk-3">· {p.language}</span>}
                   </p>
-                  <p className="truncate text-[11px] text-chalk-4">{p.summary || p.subject}</p>
+                  <p className="truncate text-12 text-chalk-4">{p.summary || p.subject}</p>
                 </div>
-                <span className="tnum shrink-0 font-mono text-[10.5px] text-chalk-4">
+                <span className="tnum shrink-0 font-mono text-12 text-chalk-4">
                   {p.created_at.slice(0, 10)}
                 </span>
               </li>
@@ -250,7 +250,7 @@ function LanguageCard({ proofs }: { proofs: Proof[] }) {
         {languages.map((l) => (
           <li key={l.language}>
             <div className="mb-1 flex items-baseline justify-between gap-2">
-              <span className="font-mono text-[11.5px] text-chalk-2">{l.language}</span>
+              <span className="font-mono text-12 text-chalk-2">{l.language}</span>
               <span className="tnum label-micro text-chalk-4">
                 {l.count} preuve{l.count > 1 ? "s" : ""} · {l.weight} pts
               </span>
@@ -261,7 +261,7 @@ function LanguageCard({ proofs }: { proofs: Proof[] }) {
                 style={{ width: `${Math.round((l.weight / max) * 100)}%` }}
               />
             </div>
-            <p className="mt-1 font-mono text-[10.5px] text-chalk-4">
+            <p className="mt-1 font-mono text-12 text-chalk-4">
               {l.kinds.map((k) => `${k.count} ${PROOF_KINDS[k.kind].label.toLowerCase()}`).join(" · ")}
             </p>
           </li>

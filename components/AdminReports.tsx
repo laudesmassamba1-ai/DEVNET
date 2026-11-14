@@ -102,7 +102,7 @@ export function AdminReports() {
           <h2 id="admin-reports-title" className="font-display text-[18px] font-semibold">
             Signalements du réseau
           </h2>
-          <p className="mt-1 max-w-prose text-[13px] leading-relaxed text-chalk-3">
+          <p className="mt-1 max-w-prose text-13 leading-relaxed text-chalk-3">
             Toutes les cibles, tous les auteurs. Le signalant reste anonyme.
           </p>
         </div>
@@ -134,7 +134,7 @@ export function AdminReports() {
 
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2">
-          <p className="text-[13px] text-danger">{error}</p>
+          <p className="text-13 text-danger">{error}</p>
           <button type="button" onClick={() => void load()} className="mt-2 text-12 font-semibold text-signal">
             Réessayer
           </button>
@@ -164,7 +164,7 @@ export function AdminReports() {
               />
               <div className="min-w-0 flex-1">
                 <p className="flex flex-wrap items-baseline gap-1.5">
-                  <span className="text-[13px] font-bold text-chalk">
+                  <span className="text-13 font-bold text-chalk">
                     {reason?.label ?? row.reason}
                   </span>
                   <span className="font-mono text-12 text-chalk-4">
@@ -174,7 +174,7 @@ export function AdminReports() {
                 </p>
 
                 {row.target_preview && (
-                  <p className="mt-2 line-clamp-3 border-l border-line-2 pl-2.5 text-[13px] leading-relaxed text-chalk-2">
+                  <p className="mt-2 line-clamp-3 border-l border-line-2 pl-2.5 text-13 leading-relaxed text-chalk-2">
                     {row.target_preview}
                   </p>
                 )}
@@ -184,7 +184,7 @@ export function AdminReports() {
                   </p>
                 )}
 
-                <p className="mt-1.5 font-mono text-[10.5px] text-chalk-4">
+                <p className="mt-1.5 font-mono text-12 text-chalk-4">
                   signalé par @{row.reporter_pseudo} ·{" "}
                   {new Date(row.created_at).toLocaleDateString("fr-FR")}
                   {row.target_user_pseudo ? ` · cible @${row.target_user_pseudo}` : ""}

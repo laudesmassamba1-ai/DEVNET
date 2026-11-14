@@ -174,7 +174,7 @@ export default function GithubRepoPage() {
           onClick={() => void importRepo()}
           disabled={busy || !profile || !detail}
           className="h-(--h-input) rounded-(--radius-chip) border
-            border-signal bg-signal px-3.5 font-mono text-[11px] font-bold
+            border-signal bg-signal px-3.5 font-mono text-12 font-bold
             tracking-[0.1em] text-void uppercase shadow-sh-1 disabled:opacity-40"
         >
           {busy ? "Import…" : "Importer"}
@@ -193,7 +193,7 @@ export default function GithubRepoPage() {
                 size={12}
                 className="text-chalk-4"
               />
-              <h2 className="truncate font-mono text-[14px] font-bold text-chalk">
+              <h2 className="truncate font-mono text-14 font-bold text-chalk">
                 {detail.full_name}
               </h2>
             </div>
@@ -203,7 +203,7 @@ export default function GithubRepoPage() {
               </p>
             )}
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2
-              font-mono text-[10.5px] tracking-[0.06em] text-chalk-4 uppercase">
+              font-mono text-12 tracking-[0.06em] text-chalk-4 uppercase">
               {detail.language && (
                 <span className="flex items-center gap-1">
                   <Icon name="code" size={11} /> {detail.language}
@@ -223,7 +223,7 @@ export default function GithubRepoPage() {
                 href={detail.homepage.startsWith("http") ? detail.homepage : `https://${detail.homepage}`}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="mt-2 inline-flex items-center gap-1 font-mono text-[11px] text-signal hover:underline"
+                className="mt-2 inline-flex items-center gap-1 font-mono text-12 text-signal hover:underline"
               >
                 <Icon name="link" size={11} /> {detail.homepage}
               </a>
@@ -271,7 +271,7 @@ export default function GithubRepoPage() {
               role="tab"
               aria-selected={tab === value}
               onClick={() => setTab(value)}
-              className={`-mb-px border-b-2 px-3 py-2 font-mono text-[11.5px] font-bold
+              className={`-mb-px border-b-2 px-3 py-2 font-mono text-12 font-bold
                 tracking-[0.08em] uppercase transition-colors ${
                   tab === value
                     ? "border-signal text-signal"
@@ -353,7 +353,7 @@ export default function GithubRepoPage() {
                     <span className="truncate font-mono text-12 text-chalk">
                       {file.path}
                     </span>
-                    <span className="shrink-0 font-mono text-[10.5px] text-chalk-4">
+                    <span className="shrink-0 font-mono text-12 text-chalk-4">
                       {file.size} o
                     </span>
                   </div>
@@ -387,11 +387,11 @@ export default function GithubRepoPage() {
                     key={c.sha}
                     className="rounded-(--radius-card) border border-line-2/60 bg-surface p-3.5"
                   >
-                    <p className="line-clamp-2 text-[13px] leading-relaxed text-chalk">
+                    <p className="line-clamp-2 text-13 leading-relaxed text-chalk">
                       {c.message.split("\n")[0]}
                     </p>
                     <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1
-                      font-mono text-[10.5px] tracking-[0.06em] text-chalk-4 uppercase">
+                      font-mono text-12 tracking-[0.06em] text-chalk-4 uppercase">
                       <span className="text-signal-d">{c.sha.slice(0, 7)}</span>
                       {c.author_name && <span>{c.author_name}</span>}
                       {c.date && <span>{timeAgo(c.date)}</span>}
@@ -423,13 +423,13 @@ export default function GithubRepoPage() {
                       <span className="truncate">{b.name}</span>
                       {b.name === ref && (
                         <span className="shrink-0 rounded-(--radius-chip) border
-                          border-signal/40 px-1.5 py-0.5 font-mono text-[9.5px]
+                          border-signal/40 px-1.5 py-0.5 font-mono text-12
                           tracking-[0.08em] text-signal uppercase">
                           affichée
                         </span>
                       )}
                     </span>
-                    <span className="shrink-0 font-mono text-[10.5px] text-chalk-4">
+                    <span className="shrink-0 font-mono text-12 text-chalk-4">
                       {b.sha.slice(0, 7)}
                     </span>
                   </li>

@@ -37,7 +37,7 @@ export default function GlobalError({
             Réessayez ; si cela persiste, revenez plus tard.
           </p>
           {error.digest && (
-            <p className="mt-2 font-mono text-[11px] text-chalk-4">
+            <p className="mt-2 font-mono text-12 text-chalk-4">
               référence : {error.digest}
             </p>
           )}
@@ -45,13 +45,13 @@ export default function GlobalError({
             <button
               type="button"
               onClick={reset}
-              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2"
+              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-13 font-bold text-void shadow-sh-2"
             >
               Réessayer
             </button>
             <Link
               href="/"
-              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-line-3 bg-surface px-5 text-[13px] font-bold text-chalk hover:border-signal"
+              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-line-3 bg-surface px-5 text-13 font-bold text-chalk hover:border-signal"
             >
               Retour à l&apos;accueil
             </Link>

@@ -29,8 +29,40 @@ jobs:
       - run: npm ci
       - run: npx tsc --noEmit
       - run: npm run test:media-security
+      - run: npm run test:story-playback
       - run: npm run verify:ui
       - run: npx playwright install --with-deps chromium
       - run: npm run verify:ui:browser
       - run: npm run lint
       - run: npm run build
+
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: devnet
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d devnet"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/devnet
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run test:db-migrate
+      - run: npm run test:db-rls
+      - run: npm run test:stories-postgres
+      - run: npm run test:stories-audience

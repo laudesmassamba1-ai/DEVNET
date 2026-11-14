@@ -34,7 +34,7 @@ export function PresenceRail({
       </span>
 
       {entries.length === 0 && (
-        <span className="font-mono text-[11px] text-chalk-4">
+        <span className="font-mono text-12 text-chalk-4">
           personne d&apos;autre sur ce dépôt
         </span>
       )}
@@ -47,12 +47,12 @@ export function PresenceRail({
           return (
             <li
               key={entry.user_id}
-              className="inline-flex items-center gap-1.5 font-mono text-[11px]"
+              className="inline-flex items-center gap-1.5 font-mono text-12"
             >
               <span
                 aria-hidden="true"
                 className={`flex size-[18px] shrink-0 items-center justify-center rounded-full
-                  border font-display text-[9px] font-bold
+                  border font-display text-12 font-bold
                   ${avatarClass(entry.color || entry.user?.avatar_color)}`}
               >
                 {initials(name)}

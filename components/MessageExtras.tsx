@@ -111,17 +111,17 @@ export function MessageExtras({
               aria-label={`Réaction ${r.emoji} (${r.count})`}
               aria-pressed={r.mine}
               className={`flex min-h-[28px] items-center gap-1 rounded-(--radius-chip)
-                border px-1.5 text-[13px] leading-none transition-colors
+                border px-1.5 text-13 leading-none transition-colors
                 ${
                   r.mine
                     ? "border-signal bg-signal/15 text-signal"
                     : "border-line-2 bg-surface text-chalk-2 hover:border-chalk-3"
                 }`}
             >
-              <span aria-hidden="true" className="text-[14px] leading-none">
+              <span aria-hidden="true" className="text-14 leading-none">
                 {r.emoji}
               </span>
-              <span className="tnum font-mono text-[10.5px]">{r.count}</span>
+              <span className="tnum font-mono text-12">{r.count}</span>
             </button>
           ))}
         </div>

@@ -93,7 +93,7 @@ export function ReactionPicker({
           aria-hidden
           className="shrink-0 leading-none">
           {mine ? (
-            <span className="text-[15px] leading-none">{mine}</span>
+            <span className="text-15 leading-none">{mine}</span>
           ) : (
             <Icon name="plus" size={14} strokeWidth={2.2} />
           )}

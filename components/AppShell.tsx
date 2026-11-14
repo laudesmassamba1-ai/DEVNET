@@ -239,7 +239,7 @@ export function AppShell({
                 as="h1"
                 className="flex min-w-0 flex-1 items-center gap-2 self-center
                   border-l-[3px] border-signal bg-surface-2 px-(--gutter) text-chalk
-                  font-display text-[15px] font-semibold tracking-[-0.02em]"
+                  font-display text-15 font-semibold tracking-[-0.02em]"
               >
                 <Icon name="file" size={12} className="shrink-0 text-chalk-4" />
                 {/* Le titre cède avant les icônes : sur un écran de 320 px,

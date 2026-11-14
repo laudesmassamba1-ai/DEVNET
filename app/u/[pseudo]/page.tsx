@@ -297,7 +297,7 @@ export default function PublicProfilePage({
             {/* La filière et le niveau se lisent seulement depuis la jointure :
                 les recopier dans le post les figerait à la publication. */}
             {(user?.filiere || user?.niveau) && (
-              <p className="mt-1 font-mono text-[11.5px] text-chalk-3">
+              <p className="mt-1 font-mono text-12 text-chalk-3">
                 {[user.filiere, user.niveau].filter(Boolean).join(" · ")}
               </p>
             )}
@@ -308,7 +308,7 @@ export default function PublicProfilePage({
             ligne vide : mieux vaut une absence lisible qu'un cadre
             vide qu'il faudrait remplir. */}
         {user?.bio && (
-          <p className="mt-3 text-[13px] leading-relaxed text-chalk-2">{user.bio}</p>
+          <p className="mt-3 text-13 leading-relaxed text-chalk-2">{user.bio}</p>
         )}
 
         {/* Les langages sont des étiquettes, pas des liens : on ne filtre
@@ -331,7 +331,7 @@ export default function PublicProfilePage({
         {/* Lieu déclaré : deux textes, rien de plus — la carte d'accueil se
             déduit de la ville, on ne stocke jamais de coordonnées ici. */}
         {user && (user.ville || user.pays) && (
-          <p className="mt-2.5 inline-flex items-center gap-1.5 font-mono text-[11.5px] text-chalk-3">
+          <p className="mt-2.5 inline-flex items-center gap-1.5 font-mono text-12 text-chalk-3">
             <Icon name="globe" size={12} />
             {[user.ville, user.pays].filter(Boolean).join(", ")}
           </p>
@@ -348,7 +348,7 @@ export default function PublicProfilePage({
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-1.5 rounded-(--radius-chip)
-                    border border-line-3 bg-surface px-2.5 py-1 font-mono text-[11.5px]
+                    border border-line-3 bg-surface px-2.5 py-1 font-mono text-12
                     text-chalk-2 transition-colors hover:border-signal hover:text-signal"
                 >
                   <Icon name="link" size={12} />
@@ -433,7 +433,7 @@ export default function PublicProfilePage({
                 targetLabel="ce compte"
                 targetAuthorId={user.id}
                 className="inline-flex items-center gap-1.5 rounded-(--radius-chip)
-                  border-(--bw-thin) border-line px-2 py-1 font-mono text-[11px]
+                  border-(--bw-thin) border-line px-2 py-1 font-mono text-12
                   uppercase tracking-[0.1em] text-chalk-4
                   transition-[color,border-color] duration-(--d-fast)
                   hover:border-danger hover:text-danger"
@@ -454,7 +454,7 @@ export default function PublicProfilePage({
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">XP</div>
-                <div className="tnum mt-1 text-[15px] font-bold text-chalk">
+                <div className="tnum mt-1 text-15 font-bold text-chalk">
                   {publicProgress ? publicProgress.stats.xp : 0}
                 </div>
               </div>
@@ -466,16 +466,16 @@ export default function PublicProfilePage({
               </div>
               <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">Dépôts</div>
-                <div className="tnum mt-1 text-[15px] font-bold text-chalk">
+                <div className="tnum mt-1 text-15 font-bold text-chalk">
                   {projects?.length ?? 0}
                 </div>
               </div>
               <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">Score moyen</div>
-                <div className="tnum mt-1 text-[15px] font-bold text-chalk">
+                <div className="tnum mt-1 text-15 font-bold text-chalk">
                   {projectScoreSummary.average}
                 </div>
-                <div className="mt-0.5 text-[10px] uppercase tracking-[0.08em] text-chalk-4">
+                <div className="mt-0.5 text-12 uppercase tracking-[0.08em] text-chalk-4">
                   {projectScoreSummary.count > 0
                     ? `sur ${projectScoreSummary.count} dépôt${projectScoreSummary.count > 1 ? "s" : ""}`
                     : "aucun dépôt"}
@@ -483,7 +483,7 @@ export default function PublicProfilePage({
               </div>
               <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">Meilleur score</div>
-                <div className="tnum mt-1 text-[15px] font-bold text-chalk">
+                <div className="tnum mt-1 text-15 font-bold text-chalk">
                   {projectScoreSummary.best}
                 </div>
               </div>
@@ -535,10 +535,10 @@ export default function PublicProfilePage({
                     )
                   }
                   className="mo-press inline-flex items-baseline gap-1.5 py-[2px]
-                    font-mono text-[11.5px] uppercase tracking-[0.1em] text-chalk-4
+                    font-mono text-12 uppercase tracking-[0.1em] text-chalk-4
                     transition-colors duration-(--d-fast) hover:text-signal"
                 >
-                  <span className="tnum text-[15px] font-bold text-chalk">{count}</span>
+                  <span className="tnum text-15 font-bold text-chalk">{count}</span>
                   {label}
                 </button>
               ))}
@@ -566,7 +566,7 @@ export default function PublicProfilePage({
               type="button"
               aria-selected={tab === value}
               onClick={() => setTab(value)}
-              className={`tab-underline px-3.5 py-2 font-mono text-[11.5px]
+              className={`tab-underline px-3.5 py-2 font-mono text-12
                 font-bold uppercase tracking-[0.12em] transition-colors
                 duration-(--d-fast)
                 ${tab === value
@@ -643,7 +643,7 @@ export default function PublicProfilePage({
                       onClick={() => router.push("/projects")}
                       className="mo-press inline-flex h-(--h-tap) items-center gap-2
                         rounded-(--radius-input) border border-signal bg-signal
-                        px-4 text-[13px] font-bold text-void shadow-sh-2"
+                        px-4 text-13 font-bold text-void shadow-sh-2"
                     >
                       <Icon name="plus" size={14} strokeWidth={2} />
                       Nouveau projet
@@ -683,7 +683,7 @@ export default function PublicProfilePage({
                 </div>
 
                 {publicRepos.failed && (
-                  <p className="font-mono text-[11.5px] text-chalk-4">
+                  <p className="font-mono text-12 text-chalk-4">
                     Liste indisponible : limite d&apos;appels GitHub atteinte.
                     {" "}
                     <a
@@ -698,7 +698,7 @@ export default function PublicProfilePage({
                 )}
 
                 {!publicRepos.failed && publicRepos.repos.length === 0 && (
-                  <p className="font-mono text-[11.5px] text-chalk-4">
+                  <p className="font-mono text-12 text-chalk-4">
                     Aucun dépôt public sur ce compte.
                   </p>
                 )}
@@ -720,7 +720,7 @@ export default function PublicProfilePage({
                               {repo.name}
                             </span>
                             {repo.description && (
-                              <span className="mt-0.5 line-clamp-2 block text-[11.5px]
+                              <span className="mt-0.5 line-clamp-2 block text-12
                                 leading-snug text-chalk-3">
                                 {repo.description}
                               </span>
@@ -728,7 +728,7 @@ export default function PublicProfilePage({
                           </span>
 
                           <span className="flex shrink-0 flex-col items-end gap-1
-                            font-mono text-[10.5px] text-chalk-4">
+                            font-mono text-12 text-chalk-4">
                             {repo.language && <span>{repo.language}</span>}
                             {repo.stargazers_count > 0 && (
                               <span className="tnum inline-flex items-center gap-1">

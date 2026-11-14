@@ -24,7 +24,7 @@ export default async function AdminSectionPage({
     <AppShell title={`Administration · ${moduleInfo.label}`} path={`~/admin/${section}`}>
       <AdminConsoleNav active={moduleInfo.key} />
       <header className="border-b border-line-2 px-(--gutter) py-5">
-        <p className="font-mono text-[11px] text-chalk-4">
+        <p className="font-mono text-12 text-chalk-4">
           {moduleInfo.priority} · {moduleInfo.status === "partiel" ? "Partiel" : "À instrumenter"}
         </p>
         <h1 className="mt-1 font-display text-[22px] font-semibold tracking-[-0.03em]">
@@ -54,10 +54,10 @@ export default async function AdminSectionPage({
           className="mx-(--gutter) my-5 border-l-2 border-line-3
             bg-surface-2 px-4 py-4"
         >
-          <h2 className="font-display text-[16px] font-semibold">
+          <h2 className="font-display text-base font-semibold">
             Données non disponibles
           </h2>
-          <p className="mt-2 max-w-prose text-[13px] leading-relaxed text-chalk-3">
+          <p className="mt-2 max-w-prose text-13 leading-relaxed text-chalk-3">
             {moduleInfo.reason}
           </p>
           <p className="mt-3 text-12 text-chalk-4">

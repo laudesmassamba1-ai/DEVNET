@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useRef,
+  useReducer,
   useState,
   type PointerEvent as ReactPointerEvent,
 } from "react";
@@ -15,6 +16,19 @@ import { usePrefersReducedMotion } from "./Motion";
 import type { StoryWithAuthor } from "@/lib/types";
 import { timeAgo } from "@/lib/utils";
 import { STORY_REPLY_MAX } from "@/modules/stories";
+import {
+  initialStoryPlayback,
+  storyPlaybackReducer,
+} from "@/lib/story-playback";
+import {
+  CLOSE_SWIPE_PX,
+  PAGE_SWIPE_PX,
+  QUICK_REACTIONS,
+  STORY_MS,
+  isVideoUrl,
+  storyTint,
+} from "@/lib/story-viewer";
+import { StoryStickerFace } from "./StoryStickerFace";
 import {
   fetchStoryFeed,
   fetchStoryViewers,
@@ -59,108 +73,9 @@ import {
  * elle reste un repère fixe, et la série avance au rythme prévu.
  */
 
-/**
- * Une URL de story pointe-t-elle vers une vidéo ?
- *
- * Le type du média en base ne suffit plus : une vidéo publiable (plus de
- * 3 Mo) vit sur le stockage objet et seule son URL est retenue. On la
- * reconnaît donc à son extension, avant tout autre test.
- */
-function isVideoUrl(url: string): boolean {
-  return /\.(mp4|webm|ogv|mov|m4v)(?:$|[?#])/i.test(url);
-}
-
-/** Durée d'affichage d'une story avant de passer à la suivante. */
-const STORY_MS = 7000;
-
-/**
- * Réactions rapides.
- *
- * Un emoji est envoyé comme une réponse privée — c'est exactement ce qu'il
- * est : un mot adressé à l'auteur, qui arrive dans la messagerie. Inventer
- * un second canal de réaction aurait créé deux endroits où lire la même
- * intention.
- */
-const QUICK_REACTIONS = ["🔥", "👏", "😂", "🙌", "💡"] as const;
-
-/** Le geste qui ferme : un glissement vertical franc, pas un frôlement. */
-const CLOSE_SWIPE_PX = 110;
-/** Le geste qui tourne la page : horizontal, et plus long que haut. */
-const PAGE_SWIPE_PX = 70;
-
 interface Feedback {
   kind: "ok" | "error";
   text: string;
-}
-
-/**
- * Un sticker, quelle que soit sa matière. Un glyphe du catalogue de la maison
- * garde ses jetons de couleur vides : il s'affiche comme avant, sans pastille.
- */
-function StickerFace({
-  kind,
-  glyph,
-  fg,
-  bg,
-  assetId,
-  size,
-}: {
-  kind: "texte" | "image" | "animé";
-  glyph: string;
-  fg: string;
-  bg: string;
-  assetId: string;
-  size: number;
-}) {
-  if (kind === "image") {
-    return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={`/api/stickers/${encodeURIComponent(assetId)}/asset`}
-        alt=""
-        width={size}
-        height={size}
-        loading="lazy"
-        className="rounded-[26%] object-cover"
-      />
-    );
-  }
-  return (
-    <span
-      aria-hidden
-      className="inline-flex items-center justify-center rounded-[26%]"
-      style={{
-        width: fg && bg ? size : undefined,
-        height: fg && bg ? size : undefined,
-        backgroundColor: fg && bg ? `var(--color-${bg})` : "transparent",
-        color: fg ? `var(--color-${fg})` : "inherit",
-        fontSize: size * 0.66,
-      }}
-    >
-      {glyph}
-    </span>
-  );
-}
-
-/**
- * Le fond d'un statut qui n'a que du texte.
- *
- * Les statuts exportés portent leur fond dans l'image ; ceux qui n'ont
- * que du texte — le seed de démonstration, les anciens — tombaient sur
- * un noir plat et une boîte grise derrière les mots. Une teinte tirée de
- * l'identifiant donne un fond stable (le même à chaque ouverture) sans
- * ajouter une colonne en base.
- */
-function storyTint(id: string): number {
-  // Seuls les fonds sombres : le texte d'un statut est blanc, et un
-  // dégradé clair le rendait illisible — deux fois invisible, une fois
-  // sur le fond, une fois sur le mot.
-  const dark = [1, 3, 5, 7];
-  let hash = 0;
-  for (let index = 0; index < id.length; index += 1) {
-    hash = (hash * 31 + id.charCodeAt(index)) % 997;
-  }
-  return dark[hash % dark.length];
 }
 
 export function StoryViewer({
@@ -177,8 +92,13 @@ export function StoryViewer({
   onDelete?: (id: string) => void;
 }) {
   const [index, setIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
-  const [hidden, setHidden] = useState(false);
+  const [playback, dispatchPlayback] = useReducer(
+    storyPlaybackReducer,
+    initialStoryPlayback,
+  );
+  const { paused, hidden, status: state } = playback;
+  const setPaused = (value: boolean) =>
+    dispatchPlayback({ type: value ? "pause" : "resume" });
   const [mediaDuration, setMediaDuration] = useState<number | null>(null);
   const [monte, setMonte] = useState(false);
 
@@ -199,7 +119,6 @@ export function StoryViewer({
   // glissement (tourner la page, fermer) d'un simple toucher.
   const swipeRef = useRef<{ x: number; y: number } | null>(null);
   const [placed, setPlaced] = useState<Record<string, PlacedSticker[]>>({});
-  const [state, setState] = useState<"loading" | "ready" | "unavailable">("loading");
 
   // Composeur de réponse.
   const [replyOpen, setReplyOpen] = useState(false);
@@ -282,7 +201,7 @@ export function StoryViewer({
       .then((feed) => {
         if (!alive) return;
         if (!feed) {
-          setState("unavailable");
+          dispatchPlayback({ type: "unavailable" });
           return;
         }
         setCatalog(feed.catalog);
@@ -299,10 +218,10 @@ export function StoryViewer({
         setPlaced(
           Object.fromEntries(feed.stories.map((s) => [s.id, s.stickers] as const)),
         );
-        setState("ready");
+        dispatchPlayback({ type: "loaded" });
       })
       .catch(() => {
-        if (alive) setState("unavailable");
+        if (alive) dispatchPlayback({ type: "unavailable" });
       });
     return () => {
       alive = false;
@@ -316,8 +235,6 @@ export function StoryViewer({
     const storyId = current?.id;
     if (!storyId) return;
     let alive = true;
-    setViewers(null);
-    setViewersFailed(false);
     fetchStoryViewers(storyId).then((list) => {
       if (!alive) return;
       if (list === null) {
@@ -371,12 +288,9 @@ export function StoryViewer({
   }, [replyOpen]);
 
   useEffect(() => {
-    setMediaDuration(null);
-  }, [current?.id]);
-
-  useEffect(() => {
     if (typeof document === "undefined") return;
-    const sync = () => setHidden(document.hidden);
+    const sync = () =>
+      dispatchPlayback({ type: "visibility", hidden: document.hidden });
     sync();
     document.addEventListener("visibilitychange", sync);
     return () => document.removeEventListener("visibilitychange", sync);
@@ -417,7 +331,7 @@ export function StoryViewer({
       if (event.key === "ArrowLeft" && !replyOpen) prev();
       if (event.key === " " && !replyOpen) {
         event.preventDefault();
-        setPaused((value) => !value);
+        dispatchPlayback({ type: "toggle-pause" });
       }
     };
     window.addEventListener("keydown", onKey);
@@ -780,16 +694,16 @@ export function StoryViewer({
           name={author?.prenom}
           color={author?.avatar_color}
           src={author?.avatar_url}
-          className="size-[34px] border border-line-2/70 text-[13px]"
+          className="size-[34px] border border-line-2/70 text-13"
         />
         <div className="min-w-0 flex-1">
-          <div className="text-[13px] font-bold text-chalk">
+          <div className="text-13 font-bold text-chalk">
             {author?.prenom ?? "Quelqu'un"}
-            <span className="ml-1.5 font-mono text-[11.5px] font-normal text-chalk/60">
+            <span className="ml-1.5 font-mono text-12 font-normal text-chalk/60">
               @{author?.pseudo ?? ""}
             </span>
           </div>
-          <div className="text-[11px] text-chalk/60">{timeAgo(current.created_at)}</div>
+          <div className="text-12 text-chalk/60">{timeAgo(current.created_at)}</div>
         </div>
 
         {isMine && count > 0 && (
@@ -805,7 +719,11 @@ export function StoryViewer({
         {isMine && (
           <button
             type="button"
-            onClick={() => setViewersOpen(true)}
+            onClick={() => {
+              setViewers(null);
+              setViewersFailed(false);
+              setViewersOpen(true);
+            }}
             aria-label="Voir qui a regardé ce statut"
             title="Qui a vu"
             className="story-control mr-1 flex h-11 items-center gap-1.5 px-2.5
@@ -991,7 +909,7 @@ export function StoryViewer({
                           outlineStyle: selected === sticker.id ? "solid" : "none",
                         }}
                       >
-                        <StickerFace
+                        <StoryStickerFace
                           kind={sticker.kind}
                           glyph={sticker.glyph}
                           fg={sticker.fg}
@@ -1026,7 +944,7 @@ export function StoryViewer({
                         transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
                       }}
                     >
-                      <StickerFace
+                      <StoryStickerFace
                         kind={sticker.kind}
                         glyph={sticker.glyph}
                         fg={sticker.fg}
@@ -1136,7 +1054,7 @@ export function StoryViewer({
                   <li key={viewer.id} className="flex items-center gap-2.5 py-1.5">
                     <Avatar name={viewer.prenom} color={viewer.avatar_color} className="size-8 text-12" />
                     <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[13px] font-semibold text-chalk">
+                      <span className="block truncate text-13 font-semibold text-chalk">
                         {viewer.prenom}
                       </span>
                       <span className="block truncate font-mono text-12 text-chalk/60">
@@ -1174,13 +1092,13 @@ export function StoryViewer({
               autoFocus
               placeholder="Répondre en privé…"
               className="min-w-0 flex-1 rounded-(--radius-input) border border-line-2
-                bg-surface px-3 py-2 text-[16px] text-chalk placeholder:text-chalk-4"
+                bg-surface px-3 py-2 text-base text-chalk placeholder:text-chalk-4"
             />
             <button
               type="submit"
               disabled={sending || draft.trim().length === 0}
               className="flex h-11 items-center rounded-(--radius-input) bg-signal px-3
-                text-[13px] font-bold text-void disabled:opacity-50"
+                text-13 font-bold text-void disabled:opacity-50"
             >
               {sending ? "Envoi…" : "Envoyer"}
             </button>
@@ -1233,7 +1151,7 @@ export function StoryViewer({
                     className="flex h-11 items-center justify-center rounded-(--radius-chip)
                       text-[22px] hover:bg-surface-2"
                   >
-                    <StickerFace
+                    <StoryStickerFace
                       kind={sticker.kind}
                       glyph={sticker.glyph}
                       fg={sticker.fg}
@@ -1281,7 +1199,7 @@ export function StoryViewer({
                     setReplyOpen(true);
                   }}
                   className="story-control flex h-11 flex-1 items-center gap-2 px-3
-                    text-[13px] text-chalk/70"
+                    text-13 text-chalk/70"
                 >
                   <SectionIcon name="reply" size={15} />
                   Répondre en privé…

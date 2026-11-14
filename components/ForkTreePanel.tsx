@@ -116,7 +116,7 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
             <Icon name={asEmoji(parent.emoji)} size={12} className="shrink-0 text-chalk-3" />
             <span className="min-w-0 flex-1">
               <span className="label-micro block text-chalk-3">forké de</span>
-              <span className="block truncate text-[13px] font-bold text-chalk">{parent.name}</span>
+              <span className="block truncate text-13 font-bold text-chalk">{parent.name}</span>
             </span>
             <Icon name="chevron-right" size={11} strokeWidth={2} className="shrink-0 text-chalk-4" />
           </button>
@@ -147,7 +147,7 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
                       <Icon name={asEmoji(c.emoji)} size={9} />
                     </span>
                     <span className="min-w-0 flex-1 truncate text-sm font-bold">{c.name}</span>
-                    <span className="shrink-0 font-mono text-[10px] text-chalk-4">{timeAgo(c.created_at)}</span>
+                    <span className="shrink-0 font-mono text-12 text-chalk-4">{timeAgo(c.created_at)}</span>
                   </button>
                 </li>
               ))}

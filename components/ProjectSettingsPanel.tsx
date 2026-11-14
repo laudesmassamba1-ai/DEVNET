@@ -82,7 +82,7 @@ const EMOJI_CHOICES = [
 
 const inputCls =
   "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 " +
-  "bg-surface px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4";
+  "bg-surface px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4";
 const labelCls = "label mb-1.5 block text-chalk";
 
 export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDeleted }: Props) {
@@ -251,7 +251,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
             rows={3}
             placeholder="En une phrase, ce que fait le projet."
             className="w-full rounded-(--radius-input) border border-line-3 bg-surface
-              px-3.5 py-3 text-[14px] shadow-sh-1 placeholder:text-chalk-4"
+              px-3.5 py-3 text-14 shadow-sh-1 placeholder:text-chalk-4"
           />
         </div>
 
@@ -304,7 +304,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
               </button>
             ))}
           </div>
-          <p className="mt-1.5 text-[11.5px] text-chalk-4">{stageSpec(stage).hint}</p>
+          <p className="mt-1.5 text-12 text-chalk-4">{stageSpec(stage).hint}</p>
         </div>
 
         {/* ── Recherche de coéquipiers ── */}
@@ -325,7 +325,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                   ${seeking ? "left-[22px]" : "left-0.5"}`}
               />
             </button>
-            <span className="text-[13px] text-chalk">
+            <span className="text-13 text-chalk">
               Ce projet cherche des coéquipiers
             </span>
           </label>
@@ -341,7 +341,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                     onClick={() => setDemandLanguages((cur) => toggle(cur, l))}
                     aria-pressed={demandLanguages.includes(l)}
                     className={`mo-press rounded-(--radius-chip) border px-2.5 py-1
-                      font-mono text-[11.5px] transition-colors ${
+                      font-mono text-12 transition-colors ${
                         demandLanguages.includes(l)
                           ? "border-signal text-signal"
                           : "border-line-3 text-chalk-3 hover:text-chalk"
@@ -414,10 +414,10 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                 >
                   <Avatar name={m.prenom} color={m.avatar_color} size="sm" />
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[13px] font-bold text-chalk">
+                    <p className="truncate text-13 font-bold text-chalk">
                       {m.prenom} {isMe && <span className="text-chalk-4">(toi)</span>}
                     </p>
-                    <p className="truncate font-mono text-[11px] text-chalk-4">@{m.pseudo}</p>
+                    <p className="truncate font-mono text-12 text-chalk-4">@{m.pseudo}</p>
                   </div>
 
                   {canAdmin && !locked ? (
@@ -464,7 +464,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                       onClick={() => void removeMember(m)}
                       disabled={busy === m.user_id}
                       className="mo-press rounded-(--radius-chip) border border-line-3 px-2.5 py-1
-                        font-mono text-[10.5px] font-bold uppercase tracking-[0.12em]
+                        font-mono text-12 font-bold uppercase tracking-[0.12em]
                         text-chalk-3 transition-colors hover:text-danger disabled:opacity-40"
                     >
                       quitter
@@ -502,7 +502,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                 {inviting ? "…" : "Ajouter"}
               </button>
             </div>
-            <p className="mt-1.5 text-[11.5px] text-chalk-4">
+            <p className="mt-1.5 text-12 text-chalk-4">
               Le membre rejoint en tant qu&apos;éditeur ; tu règles son rôle ensuite.
             </p>
           </div>

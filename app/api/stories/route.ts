@@ -23,9 +23,23 @@ const NO_STORE = { "Cache-Control": "no-store" };
 const UNAVAILABLE = () =>
   NextResponse.json({ error: "stories indisponibles" }, { status: 503, headers: NO_STORE });
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
-    const feed = await getServerStoriesRepository().fetchFeed(await currentUserId());
+    const before = request.nextUrl.searchParams.get("before");
+    const beforeId = request.nextUrl.searchParams.get("beforeId");
+    if ((before && !beforeId) || (!before && beforeId)) {
+      return NextResponse.json(
+        { error: "curseur incomplet" },
+        { status: 400, headers: NO_STORE },
+      );
+    }
+    if (before && Number.isNaN(Date.parse(before))) {
+      return NextResponse.json({ error: "curseur invalide" }, { status: 400, headers: NO_STORE });
+    }
+    const feed = await getServerStoriesRepository().fetchFeed(
+      await currentUserId(),
+      before && beforeId ? { createdAt: before, id: beforeId } : null,
+    );
     return NextResponse.json(feed, { headers: NO_STORE });
   } catch (error) {
     if (error instanceof StoriesRepositoryError) {

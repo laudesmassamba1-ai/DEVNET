@@ -7,8 +7,8 @@ import { avatarClass, initials } from "@/lib/utils";
 import type { AvatarColor } from "@/lib/types";
 
 const SIZE = {
-  sm: "size-[34px] text-[13px]",
-  md: "size-[42px] text-[15px]",
+  sm: "size-[34px] text-13",
+  md: "size-[42px] text-15",
   lg: "size-[72px] text-[26px] border-(--bw-heavy)",
 } as const;
 
@@ -111,7 +111,7 @@ export function EmptyState({
         </h3>
 
         {hint && (
-          <p className="max-w-[300px] break-words font-mono text-[11.5px]
+          <p className="max-w-[300px] break-words font-mono text-12
             leading-[1.75] text-chalk-3">
             <span className="text-chalk-4"># </span>
             {hint}

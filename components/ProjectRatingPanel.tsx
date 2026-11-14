@@ -121,8 +121,8 @@ export function ProjectRatingPanel({
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="flex min-w-0 items-center gap-2">
           <Icon name="star" size={14} className="shrink-0 text-signal" />
-          <span className="tnum text-[15px] font-bold text-chalk">{note}</span>
-          <span className="text-[11.5px] text-chalk-3">
+          <span className="tnum text-15 font-bold text-chalk">{note}</span>
+          <span className="text-12 text-chalk-3">
             {rating?.votes
               ? `${rating.votes} vote${rating.votes > 1 ? "s" : ""}`
               : "pas encore noté"}
@@ -154,7 +154,7 @@ export function ProjectRatingPanel({
           onClick={() => void doFork()}
           disabled={forking || !me}
           className="mo-press ml-auto inline-flex items-center gap-1.5 rounded-(--radius-chip)
-            border border-signal bg-signal/10 px-3 py-2 font-mono text-[11px] font-bold
+            border border-signal bg-signal/10 px-3 py-2 font-mono text-12 font-bold
             uppercase tracking-[0.12em] text-signal transition-colors
             disabled:opacity-40"
           title={isOwner ? "Forker votre propre projet" : `Forker ${project.name} (branche ${branch})`}

@@ -83,7 +83,7 @@ export function ScoreTrajectory({
       {/* L'axe n'est pas évident : la courbe se lit dans l'ordre de la
           dernière activité, pas dans l'ordre où les projets ont été créés.
           Sans cette phrase, la vignette se lirait comme une chronologie. */}
-      <div className="mt-1 flex items-baseline justify-between font-mono text-[10px] text-chalk-4">
+      <div className="mt-1 flex items-baseline justify-between font-mono text-12 text-chalk-4">
         <span className="tnum">{stats.min}</span>
         <span>du dépôt le plus ancien au plus récent</span>
         <span className="tnum">{stats.max}</span>
