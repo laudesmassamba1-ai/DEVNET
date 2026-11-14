@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Icon } from "./Icon";
 
 /**
  * DevStoryVideo — la pub DevNet rendue par le pipeline Blender
@@ -8,31 +9,32 @@ import { useEffect, useRef, useState } from "react";
  *
  * Le film raconte : un dev tape, un bug apparaît, il le photographie,
  * publie sur DevNet, l'aide arrive en commentaires, il corrige.
- * Dix secondes, muet, une lecture — pas de boucle : une pub qui tourne
- * en rond fatigue, et le bouton « rejouer » est là pour la reprise.
+ * Dix secondes, muet, une lecture — pas de boucle.
  *
- * Garde-fous du contrat d'expérience :
- * - l'attribut `muted` est posé **dans le DOM au montage** (ref) : React
- *   ne le sérialise pas (défaut connu), et iOS n'autorise l'autoplay
- *   que si l'attribut existe quand la source est évaluée — sans lui,
- *   la lecture ne démarre jamais ;
- * - `playsInline` : iOS lit en ligne, jamais en plein écran volé ;
- * - une relance explicite à `canplay` : si la politique du navigateur
- *   a écarté l'autoplay, on tente `play()` une fois — et si elle est
- *   refusée, le bouton `❯` prend la relève (l'échec est assumé, pas
- *   un faux départ) ;
- * - `prefers-reduced-motion` : pas de lecture automatique — l'affiche
- *   (pose finale du film) tient la place, le clic est la gâchette.
+ * La lecture est **infaillible par conception** : l'autoplay est tenté
+ * à chaque occasion (montage, metadata, données prêtes) — et quoi
+ * qu'il arrive, l'affiche porte une **gâchette gestuelle géante**
+ * (tap n'importe où) qui lance toujours le film, car un `play()` parti
+ * d'un geste n'est jamais refusé par une politique d'autoplay. C'est
+ * ce qui garantit Opera (bloqueur intégré, réglages stricts) comme
+ * iOS : l'échec d'autoplay n'est jamais un faux départ silencieux.
+ *
+ * Attributs iOS posés à la main dans le DOM : React ne sérialise pas
+ * `muted` (l'autoplay iOS exige l'ATTRIBUT), et les WebViews iOS
+ * anciennes veulent `webkit-playsinline`. Sous
+ * `prefers-reduced-motion`, pas de lecture automatique : l'affiche
+ * (pose finale du film) tient la place, le tap est la gâchette.
  */
 
 const VIDEO_SRC = "/motion/devnet-story.mp4";
 const POSTER_SRC = "/motion/devnet-story-poster.png";
 
+type Phase = "poster" | "playing" | "ended";
+
 export function DevStoryVideo({ className = "" }: { className?: string }) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const [reduced, setReduced] = useState(false);
-  const [ended, setEnded] = useState(false);
-  const [blocked, setBlocked] = useState(false);
+  const [phase, setPhase] = useState<Phase>("poster");
 
   useEffect(() => {
     if (typeof window.matchMedia !== "function") return;
@@ -44,69 +46,96 @@ export function DevStoryVideo({ className = "" }: { className?: string }) {
     return () => query.removeEventListener("change", onChange);
   }, []);
 
-  /** Le muted passe par le ref AVANT la première évaluation de la
-      source : React ne sérialise pas l'attribut (défaut connu), et iOS
-      n'autorise l'autoplay que si l'ATTRIBUT existe dans le HTML — la
-      propriété seule ne suffit pas. On force donc les deux. */
-  const attach = (el: HTMLVideoElement | null) => {
+  /** Attributs iOS : muted doit être un ATTRIBUT (React ne le
+      sérialise pas) et webkit-playsinline complète playsinline pour
+      les WebViews anciennes. Posés au montage, avant toute évaluation
+      de la source. */
+  const attach = useCallback((el: HTMLVideoElement | null) => {
     videoRef.current = el;
-    if (el) {
-      el.muted = true;
-      el.setAttribute("muted", "");
-    }
-  };
+    if (!el) return;
+    el.muted = true;
+    el.setAttribute("muted", "");
+    el.setAttribute("playsinline", "");
+    el.setAttribute("webkit-playsinline", "");
+  }, []);
 
-  function start() {
+  const start = useCallback(() => {
+    videoRef.current?.play().catch(() => {
+      /* la politique a refusé l'autoplay : l'affiche et le tap restent —
+         un refus n'est jamais un faux départ silencieux */
+    });
+  }, []);
+
+  /* Tentatives d'autoplay : montage, metadata prête, données prêtes.
+     No-op si la lecture a déjà démarré ou si le mouvement est réduit. */
+  useEffect(() => {
+    if (reduced) return;
     const video = videoRef.current;
     if (!video) return;
-    video.currentTime = 0;
-    setEnded(false);
-    video.play().catch(() => setBlocked(true));
+    start();
+    const onReady = () => {
+      if (video.paused) start();
+    };
+    video.addEventListener("loadeddata", onReady);
+    video.addEventListener("canplay", onReady);
+    return () => {
+      video.removeEventListener("loadeddata", onReady);
+      video.removeEventListener("canplay", onReady);
+    };
+  }, [reduced, start]);
+
+  function tap() {
+    const video = videoRef.current;
+    if (!video) return;
+    if (phase === "ended") {
+      video.currentTime = 0;
+      setPhase("poster");
+    }
+    start();
   }
 
   return (
     <div className={`flex flex-col items-center gap-2 ${className}`}>
-      <video
-        ref={attach}
-        src={VIDEO_SRC}
-        poster={POSTER_SRC}
-        muted
-        playsInline
-        autoPlay={!reduced}
-        preload="auto"
-        onCanPlay={() => {
-          const video = videoRef.current;
-          if (!video || reduced || !video.autoplay) return;
-          if (video.paused && video.currentTime === 0) {
-            video.play().catch(() => setBlocked(true));
-          }
-        }}
-        onEnded={() => setEnded(true)}
-        className="w-full rounded-(--radius-card) border border-line-2 bg-surface"
-        aria-label="Un développeur photographie un bug, publie sur DevNet en demandant de l'aide, et l'aide arrive en commentaires jusqu'au fix."
-      />
       <button
         type="button"
-        onClick={start}
-        className={`mo-press flex min-h-(--h-tap) items-center gap-2 rounded-(--radius-input)
-          border px-4 font-mono text-12 font-bold transition-colors
-          ${blocked || reduced
-            ? "border-signal text-signal"
-            : "border-line-2 text-chalk-2 hover:border-signal hover:text-signal"}`}
+        onClick={tap}
+        aria-label="Lire le film : un développeur photographie un bug, publie sur DevNet en demandant de l'aide, et l'aide arrive jusqu'au fix"
+        className="relative block w-full overflow-hidden rounded-(--radius-card)
+          border border-line-2 bg-surface text-left"
+        data-tour="devnet-story"
       >
-        <span aria-hidden>❯</span>
-        {reduced ? "lire le film" : blocked ? "lire la vidéo" : "rejouer"}
+        <video
+          ref={attach}
+          src={VIDEO_SRC}
+          poster={POSTER_SRC}
+          muted
+          playsInline
+          preload="auto"
+          onPlay={() => setPhase("playing")}
+          onEnded={() => setPhase("ended")}
+          className="block w-full"
+        />
+        {/* La gâchette : sur l'affiche (en attente) ou à la fin
+            (rejouer) — un tap n'importe où lance toujours le film. */}
+        {phase !== "playing" ? (
+          <span
+            aria-hidden
+            className="absolute inset-0 flex items-end justify-center
+              bg-gradient-to-t from-void/70 via-transparent to-void/20 pb-3"
+          >
+            <span className="mo-press mr-3 flex size-16 -translate-y-1 items-center justify-center
+              rounded-full bg-signal text-void shadow-(--shadow-sh-2)">
+              <Icon name={phase === "ended" ? "refresh" : "play"} size={24} strokeWidth={2.2} />
+            </span>
+            <span className="flex -translate-y-1 items-center rounded-(--radius-chip)
+              bg-void/70 px-3 py-1 font-mono text-12 font-bold text-chalk">
+              {phase === "ended"
+                ? "rejouer — c'est ça, DevNet"
+                : "ton bug, ta preuve, ton réseau"}
+            </span>
+          </span>
+        ) : null}
       </button>
-      {reduced ? (
-        <span className="sr-only">
-          Le film est en pause ; appuie sur « lire le film » pour le lancer.
-        </span>
-      ) : null}
-      {ended ? (
-        <span className="font-mono text-12 text-chalk-4">
-          C&apos;est ça, DevNet — ton bug, ta preuve, ton réseau.
-        </span>
-      ) : null}
     </div>
   );
 }
