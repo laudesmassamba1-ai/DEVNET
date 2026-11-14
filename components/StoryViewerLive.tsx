@@ -694,7 +694,7 @@ export function StoryViewer({
           name={author?.prenom}
           color={author?.avatar_color}
           src={author?.avatar_url}
-          className="size-[34px] border border-line-2/70 text-13"
+          className="size-8.5 border border-line-2/70 text-13"
         />
         <div className="min-w-0 flex-1">
           <div className="text-13 font-bold text-chalk">
@@ -782,15 +782,21 @@ export function StoryViewer({
             onPointerCancel={() => {
               swipeRef.current = null;
             }}
-            onClick={(event) => {
-              if (!placing) return;
-              const rect = event.currentTarget.getBoundingClientRect();
-              if (rect.width === 0 || rect.height === 0) return;
-              const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
-              const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
-              void place(placing, x, y);
-            }}
           >
+            {placing ? (
+              <button
+                type="button"
+                aria-label={`Placer ${placing.name}`}
+                onClick={(event) => {
+                  const rect = event.currentTarget.getBoundingClientRect();
+                  if (rect.width === 0 || rect.height === 0) return;
+                  const x = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+                  const y = Math.min(1, Math.max(0, (event.clientY - rect.top) / rect.height));
+                  void place(placing, x, y);
+                }}
+                className="absolute inset-0 z-10 cursor-crosshair bg-transparent"
+              />
+            ) : null}
             <div className="story-frame relative flex h-full min-h-0 flex-col overflow-hidden bg-void">
 
               {mediaById[current.id]?.mime.startsWith("video/") ? (
@@ -1017,7 +1023,7 @@ export function StoryViewer({
             role="dialog"
             aria-modal="true"
             aria-label="Personnes ayant vu ce statut"
-            className="story-tray relative mx-auto max-h-[70%] min-h-[132px] w-full
+            className="story-tray relative mx-auto max-h-[70%] min-h-33 w-full
               max-w-[440px] overflow-y-auto rounded-t-(--radius-card) p-3
               pb-[max(12px,var(--h-safe-bottom))] sm:rounded-(--radius-card)"
           >
@@ -1089,7 +1095,6 @@ export function StoryViewer({
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               maxLength={STORY_REPLY_MAX}
-              autoFocus
               placeholder="Répondre en privé…"
               className="min-w-0 flex-1 rounded-(--radius-input) border border-line-2
                 bg-surface px-3 py-2 text-base text-chalk placeholder:text-chalk-4"

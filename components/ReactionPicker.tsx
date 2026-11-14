@@ -124,7 +124,7 @@ export function ReactionPicker({
                   onPick(chosen ? null : r.emoji);
                   setOpen(false);
                 }}
-                className={`mo-press flex size-[30px] items-center justify-center
+                className={`mo-press flex size-7.5 items-center justify-center
                   rounded-full text-[17px] leading-none
                   transition-[background-color,transform,box-shadow] duration-(--d-fast)
                   hover:scale-115 hover:-translate-y-0.5

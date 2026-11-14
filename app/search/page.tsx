@@ -12,6 +12,7 @@ import { PostCard } from "@/components/PostCard";
 import { PostOwnerTools } from "@/components/PostOwnerTools";
 import { useSession } from "@/hooks/useSession";
 import { usePostActions } from "@/hooks/usePostActions";
+import { focusOnMount } from "@/lib/focus-on-mount";
 import { fetchLikedPostIds } from "@/lib/social";
 import { postsByTag, searchPeople, searchPosts, searchTags } from "@/lib/search";
 import type { PostWithAuthor, UserLite } from "@/lib/types";
@@ -234,7 +235,7 @@ function SearchScreen() {
               placeholder="pseudo, idée, #hashtag…"
               aria-label="Rechercher"
               data-tour="search-input"
-              autoFocus
+              ref={focusOnMount}
               className="h-(--h-tap) w-full rounded-(--radius-input) border
                 border-line-3 bg-surface pr-10 pl-8 text-14 shadow-sh-1
                 transition-[transform,box-shadow] duration-(--d-base)

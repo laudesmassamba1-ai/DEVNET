@@ -315,13 +315,13 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
               role="switch"
               aria-checked={seeking}
               onClick={() => setSeeking((v) => !v)}
-              className={`mo-press relative h-[26px] w-[46px] shrink-0 rounded-(--radius-chip)
+              className={`mo-press relative h-6.5 w-11.5 shrink-0 rounded-(--radius-chip)
                 border transition-colors ${
                   seeking ? "border-signal bg-signal/30" : "border-line-3 bg-surface-2"
                 }`}
             >
               <span
-                className={`absolute top-0.5 size-[20px] rounded-full bg-chalk transition-all
+                className={`absolute top-0.5 size-5 rounded-full bg-chalk transition-all
                   ${seeking ? "left-[22px]" : "left-0.5"}`}
               />
             </button>
@@ -427,7 +427,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                       onChange={(e) => void changeRole(m, e.target.value as ProjectRole)}
                       aria-label={`Rôle de ${m.prenom}`}
                       title={ROLE_HINTS[m.role as ProjectRole] ?? ""}
-                      className="h-[34px] cursor-pointer rounded-(--radius-input)
+                      className="h-8.5 cursor-pointer rounded-(--radius-input)
                         border border-line-3 bg-surface px-2 text-sm text-chalk-2"
                     >
                       {(["maintainer", "editor", "viewer"] as ProjectRole[]).map((r) => (
@@ -451,7 +451,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                       onClick={() => void removeMember(m)}
                       disabled={busy === m.user_id}
                       aria-label={`Retirer ${m.prenom}`}
-                      className="mo-press grid size-[34px] place-items-center rounded-(--radius-chip)
+                      className="mo-press grid size-8.5 place-items-center rounded-(--radius-chip)
                         text-chalk-4 transition-colors hover:text-danger disabled:opacity-40"
                     >
                       <Icon name="trash" size={14} />

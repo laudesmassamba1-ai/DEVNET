@@ -87,7 +87,7 @@ function LevelCard({ stats }: { stats: ProgressStats }) {
             {level.next ? `${level.toNext} pts restants` : `${pct}%`}
           </span>
         </div>
-        <div className="h-[10px] w-full border border-line-2/30 bg-void/10">
+        <div className="h-2.5 w-full border border-line-2/30 bg-void/10">
           <div
             className="mo-grow h-full bg-gradient-to-r from-level to-ok transition-[width] duration-500"
             style={{
@@ -130,7 +130,7 @@ function StreakCard({ stats }: { stats: ProgressStats }) {
     <section className="rounded-(--radius-card) border border-line-3 bg-surface p-4 depth-card">
       <header className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <span className={`flex size-[42px] items-center justify-center border
+          <span className={`flex size-10.5 items-center justify-center border
             ${streak.current > 0 ? "border-signal bg-signal/12 text-signal" : "border-line-2 text-chalk-4"}`}>
             <Icon name="flame" size={20} strokeWidth={1.8}
               fill={streak.current > 0 ? "currentColor" : "none"} />
@@ -180,7 +180,7 @@ function StreakCard({ stats }: { stats: ProgressStats }) {
           <span
             key={d.day}
             title={d.label}
-            className={`h-[22px] flex-1 border ${
+            className={`h-5.5 flex-1 border ${
               d.active
                 ? "border-signal bg-signal"
                 : d.frozen
@@ -257,7 +257,7 @@ function BadgeCard({ stats }: { stats: ProgressStats }) {
               ${b.earned ? "border-line-3 bg-surface-2" : "border-line bg-surface-2/40"}
               ${selectedId === b.id ? "ring-1 ring-signal/60" : ""}`}
           >
-            <span className={`flex size-[34px] items-center justify-center border
+            <span className={`flex size-8.5 items-center justify-center border
               ${b.earned ? "earn-box border-transparent" : "border-line-2 text-chalk-4"}`}>
               <Icon name={b.icon} size={16} strokeWidth={b.earned ? 2.2 : 1.9} />
             </span>
@@ -346,14 +346,14 @@ function LeaderboardCard({ rows }: { rows: LeaderEntry[] }) {
             <li key={r.id}
               className={`flex items-center gap-3 border-b border-line py-2 last:border-0
                 ${r.me ? "-mx-2 bg-signal/8 px-2" : ""}`}>
-              <span className={`label-micro w-[16px] ${r.rank <= 3 ? "text-signal" : "text-chalk-4"}`}>
+              <span className={`label-micro w-4 ${r.rank <= 3 ? "text-signal" : "text-chalk-4"}`}>
                 {r.rank}
               </span>
 
               <Avatar
                 name={r.prenom}
                 color={r.avatarColor}
-                className="size-[26px] border-(--bw-thin) text-12"
+                className="size-6.5 border-(--bw-thin) text-12"
               />
 
               <span className="min-w-0 flex-1">

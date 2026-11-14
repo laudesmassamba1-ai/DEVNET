@@ -7,9 +7,9 @@ import { avatarClass, initials } from "@/lib/utils";
 import type { AvatarColor } from "@/lib/types";
 
 const SIZE = {
-  sm: "size-[34px] text-13",
-  md: "size-[42px] text-15",
-  lg: "size-[72px] text-[26px] border-(--bw-heavy)",
+  sm: "size-8.5 text-13",
+  md: "size-10.5 text-15",
+  lg: "size-18 text-[26px] border-(--bw-heavy)",
 } as const;
 
 export function Avatar({
@@ -97,7 +97,7 @@ export function EmptyState({
       </div>
 
       <div className="flex flex-col items-center gap-3 px-7 py-8 text-center">
-        <div className="flex size-[46px] items-center justify-center rounded-(--radius-input) border
+        <div className="flex size-11.5 items-center justify-center rounded-(--radius-input) border
           border-line-2 bg-surface-2 text-chalk-3">
           {icon ?? (
             <span className="font-mono text-[1.1rem] font-bold leading-none text-signal"

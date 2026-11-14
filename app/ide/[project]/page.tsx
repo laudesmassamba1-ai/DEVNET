@@ -632,7 +632,7 @@ export default function IdePage() {
     >
       <div className="flex h-full flex-col">
         {/* ── Barre d’onglets ── */}
-        <div className="flex h-[38px] items-center gap-1 border-b border-line-3 bg-surface-2/60 px-2">
+        <div className="flex h-9.5 items-center gap-1 border-b border-line-3 bg-surface-2/60 px-2">
           {openTabs.length === 0 && (
             <span className="px-2 font-mono text-12 text-chalk-4">
               Aucun fichier ouvert
@@ -642,41 +642,44 @@ export default function IdePage() {
             const saved = (files ?? []).find((f) => f.path === p)?.content ?? "";
             const changed = drafts[p] !== undefined && drafts[p] !== saved;
             return (
-              <button
+              <div
                 key={p}
-                type="button"
-                onClick={() => setOpen(p)}
-                className={`flex max-w-[220px] items-center gap-1.5 rounded-t-(--radius-chip) border-x border-t px-2.5 py-1 font-mono text-12 transition-colors
+                className={`flex max-w-[220px] items-center rounded-t-(--radius-chip) border-x border-t px-2.5 py-1 font-mono text-12 transition-colors
                   ${
                     open === p
                       ? "border-line-3 bg-surface text-chalk"
                       : "border-transparent bg-surface-2/40 text-chalk-3 hover:bg-surface-2/80"
                   }`}
               >
-                {changed && (
-                  <span
-                    className="size-1.5 shrink-0 rounded-full bg-signal"
-                    title="Modifications non enregistrées"
-                  />
-                )}
-                <span className="truncate">{p}</span>
-                <span
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    closeTab(p);
-                  }}
-                  className="flex h-4 w-4 items-center justify-center rounded-full text-chalk-4 hover:bg-surface-2 hover:text-chalk"
+                <button
+                  type="button"
+                  onClick={() => setOpen(p)}
+                  className="flex min-w-0 items-center gap-1.5"
+                >
+                  {changed && (
+                    <span
+                      className="size-1.5 shrink-0 rounded-full bg-signal"
+                      title="Modifications non enregistrées"
+                    />
+                  )}
+                  <span className="truncate">{p}</span>
+                </button>
+                <button
+                  type="button"
+                  aria-label={`Fermer ${p}`}
+                  onClick={() => closeTab(p)}
+                  className="ml-1.5 flex size-4 shrink-0 items-center justify-center rounded-full text-chalk-4 hover:bg-surface-2 hover:text-chalk"
                 >
                   <Icon name="close" size={9} />
-                </span>
-              </button>
+                </button>
+              </div>
             );
           })}
         </div>
 
         <div className="flex min-h-0 flex-1">
           {/* ── Arborescence ── */}
-          <aside className="flex w-[260px] shrink-0 flex-col border-r border-line-3 bg-surface-2/40">
+          <aside className="flex w-65 shrink-0 flex-col border-r border-line-3 bg-surface-2/40">
             <div className="flex items-center justify-between border-b border-line-3 px-2.5 py-2">
               <span className="label-micro text-chalk-3">Fichiers</span>
               <span className="flex items-center gap-1.5">
@@ -688,7 +691,7 @@ export default function IdePage() {
                   onClick={() => setCreatingFile(true)}
                   aria-label="Créer un fichier"
                   title="Créer un fichier"
-                  className="mo-press inline-flex size-[26px] items-center justify-center rounded-(--radius-chip) border border-line-3 text-chalk-3 hover:border-signal hover:text-signal"
+                  className="mo-press inline-flex size-6.5 items-center justify-center rounded-(--radius-chip) border border-line-3 text-chalk-3 hover:border-signal hover:text-signal"
                 >
                   <Icon name="plus" size={11} strokeWidth={2} />
                 </button>
@@ -870,7 +873,7 @@ export default function IdePage() {
 
           {/* ── Fil d'équipe ── */}
           {chatOpen && (
-            <aside className="flex w-[300px] shrink-0 flex-col border-l border-line-3 bg-surface-2/40">
+            <aside className="flex w-75 shrink-0 flex-col border-l border-line-3 bg-surface-2/40">
               <TeamChat messages={messages} onSend={sendChat} />
             </aside>
           )}

@@ -59,7 +59,7 @@ const Monaco = dynamic(
     ssr: false,
     loading: () => (
       <Box>
-        <div className="flex min-h-[120px] items-center justify-center">
+        <div className="flex min-h-30 items-center justify-center">
           <LoadingLogo size="md" ariaLabel="Chargement de l'éditeur de code" />
         </div>
       </Box>
@@ -297,7 +297,7 @@ export function MonacoCodeEditor({
   if (engine === "pending") {
     return (
       <Box fill={fill}>
-        <div className={`flex items-center justify-center ${fill ? "h-full" : "min-h-[120px]"}`}>
+        <div className={`flex items-center justify-center ${fill ? "h-full" : "min-h-30"}`}>
           {/* Le logo en boucle EST le message : aucun « Chargement… »
               visible, l'information reste au lecteur d'écran. */}
           <LoadingLogo size="md" ariaLabel="Chargement de l'éditeur de code" />
@@ -449,7 +449,7 @@ function Box({ children, fill = false }: { children: React.ReactNode; fill?: boo
         px-4 py-6 font-mono text-12 text-chalk-4 ${
           fill
             ? "h-full min-h-0 rounded-none"
-            : "min-h-[120px] rounded-(--radius-card) border border-line-3"
+            : "min-h-30 rounded-(--radius-card) border border-line-3"
         }`}
     >
       {children}

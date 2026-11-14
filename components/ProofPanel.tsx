@@ -177,7 +177,7 @@ export function ProofPanel({
                     {count} × {spec.weight}
                   </span>
                 </div>
-                <div className="h-[6px] w-full border border-line-2/25 bg-void/10">
+                <div className="h-1.5 w-full border border-line-2/25 bg-void/10">
                   <div
                     className="h-full bg-signal/70"
                     style={{ width: `${Math.round((count / maxWeight) * 100)}%` }}
@@ -255,7 +255,7 @@ function LanguageCard({ proofs }: { proofs: Proof[] }) {
                 {l.count} preuve{l.count > 1 ? "s" : ""} · {l.weight} pts
               </span>
             </div>
-            <div className="h-[6px] w-full border border-line-2/25 bg-void/10">
+            <div className="h-1.5 w-full border border-line-2/25 bg-void/10">
               <div
                 className="h-full bg-ok/70"
                 style={{ width: `${Math.round((l.weight / max) * 100)}%` }}

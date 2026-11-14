@@ -291,7 +291,7 @@ export function ProjectCodeView({
           </p>
         )}
 
-        <ul className="max-h-[88px] overflow-y-auto lg:max-h-[420px]">
+        <ul className="max-h-22 overflow-y-auto lg:max-h-105">
           {buildTree((files ?? []).map((f) => f.path)).map((node) => (
             <TreeNode
               key={node.path}
@@ -498,7 +498,7 @@ afficherait une promesse permanente pour une action momentanée. */}
               </div>
             </div>
 
-            <div className="h-[calc(100dvh-230px)] min-h-[360px] lg:h-[calc(100dvh-250px)] lg:min-h-[420px]">
+            <div className="h-[calc(100dvh-230px)] min-h-90 lg:h-[calc(100dvh-250px)] lg:min-h-105">
               <MonacoCodeEditor
                 path={current.path}
                 value={content}

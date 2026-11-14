@@ -77,7 +77,7 @@ export function ScoreTrajectory({
         scores={series}
         label={`Notes de ${series.length} dépôts, de ${stats.min} à ${stats.max}, médiane ${Math.round(stats.median)}`}
         height={26}
-        className="h-[52px] w-full text-signal"
+        className="h-13 w-full text-signal"
       />
 
       {/* L'axe n'est pas évident : la courbe se lit dans l'ordre de la

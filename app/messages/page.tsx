@@ -52,6 +52,7 @@ import type { Conversation, DirectMessage, UserLite } from "@/lib/types";
 import { canSendMessage, attachmentColumns, type MessageAttachment } from "@/lib/message-media";
 import { fetchStickers, type StickerRowView } from "@/lib/stickers";
 import { convKey, filterConversations, filterMessagesByText, type Peer } from "@/lib/conversations";
+import { focusOnMount } from "@/lib/focus-on-mount";
 
 /** Ajoute un message reçu à la liste affichée, sans doublon. */
 export default function MessagesPage() {
@@ -1003,7 +1004,7 @@ export default function MessagesPage() {
                 <div className="mo-fade flex shrink-0 items-center gap-2 border-b border-line-2 glass-flat px-4 py-2">
                   <Icon name="search" size={14} className="shrink-0 text-chalk-4" />
                   <input
-                    autoFocus
+                    ref={focusOnMount}
                     aria-label="Rechercher dans la conversation"
                     value={find}
                     onChange={(e) => setFind(e.target.value)}
@@ -1363,7 +1364,7 @@ export default function MessagesPage() {
                   </span>
                 )}
                 {unread > 0 && (
-                  <span className="flex size-[18px] items-center justify-center
+                  <span className="flex size-4.5 items-center justify-center
                     rounded-full bg-signal font-mono text-12 font-bold leading-none text-void">
                     {unread > 9 ? "9+" : unread}
                   </span>

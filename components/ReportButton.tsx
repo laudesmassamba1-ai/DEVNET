@@ -158,7 +158,7 @@ export function ReportButton({
                 >
                   <span
                     aria-hidden="true"
-                    className={`grid size-[18px] shrink-0 place-items-center rounded-full
+                    className={`grid size-4.5 shrink-0 place-items-center rounded-full
                       border ${chosen ? "border-signal bg-signal text-void" : "border-line-3"}`}
                   >
                     {chosen && <Icon name="check" size={9} strokeWidth={3} />}

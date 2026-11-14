@@ -361,7 +361,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
               <li key={group.id}>
                 <Link
                   href={`/groups/${group.id}`}
-                  className="flex min-h-[52px] items-center gap-3 py-2.5 transition-colors
+                  className="flex min-h-13 items-center gap-3 py-2.5 transition-colors
                     hover:text-signal-d"
                 >
                   <span className="flex size-9 shrink-0 items-center justify-center border border-line-2

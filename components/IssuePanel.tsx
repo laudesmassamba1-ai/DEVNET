@@ -18,6 +18,7 @@ import {
   type Issue,
   type IssueComment,
 } from "@/lib/issues";
+import { focusOnMount } from "@/lib/focus-on-mount";
 import { timeAgo } from "@/lib/utils";
 
 /**
@@ -334,7 +335,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                         type="button"
                         onClick={() => void toggleStatus(issue)}
                         disabled={busy}
-                        className="mo-press inline-flex h-[30px] items-center gap-1.5
+                        className="mo-press inline-flex h-7.5 items-center gap-1.5
                           rounded-(--radius-chip) border border-line-3 px-2.5
                           font-mono text-12 font-bold uppercase tracking-[0.12em]
                           text-chalk-3 transition-[border-color,color]
@@ -359,7 +360,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                           type="button"
                           onClick={() => void remove(issue)}
                           disabled={busy}
-                          className="mo-press inline-flex h-[30px] items-center gap-1.5
+                          className="mo-press inline-flex h-7.5 items-center gap-1.5
                             rounded-(--radius-chip) border border-line-3 px-2.5
                             font-mono text-12 font-bold uppercase tracking-[0.12em]
                             text-chalk-4 transition-[border-color,color]
@@ -397,7 +398,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Le registre écrase les livraisons de la veille"
-          autoFocus
+          ref={focusOnMount}
           className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
             border border-line-3 bg-surface px-3.5 text-13 shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4

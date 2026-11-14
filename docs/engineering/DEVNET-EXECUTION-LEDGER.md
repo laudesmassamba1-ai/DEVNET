@@ -38,7 +38,7 @@
 | ID | Prio | Exigence | Preuve / état | Prochaine action | Statut |
 |---|---|---|---|---|---|
 | SEC-001 | P0 | Faire tourner le mot de passe PostgreSQL exposé et révoquer les sessions. | Le secret n’est pas dans le dépôt ; aucune valeur affichée. La rotation exige la console du fournisseur. | Procédure ops dans le ledger de remédiation ; vérifier `/api/ready` après rotation. | `BLOCKED_EXTERNAL` |
-| SEC-002 | P0 | `FIXED_UNVERIFIED`| `roles.sql` idempotent, `service_role` retiré du grant runtime ; bootstrap distant tenté et migrations 066-070 appliquées, mais `devnet_u` n’a pas `ADMIN OPTION` (`SET ROLE service_role` réussit encore).| Ticket fournisseur / rôle admin pour exécuter le `REVOKE` et prouver le refus de `SET ROLE`.| `IN_PROGRESS` |
+| SEC-002 | P0 | `FIXED_UNVERIFIED`| `roles.sql` idempotent, `service_role` retiré du grant runtime ; bootstrap distant tenté et migrations 066-070 appliquées, mais `devnet_u` n’a pas `ADMIN OPTION` (`SET ROLE service_role` réussit encore).| Ticket fournisseur / rôle admin pour exécuter le `REVOKE` et prouver le refus de `SET ROLE`.| `FIXED_UNVERIFIED` |
 | SEC-003 | P1 | TLS `verify-full` effectif vers la base distante. | `platform/infrastructure/postgres/tls.ts` implémente `verify-full` avec `DATABASE_CA_CERT`, mais le CA du fournisseur n’est pas disponible ici. | Renseigner le CA dans l’environnement, puis `npm run db:probe:remote` doit afficher `verified`. | `BLOCKED_EXTERNAL` |
 | SEC-004 | P0 | Un média privé ne doit pas être lisible par un tiers. | Migration `067_media_privacy.sql` et route média avec identité ; la migration n’est pas appliquée à la production dans cette passe. | Appliquer la migration en préproduction, exécuter le test négatif participant/tiers. | `FIXED_UNVERIFIED` |
 | SEC-005 | P1 | Le média d’une story expirée ne doit pas rester en cache. | En-têtes `private, no-store` dans la route story. | Contrôle d’en-têtes après déploiement. | `VERIFIED` |
@@ -48,7 +48,7 @@
 | SEC-009 | P2 | Pas de proxy local `127.0.0.1:54321` en production. | Réécritures conditionnées par `NODE_ENV`. | Contrôle build production. | `VERIFIED` |
 | SEC-010 | P3 | HSTS présent. | `next.config.ts`. | Contrôle d’en-têtes. | `VERIFIED` |
 | SEC-011 | P1 | Limitation de débit partagée entre instances. | Aucun stockage partagé (KV/Redis) n’est configuré. Un compteur mémoire serait faux en serverless. | Fournir un KV/Redis, puis brancher un limiteur sur auth, média et stories. | `BLOCKED_EXTERNAL` |
-| SEC-012 | P1 | `FIXED_UNVERIFIED`| HEAD + Range vérifient taille/signature avant enregistrement ; objet refusé supprimé. Aucun test contre R2 réel (credentials absents).| Fournir R2/Blob et exécuter le parcours multipart réel.| `IN_PROGRESS` |
+| SEC-012 | P1 | `FIXED_UNVERIFIED`| HEAD + Range vérifient taille/signature avant enregistrement ; objet refusé supprimé. Aucun test contre R2 réel (credentials absents).| Fournir R2/Blob et exécuter le parcours multipart réel.| `FIXED_UNVERIFIED` |
 | SEC-013 | P1 | Les chemins média internes doivent être acceptés par les contraintes. | Migration `068_media_relative_urls.sql`. | Test SQL sur base neuve. | `VERIFIED` |
 | SEC-014 | P1 | Un chemin média d’autrui ne doit pas être cité pour obtenir l’accès. | `enforce_media_owner()` et test négatif. | Maintenir le test SQL. | `VERIFIED` |
 | SEC-015 | P1 | Le média de story doit respecter l’expiration et la session. | `media_file_is_private` étendue aux stories. | Test SQL anon/participant/expiré. | `VERIFIED` |
@@ -59,8 +59,8 @@
 |---|---|---|---|---|---|
 | MEDIA-001 | P1 | Sortir les octets média de PostgreSQL/BYTEA. | Architecture cible documentée ; le stockage objet est optionnel et les clés R2 ne sont pas disponibles. | Configurer R2, exécuter le chemin multipart réel, migrer les lignes existantes par lots. | `BLOCKED_EXTERNAL` |
 | MEDIA-002 | P1 | ffmpeg borné (timeout, logs, SIGKILL, nettoyage). | Implémenté dans `story-media.ts`. | Maintenir le test média. | `VERIFIED` |
-| MEDIA-003 | P1 | `VERIFIED`| Migration 069, route cron `CRON_SECRET`, script `purge-media` ; test SQL distant/local `purge_expired_stories(24)` 1 puis 0.| Maintenir le job planifié en production.| `IN_PROGRESS` |
-| MEDIA-004 | P2 | `VERIFIED`| `lib/metrics.ts` émet `[metric]` JSON ; `app/api/media/route.ts` compte `media.storage.fallback_total` (unconfigured/provider_error) et `lib/media-storage.ts` compte `media.storage.provider_total` (r2/vercel_blob). `tsc`/build verts.| Brancher un log drain/collecteur pour alerter sur les replis.| `OPEN` |
+| MEDIA-003 | P1 | `VERIFIED`| Migration 069, route cron `CRON_SECRET`, script `purge-media` ; test SQL distant/local `purge_expired_stories(24)` 1 puis 0.| Maintenir le job planifié en production.| `VERIFIED` |
+| MEDIA-004 | P2 | `VERIFIED`| `lib/metrics.ts` émet `[metric]` JSON ; `app/api/media/route.ts` compte `media.storage.fallback_total` (unconfigured/provider_error) et `lib/media-storage.ts` compte `media.storage.provider_total` (r2/vercel_blob). `tsc`/build verts.| Brancher un log drain/collecteur pour alerter sur les replis.| `VERIFIED` |
 | MEDIA-005 | P2 | Un média interne doit rester publiable sans R2. | Chemin résolu et contrôlé. | Maintenir `test:media-security`. | `VERIFIED` |
 
 ## 5. Stories
@@ -68,22 +68,22 @@
 | ID | Prio | Exigence | Preuve / état | Prochaine action | Statut |
 |---|---|---|---|---|---|
 | STORY-001 | P1 | Durée réelle, pause onglet caché, `aria-live`, avatars réels, clavier/stickers. | Corrections présentes dans `StoryViewerLive.tsx`. | Étendre `tests/e2e/stories.spec.ts`. | `VERIFIED` |
-| STORY-002 | P2 | `VERIFIED`| `lib/story-playback.ts` (machine `loading/ready/unavailable`, `paused`, `hidden`) intégrée à `StoryViewerLive` ; `scripts/test-story-playback.ts` 8 transitions vertes, `test:story-playback` en CI.| Étendre si de nouveaux états lecteur apparaissent.| `OPEN` |
-| STORY-003 | P0 | `VERIFIED`| Migration 070 appliquée (local/distant), policies audience, API média, sélecteur `StatusComposer`/`StoryStudio` ; `test:stories-audience` 12/12, e2e audience vert.| Maintenir les tests négatifs à chaque évolution.| `OPEN` |
-| STORY-004 | P2 | `VERIFIED`| `fetchLiveStories` rend `null` sur erreur ; appelants gèrent la panne. `tsc` 0.| —| `IN_PROGRESS` |
-| STORY-005 | P2 | `VERIFIED`| Curseur `(created_at,id)` dépôt/API ; test 61 stories, 2 pages, 0 doublon.| —| `OPEN` |
+| STORY-002 | P2 | `VERIFIED`| `lib/story-playback.ts` (machine `loading/ready/unavailable`, `paused`, `hidden`) intégrée à `StoryViewerLive` ; `scripts/test-story-playback.ts` 8 transitions vertes, `test:story-playback` en CI.| Étendre si de nouveaux états lecteur apparaissent.| `VERIFIED` |
+| STORY-003 | P0 | `VERIFIED`| Migration 070 appliquée (local/distant), policies audience, API média, sélecteur `StatusComposer`/`StoryStudio` ; `test:stories-audience` 12/12, e2e audience vert.| Maintenir les tests négatifs à chaque évolution.| `VERIFIED` |
+| STORY-004 | P2 | `VERIFIED`| `fetchLiveStories` rend `null` sur erreur ; appelants gèrent la panne. `tsc` 0.| —| `VERIFIED` |
+| STORY-005 | P2 | `VERIFIED`| Curseur `(created_at,id)` dépôt/API ; test 61 stories, 2 pages, 0 doublon.| —| `VERIFIED` |
 
 ## 6. UI/UX, accessibilité et PWA
 
 | ID | Prio | Exigence | Preuve / état | Prochaine action | Statut |
 |---|---|---|---|---|---|
-| UI-001 | P2 | `VERIFIED`| Avertissements `StoryViewerLive` supprimés ; lint global à 0 erreur / 2 avertissements préexistants hors périmètre.| —| `OPEN` |
-| UI-002 | P3 | `VERIFIED`| `eslint-disable` de fichier retiré de `lib/rest/client.ts` ; dérogation `DynamicRow` isolée/documentée, `RealtimePayload`/handlers typés, callbacks realtime/broadcast ajustés (`useTyping`). `tsc` 0, build vert.| Réduire `DynamicRow` par écrans typés quand le schéma est stabilisé.| `OPEN` |
-| UI-003 | P2 | `IN_PROGRESS`| Textes < 12 px 108→0, valeurs arbitraires 1113→577, `ux:scan`/`ux:check` et cliquet mis à jour. Restent 577 arbitraires (découvrir/profil/IDE en priorité).| Continuer la réduction par écran sans remonter le cliquet.| `IN_PROGRESS` |
-| UI-004 | P1 | `VERIFIED`| 5 destinations mobiles, Découvrir dans la feuille Plus ; `test:navigation` 173/173, layout 6/6.| —| `IN_PROGRESS` |
+| UI-001 | P2 | `VERIFIED`| Avertissements `StoryViewerLive` supprimés ; lint global à 0 erreur / 2 avertissements préexistants hors périmètre.| —| `VERIFIED` |
+| UI-002 | P3 | `VERIFIED`| `eslint-disable` de fichier retiré de `lib/rest/client.ts` ; dérogation `DynamicRow` isolée/documentée, `RealtimePayload`/handlers typés, callbacks realtime/broadcast ajustés (`useTyping`). `tsc` 0, build vert.| Réduire `DynamicRow` par écrans typés quand le schéma est stabilisé.| `VERIFIED` |
+| UI-003 | P2 | `IN_PROGRESS`| Textes < 12 px 108→0, valeurs arbitraires 1113→494, `ux:scan`/`ux:check` et cliquet mis à jour. Restent 494 arbitraires (découvrir/profil/IDE en priorité).| Continuer la réduction par écran sans remonter le cliquet.| `IN_PROGRESS` |
+| UI-004 | P1 | `VERIFIED`| 5 destinations mobiles, Découvrir dans la feuille Plus ; `test:navigation` 173/173, layout 6/6.| —| `VERIFIED` |
 | UI-005 | P1 | Clavier iOS : champs visibles, pas de zoom involontaire, safe areas. | `test:pwa` couvre 175 vérifications ; pas d’iPhone physique. | Maintenir le test et vérifier sur appareil réel quand disponible. | `VERIFIED` (émulation) |
-| UI-006 | P1 | `VERIFIED`| Playwright 320/360/390/430/768/1024 × 12 écrans : 6/6.| —| `OPEN` |
-| UI-007 | P1 | Accessibilité : focus, contrastes, cibles 44 px, labels. | Corrections précédentes sur groupes/communautés/projet. | Audit automatisé + navigation clavier sur les écrans prioritaires. | `IN_PROGRESS` |
+| UI-006 | P1 | `VERIFIED`| Playwright 320/360/390/430/768/1024 × 12 écrans : 6/6.| —| `VERIFIED` |
+| UI-007 | P1 | Accessibilité : focus, contrastes, cibles 44 px, labels. | Corrections précédentes sur groupes/communautés/projet. Lot 2026-11-15 : bouton sans type, clics non sémantiques (IDE, story), 8 autoFocus, 1 couleur en dur ; cliquet abaissé à 0/0/0/0/1. | Audit clavier sur les écrans prioritaires ; couleur restante = logo (artwork). | `FIXED_UNVERIFIED` |
 | UI-008 | P2 | Mouvement réduit et performance perçue. | `ui:motion` et `test:motion` verts. | Maintenir ; pas de nouvelle animation non justifiée. | `VERIFIED` |
 
 ## 7. Architecture, QA et documentation
@@ -132,7 +132,7 @@ dette explicite qui doit rester visible.
 | STORY-005 | `VERIFIED` | Pagination curseur `(created_at,id)`. |
 | UI-001 | `VERIFIED` | Lint : 0 erreur, 2 avertissements préexistants hors périmètre. |
 | UI-002 | `VERIFIED` | `eslint-disable` fichier retiré ; typage resserré (`DynamicRow` isolé, realtime/broadcast), `tsc` 0. |
-| UI-003 | `IN_PROGRESS` | Tiny 0, arbitraires 577 (cliquet tenu). Réduction restante à poursuivre. |
+| UI-003 | `IN_PROGRESS` | Tiny 0, arbitraires 494 (cliquet tenu). Réduction restante à poursuivre. |
 | UI-004 | `VERIFIED` | Barre mobile 5 destinations. |
 | UI-006 | `VERIFIED` | Matrice responsive 320→1024 (Playwright). |
 | ARC-001 | `IN_PROGRESS` | Frontières extraites (feed-composer/posts, conversations + filtre messages, story-viewer/StickerFace) ; refactor structurel plus profond restant. |

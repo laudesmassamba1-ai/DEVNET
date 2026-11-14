@@ -403,7 +403,7 @@ export default function NotificationsPage() {
                        que la ligne garde l'alignement des autres. */
                     <span
                       aria-hidden="true"
-                      className="flex size-[34px] shrink-0 items-center justify-center
+                      className="flex size-8.5 shrink-0 items-center justify-center
                         rounded-(--radius-input) border border-signal/40 bg-signal/12 text-signal"
                     >
                       <Icon name="target" size={16} strokeWidth={1.9} />

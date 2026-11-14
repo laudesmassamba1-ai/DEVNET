@@ -11,7 +11,10 @@
 | Types | `npx tsc --noEmit` | **0 erreur** | 2026-11-14 |
 | Lint | `npm run lint` | **0 erreur**, 2 avertissements préexistants | 2026-11-14 |
 | Contraintes UI | `npm run ui:lint` | **0 régression** | 2026-11-14 |
-| Cliquet valeurs | `npm run ux:check` | **108 tiny**, **1 113 arbitraires**, cliquet tenu | 2026-11-14 |
+| Cliquet valeurs | `npm run ux:check` | **0 tiny**, **494 arbitraires** (577 → 494 par conversion `h/w/size` px→espacement), cliquet tenu | 2026-11-15 |
+| Tests média | `npm run test:media-security` | **34/34** | 2026-11-15 |
+| Stories audience | `npm run test:stories-audience` | refusé hors base locale (script écrit des lignes) : non exécuté | 2026-11-15 |
+| Layout | `npm run test:layout` | **6/6** au second passage ; **1 échec** (360 px) au premier passage, non reproduit, à surveiller | 2026-11-15 |
 | Mouvement | `npm run ui:motion` | non relancé dans cette passe | — |
 | Build | `npm run build` | **succès**, 43 pages | 2026-11-14 |
 
@@ -20,7 +23,7 @@
 | ID | Preuve | Commande / méthode | Résultat | Statut |
 |---|---|---|---|---|
 | SEC-002 | `service_role` retiré du rôle runtime | lecture de `db/bootstrap/roles.sql` | `grant anon, authenticated` + `revoke service_role` | `FIXED_UNVERIFIED` (application distante) |
-| SEC-004 | média privé | `npm run test:db-rls` | 17/17 | `VERIFIED` (base neuve) |
+| SEC-004 | média privé | `npm run test:db-rls` | 17/17 sur base neuve ; pas de test préprod | `FIXED_UNVERIFIED` |
 | SEC-005 | cache story | inspection des en-têtes | `private, no-store` | `VERIFIED` |
 | SEC-006 | URL story | `npm run test:media-security` | 34/34 | `VERIFIED` |
 | SEC-007 | signature média | `npm run test:media-security` | 34/34 | `VERIFIED` |
@@ -36,14 +39,15 @@
 | STORY-003 | audience public/followers/private | `npm run test:stories-audience` | **12/12** | `VERIFIED` |
 | STORY-004 | panne ≠ vide | `tsc` + revue des appelants | `null` / `[]` distincts | `VERIFIED` |
 | STORY-005 | pagination | `npm run test:stories-audience` | 61 stories, 2 pages, 0 doublon | `VERIFIED` |
-| STORY-002 | machine d’état | revue | non extraite | `OPEN` |
+| STORY-002 | machine d’état `lib/story-playback.ts` | `npm run test:story-playback` | 8 transitions vertes | `VERIFIED` |
 
 ## 4. UI/UX et responsive
 
 | ID | Preuve | Commande / méthode | Résultat | Statut |
 |---|---|---|---|---|
 | UI-001 | avertissements lecteur | `npm run lint` | 4 → 0 dans `StoryViewerLive` ; 2 avertissements hors périmètre | `VERIFIED` |
-| UI-003 | textes/tokens | `npm run ux:check` | 108 tiny / 1 113 arbitraires | `IN_PROGRESS` |
+| UI-003 | textes/tokens | `npm run ux:check` | 0 tiny / 494 arbitraires (plafond `docs/ui/ratchet.json` = 494, cliquet tenu) | `IN_PROGRESS` |
+| UI-007 | accessibilité (scanner) | `npm run ux:check` | boutons sans type 0, clics non sémantiques 0, autoFocus 0, couleurs en dur 1 (logo) ; cliquet tenu | `FIXED_UNVERIFIED` |
 | UI-004 | 5 destinations | `npm run test:navigation` | 173/173 | `VERIFIED` |
 | UI-005 | PWA | `npm run test:pwa` | 175/175 (Chromium émulé) | `VERIFIED` (émulation) |
 | UI-006 | 320→1024 | `npm run test:layout` | **6/6**, 12 écrans | `VERIFIED` |

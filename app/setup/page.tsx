@@ -92,14 +92,14 @@ export default function SetupPage() {
           <div className="mt-4 flex flex-wrap gap-2.5">
             <button
               type="button" onClick={retry} disabled={busy}
-              className="mo-press h-[40px] rounded-(--radius-input) border border-line-3 bg-signal px-4
+              className="mo-press h-10 rounded-(--radius-input) border border-line-3 bg-signal px-4
                 text-sm font-bold text-chalk shadow-sh-1 disabled:opacity-40"
             >
               {busy ? "Vérification…" : "Réessayer maintenant"}
             </button>
             <button
               type="button" onClick={hardReset}
-              className="h-[40px] rounded-(--radius-input) border border-line-3 px-4 text-sm
+              className="h-10 rounded-(--radius-input) border border-line-3 px-4 text-sm
                 font-bold transition-colors hover:bg-surface-2"
             >
               Réinitialiser les données de démo

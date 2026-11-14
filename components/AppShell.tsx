@@ -201,7 +201,7 @@ export function AppShell({
             <span
               key={pathname}
               aria-hidden
-              className="mo-grow pointer-events-none absolute inset-x-0 bottom-0 h-[2px]
+              className="mo-grow pointer-events-none absolute inset-x-0 bottom-0 h-0.5
                 origin-left bg-signal opacity-60"
             />
             {/* La réouverture vit ici, et pas dans le panneau : c'est le

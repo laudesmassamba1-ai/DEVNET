@@ -192,7 +192,7 @@ export function ContributionMap({
       </div>
 
       <footer className="mt-2.5 flex items-center justify-between gap-2">
-        <span className="label-micro h-[14px] min-w-0 flex-1 truncate text-chalk-3">
+        <span className="label-micro h-3.5 min-w-0 flex-1 truncate text-chalk-3">
           {hover
             ? `${new Date(`${hover.day}T00:00:00`).toLocaleDateString("fr", {
                 weekday: "long",

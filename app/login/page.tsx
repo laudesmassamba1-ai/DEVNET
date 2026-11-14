@@ -238,7 +238,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={clearPick}
-                  className="label-micro h-[28px] shrink-0 border border-line-3 px-2 text-chalk-3 transition-colors hover:border-signal hover:text-signal"
+                  className="label-micro h-7 shrink-0 border border-line-3 px-2 text-chalk-3 transition-colors hover:border-signal hover:text-signal"
                 >
                   Retour
                 </button>

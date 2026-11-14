@@ -153,7 +153,7 @@ function Hero({ data }: { data: Discover | null }) {
 
 function Sonar({ signals }: { signals: number }) {
   return (
-    <div aria-hidden className="relative size-[210px]">
+    <div aria-hidden className="relative size-52.5">
       <div className="absolute inset-0 rounded-full border border-line-2/80" />
       <div className="absolute inset-[15%] rounded-full border border-dashed border-line-2/70" />
       <div className="absolute inset-[32%] rounded-full border border-line-3/50" />
@@ -162,7 +162,7 @@ function Sonar({ signals }: { signals: number }) {
           className="mo-spin size-full rounded-full"
           style={{
             background:
-              "conic-gradient(from 0deg, transparent 0deg, rgba(143,175,78,0.34) 38deg, transparent 64deg)",
+              "conic-gradient(from 0deg, transparent 0deg, color-mix(in srgb, var(--color-moss) 34%, transparent) 38deg, transparent 64deg)",
           }}
         />
       </div>
@@ -219,7 +219,7 @@ function Rising({ rows }: { rows: LeaderEntry[] }) {
           <Avatar
             name={r.prenom}
             color={r.avatarColor}
-            className="size-[28px] border-(--bw-thin) text-12"
+            className="size-7 border-(--bw-thin) text-12"
           />
           <div className="min-w-0 flex-1">
             <Link href={`/u/${r.pseudo}`} className="flex items-center gap-1.5 truncate text-13 font-semibold text-chalk hover:text-signal">
@@ -233,7 +233,7 @@ function Rising({ rows }: { rows: LeaderEntry[] }) {
             </Link>
             <span className="label-micro block truncate text-chalk-4">@{r.pseudo}</span>
           </div>
-          <span className="hidden h-[3px] w-[110px] overflow-hidden rounded-full bg-line-2 sm:block">
+          <span className="hidden h-[3px] w-27.5 overflow-hidden rounded-full bg-line-2 sm:block">
             <span
               className="block h-full rounded-full bg-signal"
               style={{ width: `${Math.max(8, (r.xp / top) * 100)}%` }}
@@ -277,7 +277,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
         <Avatar
           name={author?.prenom ?? "?"}
           color={author?.avatar_color}
-          className="size-[24px] border-(--bw-thin) text-12"
+          className="size-6 border-(--bw-thin) text-12"
         />
         <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold text-chalk">
           {author?.prenom ?? "Anonyme"}
@@ -303,7 +303,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
         </div>
       ) : (
         proof.code && (
-          <pre className="mt-2.5 max-h-[64px] overflow-hidden rounded-(--radius-input) border border-line bg-void/90 px-3 py-2 font-mono text-12 leading-[1.5] text-page/85">
+          <pre className="mt-2.5 max-h-16 overflow-hidden rounded-(--radius-input) border border-line bg-void/90 px-3 py-2 font-mono text-12 leading-[1.5] text-page/85">
             {proof.code.split("\n").slice(0, 3).join("\n")}
           </pre>
         )
@@ -425,7 +425,7 @@ function NextStep({ xp, ready, signedIn }: { xp?: number; ready: boolean; signed
         <span className="font-display text-15 font-bold text-chalk">{level.title}</span>
         <span className="label-micro ml-auto text-chalk-4">palier {level.level}</span>
       </div>
-      <div className="mt-2.5 h-[4px] overflow-hidden rounded-full bg-line-2">
+      <div className="mt-2.5 h-1 overflow-hidden rounded-full bg-line-2">
         <div className="h-full rounded-full bg-signal" style={{ width: `${level.progress * 100}%` }} />
       </div>
       <p className="mt-2 text-12 text-chalk-3">

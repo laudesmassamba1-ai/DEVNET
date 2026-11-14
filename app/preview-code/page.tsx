@@ -85,7 +85,7 @@ export default function PreviewCode() {
         ).map((n) => (
           <span key={n}
             title={n}
-            className="flex size-[34px] items-center justify-center
+            className="flex size-8.5 items-center justify-center
               border-(--bw-thin) border-line-2 text-chalk-2">
             <Icon name={n} size={16} />
           </span>

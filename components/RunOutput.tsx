@@ -81,7 +81,7 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
         // moyen de savoir que ça s'est terminé.
         aria-live="polite"
       >
-        <div className="flex h-[34px] items-center gap-2 border-b border-line-3 bg-surface-3 px-2.5">
+        <div className="flex h-8.5 items-center gap-2 border-b border-line-3 bg-surface-3 px-2.5">
           {busy ? (
             <Spinner />
           ) : (

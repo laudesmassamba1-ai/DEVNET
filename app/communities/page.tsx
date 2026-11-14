@@ -248,12 +248,12 @@ function CommunityRow({ c, joined, onJoin }: {
 }) {
   const inner = (
     <>
-      <span className="relative size-[42px] shrink-0">
-        <span className="flex size-[34px] items-center justify-center rounded-(--radius-input)
+      <span className="relative size-10.5 shrink-0">
+        <span className="flex size-8.5 items-center justify-center rounded-(--radius-input)
           border border-line-3 bg-surface-2 text-signal-d">
           <Icon name={asIconName(c.icon, "globe")} size={18} strokeWidth={1.7} />
         </span>
-        <span className="absolute -right-1 -bottom-1 flex size-[18px] items-center justify-center
+        <span className="absolute -right-1 -bottom-1 flex size-4.5 items-center justify-center
           rounded-full border border-line-2 bg-signal text-12 font-extrabold text-void">
           {(c.member_count || 0) > 9 ? "9+" : Math.max(1, c.member_count || 1)}
         </span>

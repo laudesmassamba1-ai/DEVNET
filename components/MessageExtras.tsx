@@ -55,7 +55,7 @@ function ReactionButton({ emoji, onPick }: { emoji: string; onPick: () => void }
       type="button"
       onClick={onPick}
       aria-label={`Réagir ${emoji}`}
-      className="mo-press flex size-[30px] items-center justify-center rounded-(--radius-chip)
+      className="mo-press flex size-7.5 items-center justify-center rounded-(--radius-chip)
         text-[17px] leading-none transition-colors hover:bg-surface-2"
     >
       <span aria-hidden>{emoji}</span>
@@ -110,7 +110,7 @@ export function MessageExtras({
               onClick={() => onToggleReaction(r.emoji)}
               aria-label={`Réaction ${r.emoji} (${r.count})`}
               aria-pressed={r.mine}
-              className={`flex min-h-[28px] items-center gap-1 rounded-(--radius-chip)
+              className={`flex min-h-7 items-center gap-1 rounded-(--radius-chip)
                 border px-1.5 text-13 leading-none transition-colors
                 ${
                   r.mine
@@ -152,7 +152,7 @@ export function MessageExtras({
           onClick={() => setPicker((p) => !p)}
           aria-label="Réagir"
           aria-expanded={picker}
-          className="mo-press flex size-[32px] items-center justify-center rounded-(--radius-chip)
+          className="mo-press flex size-8 items-center justify-center rounded-(--radius-chip)
             text-chalk-4 transition-colors hover:text-signal"
         >
           <Icon name="smile" size={12} />
@@ -161,7 +161,7 @@ export function MessageExtras({
           type="button"
           onClick={onReply}
           aria-label="Répondre à ce message"
-          className="mo-press flex size-[32px] items-center justify-center rounded-(--radius-chip)
+          className="mo-press flex size-8 items-center justify-center rounded-(--radius-chip)
             text-chalk-4 transition-colors hover:text-signal"
         >
           <Icon name="comment" size={12} />
@@ -171,7 +171,7 @@ export function MessageExtras({
           onClick={onTogglePin}
           aria-label={pinned ? "Désépingler ce message" : "Épingler ce message"}
           aria-pressed={pinned}
-          className={`mo-press flex size-[32px] items-center justify-center rounded-(--radius-chip)
+          className={`mo-press flex size-8 items-center justify-center rounded-(--radius-chip)
             transition-colors hover:text-signal ${pinned ? "text-signal" : "text-chalk-4"}`}
         >
           <Icon name="pin" size={12} fill={pinned ? "currentColor" : "none"} />
@@ -181,7 +181,7 @@ export function MessageExtras({
             type="button"
             onClick={onEdit}
             aria-label="Corriger ce message"
-            className="mo-press flex size-[32px] items-center justify-center rounded-(--radius-chip)
+            className="mo-press flex size-8 items-center justify-center rounded-(--radius-chip)
               text-chalk-4 transition-colors hover:text-signal"
           >
             <Icon name="edit" size={12} />
@@ -192,7 +192,7 @@ export function MessageExtras({
             type="button"
             onClick={onDelete}
             aria-label="Supprimer ce message"
-            className="mo-press flex size-[32px] items-center justify-center rounded-(--radius-chip)
+            className="mo-press flex size-8 items-center justify-center rounded-(--radius-chip)
               text-chalk-4 transition-colors hover:text-danger"
           >
             <Icon name="trash" size={12} />

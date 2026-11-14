@@ -119,3 +119,25 @@ SEC-011/MEDIA-001/SEC-012.
 - ARC-001 : `filterMessagesByText` extrait dans `lib/conversations.ts` et utilisé par `app/messages/page.tsx` (séparation affichage/état de conversation). Frontières feed/messages/lecteur toujours à approfondir.
 - UI-003 : token `text-26` et remplacements sûrs (découvrir `text-26`, profil `h-2.5`, IDE `h-8`, messages `h-7.5`/`size-5`) ; arbitraires 577, tiny 0, cliquet/`ux:check` verts.
 - Vérifications : `npx tsc --noEmit`, `npm run lint` (0 erreur), `npm run ux:scan`/`ux:check`, `npm run test:story-playback` verts.
+
+## 2026-11-15 — reprise « fais tout » : UI-003, réconciliation, baseline
+
+- Baseline : `git status` propre sur `main` (HEAD `012d7ec`) ; `npx tsc --noEmit` **0** ; `npm run lint` **0 erreur**, 2 avertissements préexistants ; `npm run ux:check` tenu.
+- `npm run test:media-security` : **34/34**.
+- `npm run test:stories-audience` : refusé par le script (écrit des lignes, base locale seulement) — non exécuté, à relancer sur `devnet_ci`.
+- UI-003 : script `/tmp/px2spacing.mjs` (hors dépôt) convertit `size|w|h|min-h|max-h-[Npx]` en `espacement N/4` lorsque N est pair (équivalence de rendu, `--spacing` non surchargé). **107 remplacements dans 45 fichiers**, arbitraires **577 → 494**. Plafond `docs/ui/ratchet.json` abaissé à 494.
+- Vérifications après conversion : `tsc` 0 ; `npm run lint` 0 erreur ; `npm run ux:check` tenu ; `npm run build` exit 0 ; `npm run test:layout` 6/6 au second passage (un échec à 360 px au premier passage, non reproduit).
+- Réconciliation des registres : statuts des sections 3–7 de `DEVNET-EXECUTION-LEDGER.md` alignés sur la section 10 (12 lignes). Un premier script avait écrit dans la colonne « Preuve » de la section 10 ; corrigé en reconstruisant depuis `HEAD`, section 10 intacte.
+- Matrice : STORY-002 `VERIFIED` (test playback), SEC-004 rétrogradé à `FIXED_UNVERIFIED` (pas de preuve préprod).
+
+## 2026-11-15 — UI-007 : boutons, clics, autoFocus, couleur
+
+- `app/admin/page.tsx` : `type="button"` ajouté à l'onglet (seul bouton sans type réel ; `preview-code` est une chaîne de code).
+- `app/ide/[project]/page.tsx` : onglet scindé en `div` avec deux vrais `<button>` (ouvrir / fermer `aria-label="Fermer {p}"`), le `<span onClick>` imbriqué supprimé.
+- `components/StoryViewerLive.tsx` : `div onClick` de placement remplacé par un bouton plein cadre `aria-label="Placer …"`, rendu seulement en mode placement ; `autoFocus` retiré du champ de réponse.
+- 8 `autoFocus` remplacés par `ref={focusOnMount}` (`lib/focus-on-mount.ts`) : search, projects, projects/[id] ×2, messages, GifPicker, IssuePanel.
+- `app/decouvrir/page.tsx` : `rgba(143,175,78,.34)` → `color-mix(var(--color-moss) 34%)`, token `--color-moss: #8FAF4E` ajouté dans `app/globals.css` (même valeur, rendu identique).
+- `docs/ui/ratchet.json` abaissé : buttonsWithoutType 1→0, nonSemanticClickHandlers 2→0, autoFocusUses 8→0, hardcodedColors 2→1 (reste le logo `AnimatedLogo`, artwork non modifié).
+
+Vérifications : `tsc` 0 ; `lint` 0 erreur (2 avertissements préexistants) ; `build` 0 ; `ux:check` cliquet tenu (18) ; `test:media-security` OK ; `test:navigation` 173 OK ; `test:layout` 6/6.
+Incident : une première exécution de `test:layout` a échoué sur conflit de port 4123 (`next-server` orphelin de ma session, arrêté). Relancé : 6/6.

@@ -186,7 +186,7 @@ export function NotificationBell() {
           sa pression — ce qui est déjà le cas partout. */}
       {unread > 0 && (
         <span
-          className={`tnum absolute -top-1 -right-0.5 flex min-w-[20px] rounded-full
+          className={`tnum absolute -top-1 -right-0.5 flex min-w-5 rounded-full
             items-center justify-center border px-1 font-mono text-12
             leading-[15px] font-bold
 ${here ? "border-surface bg-signal text-void shadow-(--shadow-action)"

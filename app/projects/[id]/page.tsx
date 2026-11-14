@@ -24,6 +24,7 @@ import { StdinBubble } from "@/components/StdinBubble";
 import { useToast } from "@/components/Toast";
 import { useSession } from "@/hooks/useSession";
 import { useGithubLiveSync } from "@/hooks/useGithubLiveSync";
+import { focusOnMount } from "@/lib/focus-on-mount";
 import { fetchOpenIssueCount } from "@/lib/issues";
 import {
   fetchPresence,
@@ -1246,7 +1247,7 @@ async function showDiff(sha: string) {
           value={branchName}
           onChange={(e) => setBranchName(e.target.value)}
           placeholder="amelioration-registre"
-          autoFocus
+          ref={focusOnMount}
           onKeyDown={(e) => {
             if (e.key === "Enter") void createNewBranch();
           }}
@@ -1350,7 +1351,7 @@ async function showDiff(sha: string) {
           value={newPath}
           onChange={(e) => setNewPath(e.target.value)}
           placeholder="src/registre.py"
-          autoFocus
+          ref={focusOnMount}
           onKeyDown={(e) => {
             if (e.key === "Enter") void createFile();
           }}

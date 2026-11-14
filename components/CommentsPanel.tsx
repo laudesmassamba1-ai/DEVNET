@@ -145,7 +145,7 @@ function CommentRow({
           type="button"
           onClick={() => onReply(comment)}
           disabled={!me || busy}
-          className="mt-1.5 inline-flex min-h-[32px] items-center gap-1.5
+          className="mt-1.5 inline-flex min-h-8 items-center gap-1.5
             font-mono text-12 font-bold tracking-[0.08em] text-chalk-3
             uppercase transition-colors hover:text-signal disabled:opacity-40"
         >
@@ -529,7 +529,7 @@ export function CommentsPanel({
             aria-label="Écrire un commentaire"
             placeholder={me ? "Répondre…" : "Connecte-toi pour répondre"}
             disabled={!me}
-            className="min-h-[42px] flex-1 resize-none rounded-(--radius-input)
+            className="min-h-10.5 flex-1 resize-none rounded-(--radius-input)
               border border-line-3 bg-surface px-3 py-2 text-13
               leading-[1.55] text-chalk shadow-sh-1
               transition-[transform,box-shadow] placeholder:text-chalk-4
@@ -540,7 +540,7 @@ export function CommentsPanel({
             type="submit"
             disabled={!me || busy || !canSendMessage(text, attachment ?? undefined)}
             aria-label="Publier le commentaire"
-            className="h-[42px] shrink-0 rounded-(--radius-chip) border
+            className="h-10.5 shrink-0 rounded-(--radius-chip) border
               border-signal bg-signal px-3.5 font-mono text-12 font-bold
               tracking-[0.1em] text-void uppercase
               transition-[transform,opacity] duration-(--d-fast)

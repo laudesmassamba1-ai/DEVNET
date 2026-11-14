@@ -315,7 +315,7 @@ export function Sidebar({
     <aside
       data-tour="nav-main"
       className="sticky top-[var(--h-banner,0px)] hidden h-[calc(100dvh-var(--h-banner,0px))]
-        w-[236px] shrink-0 flex-col rounded-(--radius-card) border-r-(--bw-heavy) border-edge
+        w-59 shrink-0 flex-col rounded-(--radius-card) border-r-(--bw-heavy) border-edge
         glass shell:flex"
     >
       {/* Marque */}

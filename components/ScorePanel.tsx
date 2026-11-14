@@ -206,7 +206,7 @@ function BigScore({
       </div>
       {secondary && <p className="label-micro mt-1 text-chalk-4">{secondary}</p>}
 
-      <div className="mt-2 h-[8px] w-full border border-line-2/30 bg-void/10">
+      <div className="mt-2 h-2 w-full border border-line-2/30 bg-void/10">
         <div
           className={`h-full ${toneBar(grade.tone)} transition-[width] duration-500`}
           style={{ width: `${pct}%` }}
@@ -596,7 +596,7 @@ function DimensionsCard({ repo }: { repo: RepoScore }) {
                 <span className="font-mono text-12 text-chalk-2">{label}</span>
                 <span className="tnum label-micro text-chalk-4">{pct}%</span>
               </div>
-              <div className="h-[6px] w-full border border-line-2/25 bg-void/10">
+              <div className="h-1.5 w-full border border-line-2/25 bg-void/10">
                 <div
                   className={`h-full ${toneBar(tone)} transition-[width] duration-500`}
                   style={{ width: `${pct}%` }}
@@ -799,7 +799,7 @@ function DistributionCard({ repo }: { repo: RepoScore }) {
         preserveAspectRatio="none"
         role="img"
         aria-label={`Notes de ${scores.length} fichiers réparties de ${geo.min} à ${geo.max}, médiane ${Math.round(geo.median)}`}
-        className="h-[52px] w-full text-signal"
+        className="h-13 w-full text-signal"
       >
         {/* Une classe vide ne se dessine pas : une barre de hauteur nulle
             n'est pas une donnée, c'est un vide, et les confondre revient à

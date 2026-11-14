@@ -187,7 +187,7 @@ export function TaskBoard({
             key={col.id}
             role="rise"
             as="section"
-            className={`flex min-h-[220px] flex-col rounded-(--radius-card)
+            className={`flex min-h-55 flex-col rounded-(--radius-card)
               border depth-card transition-colors duration-(--d-fast)
               ${over === col.id ? "border-signal" : "border-line-2"}`}
           >
@@ -220,7 +220,7 @@ export function TaskBoard({
                 const task = tasks.find((t) => t.id === id);
                 if (task) void move(task, col.id);
               }}
-              className="flex min-h-[140px] flex-1 flex-col gap-2 p-2.5"
+              className="flex min-h-35 flex-1 flex-col gap-2 p-2.5"
             >
               {tasks.filter((t) => t.status === col.id).length === 0 && (
                 <li className="flex flex-1 items-center justify-center py-6 text-center">

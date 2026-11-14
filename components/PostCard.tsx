@@ -20,7 +20,7 @@ import type { PostWithAuthor } from "@/lib/types";
  * Barre d'actions : une seule cible, 44 px partout.
  *
  * Les boutons avaient chacun leur recette de classes — `px-2.5 py-2`,
- * `px-2`, un `size-[34px]` pour « Signaler » — et trois d'entre eux
+ * `px-2`, un `size-8.5` pour « Signaler » — et trois d'entre eux
  * mesuraient 30 à 40 px de large au doigt. Une seule constante garantit
  * que le prochain bouton ajouté hérite de la bonne cible.
  */
@@ -73,7 +73,7 @@ function InlineVideo({ src }: { src: string }) {
       playsInline
       preload="metadata"
       onError={() => setFailed(true)}
-      className="mb-3 max-h-[420px] w-full rounded-(--radius-input)
+      className="mb-3 max-h-105 w-full rounded-(--radius-input)
         border border-line-2 bg-surface-2 object-contain"
     />
   );
@@ -374,7 +374,7 @@ export function PostCard({
               alt={post.gif_alt || "GIF joint à la publication"}
               loading="lazy"
               decoding="async"
-              className="mb-2.5 max-h-[420px] w-full rounded-(--radius-input)
+              className="mb-2.5 max-h-105 w-full rounded-(--radius-input)
                 border border-line-2 bg-surface-2 object-contain"
             />
           </Motion>
@@ -396,7 +396,7 @@ export function PostCard({
                 alt="Photo jointe à la publication"
                 loading="lazy"
                 decoding="async"
-                className="mb-2.5 max-h-[420px] w-full rounded-(--radius-input)
+                className="mb-2.5 max-h-105 w-full rounded-(--radius-input)
                   border border-line-2 bg-surface-2 object-contain"
               />
             )}

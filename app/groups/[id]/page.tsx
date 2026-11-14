@@ -571,7 +571,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         {/* Rail de canaux — colonne à gauche sur grand écran seulement :
             un rail de 164 px volerait un tiers d'un écran de 390 px. */}
         <nav aria-label="Canaux" className="hidden shrink-0 flex-col overflow-y-auto
-          border-r border-edge glass-flat shell:flex shell:w-[176px]">
+          border-r border-edge glass-flat shell:flex shell:w-44">
           <p className="label-micro px-3 pt-3 pb-1.5 text-chalk-4">Canaux</p>
 
           <div className="flex flex-col gap-0.5 px-1.5">
@@ -646,7 +646,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   l'application est masqué derrière cette coque), le canal
                   ouvert sur grand écran. */}
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
-                <span className="flex size-[34px] shrink-0 items-center justify-center
+                <span className="flex size-8.5 shrink-0 items-center justify-center
                   rounded-(--radius-input) border border-line-3 bg-surface-2
                   text-signal-d shell:hidden">
                   <Icon name={asIconName(group?.emoji, "groups")} size={16} strokeWidth={1.7} />
@@ -1036,7 +1036,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                         disabled={busyMember === m.user_id}
                         onClick={() => void kickMember(m)}
                         aria-label={`Retirer ${m.user?.prenom ?? "ce membre"} du groupe`}
-                        className="mo-press flex size-[30px] shrink-0 items-center justify-center
+                        className="mo-press flex size-7.5 shrink-0 items-center justify-center
                           rounded-(--radius-chip) text-chalk-4 transition-colors
                           hover:text-danger disabled:opacity-40"
                       >
@@ -1058,7 +1058,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             type="button"
             disabled={busyMember !== null}
             onClick={() => void leaveGroup()}
-            className="mo-press mt-4 flex h-[44px] w-full items-center justify-center gap-2
+            className="mo-press mt-4 flex h-11 w-full items-center justify-center gap-2
               rounded-(--radius-input) border border-danger bg-surface
               text-13 font-bold text-danger transition-colors hover:bg-danger
               hover:text-void disabled:opacity-40"

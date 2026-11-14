@@ -362,7 +362,7 @@ export default function Register() {
                   type="button"
                   onClick={() => setStep(1)}
                   aria-label="Revenir aux informations"
-                  className="lift-press flex size-[44px] items-center justify-center
+                  className="lift-press flex size-11 items-center justify-center
                     rounded-(--radius-input) border border-line-3 bg-transparent
                     text-chalk hover:bg-surface-2"
                 >

@@ -46,7 +46,7 @@ export function ScoreCurve({
   grid = false,
   /** Tracer la moyenne et la médiane, qui disent où se situe le dernier point. */
   guides = true,
-  className = "h-[68px] w-full text-signal",
+  className = "h-17 w-full text-signal",
 }: {
   /** Les scores, du plus ancien au plus récent. */
   scores: readonly number[];
@@ -164,7 +164,7 @@ export function GuideLegend({
       <svg
         viewBox="0 0 18 6"
         aria-hidden="true"
-        className={`h-[6px] w-[18px] shrink-0 ${tone}`}
+        className={`h-1.5 w-4.5 shrink-0 ${tone}`}
       >
         <line
           x1={0}

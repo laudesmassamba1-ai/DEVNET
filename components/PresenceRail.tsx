@@ -29,7 +29,7 @@ export function PresenceRail({
       className="mb-3 flex flex-wrap items-center gap-x-3 gap-y-1.5 border-b border-line-2 pb-2"
     >
       <span className="label-micro flex items-center gap-1.5 text-chalk-4">
-        <span aria-hidden="true" className="mo-breathe size-[6px] rounded-full bg-phosphor" />
+        <span aria-hidden="true" className="mo-breathe size-1.5 rounded-full bg-phosphor" />
         présence
       </span>
 
@@ -51,7 +51,7 @@ export function PresenceRail({
             >
               <span
                 aria-hidden="true"
-                className={`flex size-[18px] shrink-0 items-center justify-center rounded-full
+                className={`flex size-4.5 shrink-0 items-center justify-center rounded-full
                   border font-display text-12 font-bold
                   ${avatarClass(entry.color || entry.user?.avatar_color)}`}
               >

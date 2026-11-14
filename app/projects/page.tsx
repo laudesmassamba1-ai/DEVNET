@@ -35,6 +35,7 @@ import {
   type RepoScoreSummary,
 } from "@/lib/repo";
 import { ScoreTrajectory } from "@/components/ScoreTrajectory";
+import { focusOnMount } from "@/lib/focus-on-mount";
 import { timeAgo } from "@/lib/utils";
 import type { Project } from "@/lib/types";
 
@@ -456,7 +457,7 @@ export default function ProjectsPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="registre-cooperatives"
-          autoFocus
+          ref={focusOnMount}
           className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
             border border-line-3 bg-surface px-3.5 text-14 shadow-sh-1
             transition-[transform,box-shadow] duration-(--d-base)

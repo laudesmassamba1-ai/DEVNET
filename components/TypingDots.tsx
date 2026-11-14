@@ -27,7 +27,7 @@ export function TypingDots({ label = "écrit" }: { label?: string }) {
           as="span"
           role="pulse"
           delay={i * 160}
-          className="inline-block size-[4px] rounded-full bg-signal"
+          className="inline-block size-1 rounded-full bg-signal"
         />
       ))}
     </span>

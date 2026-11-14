@@ -206,7 +206,7 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
         {/* En-tête : icône, nom, visibilité, compteur, et l'action join/leave. */}
         <header className="depth-card mb-4 rounded-(--radius-card) border border-edge glass-flat p-4">
           <div className="flex items-start gap-3.5">
-            <span className="flex size-[44px] shrink-0 items-center justify-center rounded-(--radius-input)
+            <span className="flex size-11 shrink-0 items-center justify-center rounded-(--radius-input)
               border border-line-3 bg-surface-2 text-signal-d">
               <Icon name={asIconName(community.icon, "globe")} size={20} strokeWidth={1.6} />
             </span>

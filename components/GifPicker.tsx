@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Icon } from "./Icon";
 import { Sheet } from "./Sheet";
 import { isAllowedGifUrl, searchGifs, type Gif, type GifProvider } from "@/lib/gifs";
+import { focusOnMount } from "@/lib/focus-on-mount";
 
 /**
  * Choix d'un GIF pour une publication.
@@ -82,7 +83,7 @@ export function GifPicker({
         onChange={(event) => setQuery(event.target.value)}
         aria-label="Rechercher un GIF"
         placeholder="Chercher un GIF…"
-        autoFocus
+        ref={focusOnMount}
         className="mb-3 h-(--h-input) w-full rounded-(--radius-input)
           border border-line-3 bg-surface px-3.5 text-base shadow-sh-1
           placeholder:text-chalk-4

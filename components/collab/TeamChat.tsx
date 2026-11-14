@@ -88,7 +88,7 @@ export function TeamChat({
               <div key={message.id} className="flex items-start gap-2">
                 <span
                   aria-hidden="true"
-                  className={`mt-0.5 flex size-[20px] shrink-0 items-center justify-center
+                  className={`mt-0.5 flex size-5 shrink-0 items-center justify-center
                     rounded-full border font-display text-12 font-bold
                     ${avatarClass(message.color)}`}
                 >

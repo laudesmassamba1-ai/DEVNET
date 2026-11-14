@@ -88,7 +88,7 @@ export function CursorLayer({
 
             {/* Le caret : une barre verticale de la hauteur d'une ligne. */}
             <span
-              className="absolute block w-[2px] rounded-full"
+              className="absolute block w-0.5 rounded-full"
               style={{ top, left, height: lineHeight, backgroundColor: color }}
             />
 

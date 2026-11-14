@@ -1116,7 +1116,7 @@ export default function FeedPage() {
               <img
                 src={gif.preview}
                 alt={gif.alt}
-                className="max-h-[220px] w-full object-contain bg-surface-2"
+                className="max-h-55 w-full object-contain bg-surface-2"
               />
               <button
                 type="button"
@@ -1166,11 +1166,11 @@ export default function FeedPage() {
                   playsInline
                   controls
                   preload="metadata"
-                  className="max-h-[220px] w-full object-contain bg-surface-2"
+                  className="max-h-55 w-full object-contain bg-surface-2"
                 />
               ) : (
                 <img
-                  className="max-h-[220px] w-full object-contain bg-surface-2"
+                  className="max-h-55 w-full object-contain bg-surface-2"
                   src={media.url}
                   alt="Photo jointe"
                 />

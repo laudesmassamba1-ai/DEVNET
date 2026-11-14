@@ -140,6 +140,7 @@ export default function AdminPage() {
           ] as const).map(([key, label]) => (
             <button
               key={key}
+              type="button"
               role="tab"
               id={`admin-tab-${key}`}
               aria-controls="admin-tabpanel"

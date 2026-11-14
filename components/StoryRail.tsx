@@ -110,14 +110,14 @@ export function StoryRail({
             ferait qu'ajouter une story rendrait les siennes inaccessibles
             depuis le rail. */}
         {onPublish && (
-          <div className="relative flex w-[80px] shrink-0 flex-col items-center gap-1.5">
+          <div className="relative flex w-20 shrink-0 flex-col items-center gap-1.5">
             <button
               type="button"
               onClick={() => (mine && me ? onOpen(me) : onPublish())}
-              className="group flex w-[80px] flex-col items-center gap-1.5"
+              className="group flex w-20 flex-col items-center gap-1.5"
             >
               <span
-                className={`relative flex size-[54px] items-center justify-center
+                className={`relative flex size-13.5 items-center justify-center
                   rounded-full p-[2px] transition-transform group-hover:-translate-y-0.5
                   ${mine ? "" : "border-[1.5px] border-dashed border-line-3 bg-surface"}`}
               >
@@ -142,7 +142,7 @@ export function StoryRail({
                     name={mine?.author?.prenom ?? "moi"}
                     color={mine?.author?.avatar_color ?? "av-lime"}
                     src={mine?.author?.avatar_url}
-                    className="size-[38px] border-0 text-14"
+                    className="size-9.5 border-0 text-14"
                   />
                 </span>
               </span>
@@ -172,7 +172,7 @@ export function StoryRail({
                   justify-center rounded-full"
               >
                 <span
-                  className="flex size-[22px] items-center justify-center rounded-full
+                  className="flex size-5.5 items-center justify-center rounded-full
                     border-[1.5px] border-void bg-signal text-void
                     transition-transform active:scale-95"
                   style={{ boxShadow: "var(--shadow-sh-1)" }}
@@ -193,14 +193,14 @@ export function StoryRail({
                 key={g.authorId}
                 type="button"
                 onClick={() => onOpen(g.authorId)}
-                className="group flex w-[80px] shrink-0 flex-col items-center gap-1.5"
+                className="group flex w-20 shrink-0 flex-col items-center gap-1.5"
               >
                 {/* Deux états, deux matières : l'anneau de marque pour ce
                     qui n'a pas été vu, un filet discret pour le reste. Le
                     dégradé ne clignote pas : c'est une information, pas un
                     appel à l'action. */}
                 <span
-                  className={`relative flex size-[54px] items-center justify-center
+                  className={`relative flex size-13.5 items-center justify-center
                     rounded-full p-[2px] transition-transform
                     group-hover:-translate-y-0.5 ${
                       unseen ? "" : "border-[1.5px] border-line-3"
@@ -229,7 +229,7 @@ export function StoryRail({
                       name={g.author?.prenom}
                       color={g.author?.avatar_color}
                       src={g.author?.avatar_url}
-                      className="size-[38px] border-0 text-14"
+                      className="size-9.5 border-0 text-14"
                     />
                   </span>
                 </span>

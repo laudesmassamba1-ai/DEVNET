@@ -45,7 +45,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="mo-rise relative flex min-h-dvh flex-col items-center justify-start overflow-hidden px-6 pt-14 pb-10">
-      <span className="mo-breathe absolute -top-[70px] -right-[70px] size-[200px] rounded-full bg-ok opacity-12" />
+      <span className="mo-breathe absolute -top-[70px] -right-[70px] size-50 rounded-full bg-ok opacity-12" />
       <div className="relative z-1 w-full max-w-[400px]">
         <div className="mb-5 text-center">
           <Logo size={54} className="mx-auto rounded-(--radius-card) border border-line-3" />

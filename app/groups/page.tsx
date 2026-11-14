@@ -310,12 +310,12 @@ function GroupRow({ g, joined, onJoin }: {
       {/* L'identité d'un groupe : son icône dans la tuile, et un compteur
           en médaillon — la même signature qu'une pièce qui abrite
           plusieurs personnes, sans avoir à charger leurs avatars. */}
-      <span className="relative size-[42px] shrink-0">
-        <span className="flex size-[34px] items-center justify-center rounded-(--radius-input)
+      <span className="relative size-10.5 shrink-0">
+        <span className="flex size-8.5 items-center justify-center rounded-(--radius-input)
           border border-line-3 bg-surface-2 text-signal-d">
           <Icon name={asIconName(g.emoji, "groups")} size={18} strokeWidth={1.7} />
         </span>
-        <span className="absolute -right-1 -bottom-1 flex size-[18px] items-center justify-center
+        <span className="absolute -right-1 -bottom-1 flex size-4.5 items-center justify-center
           rounded-full border border-line-2 bg-signal text-12 font-extrabold text-void">
           {count > 9 ? "9+" : count}
         </span>
