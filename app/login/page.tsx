@@ -9,7 +9,7 @@ import { Icon } from "@/components/Icon";
 import { Avatar, Spinner } from "@/components/Avatar";
 import { Motion, cascade } from "@/components/Motion";
 import { AnimatedLogo } from "@/components/AnimatedLogo";
-import { DevBugStoryStage } from "@/components/DevBugStory";
+import { DevStoryVideo } from "@/components/DevStoryVideo";
 import { rearmSplash } from "@/components/SplashScreen";
 import { api } from "@/lib/api/client";
 import { authErrorMessage } from "@/lib/utils";
@@ -178,11 +178,10 @@ function LoginForm() {
         </Motion>
 
         {/* Le scénario : un dev, son bug, la photo, DevNet, l'aide qui
-            arrive — la promesse du produit racontée en une prise. Une
-            seule lecture, rejouable ; sous mouvement réduit, l'affiche
-            finale. */}
+            arrive — rendu par le pipeline 3D (dépôt devnet-motion) et
+            intégré ici en vidéo muette, une lecture, rejouable. */}
         <Motion role="fade" delay={200} className="mb-6">
-          <DevBugStoryStage />
+          <DevStoryVideo />
         </Motion>
 
         <Motion
