@@ -78,13 +78,45 @@ export type StoryMediaResult =
   | { ok: true; media: EncodedStoryMedia }
   | { ok: false; error: string };
 
+/**
+ * Nombre de transcodages vidéo simultanés par instance serveur.
+ *
+ * Chaque ffmpeg prend plusieurs cœurs et de la mémoire : sans plafond, une
+ * rafale de publications fait patiner toutes les requêtes ensemble. Au-delà
+ * du plafond on refuse tout de suite, plutôt que de laisser la requête
+ * attendre jusqu'au timeout de la fonction.
+ */
+export const STORY_TRANSCODE_SLOTS = 2;
+
+let activeTranscodes = 0;
+
+/** Réserve une place de transcodage, ou rend `null` si elles sont toutes prises. */
+export function acquireTranscodeSlot(): (() => void) | null {
+  if (activeTranscodes >= STORY_TRANSCODE_SLOTS) return null;
+  activeTranscodes += 1;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    activeTranscodes -= 1;
+  };
+}
+
 export async function encodeStoryMedia(input: StoryMediaInput): Promise<StoryMediaResult> {
   const refusal = checkStoryMediaInput(input);
   if (refusal) return { ok: false, error: refusal };
 
-  return mediaKind(input.mime) === "video"
-    ? encodeVideo(input.bytes)
-    : encodeImage(input.bytes);
+  if (mediaKind(input.mime) !== "video") return encodeImage(input.bytes);
+
+  const release = acquireTranscodeSlot();
+  if (!release) {
+    return { ok: false, error: "transcodage vidéo déjà en cours, réessayez dans un instant" };
+  }
+  try {
+    return await encodeVideo(input.bytes);
+  } finally {
+    release();
+  }
 }
 
 async function encodeImage(source: Buffer): Promise<StoryMediaResult> {

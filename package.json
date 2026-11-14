@@ -101,6 +101,7 @@
     "test:admin-modules": "tsx scripts/test-admin-modules.ts",
     "test:navigation": "tsx scripts/test-navigation.ts",
     "test:status-editor": "tsx scripts/test-status-editor-model.ts && tsx scripts/test-status-render.ts",
+    "test:story-transcode": "tsx scripts/test-story-transcode-slots.ts",
     "test:gifs": "tsx scripts/test-gifs.ts",
     "test:push-notify": "tsx scripts/test-push-notify.ts"
   },

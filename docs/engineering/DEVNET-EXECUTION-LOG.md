@@ -170,3 +170,11 @@ Vérifications : `tsc` 0 ; `eslint` 0 erreur sur les fichiers de l'éditeur ; `b
 - Vérifications : `tsc` 0, `test:status-editor` 25/25, `build` 0, `ux:check` tenu (18), `verify:ui` 0 régression.
 - Commit `f0ea251` local, non poussé. `.ux-details-tmp.json` (artefact de diagnostic) et `dbg10.mjs` (non identifié) exclus du commit ; à supprimer ou examiner à la main.
 - Déploiement `vercel --prod --yes` refusé par le mode auto : à lancer manuellement (`!vercel --prod --yes`). Statut production : NON VERIFIED tant que ce déploiement n'a pas été fait.
+
+## 2026-11-15 — statuts : plafond de transcodage vidéo
+
+- Constat (code lu) : cache média déjà `no-store` (`app/api/stories/[id]/media`) ; durée média réelle déjà utilisée (`StoryViewerLive`) ; `visibilitychange` déjà écouté ; purge des expirés déjà présente (`app/api/cron/purge-media`, `lib/media-purge.ts`) ; délai ffmpeg 90 s déjà en place. Le `limit 60` trouvé concerne les stickers, pas le flux (le flux est `limit 61`, 60 + 1 pour savoir s'il reste une suite).
+- Manque comblé : aucune limite de concurrence sur ffmpeg. Ajout dans `modules/stories/infrastructure/media/story-media.ts` : `STORY_TRANSCODE_SLOTS = 2` par instance, refus immédiat au-delà (message « transcodage vidéo déjà en cours »).
+- Test : `scripts/test-story-transcode-slots.ts`, script `npm run test:story-transcode` (2/2).
+- Vérifications : `tsc` 0 ; `test:status-editor` 6/6 rendu ; `test:story-transcode` 2/2.
+- Non fait : `components/StoryStudio.tsx` n'a plus aucun import mais DEC-002 le cite comme frontière existante ; suppression soumise à décision. Non fait : envoi base64 pour les images jusqu'à 3 Mo (la voie URL couvre vidéos et gros fichiers). Non vérifié : rendu navigateur de l'éditeur, export d'une photo réelle, transcodage ffmpeg réel sous charge.
