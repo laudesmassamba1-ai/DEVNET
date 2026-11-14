@@ -660,10 +660,13 @@ export function StoryViewer({
         paddingBottom: "var(--h-safe-bottom)",
       }}
       onPointerDown={(event) => {
-        // Un appui sur la story met en pause le temps de la lecture.
-        if (event.target === event.currentTarget) setPaused(true);
+        // Un appui sur la story, zones latérales comprises, met en pause le
+        // temps de l'appui. Barres, stickers et boutons ne déclenchent rien.
+        const target = event.target as HTMLElement;
+        if (target === event.currentTarget || target.dataset.tapZone !== undefined) setPaused(true);
       }}
       onPointerUp={() => setPaused(false)}
+      onPointerCancel={() => setPaused(false)}
     >
       {/* Barres de progression : un segment par story de la série. */}
       <div className="story-film absolute inset-x-0 top-0 z-10 flex gap-1 p-3">
@@ -977,6 +980,7 @@ export function StoryViewer({
 
         <button
           type="button"
+          data-tap-zone=""
           onClick={prev}
           aria-label="Story précédente"
           disabled={index === 0}
@@ -984,6 +988,7 @@ export function StoryViewer({
         />
         <button
           type="button"
+          data-tap-zone=""
           onClick={next}
           aria-label="Story suivante"
           className="absolute inset-y-0 right-0 w-[18%] cursor-e-resize"

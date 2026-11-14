@@ -178,3 +178,14 @@ Vérifications : `tsc` 0 ; `eslint` 0 erreur sur les fichiers de l'éditeur ; `b
 - Test : `scripts/test-story-transcode-slots.ts`, script `npm run test:story-transcode` (2/2).
 - Vérifications : `tsc` 0 ; `test:status-editor` 6/6 rendu ; `test:story-transcode` 2/2.
 - Non fait : `components/StoryStudio.tsx` n'a plus aucun import mais DEC-002 le cite comme frontière existante ; suppression soumise à décision. Non fait : envoi base64 pour les images jusqu'à 3 Mo (la voie URL couvre vidéos et gros fichiers). Non vérifié : rendu navigateur de l'éditeur, export d'une photo réelle, transcodage ffmpeg réel sous charge.
+
+## 2026-11-15 — mise en production et visionneuse
+
+- Déploiement `vercel --prod --yes` (demandé par l'utilisateur) : build OK, alias `https://devnet-brown.vercel.app` mis à jour (déploiement `devnet-q79vvgh5n`). Contrôle : `/api/health` 200, `/feed` 200.
+- Audience : vérifiée par lecture. `story_media_read` (migration 070) passe par `story_is_live`, qui intègre l'audience ; `fetchStoryMedia` passe par la session du lecteur. Pas de changement.
+- Visionneuse (`components/StoryViewerLive.tsx`, `app/globals.css`) :
+  - appui maintenu sur les zones latérales (`data-tap-zone`) met en pause, comme sur le centre ; `onPointerCancel` remet la lecture ;
+  - `.story-stage` : `-webkit-touch-callout: none` et `user-select: none` (champs de saisie exclus). Le `data-no-select` existant ne couvrait que le mode PWA.
+- Vérifications : `tsc` 0 ; eslint 0 sur le fichier ; `verify:ui` 0 (cliquet 493 inchangé) ; `build` 0.
+- Non vérifié : rendu navigateur de la visionneuse (pas de compte de test) ; iPhone réel.
+- Retrait de `components/StoryStudio.tsx` : non fait. Plus aucun import, mais DEC-002 le désigne comme frontière existante. À trancher par l'utilisateur.

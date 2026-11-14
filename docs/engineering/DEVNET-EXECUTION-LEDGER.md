@@ -72,6 +72,8 @@
 | STORY-003 | P0 | `VERIFIED`| Migration 070 appliquée (local/distant), policies audience, API média, sélecteur `StatusComposer`/`StoryStudio` ; `test:stories-audience` 12/12, e2e audience vert.| Maintenir les tests négatifs à chaque évolution.| `VERIFIED` |
 | STORY-004 | P2 | `VERIFIED`| `fetchLiveStories` rend `null` sur erreur ; appelants gèrent la panne. `tsc` 0.| —| `VERIFIED` |
 | STORY-005 | P2 | `VERIFIED`| Curseur `(created_at,id)` dépôt/API ; test 61 stories, 2 pages, 0 doublon.| —| `VERIFIED` |
+| STORY-006 | P1 | `FIXED_UNVERIFIED` | Plafond de transcodages vidéo simultanés (2 par instance, refus immédiat) dans `story-media.ts`. `test:story-transcode` 2/2, `tsc` 0. Pas de charge réelle ffmpeg.| Mesurer sous charge sur déploiement de test.| `FIXED_UNVERIFIED` |
+| STORY-007 | P2 | `FIXED_UNVERIFIED` | Visionneuse : appui maintenu sur les zones latérales met en pause ; `onPointerCancel` ; pas de menu d'enregistrement iOS sur le média (`.story-stage` `touch-callout: none`). `tsc`, eslint, `verify:ui` 0. Pas de compte de test : pas de rendu navigateur.| Vérifier sur Chromium émulé avec compte de test, puis iPhone réel.| `FIXED_UNVERIFIED` |
 
 ## 6. UI/UX, accessibilité et PWA
 

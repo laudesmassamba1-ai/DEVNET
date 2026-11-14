@@ -2200,6 +2200,22 @@ input[type="search"]::-webkit-search-decoration {
   z-index: 1;
 }
 
+/* Appui maintenu sur la story : ni menu d'enregistrement de l'image, ni
+   sélection de texte qui casse la lecture. Le champ de réponse garde la
+   sienne. Hors mode PWA, donc non couvert par la règle générique. */
+.story-stage,
+.story-stage * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.story-stage :where(input, textarea) {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 .story-aperture {
   border-radius: var(--radius-card);
 }

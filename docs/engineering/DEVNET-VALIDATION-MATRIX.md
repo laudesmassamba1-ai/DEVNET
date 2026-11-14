@@ -85,3 +85,16 @@
 - Le job CI PostgreSQL n’a pas été exécuté sur GitHub dans cette passe.
 - Les 2 avertissements lint restants sont hors du périmètre corrigé
   (`<img>` du fil, export anonyme du proxy Cloudflare).
+
+## Statuts (2026-11-15)
+
+| Contrôle | Résultat |
+|---|---|
+| `npx tsc --noEmit` | 0 |
+| `npm run test:status-editor` | 25/25 |
+| `npm run test:story-transcode` | 2/2 |
+| `npm run verify:ui` | 0 (cliquet 493) |
+| `npm run build` | 0 |
+| Déploiement prod `devnet-brown.vercel.app` | 200 sur `/api/health` et `/feed` |
+| Visionneuse (appui maintenu, zones) | NON VERIFIED : pas de compte de test |
+| Éditeur `StatusComposer` / export photo | NON VERIFIED : pas de rendu navigateur |

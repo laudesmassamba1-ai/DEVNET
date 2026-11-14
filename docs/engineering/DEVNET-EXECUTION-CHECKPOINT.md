@@ -64,3 +64,10 @@
 Ne pas conclure « terminé » tant que la section 10 du ledger contient `OPEN`,
 `IN_PROGRESS` ou `FIXED_UNVERIFIED`. Reprendre au premier élément réalisable et
 mettre à jour ledger, journal, checkpoint et matrice après chaque unité.
+
+## Statuts : état au 2026-11-15
+
+- Déployé : `devnet-brown.vercel.app` (commit 31d805d).
+- Fait et vérifié par checks : plafond de transcodage ; audience contrôlée en RLS ; purge présente ; durée réelle et pause onglet.
+- Fait, non vérifié navigateur : appui maintenu / zones de la visionneuse (STORY-007), éditeur et export.
+- Décision utilisateur : retirer ou garder `components/StoryStudio.tsx` (DEC-002).
