@@ -73,7 +73,7 @@
 | STORY-004 | P2 | `VERIFIED`| `fetchLiveStories` rend `null` sur erreur ; appelants gèrent la panne. `tsc` 0.| —| `VERIFIED` |
 | STORY-005 | P2 | `VERIFIED`| Curseur `(created_at,id)` dépôt/API ; test 61 stories, 2 pages, 0 doublon.| —| `VERIFIED` |
 | STORY-006 | P1 | `FIXED_UNVERIFIED` | Plafond de transcodages vidéo simultanés (2 par instance, refus immédiat) dans `story-media.ts`. `test:story-transcode` 2/2, `tsc` 0. Pas de charge réelle ffmpeg.| Mesurer sous charge sur déploiement de test.| `FIXED_UNVERIFIED` |
-| STORY-007 | P2 | `FIXED_UNVERIFIED` | Visionneuse : appui maintenu sur les zones latérales met en pause ; `onPointerCancel` ; pas de menu d'enregistrement iOS sur le média (`.story-stage` `touch-callout: none`). `tsc`, eslint, `verify:ui` 0. Pas de compte de test : pas de rendu navigateur.| Vérifier sur Chromium émulé avec compte de test, puis iPhone réel.| `FIXED_UNVERIFIED` |
+| STORY-007 | P2 | `FIXED_UNVERIFIED` | Visionneuse : appui maintenu sur les zones latérales met en pause ; `onPointerCancel` ; pas de menu d'enregistrement iOS sur le média (`.story-stage` `touch-callout: none`). Commit `745903f` : la `<video>` s'arrête aussi (appui, réponse, vues, plateau, onglet masqué), ce qui n'était pas le cas avant. `tsc`, eslint, `ux:check` tenu. Pas de compte de test : pas de rendu navigateur.| Vérifier sur Chromium émulé avec compte de test, puis iPhone réel.| `FIXED_UNVERIFIED` |
 
 ## 6. UI/UX, accessibilité et PWA
 
@@ -87,6 +87,7 @@
 | UI-006 | P1 | `VERIFIED`| Playwright 320/360/390/430/768/1024 × 12 écrans : 6/6.| —| `VERIFIED` |
 | UI-007 | P1 | Accessibilité : focus, contrastes, cibles 44 px, labels. | Corrections précédentes sur groupes/communautés/projet. Lot 2026-11-15 : bouton sans type, clics non sémantiques (IDE, story), 8 autoFocus, 1 couleur en dur ; cliquet abaissé à 0/0/0/0/1. | Audit clavier sur les écrans prioritaires ; couleur restante = logo (artwork). | `FIXED_UNVERIFIED` |
 | UI-008 | P2 | Mouvement réduit et performance perçue. | `ui:motion` et `test:motion` verts. | Maintenir ; pas de nouvelle animation non justifiée. | `VERIFIED` |
+| UI-009 | P2 | Thème Liquid Glass activable (`data-liquid="true"`, clé `devnet:liquid-glass`), par-dessus les quatre thèmes, sans refonte. Interrupteur dans Réglages. | Code dans `ac818b9` (poussé) : `app/globals.css` bloc « THÈME LIQUID GLASS », `lib/ui-preferences.ts`, `app/layout.tsx`, `components/LiquidGlassToggle.tsx`, `app/settings/page.tsx`. `test:liquid-glass` 4/4 (`39b2f5a`), `tsc` 0, build 0. Note : le message de `ac818b9` ne décrit pas ce thème ; `f0ea251` mentionne « Liquid-tokens », libellé erroné. | Vérifier le rendu dans un navigateur (les quatre thèmes, interrupteur on/off, `prefers-reduced-transparency`) avec compte de test. | `FIXED_UNVERIFIED` |
 
 ## 7. Architecture, QA et documentation
 

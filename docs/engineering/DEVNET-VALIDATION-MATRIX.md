@@ -93,6 +93,8 @@
 | `npx tsc --noEmit` | 0 |
 | `npm run test:status-editor` | 25/25 |
 | `npm run test:story-transcode` | 2/2 |
+| `npm run test:liquid-glass` | 4/4 |
+| `npm run ux:check` (cliquet) | tenu, 493 arbitraires, 9 fichiers > 800 lignes |
 | `npm run verify:ui` | 0 (cliquet 493) |
 | `npm run build` | 0 |
 | Déploiement prod `devnet-brown.vercel.app` | 200 sur `/api/health` et `/feed` |

@@ -3,8 +3,9 @@
 > **Statut : EN COURS — reprise au point « Prochaine action exacte ».**
 >
 > Dernière mise à jour : 2026-11-15.
-> Référence Git : `2e7bc21` sur `main` (local ; `b49aeb2` déployé). Toutes les
-> modifications ci-dessous sont non commitées.
+> Référence Git : `745903f` sur `main`, en avance de 2 commits sur `origin/main`
+> (non poussés). Déployé : `31d805d`. Les modifications décrites plus bas
+> sont désormais commitées ; les anciennes mentions « non commitées » sont périmées.
 
 ## Ce qui est fait et prouvé (cumul)
 
@@ -34,11 +35,17 @@
   `tests/e2e/layout.spec.ts:88`). `test:stories-audience` non exécuté (refuse hors
   base locale `devnet_ci`).
 
+- Liquid Glass (UI-009) : thème activable par-dessus les quatre thèmes, interrupteur
+  dans Réglages. Commits `ac818b9` (code, poussé ; message sans rapport), `39b2f5a`
+  (test + journal). `test:liquid-glass` 4/4. Visuel non vérifié.
+- Visionneuse : la `<video>` s'arrête avec la story (`745903f`). Appui, zones de tap et
+  `visibilitychange` vérifiés par lecture du code ; rendu non vérifié.
+- Correction d'historique : `f0ea251` a un message « Liquid-tokens » erroné. Non réécrit.
+
 ## Prochaine action exacte
 
-1. **Visionneuse des stories** : durée réelle depuis la vidéo (`timeupdate`/`ended`) au
-   lieu des 7 s fixes ; appui long sur le contenu ; pause sur `visibilitychange` ; zones
-   de tap ; navigation entre auteurs.
+1. **Visionneuse des stories** : fait par lecture du code (voir ci-dessus). Reste la
+   vérification navigateur avec compte de test. Ne pas rouvrir sans nouvel écart.
 2. **Navigation de l'éditeur** : brancher `StatusComposer` sur le feed et vérifier dans
    un navigateur (Playwright) : ajout de texte, tracé, sticker, recadrage, publication.
 3. **UI-003** : réduire les 493 valeurs restantes par écran (`app/profile/page.tsx` 25,
