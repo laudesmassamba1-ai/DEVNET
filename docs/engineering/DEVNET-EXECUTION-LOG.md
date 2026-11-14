@@ -189,3 +189,13 @@ Vérifications : `tsc` 0 ; `eslint` 0 erreur sur les fichiers de l'éditeur ; `b
 - Vérifications : `tsc` 0 ; eslint 0 sur le fichier ; `verify:ui` 0 (cliquet 493 inchangé) ; `build` 0.
 - Non vérifié : rendu navigateur de la visionneuse (pas de compte de test) ; iPhone réel.
 - Retrait de `components/StoryStudio.tsx` : non fait. Plus aucun import, mais DEC-002 le désigne comme frontière existante. À trancher par l'utilisateur.
+
+## Liquid Glass — thème activable (sans refonte)
+
+- Principe : un interrupteur indépendant de la palette (`devnet:liquid-glass`, attribut `data-liquid="true"` sur `<html>`). Les quatre thèmes (Encre, Papier, Savane, Savane clair) restent intacts ; désactivé = rendu plat d'origine.
+- Fichiers : `app/globals.css` (bloc `:root[data-liquid="true"]` en fin de fichier : jetons `--glass-*`, `--color-edge`, `--shadow-drop`, `--overlay-blur`, `--page-wash` ; repli `prefers-reduced-transparency`) ; `lib/ui-preferences.ts` (clé, `normalizeLiquidGlass`, `applyLiquidGlass`) ; `app/layout.tsx` (pose de l'attribut avant le premier rendu) ; `components/LiquidGlassToggle.tsx` (interrupteur, inséré dans Paramètres > Apparence).
+- Test : `scripts/test-liquid-glass-preference.ts` (4/4), lecture et normalisation de la préférence, branché sur `npm run test:liquid-glass`.
+- Constat d'historique : le code Liquid Glass est déjà dans `ac818b9` (poussé sur `origin/main`), commit au message « Pipeline de build… » sans lien avec ce thème. Il n'a pas été réécrit ; ce commit-ci ne fait que consigner le test et le journal.
+- Vérifications : `tsc` 0 ; eslint 0 sur les fichiers touchés ; `build` 0 ; `ux:check` tenu (arbitraryValues 493, filesOver800Lines 9).
+- Non vérifié visuellement : aucun rendu navigateur du thème (pas de compte de test pour Paramètres ; pas de capture faite). Statut : NON VERIFIED visuellement.
+- Point ouvert : le verre n'est pas encore appliqué à toutes les surfaces ; seules les classes `glass-*` et les jetons qu'elles lisent changent.
