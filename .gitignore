@@ -98,3 +98,10 @@ CLAUDE.md
 /blob-report/
 /playwright/.cache/
 .neon
+
+# Sauvegardes de base : contiennent des données personnelles (emails, hachages
+# de mots de passe). Jamais dans Git, même dans un dépôt privé. Les dumps
+# vivent hors du dépôt (~/.devnet-backups, permissions 600).
+/backups/
+*.dump
+*.sql.gz
