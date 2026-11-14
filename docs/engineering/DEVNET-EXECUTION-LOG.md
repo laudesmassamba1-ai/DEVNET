@@ -163,3 +163,10 @@ Vérifications : `tsc` 0 ; `eslint` 0 erreur sur les fichiers de l'éditeur ; `b
 - WebKit (`webkit-2311`) installé mais non lançable ici (`libavif.so.16` absent). Pages connectées non mesurées : aucun compte de test dans `tests/`.
 - Changement : `app/globals.css`, `html { overflow-x: clip; }` (le pan horizontal iOS passe par `<html>`). `npm run build` exit 0.
 - Statut : NON VERIFIED sur iPhone X réel ni sur WebKit ; cause précise non identifiée.
+
+## 2026-11-15 — commit f0ea251 (local), déploiement Vercel non effectué
+
+- Cliquet UI : `arbitraryValues` 494 → 493 (`leading-[15px]` retiré de `NotificationBell.tsx`, `tracking-[-0.03em]` → `tracking-tight` dans `LevelCelebration.tsx`). Plafond inchangé.
+- Vérifications : `tsc` 0, `test:status-editor` 25/25, `build` 0, `ux:check` tenu (18), `verify:ui` 0 régression.
+- Commit `f0ea251` local, non poussé. `.ux-details-tmp.json` (artefact de diagnostic) et `dbg10.mjs` (non identifié) exclus du commit ; à supprimer ou examiner à la main.
+- Déploiement `vercel --prod --yes` refusé par le mode auto : à lancer manuellement (`!vercel --prod --yes`). Statut production : NON VERIFIED tant que ce déploiement n'a pas été fait.
