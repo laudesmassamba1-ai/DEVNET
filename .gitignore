@@ -57,6 +57,12 @@ dev-server.log
 !public/screenshots/
 !public/screenshots/*.png
 
+# images du film de présentation — sans cette exception le poster du film
+# n'est pas commité et `poster=` répond 404 en production (constaté le
+# 2026-11-14 : la vidéo passait, son affiche non).
+!public/motion/
+!public/motion/*.png
+
 # état local de Supabase (secrets, cache CLI, dump de la base locale)
 /supabase/.temp/
 /supabase/seed.sql
