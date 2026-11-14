@@ -9,7 +9,7 @@ import { Icon } from "@/components/Icon";
 import { Avatar, Spinner } from "@/components/Avatar";
 import { Motion, cascade } from "@/components/Motion";
 import { AnimatedLogo } from "@/components/AnimatedLogo";
-import { DevStoryVideo } from "@/components/DevStoryVideo";
+import { DevSceneStage } from "@/components/DevScene";
 import { rearmSplash } from "@/components/SplashScreen";
 import { api } from "@/lib/api/client";
 import { authErrorMessage } from "@/lib/utils";
@@ -177,11 +177,11 @@ function LoginForm() {
           </div>
         </Motion>
 
-        {/* Le scénario : un dev, son bug, la photo, DevNet, l'aide qui
-            arrive — rendu par le pipeline 3D (dépôt devnet-motion) et
-            intégré ici en vidéo muette, une lecture, rejouable. */}
+        {/* Le scénario en illustration animée : un dev, son bug, la
+            photo, DevNet, l'aide qui arrive — une prise DOM, rejouable,
+            qui se joue dans tout navigateur sans politique d'autoplay. */}
         <Motion role="fade" delay={200} className="mb-6">
-          <DevStoryVideo />
+          <DevSceneStage />
         </Motion>
 
         <Motion

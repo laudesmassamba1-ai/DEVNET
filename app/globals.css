@@ -1805,6 +1805,21 @@ input[type="search"]::-webkit-search-decoration {
   :root[data-liquid="true"] .glass-card:hover,
   :root[data-liquid="true"] .depth-card:hover { transform: none; }
 
+  /* Illustration Dev : l'affiche du dénouement (fix vert, signature). */
+  .devscene [class^="ds2-"], .devscene [class*=" ds2-"] {
+    animation: none !important;
+  }
+
+  .devscene .ds2-bug,
+  .devscene .ds2-flash,
+  .devscene .ds2-jail {
+    opacity: 0 !important;
+  }
+
+  .devscene .ds2-fix,
+  .devscene .ds2-signature {
+    opacity: 1 !important;
+  }
 }
 
 /* ── Fondu de thème ──────────────────────────────────────────────────
@@ -1851,6 +1866,106 @@ input[type="search"]::-webkit-search-decoration {
    (jamais de boucle), transform et opacity uniquement, couleurs par
    jetons. Sous mouvement réduit, la durée tombe à ~0 : les glyphes
    finissent invisibles — la feuille reste, la pluie non. */
+.devscene {
+  /* L'illustration à identité fixe : ses couleurs ne suivent pas les
+     thèmes (comme le logo) — elles vivent ici, documentées une fois. */
+  --dsc-bg: #DFE9FA;
+  --dsc-white: #FFFFFF;
+  --dsc-hairline: #B9CBE8;
+  --dsc-bush: #7FC79A;
+  --dsc-bush-d: #5FAF82;
+  --dsc-signal: #FF7A45;
+  --dsc-skin: #C49065;
+  --dsc-skin-d: #A87A50;
+  --dsc-skin-s: #B07B52;
+  --dsc-hair: #2A2119;
+  --dsc-ink: #2B2B33;
+  --dsc-tee: #2F7D4F;
+  --dsc-tee-d: #276A43;
+  --dsc-jean: #4A7CE8;
+  --dsc-jean-d: #3D69C4;
+  --dsc-sneaker: #F2F1EC;
+  --dsc-paper: #F4F3EE;
+  --dsc-paper-line: #C9D4E8;
+  --dsc-ok: #5FBF86;
+  --dsc-danger: #FF6B61;
+  --dsc-gold: #E6BC75;
+  --dsc-av-lime: #CDE3A4;
+  --dsc-av-pink: #F0C4C9;
+  --dsc-av-violet: #DBC4DF;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DEV SCENE — l'illustration animée de la page de connexion (style
+   flat Google). Une prise de douze secondes, rejouable par clé, jamais
+   une boucle. Tout ne touche que transform et opacity ; les poses de
+   repos sont les poses finales : sous mouvement réduit, l'affiche.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Les tuiles du réseau respirent (deux ondulations, pas une boucle). */
+@keyframes ds2Float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+.devscene .ds2-float { animation: ds2Float 1.6s var(--ease-continuous) 2 backwards; animation-delay: 0.4s; }
+
+/* Le personnage : deux bonds de joie à la célébration. */
+@keyframes ds2Hop {
+  0%, 100% { transform: translateY(0); }
+  40%      { transform: translateY(-14px); }
+}
+.devscene .ds2-hop { animation: ds2Hop 620ms var(--ease-spring) 2 backwards; animation-delay: 10.3s; }
+
+/* Les yeux clignent trois fois pendant la frappe. */
+@keyframes ds2Blink {
+  0%, 46%, 100% { transform: scaleY(1); }
+  50%, 96%      { transform: scaleY(0.1); }
+}
+.devscene .ds2-eyes { animation: ds2Blink 420ms steps(1, end) 3 backwards; animation-delay: 1s; transform-box: fill-box; transform-origin: center; }
+
+/* Le badge rouge du bug surgit ; la coche verte le remplace au fix. */
+.devscene .ds2-bug { opacity: 0; animation: ds2Pop var(--d-burst) var(--ease-snap) 2.6s forwards; }
+.devscene .ds2-fix { opacity: 0; animation: ds2Pop var(--d-burst) var(--ease-snap) 10.1s forwards; }
+@keyframes ds2Pop {
+  0% { opacity: 0; transform: scale(0.5); }
+  55% { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.devscene .ds2-fix, .devscene .ds2-bug { transform-box: fill-box; transform-origin: center; }
+
+/* Le flash du cliché. */
+.devscene .ds2-flash { opacity: 0; animation: ds2Flash 280ms var(--ease-continuous) backwards; animation-delay: 4.9s; }
+@keyframes ds2Flash {
+  0% { opacity: 0; transform: scale(0.4); }
+  30% { opacity: 0.9; transform: scale(1.3); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+
+/* Les bulles d'aide montent une à une depuis le bas. */
+@keyframes ds2Rise {
+  0% { opacity: 0; transform: translateY(22px) scale(0.85); }
+  60% { opacity: 1; transform: translateY(-3px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.devscene .ds2-rise { opacity: 0; animation: ds2Rise var(--d-burst) var(--ease-spring) backwards; }
+.devscene .ds2-rise-1 { animation-delay: 6.4s; }
+.devscene .ds2-rise-2 { animation-delay: 7.3s; }
+.devscene .ds2-rise-3 { animation-delay: 8.2s; }
+
+/* Les confettis pleuvent une fois. */
+.devscene .ds2-jail { animation: confettiFall var(--d-orbit) var(--ease-entrance) backwards; }
+.devscene .ds2-jail-1 { animation-delay: 10.6s; }
+.devscene .ds2-jail-2 { animation-delay: 10.75s; }
+.devscene .ds2-jail-3 { animation-delay: 10.9s; }
+.devscene .ds2-jail-4 { animation-delay: 11.05s; }
+
+/* La signature se pose. */
+.devscene .ds2-signature { opacity: 0; animation: ds2In var(--d-slow) var(--ease-entrance) 11.3s forwards; }
+@keyframes ds2In {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
 @keyframes confettiFall {
   from { opacity: 0; transform: translateY(-20px) rotate(0deg) scale(0.85); }
   18%  { opacity: 1; }

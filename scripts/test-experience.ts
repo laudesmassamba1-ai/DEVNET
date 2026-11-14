@@ -122,6 +122,7 @@ check("mouvement : aucun « transition: all »", transitionAll.length === 0, tra
 
 const BRAND_ALLOWED = new Set([
   "app/layout.tsx",
+  "components/DevScene.tsx",   // l'illustration-scénario : identité visuelle fixe, comme le logo
   "components/AnimatedLogo.tsx",
   "components/SplashScreen.tsx",
   "components/LoadingLogo.tsx",
