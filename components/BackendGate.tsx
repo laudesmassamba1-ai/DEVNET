@@ -37,7 +37,7 @@ export function BackendGate({ children }: { children: React.ReactNode }) {
       <div className="flex min-h-dvh flex-col items-center justify-center gap-4 px-4 text-center">
         <div className="text-lg font-medium">Backend indisponible</div>
         <div className="max-w-md text-sm text-chalk/70">
-          {backend.reason ?? "Impossible de se connecter à Supabase."}
+          {backend.reason ?? "Impossible de joindre le serveur DevNet."}
         </div>
         <button
           type="button"

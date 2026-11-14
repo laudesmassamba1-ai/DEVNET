@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import Script from "next/script";
 import { BackendGate } from "@/components/BackendGate";
 import { EventPump } from "@/components/EventPump";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { PwaManager } from "@/components/PwaManager";
 import { SplashScreen } from "@/components/SplashScreen";
 import { ThemeApplier } from "@/components/ThemeApplier";
@@ -196,6 +197,7 @@ export default function RootLayout({
           <ThemeApplier />
           <PwaManager>
             <TourProvider>
+              <OfflineBanner />
               <BackendGate>{children}</BackendGate>
               <EventPump />
             </TourProvider>

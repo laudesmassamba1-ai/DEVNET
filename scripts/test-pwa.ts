@@ -145,6 +145,14 @@ async function main() {
   check("service worker : écritures jamais interceptées", /method !== "GET"/.test(sw));
   check("service worker : sonde hors cache", sw.includes('/api/backend-check"'));
   check("service worker : déconnexion purge données et pages", sw.includes("caches.delete(PAGE_CACHE)"));
+  /* Le film de présentation et les captures sont des fichiers de build :
+     sans eux dans la branche statique, /login se rouvre hors-ligne avec un
+     cadre vide. Les médias d'API (avatars, photos de statut) suivent une
+     autre route : une image déjà vue doit rester visible. */
+  check("service worker : film et captures mis en cache", sw.includes('startsWith("/motion/")'));
+  check("service worker : médias d'API en cache", sw.includes("mediaFirst"));
+  check("service worker : repli image sans icône cassée", sw.includes("image/svg+xml"));
+  check("service worker : version de cache à jour", /devnet-pwa-v\d+/.test(sw));
 
   checkSource(PWA_OFFLINE_URL.replace(/^\//, "public/"), [
     'lang="fr"',

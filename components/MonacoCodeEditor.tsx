@@ -327,6 +327,13 @@ export function MonacoCodeEditor({
 
   return (
     <div
+      // `data-overflow-ok` : Monaco place dans son DOM des surfaces de mesure
+      // volontairement gigantesques (2^24 px) pour calculer la largeur du
+      // texte. Elles sont clippées par `overflow-hidden` et n'atteignent
+      // jamais la page — le document reste à la largeur du viewport. Sans
+      // cette marque, la porte `layout.spec.ts` les prend pour un débordement
+      // réel et échoue par intermittence, selon que Monaco est monté ou non.
+      data-overflow-ok=""
       className={`overflow-hidden bg-(--color-code-bg) ${
         fill
           ? "flex h-full min-h-0 flex-col"

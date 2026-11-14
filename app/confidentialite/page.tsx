@@ -22,11 +22,11 @@ const SECTIONS = [
   },
   {
     title: "4. Où et comment elles sont conservées",
-    text: "En mode connecté, les données sont stockées dans une base PostgreSQL hébergée par un prestataire (Supabase), protégée par des règles d’accès au niveau des lignes. En mode démonstration, lorsque le backend n’est pas joignable, les données sont fictives et enregistrées uniquement dans le stockage local de votre navigateur : elles ne quittent pas votre appareil. Le jeton GitHub n’est jamais conservé en clair ; la base n’en garde qu’une référence.",
+    text: "En mode connecté, les données sont stockées dans une base PostgreSQL hébergée par un prestataire (Systalink), protégée par des règles d’accès au niveau des lignes et chiffrée en transit. En mode démonstration, lorsque le backend n’est pas joignable, les données sont fictives et enregistrées uniquement dans le stockage local de votre navigateur : elles ne quittent pas votre appareil. Le jeton GitHub n’est jamais conservé en clair ; la base n’en garde qu’une référence.",
   },
   {
     title: "5. Services tiers",
-    text: "Le service s’appuie sur des prestataires tiers : hébergement de la base de données (Supabase), connexion GitHub si vous l’activez, et distribution des moteurs d’exécution de code. L’exécution du code se fait dans votre navigateur ; le code que vous exécutez n’est pas envoyé à nos serveurs. Chacun de ces prestataires a sa propre politique de confidentialité.",
+    text: "Le service s’appuie sur des prestataires tiers : hébergement de la base de données (Systalink), connexion GitHub si vous l’activez, et distribution des moteurs d’exécution de code. L’exécution du code se fait dans votre navigateur ; le code que vous exécutez n’est pas envoyé à nos serveurs. Chacun de ces prestataires a sa propre politique de confidentialité.",
   },
   {
     title: "6. Durées de conservation",

@@ -1,4 +1,4 @@
-const VERSION = "devnet-pwa-v4";
+const VERSION = "devnet-pwa-v5";
 const STATIC_CACHE = `${VERSION}-static`;
 const PAGE_CACHE = `${VERSION}-pages`;
 const DATA_CACHE = `${VERSION}-data`;
@@ -186,8 +186,32 @@ async function networkFirstData(event, request) {
   }
 }
 
-async function handleNavigation(event, request, url) {
+/* ── Médias : réseau d'abord, cache au secours ──
+   Une image déjà vue reste visible hors-ligne. Le cache est celui des
+   données (`DATA_CACHE`) : ce sont des ressources d'API, pas des
+   fichiers de build, et elles partent à la déconnexion avec le reste. */
+async function mediaFirst(event, request) {
+  const cache = await caches.open(DATA_CACHE);
   try {
+    const response = await fetch(request);
+    if (response.ok) {
+      await cache.put(request, response.clone());
+      await trimCache(cache, MAX_DATA_ENTRIES);
+    }
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    // Pas de cache : une réponse d'erreur nue casserait la mise en page.
+    // Un SVG transparent laisse la place, sans icône cassée.
+    return new Response(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>',
+      { headers: { "Content-Type": "image/svg+xml" } },
+    );
+  }
+}
+
+async function handleNavigation(event, request, url) {  try {
     const response = await fetch(request);
     // Tout écran visité en ligne est réouvrable hors-ligne : l'app
     // native se rouvre là où on l'avait laissée, pas sur une page
@@ -239,10 +263,21 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/icons/") ||
     url.pathname.startsWith("/stickers/") ||
     url.pathname.startsWith("/splash/") ||
+    url.pathname.startsWith("/motion/") ||
+    url.pathname.startsWith("/screenshots/") ||
     url.pathname === "/logo.svg" ||
     url.pathname === "/favicon.svg";
 
   if (isStatic) {
     event.respondWith(staleWhileRevalidate(event, request));
+    return;
+  }
+
+  // Médias servis par l'API (avatars, photos de statut, pièces jointes).
+  // Ils ne sont pas des données : une image déjà vue doit rester visible
+  // hors-ligne, sans quoi le fil se lit en texte troué. Réseau d'abord,
+  // puis le cache — et jamais de réponse d'erreur nue pour une image.
+  if (url.pathname.startsWith("/api/media/") && request.destination === "image") {
+    event.respondWith(mediaFirst(event, request));
   }
 });
