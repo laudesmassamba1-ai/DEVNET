@@ -15,6 +15,8 @@
  * les écrans migrer vers des services explicites.
  */
 
+import { clearLastOnline, purgeOfflineCache } from "@/lib/offline-cache";
+
 export type Row = Record<string, unknown>;
 
 export interface PostgrestError {
@@ -798,10 +800,16 @@ export const restAuth: RestAuth = {
         credentials: "same-origin",
       });
       notifyAuth("SIGNED_OUT", null);
+      // Les données hors-ligne sont personnelles : elles partent avec
+      // la session, comme le cache du navigateur ne le fait pas seul.
+      clearLastOnline();
+      purgeOfflineCache();
       if (!response.ok) return { error: await parseError(response) };
       return { error: null };
     } catch (error) {
       notifyAuth("SIGNED_OUT", null);
+      clearLastOnline();
+      purgeOfflineCache();
       return {
         error: pgError(
           error instanceof Error ? error.message : "Déconnexion impossible",

@@ -125,6 +125,15 @@ export const viewport: Viewport = {
   ],
   width: "device-width",
   initialScale: 1,
+  /* `maximumScale: 1` — une app native ne zoome pas. C'est aussi ce qui
+     causait le **scroll horizontal sur iPhone** : iOS auto-zoomait au
+     focus d'un champ de moins de 16 px, le viewport dépassait 100 % et
+     la page pouvait être panoramiquée latéralement jusqu'au pincement
+     de retour. Une PWA sans zoom se comporte comme l'app qu'elle
+     remplace ; l'accessibilité du texte reste assurée par la typo du
+     design system. */
+  maximumScale: 1,
+  userScalable: false,
   viewportFit: "cover",
 };
 

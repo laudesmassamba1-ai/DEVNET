@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { api } from "@/lib/api/client";
 import { getOrCreateProfile } from "@/lib/api/profile";
+import { markLastOnline } from "@/lib/offline-cache";
 import type { User } from "@/lib/types";
 import type { AuthSession as Session, AuthUser } from "@/lib/rest/client";
 
@@ -91,6 +92,12 @@ export function useSession(): State & { retry: () => void; refresh: () => Promis
       }
 
       const profile = await resolveProfile(session);
+
+      /* Le profil est résolu : cette session en ligne a existé. Le
+         marqueur autorise le mode hors-ligne réel — le service worker
+         servira les dernières données réelles au prochain passage
+         sans réseau (voir BackendGate). */
+      if (alive && profile) markLastOnline();
 
       if (alive) setState({ session, profile, loading: false, failed: !profile });
     })();

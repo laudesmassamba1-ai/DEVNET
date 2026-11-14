@@ -137,8 +137,14 @@ async function main() {
 
   const sw = readFileSync(path.join(process.cwd(), "public", "sw.js"), "utf8");
   check("service worker : cache limité", !sw.includes('caches.open("devnet-app"'));
-  check("service worker : aucune donnée d’API", !sw.includes("DATA_CACHE"));
-  check("service worker : pas de cache HTML privé", !sw.includes("/feed"));
+  /* Mode hors-ligne réel : les lectures de l'API sont mises en cache
+     (réseau d'abord, cache au secours), les écritures jamais, la sonde
+     jamais, et la déconnexion purge données et pages visitées. */
+  check("service worker : cache de données dédié", sw.includes("DATA_CACHE"));
+  check("service worker : lectures en réseau d'abord", sw.includes("networkFirstData"));
+  check("service worker : écritures jamais interceptées", /method !== "GET"/.test(sw));
+  check("service worker : sonde hors cache", sw.includes('/api/backend-check"'));
+  check("service worker : déconnexion purge données et pages", sw.includes("caches.delete(PAGE_CACHE)"));
 
   checkSource(PWA_OFFLINE_URL.replace(/^\//, "public/"), [
     'lang="fr"',
