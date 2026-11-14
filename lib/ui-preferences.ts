@@ -36,6 +36,31 @@ export function applyMotionLevel(level: MotionLevel): boolean {
   }
 }
 
+/* ── Verre liquide ──
+   Thème optionnel, indépendant de la palette : il pose `data-liquid` sur
+   <html>, et le bloc `:root` avec data-liquid dans globals.css fait le
+   reste. Absent du stockage = désactivé (le rendu plat d'origine). */
+export const LIQUID_GLASS_KEY = "devnet:liquid-glass";
+
+export function normalizeLiquidGlass(value: string | null | undefined): boolean {
+  return value === "true";
+}
+
+export function applyLiquidGlass(enabled: boolean): boolean {
+  if (typeof document === "undefined") return false;
+  if (enabled) {
+    document.documentElement.dataset.liquid = "true";
+  } else {
+    delete document.documentElement.dataset.liquid;
+  }
+  try {
+    localStorage.setItem(LIQUID_GLASS_KEY, String(enabled));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function applyReducedMotion(enabled: boolean): boolean {
   if (typeof document === "undefined") return false;
   document.documentElement.dataset.reduceMotion = enabled ? "true" : "false";

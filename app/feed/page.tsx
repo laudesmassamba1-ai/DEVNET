@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell, IconButton } from "@/components/AppShell";
 import { EmptyState, Loading, PrimaryButton, Spinner } from "@/components/Avatar";
+import { BuildPipeline } from "@/components/BuildPipeline";
 import { CodeBlock } from "@/components/CodeBlock";
 import { CommentsPanel } from "@/components/CommentsPanel";
 import { GifPicker } from "@/components/GifPicker";
@@ -625,6 +626,14 @@ export default function FeedPage() {
       // croire que la publication a échoué. On le dit, on ne bloque rien.
       if (linkError) toast("Publié, mais le projet n'a pas pu être lié.", "err");
     }
+
+    /* Le pipeline de build doit être lisible, pas flashé : la livraison
+       est retenue 900 ms minimum — `Promise.all` prend le plus long des
+       deux, et la publication réelle n'attend personne. */
+    await Promise.all([
+      Promise.resolve(),
+      new Promise((resolve) => setTimeout(resolve, 900)),
+    ]);
 
     resetSheet();
     // On relit après la publication : le post publié doit apparaître **en
@@ -1298,19 +1307,30 @@ export default function FeedPage() {
         </div>
 
         <div className="mt-1 flex gap-2.5">
-          <button type="button" onClick={resetSheet}
-            className="rounded-(--radius-input) border border-transparent px-5 text-13
-              font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
-            Annuler
-          </button>
-          <button
-            type="button" onClick={publish} disabled={busy || mediaBusy}
-            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
-              rounded-(--radius-input) border border-line-3 bg-signal text-13 font-bold
-              text-void shadow-sh-2 disabled:opacity-40"
-          >
-            Publier
-          </button>
+          {busy ? (
+            /* La publication compile : lint → build → ship. Le pipeline
+               tient la place de la barre d'action le temps de la
+               livraison — le geste est lisible, pas un spinner muet. */
+            <div className="flex-1">
+              <BuildPipeline />
+            </div>
+          ) : (
+            <>
+              <button type="button" onClick={resetSheet}
+                className="rounded-(--radius-input) border border-transparent px-5 text-13
+                  font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
+                Annuler
+              </button>
+              <button
+                type="button" onClick={publish} disabled={busy || mediaBusy}
+                className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+                  rounded-(--radius-input) border border-line-3 bg-signal text-13 font-bold
+                  text-void shadow-sh-2 disabled:opacity-40"
+              >
+                Publier
+              </button>
+            </>
+          )}
         </div>
       </Sheet>
 

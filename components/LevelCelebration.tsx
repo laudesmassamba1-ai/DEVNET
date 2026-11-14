@@ -29,6 +29,22 @@ import { Sheet } from "./Sheet";
 /** Le palier vu est mémorisé localement : rien de sensible, juste un niveau. */
 const LEVEL_SEEN_KEY = "devnet:level-seen";
 
+/* Les glyphes du métier. Les couleurs sont des jetons — jamais un hex. */
+const CONFETTI = [
+  { text: "</>", ink: "var(--color-signal)" },
+  { text: "{ }", ink: "var(--color-phosphor)" },
+  { text: ";", ink: "var(--color-chalk-3)" },
+  { text: "01", ink: "var(--color-warn)" },
+  { text: "&&", ink: "var(--color-info)" },
+  { text: "=>", ink: "var(--color-signal-soft)" },
+  { text: "#", ink: "var(--color-chalk-4)" },
+  { text: "git", ink: "var(--color-phosphor)" },
+  { text: "||", ink: "var(--color-signal)" },
+  { text: "$", ink: "var(--color-chalk-3)" },
+  { text: "!=", ink: "var(--color-warn)" },
+  { text: "[]", ink: "var(--color-info)" },
+] as const;
+
 function readSeenLevel(): number | null {
   try {
     const raw = localStorage.getItem(LEVEL_SEEN_KEY);
@@ -81,7 +97,28 @@ export function LevelCelebration({ xp }: { xp?: number }) {
 
   return (
     <Sheet open onClose={close} title="Palier franchi">
-      <div className="flex flex-col items-center gap-4 px-2 pb-2 text-center">
+      <div className="relative overflow-hidden">
+        {/* La pluie de glyphes : les caractères du métier tombent une
+            fois, puis la feuille reste seule — le plaisir est rare et
+            mérité, jamais une boucle. */}
+        <div aria-hidden className="pointer-events-none absolute inset-0">
+          {CONFETTI.map((glyph, i) => (
+            <span
+              key={i}
+              className="confetti-glyph"
+              style={{
+                left: `${(i * 37 + 8) % 96}%`,
+                color: glyph.ink,
+                animationDelay: `${(i % 6) * 90}ms`,
+                "--confetti-spin": `${(i % 2 ? 1 : -1) * (90 + (i % 5) * 70)}deg`,
+              } as React.CSSProperties}
+            >
+              {glyph.text}
+            </span>
+          ))}
+        </div>
+
+        <div className="flex flex-col items-center gap-4 px-2 pb-2 text-center">
         {/* Le cachet éclate une fois (`mo-burst`, one-shot) : c'est le
             seul « plaisir » du contrat d'expérience, dépensé ici. */}
         <div
@@ -110,6 +147,7 @@ export function LevelCelebration({ xp }: { xp?: number }) {
         >
           Continuer
         </button>
+        </div>
       </div>
     </Sheet>
   );

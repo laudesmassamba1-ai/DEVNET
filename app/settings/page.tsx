@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api/client";
 import { AppShell } from "@/components/AppShell";
+import { LiquidGlassToggle } from "@/components/LiquidGlassToggle";
 import { usePwa } from "@/components/PwaManager";
 import { useSession } from "@/hooks/useSession";
 import { Icon } from "@/components/Icon";
@@ -450,6 +451,7 @@ export default function SettingsPage() {
                 ))}
               </div>
             </fieldset>
+            <LiquidGlassToggle />
             <fieldset className="mt-5 border-t border-line-2 pt-4">
               <legend className="text-13 font-semibold text-chalk">Mouvement de l’interface</legend>
               <p className="mt-1 text-12 text-chalk-4">

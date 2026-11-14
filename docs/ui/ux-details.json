@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T08:41:10.395Z",
+  "generatedAt": "2026-11-14T09:36:00.310Z",
   "details": [
     {
       "metric": "arbitraryValues",
@@ -304,73 +304,73 @@
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 819,
+      "line": 828,
       "snippet": "mx-auto flex w-full min-w-0 max-w-[1000px] items-start justify-center gap-6 overflow-x-clip"
     },
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 820,
+      "line": 829,
       "snippet": "w-full min-w-0 max-w-[720px] shrink-0 sm:max-w-[620px]"
     },
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 820,
+      "line": 829,
       "snippet": "w-full min-w-0 max-w-[720px] shrink-0 sm:max-w-[620px]"
     },
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 822,
+      "line": 831,
       "snippet": "font-display text-[22px] font-semibold tracking-[-0.03em]"
     },
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 822,
+      "line": 831,
       "snippet": "font-display text-[22px] font-semibold tracking-[-0.03em]"
     },
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 890,
+      "line": 899,
       "snippet": "label-micro min-w-0 flex-1 leading-[1.5] text-chalk-4"
     },
     {
       "metric": "focusVisibleUses",
       "file": "app/feed/page.tsx",
-      "line": 950,
+      "line": 959,
       "snippet": "min-h-(--h-tap) px-3 font-bold text-signal\n                hover:underline focus-visible:outline-2\n                focus-visible:outline-offset-2 focus-visible:"
     },
     {
       "metric": "focusVisibleUses",
       "file": "app/feed/page.tsx",
-      "line": 950,
+      "line": 959,
       "snippet": "min-h-(--h-tap) px-3 font-bold text-signal\n                hover:underline focus-visible:outline-2\n                focus-visible:outline-offset-2 focus-visible:"
     },
     {
       "metric": "focusVisibleUses",
       "file": "app/feed/page.tsx",
-      "line": 950,
+      "line": 959,
       "snippet": "min-h-(--h-tap) px-3 font-bold text-signal\n                hover:underline focus-visible:outline-2\n                focus-visible:outline-offset-2 focus-visible:"
     },
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 1046,
+      "line": 1055,
       "snippet": "inline-flex h-(--h-tap) items-center gap-2\n                  rounded-(--radius-input) border border-line-2\n                  px-4 font-mono text-12 font-bold up"
     },
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 1089,
+      "line": 1098,
       "snippet": "mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3\n            text-14 leading-[1.6] placeholder:text-chalk-4"
     },
     {
       "metric": "arbitraryValues",
       "file": "app/feed/page.tsx",
-      "line": 1101,
+      "line": 1110,
       "snippet": "inline-flex min-h-(--h-tap) items-center gap-1.5\n              rounded-(--radius-chip) border border-line-3 px-3 font-mono\n              text-12 font-bold upper"
     },
     {
@@ -1246,7 +1246,7 @@
     {
       "metric": "arbitraryValues",
       "file": "app/settings/page.tsx",
-      "line": 305,
+      "line": 306,
       "snippet": "mo-rise mx-auto w-full max-w-[760px] px-5 py-8 sm:py-10"
     },
     {
@@ -1815,6 +1815,12 @@
     },
     {
       "metric": "arbitraryValues",
+      "file": "components/BuildPipeline.tsx",
+      "line": 44,
+      "snippet": "px-3 py-2 font-mono text-12 leading-[1.9]"
+    },
+    {
+      "metric": "arbitraryValues",
       "file": "components/ChatComposer.tsx",
       "line": 102,
       "snippet": "max-h-33 min-h-(--h-input) flex-1 resize-none\n          rounded-(--radius-input) border border-line-3 bg-surface px-3.5\n          py-[10px] text-base leading-[1"
@@ -2208,30 +2214,6 @@
       "file": "components/IssuePanel.tsx",
       "line": 417,
       "snippet": "mb-5 w-full resize-y rounded-(--radius-input) border\n            border-line-3 bg-surface px-3.5 py-2.5 text-13 leading-relaxed\n            shadow-sh-1 transiti"
-    },
-    {
-      "metric": "arbitraryValues",
-      "file": "components/LevelCelebration.tsx",
-      "line": 98,
-      "snippet": "font-display text-[1.6rem] font-bold leading-none tracking-[-0.03em] text-chalk"
-    },
-    {
-      "metric": "arbitraryValues",
-      "file": "components/LevelCelebration.tsx",
-      "line": 98,
-      "snippet": "font-display text-[1.6rem] font-bold leading-none tracking-[-0.03em] text-chalk"
-    },
-    {
-      "metric": "arbitraryValues",
-      "file": "components/LevelCelebration.tsx",
-      "line": 101,
-      "snippet": "max-w-[32ch] text-13 leading-[1.6] text-chalk-3"
-    },
-    {
-      "metric": "arbitraryValues",
-      "file": "components/LevelCelebration.tsx",
-      "line": 101,
-      "snippet": "max-w-[32ch] text-13 leading-[1.6] text-chalk-3"
     },
     {
       "metric": "arbitraryValues",
@@ -2768,12 +2750,6 @@
       "snippet": "mode-live block size-[5px] bg-phosphor"
     },
     {
-      "metric": "fieldsWithoutLabelAssociation",
-      "file": "components/StatusComposer.tsx",
-      "line": 373,
-      "snippet": "input"
-    },
-    {
       "metric": "arbitraryValues",
       "file": "components/StdinBubble.tsx",
       "line": 59,
@@ -2914,85 +2890,85 @@
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 671,
+      "line": 674,
       "snippet": "h-[3px] flex-1 overflow-hidden rounded-full bg-void/25"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 673,
+      "line": 676,
       "snippet": "animate-[storyBar_linear_forwards]"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 773,
+      "line": 776,
       "snippet": "h-full w-full max-w-[min(100%,540px)]"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 776,
+      "line": 779,
       "snippet": "story-aperture relative h-full p-[1px]"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 863,
+      "line": 866,
       "snippet": "max-h-[70%] overflow-y-auto whitespace-pre-wrap text-center\n                      text-[24px] leading-[1.4] font-semibold text-chalk"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 863,
+      "line": 866,
       "snippet": "max-h-[70%] overflow-y-auto whitespace-pre-wrap text-center\n                      text-[24px] leading-[1.4] font-semibold text-chalk"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 863,
+      "line": 866,
       "snippet": "max-h-[70%] overflow-y-auto whitespace-pre-wrap text-center\n                      text-[24px] leading-[1.4] font-semibold text-chalk"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 983,
+      "line": 987,
       "snippet": "absolute inset-y-0 left-0 w-[18%] cursor-w-resize disabled:cursor-default"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 989,
+      "line": 994,
       "snippet": "absolute inset-y-0 right-0 w-[18%] cursor-e-resize"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 1027,
+      "line": 1032,
       "snippet": "story-tray relative mx-auto max-h-[70%] min-h-33 w-full\n              max-w-[440px] overflow-y-auto rounded-t-(--radius-card) p-3\n              pb-[max(12px,var"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 1027,
+      "line": 1032,
       "snippet": "story-tray relative mx-auto max-h-[70%] min-h-33 w-full\n              max-w-[440px] overflow-y-auto rounded-t-(--radius-card) p-3\n              pb-[max(12px,var"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 1027,
+      "line": 1032,
       "snippet": "story-tray relative mx-auto max-h-[70%] min-h-33 w-full\n              max-w-[440px] overflow-y-auto rounded-t-(--radius-card) p-3\n              pb-[max(12px,var"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 1158,
+      "line": 1163,
       "snippet": "flex h-11 items-center justify-center rounded-(--radius-chip)\n                      text-[22px] hover:bg-surface-2"
     },
     {
       "metric": "arbitraryValues",
       "file": "components/StoryViewerLive.tsx",
-      "line": 1187,
+      "line": 1192,
       "snippet": "story-control flex size-11 items-center justify-center\n                      text-[20px] leading-none transition-transform active:scale-95"
     },
     {
