@@ -179,6 +179,7 @@ export function StoryViewer({
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const seenRef = useRef<Set<string>>(new Set());
+  const stageRef = useRef<HTMLDivElement | null>(null);
 
   const current = stories[index];
   const isMine = current?.author_id === me;
@@ -296,6 +297,17 @@ export function StoryViewer({
     document.addEventListener("visibilitychange", sync);
     return () => document.removeEventListener("visibilitychange", sync);
   }, []);
+
+  // La vidéo s'arrête avec la story : appui maintenu, réponse, liste des
+  // vues, plateau de stickers ou onglet masqué. La barre de progression
+  // seule ne suffit pas, le son continuerait.
+  const halted = paused || hidden || replyOpen || trayOpen || placing || viewersOpen;
+  useEffect(() => {
+    stageRef.current?.querySelectorAll("video").forEach((v) => {
+      if (halted) v.pause();
+      else if (!reduced && v.paused && !v.ended) void v.play().catch(() => {});
+    });
+  }, [halted, reduced, current?.id]);
 
   const storyDurationMs =
     mediaDuration && mediaDuration > 0 ? Math.max(1500, Math.round(mediaDuration * 1000)) : STORY_MS;
@@ -652,6 +664,7 @@ export function StoryViewer({
       role="dialog"
       aria-modal="true"
       aria-label={`Story de ${author?.prenom ?? "quelqu'un"}`}
+      ref={stageRef}
       className="story-stage fixed inset-0 z-(--z-modal) flex flex-col"
       style={{
         // iPhone X et suivants : le contenu ne passe ni sous l'encoche ni
@@ -810,6 +823,9 @@ export function StoryViewer({
                   preload="auto"
                   autoPlay={!reduced}
                   className="absolute inset-0 h-full w-full bg-void object-contain"
+                  onPlay={(e) => {
+                    if (halted) e.currentTarget.pause();
+                  }}
                   onLoadedMetadata={(e) => {
                     const d = e.currentTarget.duration;
                     if (Number.isFinite(d) && d > 0) setMediaDuration(d);
@@ -835,6 +851,9 @@ export function StoryViewer({
                   preload="auto"
                   autoPlay={!reduced}
                   className="absolute inset-0 h-full w-full bg-void object-contain"
+                  onPlay={(e) => {
+                    if (halted) e.currentTarget.pause();
+                  }}
                   onLoadedMetadata={(e) => {
                     const d = e.currentTarget.duration;
                     if (Number.isFinite(d) && d > 0) setMediaDuration(d);

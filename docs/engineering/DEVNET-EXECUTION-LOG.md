@@ -199,3 +199,10 @@ Vérifications : `tsc` 0 ; `eslint` 0 erreur sur les fichiers de l'éditeur ; `b
 - Vérifications : `tsc` 0 ; eslint 0 sur les fichiers touchés ; `build` 0 ; `ux:check` tenu (arbitraryValues 493, filesOver800Lines 9).
 - Non vérifié visuellement : aucun rendu navigateur du thème (pas de compte de test pour Paramètres ; pas de capture faite). Statut : NON VERIFIED visuellement.
 - Point ouvert : le verre n'est pas encore appliqué à toutes les surfaces ; seules les classes `glass-*` et les jetons qu'elles lisent changent.
+
+## Visionneuse — la vidéo s'arrête avec la story
+
+- Constat (code lu) : la barre de progression se met en pause (`animationPlayState`), mais l'élément `<video>` ne l'était jamais. Son et image continuaient pendant un appui maintenu, une réponse ouverte, la liste des vues, le plateau de stickers ou onglet masqué.
+- Correctif `components/StoryViewerLive.tsx` : ref sur le conteneur `story-stage` ; constante `halted` (pause, appui, réponse, plateau, vues, onglet masqué) ; effet qui pause ou relance les `<video>` ; `onPlay` sur les deux `<video>` qui repause si `halted` (vidéo montée tardivement).
+- Vérifications : `tsc` 0 ; eslint 0 ; `ux:check` tenu (493 / 9) ; `ui:lint` sans régression.
+- Non vérifié : comportement dans un navigateur (pas de compte de test). Statut : NON VERIFIED visuellement et à l'exécution.
