@@ -51,7 +51,7 @@ import { cascade } from "@/components/Motion";
 import type { Conversation, DirectMessage, UserLite } from "@/lib/types";
 import { canSendMessage, attachmentColumns, type MessageAttachment } from "@/lib/message-media";
 import { fetchStickers, type StickerRowView } from "@/lib/stickers";
-import { convKey, filterConversations, type Peer } from "@/lib/conversations";
+import { convKey, filterConversations, filterMessagesByText, type Peer } from "@/lib/conversations";
 
 /** Ajoute un message reçu à la liste affichée, sans doublon. */
 export default function MessagesPage() {
@@ -74,10 +74,7 @@ export default function MessagesPage() {
    *  de chaque conversation est du bruit pour un geste rare. */
   const [findOpen, setFindOpen] = useState(false);
   /** Messages affichés : toute la conversation, ou ceux qui correspondent. */
-  const findQ = find.trim().toLowerCase();
-  const visible = findQ
-    ? (messages ?? []).filter((m) => m.text.toLowerCase().includes(findQ))
-    : messages;
+  const visible = filterMessagesByText(messages, find);
   const [users, setUsers] = useState<UserLite[]>([]);
   /** Messages non lus par conversation, avec leur quantité. */
   const [unreadConvs, setUnreadConvs] = useState<Record<string, number>>({});
@@ -1011,13 +1008,13 @@ export default function MessagesPage() {
                     value={find}
                     onChange={(e) => setFind(e.target.value)}
                     placeholder={`Chercher dans les échanges avec ${peer.prenom}…`}
-                    className="h-[30px] w-full border-none bg-transparent text-sm text-chalk
+                    className="h-7.5 w-full border-none bg-transparent text-sm text-chalk
                       placeholder:text-chalk-4"
                   />
                   <button
                     type="button" aria-label="Fermer la recherche"
                     onClick={() => { setFind(""); setFindOpen(false); }}
-                    className="mo-press flex size-[20px] items-center justify-center
+                    className="mo-press flex size-5 items-center justify-center
                       border border-line-2 text-chalk-4 transition-colors hover:border-line-3 hover:text-chalk"
                   >
                     <Icon name="close" size={11} strokeWidth={2.4} />

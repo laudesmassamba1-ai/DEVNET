@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-14T02:22:36.445Z",
+  "generatedAt": "2026-11-14T06:53:19.118Z",
   "files": 223,
   "metrics": {
     "iconButtonsWithoutLabel": 0,
@@ -11,7 +11,7 @@
     "autoFocusUses": 8,
     "tinyTextUses": 0,
     "hardcodedColors": 2,
-    "arbitraryValues": 593,
+    "arbitraryValues": 577,
     "outlineNone": 0,
     "focusVisibleUses": 15,
     "errorBoundaries": 1,

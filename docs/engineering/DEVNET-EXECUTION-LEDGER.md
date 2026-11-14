@@ -79,7 +79,7 @@
 |---|---|---|---|---|---|
 | UI-001 | P2 | `VERIFIED`| Avertissements `StoryViewerLive` supprimés ; lint global à 0 erreur / 2 avertissements préexistants hors périmètre.| —| `OPEN` |
 | UI-002 | P3 | `VERIFIED`| `eslint-disable` de fichier retiré de `lib/rest/client.ts` ; dérogation `DynamicRow` isolée/documentée, `RealtimePayload`/handlers typés, callbacks realtime/broadcast ajustés (`useTyping`). `tsc` 0, build vert.| Réduire `DynamicRow` par écrans typés quand le schéma est stabilisé.| `OPEN` |
-| UI-003 | P2 | `IN_PROGRESS`| Textes < 12 px 108→0, valeurs arbitraires 1113→593, `ux:scan`/`ux:check` et cliquet mis à jour. Restent 593 arbitraires.| Continuer la réduction par écran sans remonter le cliquet.| `IN_PROGRESS` |
+| UI-003 | P2 | `IN_PROGRESS`| Textes < 12 px 108→0, valeurs arbitraires 1113→577, `ux:scan`/`ux:check` et cliquet mis à jour. Restent 577 arbitraires (découvrir/profil/IDE en priorité).| Continuer la réduction par écran sans remonter le cliquet.| `IN_PROGRESS` |
 | UI-004 | P1 | `VERIFIED`| 5 destinations mobiles, Découvrir dans la feuille Plus ; `test:navigation` 173/173, layout 6/6.| —| `IN_PROGRESS` |
 | UI-005 | P1 | Clavier iOS : champs visibles, pas de zoom involontaire, safe areas. | `test:pwa` couvre 175 vérifications ; pas d’iPhone physique. | Maintenir le test et vérifier sur appareil réel quand disponible. | `VERIFIED` (émulation) |
 | UI-006 | P1 | `VERIFIED`| Playwright 320/360/390/430/768/1024 × 12 écrans : 6/6.| —| `OPEN` |
@@ -132,10 +132,10 @@ dette explicite qui doit rester visible.
 | STORY-005 | `VERIFIED` | Pagination curseur `(created_at,id)`. |
 | UI-001 | `VERIFIED` | Lint : 0 erreur, 2 avertissements préexistants hors périmètre. |
 | UI-002 | `VERIFIED` | `eslint-disable` fichier retiré ; typage resserré (`DynamicRow` isolé, realtime/broadcast), `tsc` 0. |
-| UI-003 | `IN_PROGRESS` | Tiny 0, arbitraires 593 (cliquet tenu). Réduction restante à poursuivre. |
+| UI-003 | `IN_PROGRESS` | Tiny 0, arbitraires 577 (cliquet tenu). Réduction restante à poursuivre. |
 | UI-004 | `VERIFIED` | Barre mobile 5 destinations. |
 | UI-006 | `VERIFIED` | Matrice responsive 320→1024 (Playwright). |
-| ARC-001 | `IN_PROGRESS` | Frontières extraites (feed-composer/posts, conversations, story-viewer/StickerFace) ; refactor structurel plus profond restant. |
+| ARC-001 | `IN_PROGRESS` | Frontières extraites (feed-composer/posts, conversations + filtre messages, story-viewer/StickerFace) ; refactor structurel plus profond restant. |
 | QA-002 | `FIXED_UNVERIFIED` | Job CI ajouté et validations locales équivalentes ; exécution GitHub à confirmer après push. |
 | QA-003 | `VERIFIED` | Parcours Playwright lecteur et éditeur verts. |
 

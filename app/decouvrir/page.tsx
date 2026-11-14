@@ -123,14 +123,14 @@ function Hero({ data }: { data: Discover | null }) {
       <dl className="mt-6 flex flex-wrap gap-x-10 gap-y-4">
         <div>
           <dt className="label-micro text-chalk-4">Preuves · 7 j</dt>
-          <dd className="tnum mt-1 font-display text-[26px] font-bold leading-none text-chalk">
+          <dd className="tnum mt-1 font-display text-26 font-bold leading-none text-chalk">
             {data ? data.signalsWeek : "—"}
           </dd>
         </div>
         <div>
           <dt className="label-micro text-chalk-4">Ta marche</dt>
           <dd className="mt-1 flex items-baseline gap-2">
-            <span className="font-display text-[26px] font-bold leading-none text-chalk">
+            <span className="font-display text-26 font-bold leading-none text-chalk">
               {level ? level.title : "—"}
             </span>
             {level?.next && (
@@ -142,7 +142,7 @@ function Hero({ data }: { data: Discover | null }) {
         </div>
         <div>
           <dt className="label-micro text-chalk-4">À lire</dt>
-          <dd className="tnum mt-1 font-display text-[26px] font-bold leading-none text-chalk">
+          <dd className="tnum mt-1 font-display text-26 font-bold leading-none text-chalk">
             {data ? data.proofs.length : "—"}
           </dd>
         </div>

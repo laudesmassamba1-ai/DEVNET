@@ -28,3 +28,14 @@ export function filterConversations(
       (p.conv.last_message ?? "").toLowerCase().includes(needle),
   );
 }
+
+/** Filtre les messages d'une conversation par texte recherché. */
+export function filterMessagesByText<T extends { text: string }>(
+  messages: T[] | null,
+  search: string,
+): T[] | null {
+  if (messages === null) return null;
+  const needle = search.trim().toLowerCase();
+  if (!needle) return messages;
+  return messages.filter((m) => m.text.toLowerCase().includes(needle));
+}

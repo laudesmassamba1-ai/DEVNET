@@ -14,7 +14,7 @@
 - Systalink : backups GPG chiffrés (`…013251Z`, `…015347Z`), migrations
   066–070 appliquées (70/70). Bootstrap tenté mais retrait `service_role`
   bloqué (`devnet_u` sans `ADMIN OPTION`, `SET ROLE service_role` réussit).
-- UI-003 : textes < 12 px **0**, valeurs arbitraires **593** (cliquet tenu,
+- UI-003 : textes < 12 px **0**, valeurs arbitraires **577** (cliquet tenu,
   `ux:check` vert). ARC-001 : premières extractions de frontières
   (`feed-composer/posts`, `conversations`, `story-viewer/StickerFace`).
 - Vérifications locales de cette passe : `tsc` 0, `npm run lint` 0 erreur
@@ -28,7 +28,7 @@
 2. Traiter les tâches locales restantes :
    - **ARC-001** : poursuivre le découpage par responsabilités des gros
      composants (feed/messages/lecteur), avec tests avant/après.
-   - **UI-003** : continuer la réduction des 593 valeurs arbitraires
+   - **UI-003** : continuer la réduction des 577 valeurs arbitraires
      (découvrir/profil/IDE en priorité), sans remonter le cliquet.
 3. Validations externes à demander / confirmer :
    - **SEC-002** : exécuter le `REVOKE service_role` avec un rôle admin

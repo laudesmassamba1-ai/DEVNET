@@ -114,3 +114,8 @@ SEC-011/MEDIA-001/SEC-012.
 - UI-003 : jetons `text-13/14/15` dans `app/globals.css`, remplacement massif `text-[9..16px]`→jetons/tailwind standard ; `ux:scan` tiny 108→0, arbitraires 1113→593, `docs/ui/ratchet.json` resserré, `ux:check` vert.
 - Vérifications : `npm run lint` 0 erreur (2 avertissements préexistants), `npm run build` vert, `npx tsc --noEmit` vert, `npm run test:story-playback`/`test:media-security`/`verify:ui` verts dans la passe, Playwright ciblé `stories/editor/layout` 12/12 vert (`PLAYWRIGHT_PORT=3600`).
 - Registres mis à jour (ledger/checkpoint section 10 prevaut) : STORY-002/003/004/005, UI-001/002/004/006, MEDIA-003/004, QA-003 vérifiés ; ARC-001 et UI-003 en cours ; SEC-002/012/QA-002 fixés non vérifiés/externes.
+
+## Reprise 2026-11-14 (poursuite locale)
+- ARC-001 : `filterMessagesByText` extrait dans `lib/conversations.ts` et utilisé par `app/messages/page.tsx` (séparation affichage/état de conversation). Frontières feed/messages/lecteur toujours à approfondir.
+- UI-003 : token `text-26` et remplacements sûrs (découvrir `text-26`, profil `h-2.5`, IDE `h-8`, messages `h-7.5`/`size-5`) ; arbitraires 577, tiny 0, cliquet/`ux:check` verts.
+- Vérifications : `npx tsc --noEmit`, `npm run lint` (0 erreur), `npm run ux:scan`/`ux:check`, `npm run test:story-playback` verts.

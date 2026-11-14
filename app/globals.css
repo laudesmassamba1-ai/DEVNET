@@ -1275,6 +1275,11 @@
   font-size: 0.9375rem;
 }
 
+@utility text-26 {
+  font-size: 1.625rem;
+  line-height: 1;
+}
+
 @utility label-micro {
   font-family: var(--font-mono);
   font-size: var(--text-micro);

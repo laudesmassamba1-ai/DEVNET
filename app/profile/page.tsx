@@ -139,7 +139,7 @@ function WeeklyGoalCard({ profileId }: { profileId: string }) {
         aria-valuemax={target}
         aria-valuenow={count}
         aria-label={`${count} posts sur ${target}`}
-        className="h-[10px] w-full overflow-hidden rounded-full bg-surface-2"
+        className="h-2.5 w-full overflow-hidden rounded-full bg-surface-2"
       >
         <div
           className="h-full rounded-full bg-(--gradient-amber-fire) shadow-(--shadow-sh-1)
