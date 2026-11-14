@@ -15,11 +15,20 @@ import { getServerStoriesRepository } from "@/platform/server-container";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
+/* Un identifiant qui n'est pas un UUID n'est pas une panne : c'est une
+   demande pour une story qui n'existe pas. Sans ce garde, PostgreSQL refuse
+   le transtypage (`22P02`) et la route répondait 503 — un 5xx pour une faute
+   de l'appelant. Même motif que la route `viewers`. */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export async function GET(
   _request: Request,
   context: { params: Promise<{ id: string }> },
 ): Promise<Response> {
   const { id } = await context.params;
+  if (!UUID.test(id)) {
+    return NextResponse.json({ error: "média introuvable" }, { status: 404 });
+  }
 
   try {
     const media = await getServerStoriesRepository().fetchStoryMedia(await currentUserId(), id);

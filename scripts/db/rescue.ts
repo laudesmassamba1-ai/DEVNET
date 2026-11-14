@@ -143,7 +143,7 @@ async function main(): Promise<void> {
 
   console.log(
     `\n→ Restauration vers la base active une fois la décision prise :\n` +
-      `    npm run db:restore -- --file=<archive ci-dessus> --database-url="$DATABASE_URL_UNPOOLED"\n` +
+      `    npm run db:restore -- --file=<archive ci-dessus> --database-url="$DATABASE_URL"\n` +
       `  (DB_TARGET=remote et CONFIRM_REMOTE=<nom de la base> sont exigés.)`,
   );
 }

@@ -148,12 +148,18 @@ WantedBy=timers.target
 `systemctl --user enable --now devnet-backup.timer` après validation. Une
 sauvegarde locale sur la même machine ne remplace pas une copie hors site.
 
-### 3.3 Minuterie installée (Neon, depuis le 2026-11-13)
+### 3.3 Minuterie installée (Systalink depuis le 2026-11-14)
 
 La sauvegarde passe par `scripts/db/backup-daily.sh`, qui lit `.env.local` et
 utilise `DATABASE_URL_UNPOOLED`. L'URL **directe** n'est pas un détail : le
 pooler multiplexe les sessions, et un `pg_dump` à travers lui peut échouer ou
 produire une archive incohérente.
+
+> **Systalink n'a pas de pooler.** `DATABASE_URL` et `DATABASE_URL_UNPOOLED`
+> portent aujourd'hui la même valeur. Le nom reste, la distinction est sans
+> effet : le script fonctionne, mais ne pas croire qu'il contourne un pooler
+> qui n'existe pas. Si un pooler est ajouté un jour, c'est cette variable qu'il
+> faudra pointer sur l'URL directe.
 
 ```bash
 ./scripts/db/backup-daily.sh                    # essai manuel
@@ -167,9 +173,37 @@ rattrapage a lieu si la machine était éteinte), décalage aléatoire de 15 min
 `TimeoutStartSec=15min`. Vérifié par un lancement réel : `Result=success`,
 archive de 73 173 octets avec empreinte SHA-256.
 
+**Bascule vérifiée le 2026-11-14.** La sauvegarde du 14/11 à 03:04 visait encore
+Neon (`base=neondb`) : elle a tourné avant la bascule de la production. Un
+lancement forcé après bascule vise bien la cible (`base=devnet`, hôte Systalink),
+archive de 6 055 610 octets déposée sur R2. La prochaine exécution planifiée
+(15/11 à 03:10) sauvegarde donc Systalink.
+
 À savoir : une minuterie **utilisateur** ne tourne que si la session existe.
 Pour qu'elle fonctionne machine éteinte ou personne connectée :
-`loginctl enable-linger laudes`.
+`loginctl enable-linger laudes`. **C'est le cas ici** (`Linger=yes`).
+
+### 3.4 Couche hors machine (GitHub Actions)
+
+La minuterie ci-dessus dépend d'une seule machine. `.github/workflows/db-backup.yml`
+ajoute une sauvegarde quotidienne à 03:20 UTC, sur un runner GitHub, qui dépose
+l'archive chiffrée sur R2 et la garde 7 jours en artefact.
+
+**État au 2026-11-14 : inactive.** Aucun secret n'est configuré dans le dépôt,
+donc le job s'avertit et saute au lieu d'échouer. Pour l'activer, créer ces
+secrets (Settings → Secrets and variables → Actions) :
+
+| Secret | Contenu |
+|---|---|
+| `DATABASE_URL` | URL Systalink (rôle en lecture) |
+| `DATABASE_PASSPHRASE` | phrase de passe GPG, identique à la copie locale |
+| `R2_ENDPOINT` | endpoint S3 de Cloudflare R2 |
+| `R2_ACCESS_KEY_ID` | clé R2 |
+| `R2_SECRET_ACCESS_KEY` | secret R2 |
+| `R2_BUCKET` | compartiment de sauvegarde |
+
+Tant que ces secrets n'existent pas, la seule sauvegarde est locale à cette
+machine. C'est un point unique de défaillance assumé, pas une protection.
 
 ## 4. Restauration testée
 
