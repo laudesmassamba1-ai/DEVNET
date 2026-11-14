@@ -151,9 +151,12 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
 
             {/* L'icône de l'onglet actif se redresse d'un demi-trait :
                 le passage de 1.6 à 2 px est le seul « gras » du jeu,
-                donc il ne peut pas être contesté. */}
+                donc il ne peut pas être contesté. La `key` rejoue le
+                rebond (`mo-pop`) à chaque activation : la sélection est
+                acquittée, pas seulement recolorée. */}
             <span
-              className="flex items-center justify-center"
+              key={String(active)}
+              className={`flex items-center justify-center ${active ? "mo-pop" : ""}`}
               style={{
                 transition: "transform var(--d-base) var(--ease-spring)",
                 transform: active ? "translateY(-1px)" : "none",
@@ -195,7 +198,14 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
                 ? "bg-surface-2 text-signal shadow-(--glass-rim)"
                 : "text-chalk-4 hover:bg-surface-2/60 hover:text-chalk-2"}`}
           >
-            <Icon name={l.icon} size={20} strokeWidth={active ? 2 : 1.8} />
+            {/* Même acquittement que les onglets de gauche : l'icône
+                qui devient active rebondit. */}
+            <span
+              key={String(active)}
+              className={`flex items-center justify-center ${active ? "mo-pop" : ""}`}
+            >
+              <Icon name={l.icon} size={20} strokeWidth={active ? 2 : 1.8} />
+            </span>
             <span className="w-full truncate text-center">{l.label}</span>
           </Link>
         );
@@ -360,7 +370,12 @@ export function Sidebar({
                       ? "bg-surface-2 font-semibold text-signal shadow-(--glass-rim)"
                       : "text-chalk-3 hover:bg-surface-2/60 hover:text-chalk"}`}
                 >
-                  <Icon name={l.icon} size={16} strokeWidth={active ? 2 : 1.6} />
+                  <span
+                    key={String(active)}
+                    className={`inline-flex ${active ? "mo-pop" : ""}`}
+                  >
+                    <Icon name={l.icon} size={16} strokeWidth={active ? 2 : 1.6} />
+                  </span>
                   {l.label}
                 </Link>
               </li>

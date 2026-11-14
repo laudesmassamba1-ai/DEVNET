@@ -13,6 +13,7 @@ import { createPortal } from "react-dom";
 import { Avatar } from "./Avatar";
 import { SectionIcon } from "./SectionIcon";
 import { usePrefersReducedMotion } from "./Motion";
+import { focusOnMount } from "@/lib/focus-on-mount";
 import type { StoryWithAuthor } from "@/lib/types";
 import { timeAgo } from "@/lib/utils";
 import { STORY_REPLY_MAX } from "@/modules/stories";
@@ -1092,6 +1093,7 @@ export function StoryViewer({
             </label>
             <input
               id="story-reply"
+              ref={focusOnMount}
               value={draft}
               onChange={(event) => setDraft(event.target.value)}
               maxLength={STORY_REPLY_MAX}

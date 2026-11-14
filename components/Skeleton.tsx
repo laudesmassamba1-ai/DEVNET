@@ -18,7 +18,7 @@ export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
       aria-hidden="true"
-      className={`mo-pulse rounded-(--radius-chip) bg-surface-2 ${className}`}
+      className={`mo-shimmer rounded-(--radius-chip) bg-surface-2 ${className}`}
     />
   );
 }

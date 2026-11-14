@@ -89,7 +89,7 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mx-3 my-4 rounded-(--radius-card) border border-dashed border-line-2 bg-surface/50"
+    <div className="mo-scale mx-3 my-4 rounded-(--radius-card) border border-dashed border-line-2 bg-surface/50"
       role="status">
       <div className="flex items-center gap-2 border-b border-dashed border-line-2 px-4 py-2">
         <Icon name="terminal" size={11} className="text-signal" />
@@ -97,7 +97,11 @@ export function EmptyState({
       </div>
 
       <div className="flex flex-col items-center gap-3 px-7 py-8 text-center">
-        <div className="flex size-11.5 items-center justify-center rounded-(--radius-input) border
+        {/* L'icône respire : un état vide silencieux se lit comme une
+            panne ; la respiration discrète dit « la surface est prête,
+            il ne s'est encore rien passé ici ». `prefers-reduced-motion`
+            la coupe — l'information vit aussi dans le texte. */}
+        <div className="mo-breathe flex size-11.5 items-center justify-center rounded-(--radius-input) border
           border-line-2 bg-surface-2 text-chalk-3">
           {icon ?? (
             <span className="font-mono text-[1.1rem] font-bold leading-none text-signal"

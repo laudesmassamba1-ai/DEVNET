@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Avatar } from "./Avatar";
 import { CodeBlock } from "./CodeBlock";
 import { Icon, asIconName } from "./Icon";
-import { Motion, useCount } from "./Motion";
+import { Motion, useCount, useInView } from "./Motion";
 import { ReactionPicker } from "./ReactionPicker";
 import { ReportButton } from "./ReportButton";
 import { PostShareButton } from "./PostShareButton";
@@ -194,6 +194,16 @@ export function PostCard({
   const likes = useCount(post.likes ?? 0);
   const comments = useCount(post.comments ?? 0);
 
+  /* L'entrée de la carte est déclenchée à l'approche du regard, pas au
+     chargement : un fil de quarante publications ne doit pas déclencher
+     quarante animations d'un coup — la page « pulse » pendant une
+     seconde, puis l'œil a déjà perdu l'effet. `useInView` anime chaque
+     carte quand elle entre réellement dans le champ ; sous
+     `prefers-reduced-motion`, le CSS neutralise l'animation et `mo-pre`
+     rend l'opacité. La carte est animée sur elle-même (pas de conteneur
+     ajouté) : la disposition flex de `feed-post` reste intacte. */
+  const { ref: cardRef, className: entranceClass } = useInView<HTMLElement>();
+
   // L'heure absolue vit dans la marge, l'heure relative reste dans
   // l'en-tête. Les deux ne disent pas la même chose : « il y a 8 min »
   // situe la lecture, « 08:42 » date le contenu. La marge porte le
@@ -202,6 +212,7 @@ export function PostCard({
 
   return (
     <article
+      ref={cardRef}
       /*
         La carte porte une **surface** et non un simple filet : sur un écran
         large, une suite de paragraphes séparés par des hairlines se lit
@@ -210,10 +221,10 @@ export function PostCard({
         que la gouttière raconte ; le survol la relève d'un cran, sans
         déplacer quoi que ce soit.
       */
-      className="feed-post flex overflow-hidden border-b border-line-2
+      className={`${entranceClass} feed-post flex overflow-hidden border-b border-line-2
         bg-surface/30 transition-[background-color,border-color,transform]
         duration-(--d-fast) ease-(--ease-spring)
-        hover:-translate-y-px hover:border-line-3 hover:bg-surface/60"
+        hover:-translate-y-px hover:border-line-3 hover:bg-surface/60`}
     >
       {/* Gouttière de lecture, distincte du texte et du code intégré. */}
       <div

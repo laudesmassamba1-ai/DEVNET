@@ -56,6 +56,7 @@ mérité).
 | `mo-spin` | feedback | Chargement. |
 | `mo-pulse` | feedback | Chargement (squelette). |
 | `mo-breathe` | hiérarchie | État actif. |
+| `mo-shimmer` | feedback | Chargement (squelette) : un reflet balaie le bloc de gauche à droite — la direction dit *où regarder*, la pulsation seule ne dit rien. Indicateur de chargement uniquement. |
 | `mo-scan` | feedback | Chargement (balayage). |
 | `mo-pre` | — | Neutralise l'animation avant hydratation. |
 

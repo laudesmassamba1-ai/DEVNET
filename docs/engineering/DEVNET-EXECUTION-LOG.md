@@ -141,3 +141,8 @@ SEC-011/MEDIA-001/SEC-012.
 
 Vérifications : `tsc` 0 ; `lint` 0 erreur (2 avertissements préexistants) ; `build` 0 ; `ux:check` cliquet tenu (18) ; `test:media-security` OK ; `test:navigation` 173 OK ; `test:layout` 6/6.
 Incident : une première exécution de `test:layout` a échoué sur conflit de port 4123 (`next-server` orphelin de ma session, arrêté). Relancé : 6/6.
+
+## 2026-11-15 — commit et déploiement production (autorisés explicitement)
+
+- Commit local `b49aeb2` (UI-003 + UI-007 + registres). Pas de push.
+- `vercel --prod --yes` : Ready, alias https://devnet-brown.vercel.app.

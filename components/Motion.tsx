@@ -438,7 +438,7 @@ export async function waitForExit(token = "--d-fast"): Promise<void> {
    navigation : la page « pulse » pendant une seconde et demie avant de
    become lisible. On n'anime que ce qui entre réellement dans le champ.
    ──────────────────────────────────────────────────────────────────────────── */
-export function useInView({
+export function useInView<T extends HTMLElement = HTMLDivElement>({
   threshold = 0.08,
   rootMargin = "0px 0px -8% 0px",
   once = true,
@@ -450,7 +450,7 @@ export function useInView({
   delay?: number;
 } = {}) {
   const [inView, setInView] = useState(false);
-  const ref = useRef<HTMLDivElement | null>(null);
+  const ref = useRef<T | null>(null);
 
   useEffect(() => {
     const el = ref.current;

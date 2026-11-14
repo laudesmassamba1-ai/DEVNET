@@ -894,6 +894,14 @@
   to   { transform: translateY(400%); }
 }
 
+/* Balayage horizontal du shimmer : le reflet traverse le bloc puis
+   repart — un seul axe, donc aucun reflow, et la durée (1,6 s) est
+   assez longue pour se lire comme un passage, pas comme un clignotement. */
+@keyframes shimmerSweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
 /* ── Badge vérifié ─────────────────────────────────────────────────
      Onze cachets : une **silhouette** par palier, et la couleur suit la
      silhouette. Aucun mot n'est peint dessus — le titre vit dans le
@@ -1530,6 +1538,31 @@ input[type="search"]::-webkit-search-decoration {
 @utility mo-rotate { animation: rotateIn   var(--d-enter) var(--ease-spring)   backwards; }
 @utility mo-grow   { animation: growX      var(--d-enter) var(--ease-entrance) backwards; }
 
+/* Le shimmer : un reflet qui balaie un squelette de gauche à droite.
+   La pulsation (`mo-pulse`) dit « attends » sans dire où regarder ; le
+   balayage, lui, a une direction — l'œil suit la lumière et lit la
+   structure du bloc qui arrive, pas seulement son absence. Réserve :
+   indicateurs de chargement uniquement, jamais du contenu réel. */
+@utility mo-shimmer {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-surface-3),
+      transparent
+    );
+    animation: shimmerSweep 1.6s var(--ease-continuous) infinite;
+    pointer-events: none;
+  }
+}
+
 /* Le fondu-matière : la surface émerge du flou au lieu de glisser. Pour
    les plans rapprochés, pas les listes. */
 @utility mo-soft   { animation: enterSoft  var(--d-enter) var(--ease-entrance) backwards; }
@@ -1760,7 +1793,7 @@ input[type="search"]::-webkit-search-decoration {
   }
 
   .mo-spin, .mo-pulse, .mo-breathe, .mo-scan, .mode-live,
-  .caret, .scanlines-live::after {
+  .caret, .mo-shimmer::after, .scanlines-live::after {
     animation: none !important;
   }
 
