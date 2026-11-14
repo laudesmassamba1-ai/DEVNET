@@ -25,6 +25,7 @@ export const ICON_NAMES = [
   "medal", "fork", "target", "info", "flag", "smile", "droplet", "align",
   "sun", "moon", "gif", "video", "pause", "volume", "volume-off",
   "studio", "execute", "sticker",
+  "undo", "redo", "text", "pen", "crop", "filter",
 ] as const;
 
 export type IconName = (typeof ICON_NAMES)[number];

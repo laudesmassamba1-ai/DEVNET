@@ -224,6 +224,26 @@ export const cascade = (index: number, step = 60, max = 600): number =>
   Math.min(index * step, max);
 
 /* ────────────────────────────────────────────────────────────────────────────
+   CountUp — un nombre qui monte de 0 à sa valeur à l'arrivée.
+
+   Un compteur qui apparaît déjà à sa valeur ne raconte rien : monté, il
+   donne la *mesure* du chemin. S'appuie sur `useCount`, donc coupé net
+   sous `prefers-reduced-motion` (la valeur s'affiche d'emblée).
+   ──────────────────────────────────────────────────────────────────────── */
+export function CountUp({
+  value,
+  durationMs = 700,
+  className = "",
+}: {
+  value: number;
+  durationMs?: number;
+  className?: string;
+}) {
+  const current = useCount(value, durationMs);
+  return <span className={className}>{current}</span>;
+}
+
+/* ────────────────────────────────────────────────────────────────────────────
    Tilt — inclinaison 3D pilotée par le pointeur.
 
    ## Pourquoi ce composant ajoute un élément, alors que `Motion` n'en

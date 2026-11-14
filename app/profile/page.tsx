@@ -11,7 +11,9 @@ import { useToast } from "@/components/Toast";
 import { Icon } from "@/components/Icon";
 import { useTour } from "@/components/TourProvider";
 import { WovenBand } from "@/components/WovenBand";
+import { CountUp } from "@/components/Motion";
 import { ProgressPanel } from "@/components/ProgressPanel";
+import { LevelCelebration } from "@/components/LevelCelebration";
 import { ChallengePanel } from "@/components/ChallengePanel";
 import { AchievementsPanel } from "@/components/AchievementsPanel";
 import { useChallenges } from "@/hooks/useChallenges";
@@ -480,26 +482,26 @@ export default function ProfilePage() {
             <div className="mb-4 flex gap-7 border-t border-line-3 pt-3.5">
               <div>
                 <div className="tnum font-display text-[1.35rem] font-bold leading-none">
-                  {posts?.length ?? 0}
+                  <CountUp value={posts?.length ?? 0} />
                 </div>
                 <div className="label-micro mt-0.5 text-chalk-3">Posts</div>
               </div>
               <div>
                 <div className="tnum font-display text-[1.35rem] font-bold leading-none">
-                  {profile.followers ?? 0}
+                  <CountUp value={profile.followers ?? 0} />
                 </div>
                 <div className="label-micro mt-0.5 text-chalk-3">Abonnés</div>
               </div>
               <div>
                 <div className="tnum font-display text-[1.35rem] font-bold leading-none">
-                  {profile.following ?? 0}
+                  <CountUp value={profile.following ?? 0} />
                 </div>
                 <div className="label-micro mt-0.5 text-chalk-3">Suivis</div>
               </div>
               {progress && (
                 <div className="ml-auto text-right">
                   <div className="tnum font-display text-[1.35rem] font-bold leading-none text-signal">
-                    {progress.stats.xp}
+                    <CountUp value={progress.stats.xp} />
                   </div>
                   <div className="label-micro mt-0.5 text-chalk-3">XP</div>
                 </div>
@@ -510,7 +512,7 @@ export default function ProfilePage() {
               <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/60 px-3 py-2.5">
                 <div className="label-micro text-chalk-4">XP</div>
                 <div className="tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-signal">
-                  {progress?.stats.xp ?? 0}
+                  <CountUp value={progress?.stats.xp ?? 0} />
                 </div>
               </div>
               <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/60 px-3 py-2.5">
@@ -711,11 +713,11 @@ export default function ProfilePage() {
                   <div className="label-micro mb-2.5 text-chalk-3">Abonnements</div>
                   <div className="flex gap-6 text-14">
                     <span>
-                      <strong className="tnum text-chalk">{profile.followers}</strong>{" "}
+                      <strong className="tnum text-chalk"><CountUp value={profile.followers} /></strong>{" "}
                       abonné{profile.followers > 1 ? "s" : ""}
                     </span>
                     <span>
-                      <strong className="tnum text-chalk">{profile.following}</strong>{" "}
+                      <strong className="tnum text-chalk"><CountUp value={profile.following} /></strong>{" "}
                       abonnements
                     </span>
                   </div>
@@ -917,6 +919,9 @@ export default function ProfilePage() {
           </div>
         </>
       )}
+      {/* La célébration se monte avec la page : le palier franchi entre
+          deux visites est annoncé ici, où la progression se lit. */}
+      <LevelCelebration xp={progress?.stats.xp} />
     </AppShell>
   );
 }

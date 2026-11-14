@@ -1801,6 +1801,44 @@ input[type="search"]::-webkit-search-decoration {
   .lift-card:hover, .lift-press:hover, .lift-press:active { transform: none; }
 }
 
+/* ── Fondu de thème ──────────────────────────────────────────────────
+   Posé pendant un changement de thème seulement (attribut retiré par
+   `ThemeApplier` après la durée du jeton) : les couleurs traversent, la
+   page ne saute pas. Les propriétés de *disposition* ne sont jamais
+   touches : un clic pendant le fondu garde ses transitions de transform.
+   Sous mouvement réduit, l'attribut n'est pas posé — le basculement
+   reste immédiat, ce qui est exactement la demande. */
+:root[data-theme-fade="true"] body,
+:root[data-theme-fade="true"] body * {
+  transition:
+    background-color var(--d-scene) var(--ease-continuous),
+    color var(--d-scene) var(--ease-continuous),
+    border-color var(--d-scene) var(--ease-continuous) !important;
+}
+
+/* ── Niveau de mouvement ────────────────────────────────────────────
+   Trois niveaux posés par les réglages (`data-motion-level`) :
+
+   `sobre`    — tout est coupé (c'est `data-reduce-motion="true"`, déjà
+                géré plus haut) ;
+   `essentiel`— les entrées et les retours d'action restent, mais
+                l'**ambiance continue** disparaît : respiration d'état,
+                pastille de mode, balayages d'ambiance. Une interface
+                calme sans être figée ;
+   `standard` — la grammaire complète (défaut).
+
+   Les indicateurs de chargement (`mo-spin`, `mo-pulse`, `mo-scan`, le
+   shimmer) ne sont jamais coupés par un niveau : « ça travaille » est
+   une information, pas de la décoration. */
+:root[data-motion-level="essentiel"] .mo-breathe,
+:root[data-motion-level="essentiel"] .mode-live,
+:root[data-motion-level="essentiel"] .scanlines-live::after,
+:root[data-motion-level="essentiel"] .sonar-sweep,
+:root[data-motion-level="essentiel"] .al-boil,
+:root[data-motion-level="essentiel"] .al-blink {
+  animation: none !important;
+}
+
 .admin-activity-chart__bar {
   transform-box: fill-box;
   transform-origin: center bottom;
@@ -2250,6 +2288,12 @@ input[type="search"]::-webkit-search-decoration {
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+}
+
+/* Sur iOS (Safari ancien, iPhone X), le pan horizontal passe quand c'est
+   <html> qui défile : le clip doit aussi être posé ici, pas seulement sur body. */
+html {
+  overflow-x: clip;
 }
 
 body {

@@ -57,3 +57,60 @@ test("mouvement réduit : les transitions restent courtes", async ({ page }) => 
 
   expect(longOnes, `durées > 400 ms sous mouvement réduit : ${longOnes.join(", ")}`).toEqual([]);
 });
+
+test("mouvement réduit : les entrées restent visibles (mo-pre levé)", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await demoSession(page);
+  await page.goto("/feed", { waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(2_000);
+
+  // Une carte pré-entrée (`mo-pre`, opacity 0) ne doit jamais rester
+  // invisible sous mouvement réduit : le contenu vaut l'animation perdue.
+  const hidden = await page.evaluate(() =>
+    [...document.querySelectorAll(".mo-pre")]
+      .map((el) => getComputedStyle(el).opacity)
+      .filter((opacity) => Number(opacity) < 0.99).length,
+  );
+
+  expect(hidden, "cartes invisibles sous mouvement réduit").toBe(0);
+});
+
+test("niveau essentiel : l'ambiance continue est coupée, le chargement reste", async ({ page }) => {
+  await demoSession(page);
+  await page.addInitScript(() => {
+    localStorage.setItem("devnet:motion-level", "essentiel");
+  });
+  await page.goto("/decouvrir", { waitUntil: "domcontentloaded" });
+  // La session démo peut se poser après la première garde de coque :
+  // un renvoi vers /login est alors possible. On attend la vraie
+  // surface (le sonar), et on repart une fois si nécessaire.
+  try {
+    await page.waitForSelector(".sonar-sweep", { timeout: 6_000 });
+  } catch {
+    await page.goto("/decouvrir", { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".sonar-sweep", { timeout: 6_000 });
+  }
+  await page.waitForTimeout(1_500);
+
+  const state = await page.evaluate(() => {
+    const root = document.documentElement;
+    const looping = document
+      .getAnimations()
+      .filter((animation) => animation.effect?.getTiming().iterations === Infinity)
+      .map((animation) => {
+        const effect = animation.effect as KeyframeEffect | null;
+        return String(effect?.target?.className ?? "?");
+      });
+    // Le sonar est l'ambiance continue de Découvrir : coupée au niveau
+    // « essentiel ». Tout autre boucle non autorisée est une régression.
+    const sonarStill = looping.some((label) => /sonar-sweep/.test(label));
+    const disallowed = looping.filter(
+      (label) => !/sonar-sweep|spin|pulse|scan|skeleton|shimmer|loading|caret/i.test(label),
+    );
+    return { level: root.dataset.motionLevel, sonarStill, disallowed };
+  });
+
+  expect(state.level).toBe("essentiel");
+  expect(state.sonarStill, "le sonar tourne encore au niveau essentiel").toBe(false);
+  expect(state.disallowed, `boucles non autorisées : ${state.disallowed.join(", ")}`).toEqual([]);
+});

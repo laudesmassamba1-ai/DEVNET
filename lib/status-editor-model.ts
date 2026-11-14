@@ -30,7 +30,7 @@ export const STROKE_WIDTHS = [0.012, 0.024, 0.045] as const;
 export const STROKE_LABEL = ["Fin", "Moyen", "Épais"] as const;
 
 /** Stickers émoji, rendus comme du texte : identiques partout. */
-export const STICKER_GLYPHS = ["😂", "🔥", "❤️", "😍", "🎉", "👏", "😮", "💯", "✨", "📍"] as const;
+export const STICKER_GLYPHS = ["😂", "🔥", "❤️", "😍", "🎉", "👏", "😮", "💯", "🌿", "📍"] as const;
 
 /** Taille d'un sticker, fraction de la largeur de scène. */
 export const STICKER_SCALE = 0.16;
@@ -61,6 +61,16 @@ export const FILTERS: { label: string; css: string }[] = [
   { label: "Contrasté", css: "contrast(1.24) saturate(1.08)" },
   { label: "Doux", css: "brightness(1.06) contrast(0.92) saturate(0.9)" },
 ];
+
+/**
+ * Cadrage de la photo : zoom centré. Aperçu (`transform: scale`) et export
+ * (`drawImage`) utilisent ces mêmes facteurs.
+ */
+export const ZOOMS = [1, 1.25, 1.5] as const;
+export const ZOOM_LABEL = ["Plein", "Serré", "Très serré"] as const;
+
+/** Couleurs de dessin, en index de `INK_VARS`. */
+export const PEN_COLORS = [0, 1, 2, 3] as const;
 
 export const ALIGN_LABEL = ["gauche", "centre", "droite"] as const;
 export type Align = 0 | 1 | 2;
@@ -110,12 +120,16 @@ export type Snapshot = {
   layers: Layer[];
   filter: number;
   background: number;
+  /** Index dans `ZOOMS`. */
+  zoom: number;
 };
 
 export type History = {
   past: Snapshot[];
   present: Snapshot;
   future: Snapshot[];
+  /** État avant le geste en cours (glisser, tracer), pour que `commit` l'annule. */
+  base: Snapshot | null;
 };
 
 const HISTORY_LIMIT = 100;
@@ -132,28 +146,34 @@ export function clampPct(value: number): number {
 }
 
 export function emptySnapshot(): Snapshot {
-  return { layers: [], filter: 0, background: 0 };
+  return { layers: [], filter: 0, background: 0, zoom: 0 };
 }
 
 export function createHistory(initial: Snapshot = emptySnapshot()): History {
-  return { past: [], present: initial, future: [] };
+  return { past: [], present: initial, future: [], base: null };
 }
 
-/** Enregistre un changement annulable. */
+/**
+ * Enregistre un changement annulable. Après un geste (`live`), l'étape
+ * empilée est l'état d'AVANT le geste, pas l'état intermédiaire.
+ */
 export function commit(history: History, next: Snapshot): History {
+  const before = history.base ?? history.present;
   return {
-    past: [...history.past, history.present].slice(-HISTORY_LIMIT),
+    past: [...history.past, before].slice(-HISTORY_LIMIT),
     present: next,
     future: [],
+    base: null,
   };
 }
 
 /**
  * Met à jour l'état courant sans créer d'étape : utilisé pendant un geste
- * (glisser, tracer). L'étape est enregistrée à la fin du geste avec `commit`.
+ * (glisser, tracer). Le premier `live` mémorise l'état de départ ; `commit`
+ * l'enregistre à la fin du geste.
  */
 export function live(history: History, next: Snapshot): History {
-  return { ...history, present: next };
+  return { ...history, present: next, base: history.base ?? history.present };
 }
 
 export function canUndo(history: History): boolean {
@@ -171,6 +191,7 @@ export function undo(history: History): History {
     past: history.past.slice(0, -1),
     present: previous,
     future: [history.present, ...history.future],
+    base: null,
   };
 }
 
@@ -181,6 +202,7 @@ export function redo(history: History): History {
     past: [...history.past, history.present],
     present: next,
     future: history.future.slice(1),
+    base: null,
   };
 }
 
@@ -222,7 +244,7 @@ export function addStickerLayer(layers: Layer[], glyph: string, x = 50, y = 40):
 }
 
 /** Applique `patch` au calque `id`. Les autres calques ne bougent pas. */
-export function updateLayer(layers: Layer[], id: string, patch: Partial<TextLayer> & Partial<StickerLayer>): Layer[] {
+export function updateLayer(layers: Layer[], id: string, patch: Partial<Omit<TextLayer, "id" | "kind">>): Layer[] {
   return layers.map((layer) => (layer.id === id ? ({ ...layer, ...patch } as Layer) : layer));
 }
 

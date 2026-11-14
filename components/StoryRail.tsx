@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Avatar } from "./Avatar";
 import { Icon } from "./Icon";
+import { cascade } from "./Motion";
 import { readSeenStoryIds, SEEN_EVENT } from "@/lib/stories";
 import type { StoryWithAuthor } from "@/lib/types";
 
@@ -186,14 +187,15 @@ export function StoryRail({
 
         {groups
           .filter((g) => !(onPublish && g.authorId === me))
-          .map((g) => {
+          .map((g, i) => {
             const unseen = g.items.some((story) => !seenIds.has(story.id));
             return (
               <button
                 key={g.authorId}
                 type="button"
                 onClick={() => onOpen(g.authorId)}
-                className="group flex w-20 shrink-0 flex-col items-center gap-1.5"
+                className="mo-rise group flex w-20 shrink-0 flex-col items-center gap-1.5"
+                style={{ animationDelay: `${cascade(i, 40, 400)}ms` }}
               >
                 {/* Deux états, deux matières : l'anneau de marque pour ce
                     qui n'a pas été vu, un filet discret pour le reste. Le
@@ -202,7 +204,8 @@ export function StoryRail({
                 <span
                   className={`relative flex size-13.5 items-center justify-center
                     rounded-full p-[2px] transition-transform
-                    group-hover:-translate-y-0.5 ${
+                    duration-(--d-fast) ease-(--ease-spring)
+                    group-hover:-translate-y-0.5 group-hover:scale-105 ${
                       unseen ? "" : "border-[1.5px] border-line-3"
                     }`}
                 >

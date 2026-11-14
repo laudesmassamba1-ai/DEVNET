@@ -17,7 +17,7 @@ import {
   PWA_SPLASHES,
   PWA_THEME_COLOR,
 } from "@/lib/pwa";
-import { REDUCED_MOTION_KEY } from "@/lib/ui-preferences";
+import { MOTION_LEVEL_KEY, REDUCED_MOTION_KEY } from "@/lib/ui-preferences";
 import "./globals.css";
 
 /**
@@ -169,7 +169,7 @@ export default function RootLayout({
           `ThemeApplier` resynchronise ensuite avec la valeur en base.
         */}
         <Script id="devnet-theme" strategy="beforeInteractive">
-          {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});var k=${JSON.stringify(THEMES.map((entry) => entry.id))};document.documentElement.dataset.theme=k.indexOf(t)>-1?t:${JSON.stringify(DEFAULT_THEME)};document.documentElement.dataset.reduceMotion=localStorage.getItem(${JSON.stringify(REDUCED_MOTION_KEY)})==="true"?"true":"false";}catch(e){}`}
+          {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});var k=${JSON.stringify(THEMES.map((entry) => entry.id))};document.documentElement.dataset.theme=k.indexOf(t)>-1?t:${JSON.stringify(DEFAULT_THEME)};var m=localStorage.getItem(${JSON.stringify(REDUCED_MOTION_KEY)})==="true";document.documentElement.dataset.reduceMotion=m?"true":"false";if(!m){var l=localStorage.getItem(${JSON.stringify(MOTION_LEVEL_KEY)});document.documentElement.dataset.motionLevel=(l==="sobre"||l==="essentiel")?l:"standard";}}catch(e){}`}
         </Script>
         {/*
           `beforeinstallprompt` part **avant** l'hydratation : le navigateur

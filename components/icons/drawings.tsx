@@ -99,7 +99,14 @@ export type GlyphName =
   // surfaces
   | "studio"
   | "execute"
-  | "sticker";
+  | "sticker"
+  // éditeur de statut
+  | "undo"
+  | "redo"
+  | "text"
+  | "pen"
+  | "crop"
+  | "filter";
 
 export const GLYPHS: Record<GlyphName, ReactNode> = {
   /* ── Sections ───────────────────────────────────────────────────── */
@@ -668,6 +675,37 @@ export const GLYPHS: Record<GlyphName, ReactNode> = {
       <path d="M4.4 6.6A2.2 2.2 0 0 1 6.6 4.4h10.8a2.2 2.2 0 0 1 2.2 2.2v6.6l-6.2 6.4H6.6a2.2 2.2 0 0 1-2.2-2.2z" />
       <path d="M13.4 19.6v-4a2.2 2.2 0 0 1 2.2-2.2h4" />
       <path d="M8 9.2h.01M12 8.4h.01M15.6 10.4h.01" />
+    </>
+  ),
+
+  /* ── Éditeur de statut ──────────────────────────────────────────── */
+
+  // Annuler : une flèche qui revient en arc.
+  undo: <path d="M9 14 4.8 9.8 9 5.6M4.8 9.8h9.4a5.2 5.2 0 0 1 0 10.4h-2.6" />,
+
+  // Rétablir : la même flèche, à l'envers.
+  redo: <path d="m15 14 4.2-4.2L15 5.6M19.2 9.8h-9.4a5.2 5.2 0 0 0 0 10.4h2.6" />,
+
+  // Texte : un T à empattements.
+  text: <path d="M5.6 6.4V4.8h12.8v1.6M12 4.8v14.4M9.2 19.2h5.6" />,
+
+  // Dessin : une pointe de stylo sur une ligne.
+  pen: (
+    <>
+      <path d="m14.6 5.2 4.2 4.2L9.4 18.8 5 19.6l.8-4.4z" />
+      <path d="m12.8 7 4.2 4.2" />
+    </>
+  ),
+
+  // Recadrage : deux équerres qui se croisent.
+  crop: <path d="M7.2 3.8v12.6h12.6M3.8 7.2h12.6v12.6" />,
+
+  // Filtre : trois anneaux qui se recouvrent.
+  filter: (
+    <>
+      <circle cx="9" cy="9" r="5" />
+      <circle cx="15" cy="9" r="5" />
+      <circle cx="12" cy="14.6" r="5" />
     </>
   ),
 };

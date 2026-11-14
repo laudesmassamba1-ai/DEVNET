@@ -22,10 +22,12 @@ import {
 import { asVerificationStatus, VERIFY_STATUS_LABEL } from "@/lib/verification";
 import { broadcastTheme, normalizeTheme, THEMES, THEME_STORAGE_KEY } from "@/lib/theme";
 import {
-  applyReducedMotion,
+  applyMotionLevel,
   FEED_DENSITY_KEY,
-  REDUCED_MOTION_KEY,
+  MOTION_LEVEL_KEY,
+  normalizeMotionLevel,
   type FeedDensity,
+  type MotionLevel,
 } from "@/lib/ui-preferences";
 
 const inputCls =
@@ -161,19 +163,19 @@ export default function SettingsPage() {
     );
   }
   const [feedDensity, setFeedDensity] = useState<FeedDensity>("comfortable");
-  const [reduceMotion, setReduceMotion] = useState(false);
+  const [motionLevel, setMotionLevel] = useState<MotionLevel>("standard");
   const [signOutError, setSignOutError] = useState("");
 
   useEffect(() => {
     try {
       const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
       const savedDensity = localStorage.getItem(FEED_DENSITY_KEY);
-      const savedMotion = localStorage.getItem(REDUCED_MOTION_KEY) === "true";
+      const savedLevel = normalizeMotionLevel(localStorage.getItem(MOTION_LEVEL_KEY));
       // eslint-disable-next-line react-hooks/set-state-in-effect -- preferences are read after hydration
       setTheme(normalizeTheme(savedTheme) as Theme);
       setFeedDensity(savedDensity === "compact" ? "compact" : "comfortable");
-      setReduceMotion(savedMotion);
-      applyReducedMotion(savedMotion);
+      setMotionLevel(savedLevel);
+      applyMotionLevel(savedLevel);
     } catch (error) {
       setAppearanceError(
         error instanceof Error ? `Préférences locales indisponibles : ${error.message}` : "Préférences locales indisponibles.",
@@ -230,9 +232,9 @@ export default function SettingsPage() {
     }
   }
 
-  function saveMotionPreference(enabled: boolean) {
-    setReduceMotion(enabled);
-    const saved = applyReducedMotion(enabled);
+  function saveMotionLevel(level: MotionLevel) {
+    setMotionLevel(level);
+    const saved = applyMotionLevel(level);
     setAppearanceMessage(
       saved
         ? "Préférence de mouvement enregistrée sur cet appareil."
@@ -448,20 +450,43 @@ export default function SettingsPage() {
                 ))}
               </div>
             </fieldset>
-            <label className="mt-5 flex min-h-(--h-tap) items-center justify-between gap-4 border-t border-line-2 pt-4">
-              <span>
-                <span className="block text-13 font-semibold text-chalk">Réduire les animations</span>
-                <span className="mt-1 block text-12 text-chalk-4">
-                  Désactive les mouvements de l’interface sur cet appareil.
-                </span>
-              </span>
-              <input
-                type="checkbox"
-                checked={reduceMotion}
-                onChange={(event) => saveMotionPreference(event.target.checked)}
-                className="size-5 shrink-0 accent-(--color-signal)"
-              />
-            </label>
+            <fieldset className="mt-5 border-t border-line-2 pt-4">
+              <legend className="text-13 font-semibold text-chalk">Mouvement de l’interface</legend>
+              <p className="mt-1 text-12 text-chalk-4">
+                Trois niveaux, du plus calme au plus vivant. Les indicateurs
+                de chargement restent toujours visibles : « ça travaille »
+                est une information.
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                {([
+                  ["sobre", "Sobre", "Tout est coupé, l’interface est figée."],
+                  ["essentiel", "Essentiel", "Entrées et actions restent, l’ambiance continue disparaît."],
+                  ["standard", "Standard", "La grammaire de mouvement complète."],
+                ] as const).map(([value, label, hint]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => saveMotionLevel(value)}
+                    aria-pressed={motionLevel === value}
+                    className={`flex min-h-(--h-tap) flex-col items-start rounded-(--radius-input) border px-3 py-2
+                      text-left text-12 font-semibold ${
+                        motionLevel === value
+                          ? "border-signal bg-signal text-void"
+                          : "border-line-3 bg-surface text-chalk hover:border-signal"
+                      }`}
+                  >
+                    {label}
+                    <span
+                      className={`mt-0.5 font-normal leading-(--lh-label) ${
+                        motionLevel === value ? "text-void/80" : "text-chalk-4"
+                      }`}
+                    >
+                      {hint}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </fieldset>
             {(appearanceMessage || appearanceError) && (
               <p
                 role={appearanceError ? "alert" : "status"}

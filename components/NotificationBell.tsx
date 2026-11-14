@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Icon } from "./Icon";
 import { api } from "@/lib/api/client";
 import {
@@ -156,6 +156,17 @@ export function NotificationBell() {
     ? `${unread}+`
     : String(unread);
 
+  /* Le badge n'est pas animé à l'apparition — c'est un compteur, pas un
+     événement. Mais quand il **augmente**, quelque chose est arrivé : le
+     rebond (`mo-pop`, rejoué par `key`) acquitte l'événement. Une
+     diminution (lectures) ne rejoue rien — lire n'est pas une surprise. */
+  const prevUnread = useRef(0);
+  const [popKey, setPopKey] = useState(0);
+  useEffect(() => {
+    if (unread > prevUnread.current) setPopKey((k) => k + 1);
+    prevUnread.current = unread;
+  }, [unread]);
+
   return (
     /* La taille est le jeton `--h-tap`, comme `IconButton` : la cloche
        est le bouton le plus proche du pouce — c'est celui qu'on presse
@@ -182,13 +193,14 @@ export function NotificationBell() {
       <Icon name="notifications" size={16} />
 
       {/* Le compteur apparaît d'un coup, sans animation : c'est un
-          compteur, pas un événement. Le seul mouvement de ce bouton est
-          sa pression — ce qui est déjà le cas partout. */}
+          compteur, pas un événement. Il ne bouge que quand le nombre
+          **augmente** — un nouveau message est un événement. */}
       {unread > 0 && (
         <span
+          key={popKey}
           className={`tnum absolute -top-1 -right-0.5 flex min-w-5 rounded-full
             items-center justify-center border px-1 font-mono text-12
-            leading-[15px] font-bold
+            leading-3.75 font-bold ${popKey > 0 ? "mo-pop" : ""}
 ${here ? "border-surface bg-signal text-void shadow-(--shadow-action)"
           : "border-void bg-signal text-void shadow-(--shadow-action)"}`}
         >

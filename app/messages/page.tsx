@@ -54,6 +54,36 @@ import { fetchStickers, type StickerRowView } from "@/lib/stickers";
 import { convKey, filterConversations, filterMessagesByText, type Peer } from "@/lib/conversations";
 import { focusOnMount } from "@/lib/focus-on-mount";
 
+/**
+ * Pastille non-lue d'une conversation.
+ *
+ * Même règle que la cloche : le compteur apparaît sans animation, et ne
+ * rebondit (`mo-pop`) que quand le nombre **augmente** — un message
+ * nouveau est un événement ; une lecture n'est pas une surprise. Le
+ * composant local encapsule la comparaison, la ligne de liste reste
+ * simple.
+ */
+function UnreadBadge({ count }: { count: number }) {
+  const prev = useRef(count);
+  const [popKey, setPopKey] = useState(0);
+  useEffect(() => {
+    if (count > prev.current) setPopKey((k) => k + 1);
+    prev.current = count;
+  }, [count]);
+
+  if (count <= 0) return null;
+  return (
+    <span
+      key={popKey}
+      className={`flex size-4.5 items-center justify-center
+        rounded-full bg-signal font-mono text-12 font-bold leading-none text-void
+        ${popKey > 0 ? "mo-pop" : ""}`}
+    >
+      {count > 9 ? "9+" : count}
+    </span>
+  );
+}
+
 /** Ajoute un message reçu à la liste affichée, sans doublon. */
 export default function MessagesPage() {
   const { profile } = useSession();
@@ -1363,12 +1393,7 @@ export default function MessagesPage() {
                     {clockTime(conv.last_message_at)}
                   </span>
                 )}
-                {unread > 0 && (
-                  <span className="flex size-4.5 items-center justify-center
-                    rounded-full bg-signal font-mono text-12 font-bold leading-none text-void">
-                    {unread > 9 ? "9+" : unread}
-                  </span>
-                )}
+                {unread > 0 && <UnreadBadge count={unread} />}
               </div>
             </button>
             );

@@ -7,7 +7,7 @@ import { AppShell, IconButton } from "@/components/AppShell";
 import { Avatar, EmptyState, Loading } from "@/components/Avatar";
 import { CodeBlock } from "@/components/CodeBlock";
 import { Icon, asIconName, isIconName } from "@/components/Icon";
-import { Motion } from "@/components/Motion";
+import { Motion, CountUp } from "@/components/Motion";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import { useSession } from "@/hooks/useSession";
 import { fetchDiscover, type Discover } from "@/lib/discover";
@@ -124,7 +124,7 @@ function Hero({ data }: { data: Discover | null }) {
         <div>
           <dt className="label-micro text-chalk-4">Preuves · 7 j</dt>
           <dd className="tnum mt-1 font-display text-26 font-bold leading-none text-chalk">
-            {data ? data.signalsWeek : "—"}
+            {data ? <CountUp value={data.signalsWeek} /> : "—"}
           </dd>
         </div>
         <div>
@@ -143,7 +143,7 @@ function Hero({ data }: { data: Discover | null }) {
         <div>
           <dt className="label-micro text-chalk-4">À lire</dt>
           <dd className="tnum mt-1 font-display text-26 font-bold leading-none text-chalk">
-            {data ? data.proofs.length : "—"}
+            {data ? <CountUp value={data.proofs.length} /> : "—"}
           </dd>
         </div>
       </dl>
@@ -158,15 +158,23 @@ function Sonar({ signals }: { signals: number }) {
       <div className="absolute inset-[15%] rounded-full border border-dashed border-line-2/70" />
       <div className="absolute inset-[32%] rounded-full border border-line-3/50" />
       <div className="absolute inset-0 overflow-hidden rounded-full">
+        {/* La classe dédiée permet au niveau « essentiel » de couper le
+            balayage d'ambiance sans couper les spinners de chargement. */}
         <div
-          className="mo-spin size-full rounded-full"
+          className="sonar-sweep mo-spin size-full rounded-full"
           style={{
             background:
               "conic-gradient(from 0deg, transparent 0deg, color-mix(in srgb, var(--color-moss) 34%, transparent) 38deg, transparent 64deg)",
           }}
         />
       </div>
-      <span className="absolute left-1/2 top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-signal" />
+      {/* Le point central bat trois fois à chaque nouvelle valeur : le
+          sonar « capte », puis se tait. Une boucle infinie serait une
+          alarme permanente pour une information stable. */}
+      <span
+        key={signals}
+        className="mode-live absolute left-1/2 top-1/2 size-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-signal"
+      />
       <span className="absolute left-[24%] top-[62%] size-1 rounded-full bg-signal/70" />
       <span className="absolute left-[68%] top-[30%] size-1 rounded-full bg-signal/50" />
       <span className="absolute left-[72%] top-[70%] size-1 rounded-full bg-signal/40" />

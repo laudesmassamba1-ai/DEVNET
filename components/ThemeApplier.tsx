@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useSession } from "@/hooks/useSession";
 import { applyTheme, normalizeTheme } from "@/lib/theme";
+import { motionDuration } from "@/components/Motion";
 
 /**
  * Applique le thème de l'utilisateur à `document.documentElement`.
@@ -46,11 +47,49 @@ export function ThemeApplier() {
     const onTheme = (event: Event) => {
       const theme = normalizeTheme((event as CustomEvent<string>).detail);
       explicitTheme.current = theme;
-      applyTheme(theme);
+      applyThemeWithFade(theme);
     };
     window.addEventListener("devnet:theme", onTheme);
     return () => window.removeEventListener("devnet:theme", onTheme);
   }, []);
 
   return null;
+}
+
+/* Durée de repli si le jeton est introuvable (SSR, navigateur ancien).
+   La même convention que `Motion.waitForExit` : lire le jeton, jamais le
+   recopier — un `--d-scene` modifié en CSS suit ici sans retouche. */
+const THEME_FADE_FALLBACK_MS = 200;
+let themeFadeTimer: ReturnType<typeof setTimeout> | null = null;
+
+/**
+ * Applique le thème avec un fondu court des couleurs.
+ *
+ * Sans fondu, un changement de thème est un saut sec : l'œil ne perçoit
+ * ni la direction ni l'étendue du changement. On pose
+ * `data-theme-fade="true"` sur `<html>` le temps du jeton `--d-scene`
+ * — le CSS pose alors une transition de couleurs (jamais de
+ * disposition), puis l'attribut est retiré : le reste de l'interface
+ * retrouve ses propres transitions. Sous mouvement réduit, aucun
+ * attribut : le basculement reste immédiat, ce qui est la demande.
+ */
+function applyThemeWithFade(theme: string) {
+  applyTheme(theme);
+
+  const root = document.documentElement;
+  const reduced =
+    root.dataset.reduceMotion === "true" ||
+    (typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+  if (reduced) return;
+
+  root.dataset.themeFade = "true";
+  if (themeFadeTimer) clearTimeout(themeFadeTimer);
+  themeFadeTimer = setTimeout(
+    () => {
+      delete root.dataset.themeFade;
+      themeFadeTimer = null;
+    },
+    motionDuration("--d-scene", THEME_FADE_FALLBACK_MS),
+  );
 }

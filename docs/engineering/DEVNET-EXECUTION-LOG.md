@@ -146,3 +146,20 @@ Incident : une première exécution de `test:layout` a échoué sur conflit de p
 
 - Commit local `b49aeb2` (UI-003 + UI-007 + registres). Pas de push.
 - `vercel --prod --yes` : Ready, alias https://devnet-brown.vercel.app.
+
+## 2026-11-15 — éditeur de statut (groundwork, non commité)
+
+- Remplacement de `components/StatusComposer.tsx` ; découpage en `StatusComposerStage`, `StatusComposerTools`, `StatusComposerControls`, hook `lib/use-status-composer.ts`, modèle pur `lib/status-editor-model.ts`, rendu `lib/status-render.ts`, export `lib/status-export.ts`.
+- Corrections de types : `run(async …)` pour `onUseGif`, `open` sur `GifPicker`, `updateLayer` limité aux champs texte.
+- Stickers : ✨ retiré (remplacé par 🌿), décision utilisateur : pas d'icônes au rendu « IA ».
+- `ratchet.json` arbitraryValues 494 → 493 (scan 493).
+- `scripts/test-status-render.ts` : 6 tests sur faux contexte 2D ; chaîné dans `npm run test:status-editor` (25/25).
+
+Vérifications : `tsc` 0 ; `eslint` 0 erreur sur les fichiers de l'éditeur ; `build` 0 ; `ux:check` cliquet tenu (18). Non vérifié : rendu navigateur, mobile, export d'une photo réelle.
+
+## 2026-11-15 — iPhone X, débordement horizontal (diagnostic partiel)
+
+- Sonde `scripts/probe-mobile-overflow.mjs` (Chromium émulé iPhone X, 375 px) : `/login`, `/register`, `/`, `/aide`, `/a-propos`, `/cgu` ont scrollWidth 375, scrollX 0, aucun élément hors viewport.
+- WebKit (`webkit-2311`) installé mais non lançable ici (`libavif.so.16` absent). Pages connectées non mesurées : aucun compte de test dans `tests/`.
+- Changement : `app/globals.css`, `html { overflow-x: clip; }` (le pan horizontal iOS passe par `<html>`). `npm run build` exit 0.
+- Statut : NON VERIFIED sur iPhone X réel ni sur WebKit ; cause précise non identifiée.

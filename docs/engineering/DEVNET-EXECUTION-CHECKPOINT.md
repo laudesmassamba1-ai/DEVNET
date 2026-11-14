@@ -1,37 +1,53 @@
 # DEVNET — point de reprise
 
-> **Statut : NON TERMINÉ — reprise nécessaire.**
+> **Statut : EN COURS — reprise au point « Prochaine action exacte ».**
 >
 > Dernière mise à jour : 2026-11-15.
-> Référence Git : `012d7ec` sur `main` (modifications de cette passe non commitées).
+> Référence Git : `2e7bc21` sur `main` (local ; `b49aeb2` déployé). Toutes les
+> modifications ci-dessous sont non commitées.
 
 ## Ce qui est fait et prouvé (cumul)
 
 - Statuts `VERIFIED` (voir section 10 du ledger, qui prévaut) : MEDIA-003, MEDIA-004,
   STORY-002, STORY-003, STORY-004, STORY-005, UI-001, UI-002, UI-004, UI-006, QA-003.
-- SEC-004 est rétrogradé à `FIXED_UNVERIFIED` : aucune preuve en préproduction.
-- UI-003 : textes < 12 px **0** ; valeurs arbitraires **494** (était 577), plafond
-  `docs/ui/ratchet.json` abaissé à 494, cliquet tenu.
-- Vérifications de cette passe : `tsc` 0 ; `npm run lint` 0 erreur (2 avertissements
-  préexistants) ; `npm run ux:check` tenu ; `npm run test:media-security` 34/34 ;
-  `npm run build` exit 0 ; `npm run test:layout` 6/6 au second passage.
-- Point ouvert : un échec de `test:layout` à 360 px au premier passage, non reproduit.
-- Test `npm run test:stories-audience` non exécuté : le script refuse hors base locale.
+- SEC-004 reste `FIXED_UNVERIFIED` : aucune preuve en préproduction.
+- UI-003 : valeurs arbitraires **493** (était 577), plafond `docs/ui/ratchet.json`
+  abaissé à 493, cliquet tenu.
+- UI-007 : `type="button"`, onglet IDE et surface de sticker rendus accessibles,
+  8 `autoFocus` remplacés par `focusOnMount`, couleur en dur de `decouvrir` remplacée
+  par `--color-moss`. Cliquet : 0 / 0 / 0 ; reste 1 couleur en dur (SVG
+  `AnimatedLogo`, volontairement non touché).
+- Focus de la réponse aux stories (`2e7bc21`) : **corrigé localement, absent de la
+  production** tant que `2e7bc21` n'est pas déployé sur instruction explicite.
+- Éditeur de statut (non commité) : modèle, rendu canvas, export, hook, composant
+  découpé en trois fichiers. Les stickers n'utilisent plus de ✨ ni d'icônes générées
+  (jeu de stickers : 🌿 à la place).
+- Vérifications de cette passe (sur l'état courant) :
+  - `npx tsc --noEmit` : 0 erreur.
+  - `npx eslint` sur les fichiers de l'éditeur : 0 erreur.
+  - `npm run test:status-editor` : 25/25 (19 modèle + 6 rendu sur faux contexte 2D).
+  - `npm run build` : exit 0.
+  - `npm run ux:check` : cliquet tenu (18 indicateurs).
+- Non vérifié pour l'éditeur : rendu réel dans un navigateur, glisser-déposer sur
+  mobile, export d'une vraie photo. Ne pas marquer VERIFIED sans ces preuves.
+- Points ouverts antérieurs : `test:layout` à 360 px a échoué une fois (non reproduit,
+  `tests/e2e/layout.spec.ts:88`). `test:stories-audience` non exécuté (refuse hors
+  base locale `devnet_ci`).
 
 ## Prochaine action exacte
 
-1. **UI-003** : réduire les 494 valeurs arbitraires restantes, par écran (découvrir,
-   profil, IDE, messages en priorité). Ne jamais remonter `docs/ui/ratchet.json`.
-   Les `text-[Nrem]` et `max-w-[Npx]` ne sont pas traités par le script ; il faut les
-   mapper sur les jetons existants en vérifiant le rendu.
-2. **UI-007** : corriger les constats du scanner : 1 `button` sans `type`,
-   2 gestionnaires de clic non sémantiques (`app/ide/[project]/page.tsx`,
-   `components/StoryViewerLive.tsx`), 8 `autoFocus`, 2 couleurs en dur
-   (`app/decouvrir/page.tsx`, `components/AnimatedLogo.tsx`).
-3. **ARC-001** : poursuivre le découpage de `app/feed/page.tsx`, `app/messages/page.tsx`,
+1. **Visionneuse des stories** : durée réelle depuis la vidéo (`timeupdate`/`ended`) au
+   lieu des 7 s fixes ; appui long sur le contenu ; pause sur `visibilitychange` ; zones
+   de tap ; navigation entre auteurs.
+2. **Navigation de l'éditeur** : brancher `StatusComposer` sur le feed et vérifier dans
+   un navigateur (Playwright) : ajout de texte, tracé, sticker, recadrage, publication.
+3. **UI-003** : réduire les 493 valeurs restantes par écran (`app/profile/page.tsx` 25,
+   `app/decouvrir/page.tsx` 19, `components/GithubPanel.tsx` 19). Ne jamais remonter
+   `docs/ui/ratchet.json`.
+4. **ARC-001** : découper `app/feed/page.tsx`, `app/messages/page.tsx`,
    `app/ide/[project]/page.tsx` avec tests avant/après.
-4. Relancer `npm run test:stories-audience` sur la base locale `devnet_ci`.
-5. Vérifier le job `database` de GitHub après push.
+5. Relancer `npm run test:stories-audience` sur `devnet_ci` ; vérifier le job `database`
+   après push.
 
 ## Validations externes (non réalisables localement)
 

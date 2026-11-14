@@ -77,7 +77,12 @@ mérité).
 
 ## Dette connue
 
-- Le niveau N0/N1/N2/N3 (MO-04) existe partiellement (mouvement réduit et
-  `mode-live`), mais n'est pas surchargeable dans les paramètres et n'a pas
-  de test automatisé par niveau.
-- Aucun test Playwright de mouvement : dépendance à approuver.
+- Le niveau de mouvement **est surchargeable dans les réglages** depuis
+  l'ajout des trois niveaux Sobre / Essentiel / Standard (`Mouvement de
+  l'interface`, page Réglages) : `sobre` porte `data-reduce-motion`,
+  `essentiel` coupe l'ambiance continue via `data-motion-level`.
+- Les tests Playwright de mouvement existent (`tests/e2e/motion.spec.ts`) :
+  boucles décoratives coupées sous mouvement réduit, transitions courtes,
+  `mo-pre` levé (aucune carte invisible), niveau essentiel appliqué.
+  Reste à brancher un test par **niveau** sur plus d'un écran (aujourd'hui
+  : fil et Découvrir).

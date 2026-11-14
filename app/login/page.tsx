@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 
-import { Logo } from "@/components/Logo";
 import { GitHubMark, GoogleMark } from "@/components/BrandIcons";
 import { Icon } from "@/components/Icon";
 import { Avatar, Spinner } from "@/components/Avatar";
-import { Motion } from "@/components/Motion";
+import { Motion, cascade } from "@/components/Motion";
+import { AnimatedLogo } from "@/components/AnimatedLogo";
 import { rearmSplash } from "@/components/SplashScreen";
 import { api } from "@/lib/api/client";
 import { authErrorMessage } from "@/lib/utils";
@@ -33,7 +33,7 @@ export default function Login() {
     <Suspense
       fallback={
         <main className="relative isolate flex min-h-dvh items-center justify-center px-5">
-          <Logo size={48} />
+          <AnimatedLogo size={48} wordmark={false} />
         </main>
       }
     >
@@ -161,7 +161,10 @@ function LoginForm() {
       overflow-hidden px-5 py-10">
       <div className="relative z-1 w-full max-w-[440px]">
         <Motion role="fade" className="mb-6 flex items-center justify-center gap-3">
-          <Logo size={48} className="shrink-0" />
+          {/* La marque animée est la version courte de son splash : le
+              logo se construit, puis se pose. Sous mouvement réduit, il
+              tombe sur sa cellule finale — même image, sans frémissement. */}
+          <AnimatedLogo size={48} wordmark={false} className="shrink-0" />
           <div>
             <h1 className="font-display text-[1.65rem] font-bold leading-none
               tracking-[-0.05em] text-chalk">
@@ -254,14 +257,19 @@ function LoginForm() {
             <Motion role="rise" className="mb-4">
               <p className="mb-2 label-micro text-chalk-4">Comptes disponibles</p>
               <div className="grid grid-cols-2 gap-2">
-                {DEMO_USERS.filter((u) => !u.is_admin).slice(0, 6).map((u) => (
+                {DEMO_USERS.filter((u) => !u.is_admin).slice(0, 6).map((u, i) => (
                   <button
                     key={u.id}
                     type="button"
                     onClick={() => chooseDemo(u)}
-                    className="group flex items-start gap-2.5 rounded-(--radius-card) border
+                    /* La cascade des comptes : chaque carte arrive avec
+                       un demi-cran de retard, la lecture suit le rang.
+                       Plafonnée à 400 ms — au-delà, la page serait déjà
+                       comprise et le mouvement ne dirait plus rien. */
+                    className="mo-rise group flex items-start gap-2.5 rounded-(--radius-card) border
                       border-line-2 bg-surface/60 p-2 text-left transition-colors
                       hover:border-signal hover:bg-surface"
+                    style={{ animationDelay: `${cascade(i, 40, 400)}ms` }}
                   >
                     <Avatar name={u.prenom} color={u.avatar_color} size="sm" />
                     <div className="min-w-0">
@@ -291,14 +299,15 @@ function LoginForm() {
                 <div className="mt-4">
                   <p className="mb-2 label-micro text-chalk-4">Administration</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {DEMO_ADMINS.map((u) => (
+                    {DEMO_ADMINS.map((u, i) => (
                       <button
                         key={u.id}
                         type="button"
                         onClick={() => chooseDemo(u)}
-                        className="group flex items-start gap-2.5 rounded-(--radius-card) border
+                        className="mo-rise group flex items-start gap-2.5 rounded-(--radius-card) border
                           border-line-2 bg-surface/60 p-2 text-left transition-colors
                           hover:border-signal hover:bg-surface"
+                        style={{ animationDelay: `${cascade(i + 6, 40, 400)}ms` }}
                       >
                         <Avatar name={u.prenom} color={u.avatar_color} size="sm" />
                         <div className="min-w-0">
