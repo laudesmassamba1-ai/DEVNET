@@ -136,7 +136,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`relative mx-0 my-1 flex min-w-0 flex-col items-center
+            className={`glass-pill relative mx-0 my-1 flex min-w-0 flex-col items-center
               justify-center gap-[4px] rounded-(--radius-chip)
               text-12 max-[340px]:text-12 font-medium tracking-[-0.02em] normal-case
               transition-[color,background-color] duration-(--d-fast)
@@ -189,7 +189,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`relative mx-0 my-1 flex min-w-0 flex-col items-center
+            className={`glass-pill relative mx-0 my-1 flex min-w-0 flex-col items-center
               justify-center gap-[4px] rounded-(--radius-chip)
               text-12 max-[340px]:text-12 font-medium tracking-[-0.02em] normal-case
               transition-[color,background-color] duration-(--d-fast)
@@ -216,7 +216,7 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
         aria-label="Ouvrir les autres sections"
         aria-expanded={moreOpen}
         aria-haspopup="dialog"
-        className={`mo-press mx-0 my-1 flex min-w-0 flex-col items-center
+        className={`glass-pill mo-press mx-0 my-1 flex min-w-0 flex-col items-center
           justify-center gap-[4px] rounded-(--radius-chip)
           text-12 max-[340px]:text-12 font-medium tracking-[-0.02em] normal-case
           transition-[color,background-color] duration-(--d-fast)
@@ -362,7 +362,7 @@ export function Sidebar({
                 <Link
                   href={l.href}
                   aria-current={active ? "page" : undefined}
-                  className={`relative mx-2 flex items-center gap-2.5 rounded-full
+                  className={`glass-pill relative mx-2 flex items-center gap-2.5 rounded-full
                     px-3.5 py-2.5 text-13
                     transition-[color,background-color] duration-(--d-fast)
                     ease-(--ease-continuous)
@@ -392,7 +392,7 @@ export function Sidebar({
                 <Link
                   href={l.href}
                   aria-current={active ? "page" : undefined}
-                  className={`relative flex items-center gap-2.5 py-2.5 pl-4 pr-3
+                  className={`glass-pill relative flex items-center gap-2.5 py-2.5 pl-4 pr-3
                     rounded-(--radius-input) text-13
                     transition-[color,background-color] duration-(--d-fast)
                     ease-(--ease-continuous)
@@ -427,7 +427,7 @@ export function Sidebar({
                 <Link
                   href={l.href}
                   aria-current={active ? "page" : undefined}
-                  className={`relative flex items-center gap-2.5 py-2.5 pl-4 pr-3
+                  className={`glass-pill relative flex items-center gap-2.5 py-2.5 pl-4 pr-3
                     rounded-(--radius-input) text-13
                     transition-[color,background-color] duration-(--d-fast)
                     ease-(--ease-continuous)

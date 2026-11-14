@@ -357,7 +357,7 @@ export function IconButton({
       aria-label={label}
       onClick={onClick}
       data-tour={dataTour}
-      className="mo-press flex size-(--h-tap) items-center justify-center
+      className="glass-pill mo-press flex size-(--h-tap) items-center justify-center
         rounded-full border-(--bw-thin) border-line-2/40 text-chalk
         transition-[background-color,color,border-color]
         duration-(--d-fast) ease-(--ease-spring)

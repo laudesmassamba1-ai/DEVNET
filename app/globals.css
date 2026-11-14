@@ -1799,6 +1799,11 @@ input[type="search"]::-webkit-search-decoration {
 
   .mo-pre { opacity: 1; }
   .lift-card:hover, .lift-press:hover, .lift-press:active { transform: none; }
+
+  /* Verre liquide : la dalle ne se soulève plus au survol — le liseré
+     allumé reste, sans transition. */
+  :root[data-liquid="true"] .glass-card:hover,
+  :root[data-liquid="true"] .depth-card:hover { transform: none; }
 }
 
 /* ── Fondu de thème ──────────────────────────────────────────────────
@@ -2437,25 +2442,188 @@ a,
 :root[data-liquid="true"] {
   --glass-bg:        color-mix(in srgb, var(--color-surface) 58%, transparent);
   --glass-bg-strong: color-mix(in srgb, var(--color-surface) 78%, transparent);
-  --glass-refract:        blur(18px) saturate(1.7);
+  --glass-refract:        blur(20px) saturate(1.9);
   --glass-refract-strong: blur(26px) saturate(1.9);
   --glass-lens:           blur(34px) saturate(2);
   --glass-sheen:
     linear-gradient(135deg,
-      rgb(255 255 255 / 0.18) 0%,
-      rgb(255 255 255 / 0.03) 42%,
-      rgb(255 255 255 / 0.10) 100%);
+      rgb(255 255 255 / 0.20) 0%,
+      rgb(255 255 255 / 0.04) 34%,
+      rgb(255 255 255 / 0.02) 55%,
+      rgb(255 255 255 / 0.12) 100%);
   --glass-rim:
-    inset 0 1px 0 rgb(255 255 255 / 0.30),
-    inset 0 -1px 0 rgb(0 0 0 / 0.18),
-    inset 1px 0 0 rgb(255 255 255 / 0.08);
+    inset 0 1px 0 rgb(255 255 255 / 0.48),
+    inset 0 -1px 0 rgb(0 0 0 / 0.24),
+    inset 1px 0 0 rgb(255 255 255 / 0.14),
+    inset 0 0 20px rgb(255 255 255 / 0.05);
+
+  /* ── Réfraction sur les bordures ──
+     La lumière qui traverse le bord se dédouble : une frange chaude
+     (couleur d'action) côté lumière, une frange froide (phosphor) côté
+     ombre. Posées en inset, elles suivent le rayon de la bordure et ne
+     débordent jamais — aucune découpe, donc aucun menu rogné. */
+  --glass-chroma:
+    inset  1px  1px 0 color-mix(in srgb, var(--color-signal) 20%, transparent),
+    inset -1px -1px 0 color-mix(in srgb, var(--color-phosphor) 16%, transparent);
+
+  /* Le liseré allumé du survol : la dalle se tourne vers la lumière.
+     Deux composantes — un filet clair qui se tend, un halo qui s'ouvre —
+     crossfader par opacity seulement (interruptible). */
+  --glass-rim-lit:
+    inset 0 1.5px 0 color-mix(in srgb, #fff 55%, transparent),
+    inset 0 0 22px color-mix(in srgb, var(--color-signal) 13%, transparent);
+
   --color-edge:   color-mix(in srgb, #fff 22%, var(--color-line));
-  --shadow-drop:  0 12px 32px -14px rgb(0 0 0 / 0.5), 0 2px 6px rgb(0 0 0 / 0.12);
+  --shadow-drop:  0 18px 44px -18px rgb(0 0 0 / 0.55), 0 3px 8px rgb(0 0 0 / 0.14);
+  --shadow-drop-lg: 0 26px 60px -20px rgb(0 0 0 / 0.6), 0 4px 12px rgb(0 0 0 / 0.16);
   --overlay-blur: blur(24px) saturate(1.6);
+  /* Les feuilles flottent : voile plus profond, panneau givré. */
+  --overlay-veil-bg: color-mix(in srgb, var(--color-void) 62%, transparent);
+  --overlay-frost-bg: color-mix(in srgb, var(--color-surface) 74%, transparent);
+  --overlay-panel-bg: color-mix(in srgb, var(--color-surface) 82%, transparent);
+
+  /* ── La pilule de verre (iOS) ──
+     Les contrôles ronds — icône seule, onglet de navigation — deviennent
+     des pastilles de verre poli : flou saturé, reflet vertical, liseré
+     haut lumineux, ombre interne basse (la pilule est **convexe**).
+     La matière vit dans des jetons dédiés : hors mode liquide ils sont
+     absents, la pilule reste plate — aucun composant ne change. */
+  --pill-sheen: linear-gradient(180deg,
+    rgb(255 255 255 / 0.16) 0%,
+    rgb(255 255 255 / 0.02) 42%,
+    rgb(255 255 255 / 0.09) 100%);
+  --pill-refract: blur(16px) saturate(1.8);
+  --pill-rim:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 -1px 0 rgb(0 0 0 / 0.26),
+    inset 0 0 12px rgb(255 255 255 / 0.06);
+  --pill-drop: 0 8px 20px -10px rgb(0 0 0 / 0.45);
   --page-wash:
     radial-gradient(60% 45% at 12% 8%, color-mix(in srgb, var(--color-signal) 22%, transparent), transparent 70%),
     radial-gradient(55% 50% at 92% 18%, color-mix(in srgb, var(--color-moss, #8FAF4E) 18%, transparent), transparent 70%),
     radial-gradient(70% 60% at 50% 110%, color-mix(in srgb, var(--color-signal) 14%, transparent), transparent 70%);
+}
+
+/* ── 3D : la dalle se soulève et son bord accroche la lumière ──
+   Deux phénomènes, une seule transition (interruptible) : la carte
+   monte d'un cran-et-demi (transform), le liseré allumé crossfade par
+   opacity. Le pseudo porte la lumière ; la carte garde son overflow
+   intact — un picker posé dans une carte n'est jamais rogné. */
+:root[data-liquid="true"] .glass-card,
+:root[data-liquid="true"] .glass-edge,
+:root[data-liquid="true"] .glass-lens {
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+}
+
+/* ── Les cartes réelles : `depth-card` ──
+   Conversations, groupes, communautés, tableau de tâches : c'est la
+   classe que les écrans posent vraiment. Même traitement que la dalle
+   de cristal — fond translucide, flou, réfraction chromatique, et au
+   survol la carte se soulève et son bord accroche la lumière. */
+:root[data-liquid="true"] .depth-card {
+  position: relative;
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+  transition:
+    transform var(--d-base) var(--ease-spring),
+    border-color var(--d-fast) var(--ease-continuous),
+    background-color var(--d-fast) var(--ease-continuous);
+}
+
+:root[data-liquid="true"] .depth-card::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--bw-thick));
+  border-radius: inherit;
+  box-shadow: var(--glass-rim-lit);
+  opacity: 0;
+  transition: opacity var(--d-slow) var(--ease-continuous);
+  pointer-events: none;
+}
+
+:root[data-liquid="true"] .depth-card:hover {
+  transform: translateY(-2px);
+}
+
+:root[data-liquid="true"] .depth-card:hover::after {
+  opacity: 1;
+}
+
+/* ── La pilule : matière des contrôles ──
+   L'utilitaire ne touche ni background-color ni box-shadow de l'élément :
+   les composants gardent leurs états (actif, hover, focus) — la pilule
+   n'ajoute que la matière (reflet, flou) et son liseré sur un pseudo,
+   qui ne peut donc pas entrer en conflit de cascade avec les ombres
+   existantes. Hors mode liquide, les jetons sont absents : rien ne se
+   dessine, la pilule est plate. */
+@utility glass-pill {
+  position: relative;
+  background-image: var(--pill-sheen, none);
+  backdrop-filter: var(--pill-refract, none);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: var(--pill-rim, none), var(--pill-drop, none);
+    transition: box-shadow var(--d-base) var(--ease-spring);
+    pointer-events: none;
+  }
+}
+
+:root[data-liquid="true"] .glass-card {
+  position: relative;
+  transition:
+    transform var(--d-base) var(--ease-spring),
+    border-color var(--d-fast) var(--ease-continuous),
+    background-color var(--d-fast) var(--ease-continuous);
+}
+
+:root[data-liquid="true"] .glass-card::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--bw-thick));
+  border-radius: inherit;
+  box-shadow: var(--glass-rim-lit);
+  opacity: 0;
+  transition: opacity var(--d-slow) var(--ease-continuous);
+  pointer-events: none;
+}
+
+:root[data-liquid="true"] .glass-card:hover {
+  transform: translateY(-2px);
+}
+
+:root[data-liquid="true"] .glass-card:hover::after {
+  opacity: 1;
+}
+
+/* Thème clair : le poli se resserre — la lumière blanche est moins
+   visible sur ivoire, la frange chaude s'atténue pour rester un reflet,
+   jamais une couleur. */
+:root[data-theme="light"][data-liquid="true"],
+:root[data-theme="savane-clair"][data-liquid="true"] {
+  --glass-sheen:
+    linear-gradient(135deg,
+      rgb(255 255 255 / 0.55) 0%,
+      rgb(255 255 255 / 0.08) 40%,
+      rgb(255 255 255 / 0.30) 100%);
+  --glass-chroma:
+    inset  1px  1px 0 color-mix(in srgb, var(--color-signal) 26%, transparent),
+    inset -1px -1px 0 color-mix(in srgb, var(--color-phosphor) 20%, transparent);
+  --glass-rim-lit:
+    inset 0 1.5px 0 rgb(255 255 255 / 0.9),
+    inset 0 0 18px color-mix(in srgb, var(--color-signal) 16%, transparent);
+  /* Pilule en thème clair : le reflet s'appuie sur le blanc, l'ombre
+     interne basse porte la convexité (le fond sombre ne peut pas). */
+  --pill-rim:
+    inset 0 1px 0 rgb(255 255 255 / 0.8),
+    inset 0 -1.5px 0 rgb(0 0 0 / 0.10),
+    inset 0 0 8px rgb(255 255 255 / 0.35);
+  --pill-drop: 0 8px 18px -10px rgb(0 0 0 / 0.18);
 }
 
 /* Le fond à reflets doit aussi couvrir le body, pas seulement le root. */
@@ -2472,5 +2640,12 @@ a,
     --glass-refract-strong: none;
     --glass-lens:           none;
     --overlay-blur:         none;
+    /* La réfraction chromatique reste : elle vit sur la bordure, pas
+       dans la transparence — le bord continue d'accrocher la lumière. */
   }
 }
+
+/* Mouvement réduit : la carte ne se soulève plus ; le liseré allumé
+   s'affiche sans transition — l'état reste lisible, sans le mouvement.
+   La neutralisation vit dans le bloc d'accessibilité du mouvement, plus
+   haut dans ce fichier, qui coupe aussi les classes .mo-. */
