@@ -70,9 +70,10 @@ export function StatusBar({ path }: { path?: string }) {
 
   return (
     <div
-      className="fixed inset-x-0 bottom-[var(--h-bottomnav)] z-[var(--z-nav)]
-        h-[var(--h-status)] border-t border-edge glass-strong shell:hidden
-        rounded-[var(--radius-card)]"
+      data-allow-tiny
+      className="fixed inset-x-0 bottom-(--h-bottomnav) z-(--z-nav)
+        h-(--h-status) border-t border-edge glass-strong shell:hidden
+        rounded-(--radius-card)"
     >
       <div className="mx-auto flex h-full max-w-[560px] items-center gap-2 px-(--gutter)">
         {/* Le chemin ne s'affiche que s'il apprend quelque chose : une page

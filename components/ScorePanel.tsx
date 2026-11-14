@@ -123,7 +123,7 @@ export function ScorePanel({
 
   if (files.length === 0) {
     return (
-      <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2 p-4">
+      <div className="rounded-(--radius-card) border border-line-3 bg-surface-2 p-4">
         <p className="text-sm leading-snug text-chalk-3">
           Aucun fichier à noter.
         </p>
@@ -152,7 +152,7 @@ export function ScorePanel({
 
 function ScoreHeader({ repo }: { repo: RepoScore }) {
   return (
-    <section className="relative overflow-hidden rounded-[var(--radius-card)] border
+    <section className="relative overflow-hidden rounded-(--radius-card) border
       border-line-2 bg-surface-2 p-4 shadow-sh-2">
 
       <div className="relative grid gap-4 sm:grid-cols-2">
@@ -199,7 +199,7 @@ function BigScore({
           {score}
         </span>
         <span className="label-micro pb-1 text-chalk-4">/ {SCORE_MAX}</span>
-        <span className={`mb-1 ml-auto border px-2 py-0.5 font-mono text-[11px] font-bold ${toneText(grade.tone)}`}
+        <span className={`mb-1 ml-auto border px-2 py-0.5 font-mono text-12 font-bold ${toneText(grade.tone)}`}
           style={{ borderColor: "currentColor" }}>
           {grade.letter}
         </span>
@@ -235,7 +235,7 @@ function GradeBandNote({ score }: { score: number }) {
   const fragile = check.marginLow <= BAND_TIGHT;
 
   return (
-    <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-mono text-[10.5px] leading-snug">
+    <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 font-mono text-12 leading-snug">
       <span className="text-chalk-4">
         bande {grade.letter} {band.min}–{band.max}
       </span>
@@ -334,7 +334,7 @@ function ScoreHistoryCard({ projectId, branch }: { projectId?: string; branch?: 
   });
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center justify-between text-chalk-3">
         <span className="flex items-center gap-1.5">
           <Icon name="chart" size={12} strokeWidth={1.8} />
@@ -349,14 +349,14 @@ function ScoreHistoryCard({ projectId, branch }: { projectId?: string; branch?: 
       </h3>
 
       {current?.failed && (
-        <p className="text-[11.5px] leading-snug text-chalk-3">
+        <p className="text-12 leading-snug text-chalk-3">
           L&apos;historique n&apos;a pas pu être lu. La note ci-dessous reste valable :
           elle ne dépend que des fichiers enregistrés.
         </p>
       )}
 
       {!current && (
-        <p className="text-[11.5px] leading-snug text-chalk-4">Lecture de l&apos;historique…</p>
+        <p className="text-12 leading-snug text-chalk-4">Lecture de l&apos;historique…</p>
       )}
 
       {/* L'avertissement passe **avant** le tracé : une courbe qui saute des
@@ -365,7 +365,7 @@ function ScoreHistoryCard({ projectId, branch }: { projectId?: string; branch?: 
       {current && !current.failed && <CoverageWarning coverage={coverage} />}
 
       {current && !current.failed && points.length < 2 && (
-        <p className="mt-3 text-[11.5px] leading-snug text-chalk-3">
+        <p className="mt-3 text-12 leading-snug text-chalk-3">
           Une révision enregistrée : une courbe a besoin d&apos;au moins deux points pour
           dire quelque chose.
         </p>
@@ -406,30 +406,30 @@ function CoverageWarning({ coverage }: { coverage: HistoryCoverage }) {
   const window = coverage.traced + coverage.missing;
 
   return (
-    <div className="mt-3 flex items-start gap-2 rounded-[var(--radius-input)] border
+    <div className="mt-3 flex items-start gap-2 rounded-(--radius-input) border
       border-warn/40 bg-warn/8 p-2.5">
       <Icon name="info" size={12} strokeWidth={1.8} className="mt-0.5 shrink-0 text-warn" />
 
       <div className="min-w-0 space-y-1">
-        <p className="font-mono text-[10.5px] font-bold uppercase tracking-[0.08em] text-warn">
+        <p className="font-mono text-12 font-bold uppercase tracking-[0.08em] text-warn">
           la courbe ne trace pas tout
         </p>
 
         {coverage.missing > 0 && (
-          <p className="text-[11px] leading-snug text-chalk-3">
+          <p className="text-12 leading-snug text-chalk-3">
             {coverage.missing} révision(s) de la période n&apos;ont pas d&apos;instantané :
             elles sont absentes du tracé, et une absence n&apos;est pas un zéro.
           </p>
         )}
 
         {coverage.untraced > 0 && (
-          <p className="text-[11px] leading-snug text-chalk-3">
+          <p className="text-12 leading-snug text-chalk-3">
             la courbe ne remonte qu&apos;aux {window} révision(s) les plus récentes :{" "}
             {coverage.untraced} révision(s) plus ancienne(s) ne sont pas lues.
           </p>
         )}
 
-        <p className="text-[11px] leading-snug text-chalk-4">
+        <p className="text-12 leading-snug text-chalk-4">
           {coverage.missing > 0
             ? "Un écart entre deux points peut donc couvrir plusieurs révisions : c'est ce que la courbe ne dit pas."
             : "Le début du dépôt n'est donc pas dans le dessin."}
@@ -506,7 +506,7 @@ function HistorySummary({
           ["points", String(stats.count)],
         ].map(([label, value]) => (
           <div key={label}>
-            <dd className="tnum font-mono text-[12px] font-bold text-chalk-2">{value}</dd>
+            <dd className="tnum font-mono text-12 font-bold text-chalk-2">{value}</dd>
             <dt className="label-micro mt-0.5 text-chalk-4">{label}</dt>
           </div>
         ))}
@@ -530,14 +530,14 @@ function HistorySummary({
         {recent.map(({ point, step }) => {
           return (
             <li key={point.sha} className="flex items-baseline gap-2">
-              <span className="tnum w-[4ch] shrink-0 text-right font-mono text-[11.5px] font-bold text-chalk-2">
+              <span className="tnum w-[4ch] shrink-0 text-right font-mono text-12 font-bold text-chalk-2">
                 {point.score}
               </span>
-              <span className={`tnum w-[4ch] shrink-0 font-mono text-[10.5px] ${step > 0 ? "text-ok" : step < 0 ? "text-danger" : "text-chalk-4"}`}>
+              <span className={`tnum w-[4ch] shrink-0 font-mono text-12 ${step > 0 ? "text-ok" : step < 0 ? "text-danger" : "text-chalk-4"}`}>
                 {step === 0 ? "—" : step > 0 ? `+${step}` : String(step)}
               </span>
-              <span className="shrink-0 font-mono text-[10.5px] text-chalk-4">{point.sha.slice(0, 7)}</span>
-              <span className="min-w-0 flex-1 truncate text-[10.5px] text-chalk-4">
+              <span className="shrink-0 font-mono text-12 text-chalk-4">{point.sha.slice(0, 7)}</span>
+              <span className="min-w-0 flex-1 truncate text-12 text-chalk-4">
                 {point.at.slice(0, 10)} · {point.changedFiles} fichier(s) · {point.sloc} ligne(s)
               </span>
             </li>
@@ -550,7 +550,7 @@ function HistorySummary({
           avertissement, et il est au-dessus du tracé, là où on lit la
           courbe. Ici ne reste que le cache, qui n'est pas un manque. */}
       {reused > 0 && (
-        <p className="mt-2 text-[10.5px] leading-snug text-chalk-4">
+        <p className="mt-2 text-12 leading-snug text-chalk-4">
           {reused} fichier(s) inchangés réutilisés depuis le cache.
         </p>
       )}
@@ -572,7 +572,7 @@ function DimensionsCard({ repo }: { repo: RepoScore }) {
   });
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
         <Icon name="chart" size={12} strokeWidth={1.8} />
         dimensions
@@ -583,7 +583,7 @@ function DimensionsCard({ repo }: { repo: RepoScore }) {
           if (value === null || value === undefined) {
             return (
               <li key={key} className="flex items-baseline justify-between gap-2">
-                <span className="font-mono text-[11.5px] text-chalk-2">{label}</span>
+                <span className="font-mono text-12 text-chalk-2">{label}</span>
                 <span className="label-micro text-chalk-4">non mesurée</span>
               </li>
             );
@@ -593,7 +593,7 @@ function DimensionsCard({ repo }: { repo: RepoScore }) {
           return (
             <li key={key}>
               <div className="mb-1 flex items-baseline justify-between gap-2">
-                <span className="font-mono text-[11.5px] text-chalk-2">{label}</span>
+                <span className="font-mono text-12 text-chalk-2">{label}</span>
                 <span className="tnum label-micro text-chalk-4">{pct}%</span>
               </div>
               <div className="h-[6px] w-full border border-line-2/25 bg-void/10">
@@ -610,7 +610,7 @@ function DimensionsCard({ repo }: { repo: RepoScore }) {
       {repo.caps.length > 0 && (
         <ul className="mt-3 space-y-1 border-t border-line-2/20 pt-3">
           {repo.caps.map((cap) => (
-            <li key={cap.id} className="flex items-start gap-1.5 text-[11.5px] text-warn">
+            <li key={cap.id} className="flex items-start gap-1.5 text-12 text-warn">
               <Icon name="flag" size={11} strokeWidth={1.8} className="mt-0.5 shrink-0" />
               plafond : {cap.label}
             </li>
@@ -627,7 +627,7 @@ function DimensionsCard({ repo }: { repo: RepoScore }) {
 
 function HygieneCard({ repo }: { repo: RepoScore }) {
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center justify-between text-chalk-3">
         <span className="flex items-center gap-1.5">
           <Icon name="package" size={12} strokeWidth={1.8} />
@@ -646,14 +646,14 @@ function HygieneCard({ repo }: { repo: RepoScore }) {
               className={`mt-0.5 shrink-0 ${item.present ? "text-ok" : "text-chalk-4"}`}
             />
             <div className="min-w-0">
-              <p className={`font-mono text-[11.5px] ${item.present ? "text-chalk-2" : "text-chalk-3"}`}>
+              <p className={`font-mono text-12 ${item.present ? "text-chalk-2" : "text-chalk-3"}`}>
                 {item.label}
               </p>
               {/* Ce qui a été vérifié : un critère se juge par son contenu,
                   pas par la présence d'un fichier. */}
-              <p className="text-[10.5px] leading-snug text-chalk-4">{item.evidence}</p>
+              <p className="text-12 leading-snug text-chalk-4">{item.evidence}</p>
             </div>
-            <span className="tnum ml-auto shrink-0 text-[10.5px] text-chalk-4">
+            <span className="tnum ml-auto shrink-0 text-12 text-chalk-4">
               +{Math.round(item.weight * 1000)}
             </span>
           </li>
@@ -680,7 +680,7 @@ function ActionsCard({ repo }: { repo: RepoScore }) {
   if (repo.actions.length === 0) return null;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-signal/40 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-signal/40 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
         <Icon name="target" size={12} strokeWidth={1.8} />
         à faire en premier
@@ -690,15 +690,15 @@ function ActionsCard({ repo }: { repo: RepoScore }) {
         {repo.actions.map((action) => (
           <li key={action.id}>
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[11.5px] leading-snug text-chalk-2">{action.label}</span>
-              <span className="tnum shrink-0 font-mono text-[11.5px] font-bold text-ok">
+              <span className="text-12 leading-snug text-chalk-2">{action.label}</span>
+              <span className="tnum shrink-0 font-mono text-12 font-bold text-ok">
                 +{action.gain}
               </span>
             </div>
             {action.where.length > 0 && (
               <ul className="mt-1 space-y-0.5 border-l border-line-2/40 pl-2">
                 {action.where.map((where) => (
-                  <li key={where} className="truncate font-mono text-[10.5px] text-chalk-4">
+                  <li key={where} className="truncate font-mono text-12 text-chalk-4">
                     {where}
                   </li>
                 ))}
@@ -719,7 +719,7 @@ function HotspotsCard({ repo, onOpenFile }: { repo: RepoScore; onOpenFile?: (pat
   if (repo.hotspots.length === 0) return null;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
         <Icon name="flag" size={12} strokeWidth={1.8} />
         à corriger en priorité
@@ -733,10 +733,10 @@ function HotspotsCard({ repo, onOpenFile }: { repo: RepoScore; onOpenFile?: (pat
               disabled={!onOpenFile}
               className="flex w-full items-center gap-2 text-left disabled:cursor-default"
             >
-              <span className={`tnum w-[4ch] shrink-0 text-right font-mono text-[12px] font-bold ${toneText(f.grade.tone)}`}>
+              <span className={`tnum w-[4ch] shrink-0 text-right font-mono text-12 font-bold ${toneText(f.grade.tone)}`}>
                 {f.score}
               </span>
-              <span className="min-w-0 flex-1 truncate font-mono text-[11.5px] text-chalk-2">
+              <span className="min-w-0 flex-1 truncate font-mono text-12 text-chalk-2">
                 {f.path}
               </span>
               <span className="label-micro shrink-0 text-chalk-4">{f.grade.letter}</span>
@@ -785,7 +785,7 @@ function DistributionCard({ repo }: { repo: RepoScore }) {
   const flat = geo.max <= geo.min;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center justify-between gap-2 text-chalk-3">
         <span className="flex items-center gap-1.5">
           <Icon name="chart" size={12} strokeWidth={1.8} />
@@ -852,7 +852,7 @@ function DistributionCard({ repo }: { repo: RepoScore }) {
         )}
       </svg>
 
-      <div className="mt-1 flex items-baseline justify-between font-mono text-[10px] text-chalk-4">
+      <div className="mt-1 flex items-baseline justify-between font-mono text-12 text-chalk-4">
         <span className="tnum">{geo.min}</span>
         <span>
           {flat
@@ -865,7 +865,7 @@ function DistributionCard({ repo }: { repo: RepoScore }) {
       <div className="mt-2 border-t border-line-2/20 pt-2">
         <GuideLegend label="moyenne" value={geo.mean} tone={MEAN_TONE} dash={MEAN_DASH} />
         <GuideLegend label="médiane" value={geo.median} tone={MEDIAN_TONE} dash={MEDIAN_DASH} />
-        <p className="mt-2 text-[10.5px] leading-snug text-chalk-4">
+        <p className="mt-2 text-12 leading-snug text-chalk-4">
           {Math.abs(geo.mean - geo.median) < 25
             ? "Moyenne et médiane se confondent : les fichiers se valent, la note du dépôt ne tient pas à quelques cas extrêmes."
             : "Moyenne et médiane s'écartent : des fichiers extrêmes tirent la note, et la médiane dit mieux où se situe le dépôt."}
@@ -897,7 +897,7 @@ function CurrentFileCard({
   }, [file]);
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center justify-between gap-2 text-chalk-3">
         <span className="flex items-center gap-1.5">
           <Icon name="file" size={12} strokeWidth={1.8} />
@@ -908,9 +908,9 @@ function CurrentFileCard({
         </span>
       </h3>
 
-      <p className="mb-2 truncate font-mono text-[11px] text-chalk-4">{path}</p>
+      <p className="mb-2 truncate font-mono text-12 text-chalk-4">{path}</p>
 
-      <p className="mb-3 font-mono text-[11.5px] leading-snug text-chalk-3">
+      <p className="mb-3 font-mono text-12 leading-snug text-chalk-3">
         {file.metrics.sloc} lignes de code · {file.metrics.functions.length} fonction
         {file.metrics.functions.length > 1 ? "s" : ""} · complexité {file.metrics.cyclomatic}
         {file.metrics.maintainability !== null && (
@@ -923,7 +923,7 @@ function CurrentFileCard({
       </p>
 
       {worst.length === 0 ? (
-        <p className="flex items-center gap-1.5 font-mono text-[11.5px] text-ok">
+        <p className="flex items-center gap-1.5 font-mono text-12 text-ok">
           <Icon name="check" size={12} strokeWidth={2} />
           aucune ligne ne coûte de points.
         </p>
@@ -931,11 +931,11 @@ function CurrentFileCard({
         <ul className="space-y-1">
           {worst.map((l) => (
             <li key={l.number} className="flex items-baseline gap-2">
-              <span className="tnum w-8 shrink-0 text-right font-mono text-[11px] text-chalk-4">
+              <span className="tnum w-8 shrink-0 text-right font-mono text-12 text-chalk-4">
                 {l.number}
               </span>
-              <span className="tnum shrink-0 font-mono text-[11px] text-warn">{l.score}</span>
-              <span className="min-w-0 truncate text-[11px] text-chalk-3">
+              <span className="tnum shrink-0 font-mono text-12 text-warn">{l.score}</span>
+              <span className="min-w-0 truncate text-12 text-chalk-3">
                 {l.reasons.join(" · ") || "ligne signalée"}
               </span>
             </li>
@@ -952,7 +952,7 @@ function CurrentFileCard({
 
 function MethodCard({ repo }: { repo: RepoScore }) {
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
         <Icon name="info" size={12} strokeWidth={1.8} />
         mesures
@@ -982,7 +982,7 @@ function MethodCard({ repo }: { repo: RepoScore }) {
       {repo.strengths.length > 0 && (
         <ul className="mt-3 space-y-1 border-t border-line-2/20 pt-3">
           {repo.strengths.map((s) => (
-            <li key={s} className="flex items-start gap-1.5 text-[11.5px] text-chalk-2">
+            <li key={s} className="flex items-start gap-1.5 text-12 text-chalk-2">
               <Icon name="check" size={11} strokeWidth={1.8} className="mt-0.5 shrink-0 text-ok" />
               {s}
             </li>
@@ -993,7 +993,7 @@ function MethodCard({ repo }: { repo: RepoScore }) {
       {repo.weaknesses.length > 0 && (
         <ul className="mt-3 space-y-1 border-t border-line-2/20 pt-3">
           {repo.weaknesses.map((s) => (
-            <li key={s} className="flex items-start gap-1.5 text-[11.5px] text-chalk-2">
+            <li key={s} className="flex items-start gap-1.5 text-12 text-chalk-2">
               <Icon name="flag" size={11} strokeWidth={1.8} className="mt-0.5 shrink-0 text-warn" />
               {s}
             </li>

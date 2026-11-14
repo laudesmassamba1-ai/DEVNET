@@ -57,8 +57,15 @@
 
   --story-ring-gradient: var(--color-signal);
 
-  /* Instrument Sans pour la lecture, IBM Plex Mono pour les données. */
-  --font-display: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  /* Matière : lavis d'encre chaud, très bas, jamais un halo de bouton. */
+  --page-wash:
+    radial-gradient(920px 540px at 88% -10%, rgb(255 122 69 / 8%), transparent 62%),
+    radial-gradient(720px 480px at -12% 18%, rgb(95 191 134 / 4%), transparent 60%),
+    linear-gradient(180deg, #15140F 0%, #11110E 52%, #0E0E0B 100%);
+
+  /* Space Grotesk pour les titres, Instrument Sans pour la lecture,
+     IBM Plex Mono pour les données. */
+  --font-display: var(--font-grotesk), var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
   --font-sans:    var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-plex-mono), ui-monospace, monospace;
 
@@ -249,8 +256,8 @@
   --text-body:       0.938rem;  --lh-body:       1.6;
   --text-body-s:     0.8125rem;
   --text-caption:    0.75rem;   --lh-caption:    1.45;
-  --text-label:      0.6875rem; --lh-label:      1.35;
-  --text-micro:      0.6875rem; --lh-micro:      1.35;
+  --text-label:      0.75rem;   --lh-label:      1.35;
+  --text-micro:      0.75rem;   --lh-micro:      1.35;
   --text-code:       0.8125rem; --lh-code:       1.65;
 
   /* ── Pas de halo ──
@@ -274,6 +281,9 @@
 /* Thème clair : papier et encre, sans transparence ni halo. */
 :root[data-theme="light"] {
   color-scheme: light;
+  --page-wash:
+    radial-gradient(900px 520px at 88% -8%, rgb(255 122 69 / 8%), transparent 62%),
+    linear-gradient(180deg, #FAF8F2 0%, #F6F4EF 55%, #F1EEE6 100%);
   --color-void: #16150F;
   --color-page: #F6F4EF;
   --color-page-end: #F6F4EF;
@@ -346,6 +356,10 @@
    ══════════════════════════════════════════════════════════════════════ */
 :root[data-theme="savane"] {
   color-scheme: dark;
+  --page-wash:
+    radial-gradient(920px 540px at 84% -10%, rgb(32 191 169 / 10%), transparent 60%),
+    radial-gradient(720px 480px at 0% 100%, rgb(214 168 79 / 6%), transparent 55%),
+    linear-gradient(180deg, #0D1B17 0%, #0B1715 55%, #08120F 100%);
 
   /* ── Fond et surfaces ── */
   --color-void: #0B1715;
@@ -446,8 +460,8 @@
   /* ── Typographie resserrée : Inter lit, Poppins nomme ── */
   --text-body:    0.9375rem;  --lh-body:    1.48;
   --text-caption: 0.75rem;    --lh-caption: 1.38;
-  --text-label:   0.6875rem;  --lh-label:   1.25;
-  --text-micro:   0.6875rem;  --lh-micro:   1.25;
+  --text-label:   0.75rem;    --lh-label:   1.25;
+  --text-micro:   0.75rem;    --lh-micro:   1.25;
   --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-grotesk), ui-monospace, monospace;
@@ -520,6 +534,9 @@
    ══════════════════════════════════════════════════════════════════════ */
 :root[data-theme="savane-clair"] {
   color-scheme: light;
+  --page-wash:
+    radial-gradient(900px 520px at 84% -8%, rgb(32 191 169 / 7%), transparent 60%),
+    linear-gradient(180deg, #F7F4EA 0%, #F4F1E8 55%, #EEEAE0 100%);
 
   --color-void: #0B1715;
   --color-page: #F4F1E8;
@@ -611,8 +628,8 @@
 
   --text-body:    0.9375rem;  --lh-body:    1.48;
   --text-caption: 0.75rem;    --lh-caption: 1.38;
-  --text-label:   0.6875rem;  --lh-label:   1.25;
-  --text-micro:   0.6875rem;  --lh-micro:   1.25;
+  --text-label:   0.75rem;    --lh-label:   1.25;
+  --text-micro:   0.75rem;    --lh-micro:   1.25;
   --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
   --font-mono:    var(--font-grotesk), ui-monospace, monospace;
@@ -1127,7 +1144,9 @@
   body {
     font-family: var(--font-sans);
     background-color: var(--color-page);
-    background-image: none;
+    background-image: var(--page-wash, none);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
     color: var(--color-chalk);
     font-size: 15px;
     line-height: 1.55;
@@ -1234,6 +1253,12 @@
   line-height: var(--lh-label);
   letter-spacing: normal;
   text-transform: none;
+}
+
+/* Douze pixels, sans imposer de line-height : le texte de 12 px doit
+   garder l'interligne de son contexte, pas celui d'une classe Tailwind. */
+@utility text-12 {
+  font-size: 0.75rem;
 }
 
 @utility label-micro {
@@ -2206,21 +2231,15 @@ a,
 
 @media (display-mode: standalone) {
   body {
-    -webkit-user-select: none;
-    user-select: none;
-    -webkit-touch-callout: none;
     overscroll-behavior: none;
   }
 
-  input,
-  textarea,
-  select,
-  [contenteditable="true"],
-  .selectable,
-  .selectable * {
-    -webkit-user-select: text;
-    user-select: text;
-    -webkit-touch-callout: default;
+  /* Évite la sélection accidentelle sur les contrôles en PWA, sans
+     bloquer la copie du contenu (posts, messages, code). */
+  :where(button, a, nav, header, [role="button"], [data-no-select]) {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 }
 

@@ -95,10 +95,10 @@ type ComposerProps = {
   initialMedia?: { url: string; kind: "image" | "video"; name?: string } | null;
   /** Fichier choisi avant l'ouverture. */
   sourceFile?: File | null;
-  onUse: (file: File) => void;
-  onUseSource?: (file: File) => void;
+  onUse: (file: File) => void | Promise<void>;
+  onUseSource?: (file: File) => void | Promise<void>;
   /** GIF choisi : il part en **lien**, animé, sans passer par le canvas. */
-  onUseGif?: (gif: Gif) => void;
+  onUseGif?: (gif: Gif) => void | Promise<void>;
   onLayersChange?: (text: string) => void;
 };
 
@@ -231,6 +231,9 @@ function EditorShell({
     }
     setError(null);
     setGif(null);
+    // Une nouvelle image invalide le cache de rendu : sans ça, l'export
+    // canvas réutiliserait l'image précédente déjà décodée.
+    imageRef.current = null;
     if (createdUrl.current) URL.revokeObjectURL(createdUrl.current);
     const url = URL.createObjectURL(file);
     createdUrl.current = url;
@@ -351,8 +354,15 @@ function EditorShell({
         setError("Les GIF ne sont pas disponibles ici.");
         return;
       }
-      onUseGif(gif);
-      onClose();
+      setBusy(true);
+      try {
+        await onUseGif(gif);
+        onClose();
+      } catch {
+        setError("La publication du GIF a échoué. Réessaie.");
+      } finally {
+        setBusy(false);
+      }
       return;
     }
     if (!source && !text.trim()) {
@@ -362,8 +372,15 @@ function EditorShell({
     // Une vidéo part intacte : la réencoder au navigateur détruirait sa
     // durée. Le texte voyage alors comme légende.
     if (source?.kind === "video" && source.file.size > 0) {
-      (onUseSource ?? onUse)(source.file);
-      onClose();
+      setBusy(true);
+      try {
+        await (onUseSource ?? onUse)(source.file);
+        onClose();
+      } catch {
+        setError("La publication de la vidéo a échoué. Réessaie.");
+      } finally {
+        setBusy(false);
+      }
       return;
     }
     if (!source && !text.trim()) return;
@@ -378,8 +395,10 @@ function EditorShell({
         type: "image/webp",
         lastModified: Date.now(),
       });
-      onUse(file);
+      await onUse(file);
       onClose();
+    } catch {
+      setError("La publication a échoué. Réessaie.");
     } finally {
       setBusy(false);
     }
@@ -390,14 +409,14 @@ function EditorShell({
       role="dialog"
       aria-modal="true"
       aria-label="Éditeur de statut"
-      className="fixed inset-0 z-[var(--z-modal)] flex flex-col bg-void text-chalk"
+      className="fixed inset-0 z-(--z-modal) flex flex-col bg-void text-chalk"
       style={{ paddingTop: "var(--h-safe-top)", paddingBottom: "var(--h-safe-bottom)" }}
     >
       <header className="flex shrink-0 items-center justify-between gap-3 border-b border-line-2 bg-surface/95 px-4 py-2.5">
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex min-h-(--h-tap) items-center gap-2 rounded-[var(--radius-chip)] px-2 text-sm font-medium text-chalk-3 transition-colors hover:bg-surface-2 hover:text-chalk"
+          className="inline-flex min-h-(--h-tap) items-center gap-2 rounded-(--radius-chip) px-2 text-sm font-medium text-chalk-3 transition-colors hover:bg-surface-2 hover:text-chalk"
         >
           <Icon name="close" size={18} />
           Fermer
@@ -409,7 +428,7 @@ function EditorShell({
           type="button"
           onClick={() => void publish()}
           disabled={busy}
-          className="inline-flex min-h-(--h-tap) items-center justify-center rounded-[var(--radius-chip)] bg-signal px-4 text-sm font-semibold text-void transition-opacity disabled:opacity-50"
+          className="inline-flex min-h-(--h-tap) items-center justify-center rounded-(--radius-chip) bg-signal px-4 text-sm font-semibold text-void transition-opacity disabled:opacity-50"
         >
           {busy ? "Envoi…" : "Publier"}
         </button>
@@ -423,7 +442,7 @@ function EditorShell({
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           onDoubleClick={() => setEditing(true)}
-          className="relative h-full max-h-full overflow-hidden rounded-[var(--radius-card)] border border-line-2 shadow-sh-1"
+          className="relative h-full max-h-full overflow-hidden rounded-(--radius-card) border border-line-2 shadow-sh-1"
           style={{
             aspectRatio: "9 / 16",
             background: gif
@@ -595,7 +614,7 @@ function EditorShell({
         </div>
 
         {text.trim() && !editing ? (
-          <p className="mt-1 text-center text-[12px] leading-tight text-chalk-3">
+          <p className="mt-1 text-center text-12 leading-tight text-chalk-3">
             Glisse le texte pour le placer · double-clic pour le modifier
           </p>
         ) : null}
@@ -662,7 +681,7 @@ function ToolItem({
       aria-pressed={active}
       title={title}
       className={`flex min-h-[3.25rem] flex-1 flex-col items-center justify-center gap-1
-        rounded-[var(--radius-chip)] px-1 text-[12px] font-semibold
+        rounded-(--radius-chip) px-1 text-12 font-semibold
         transition-colors disabled:cursor-not-allowed disabled:opacity-35
         ${active ? "text-signal" : "text-chalk-3 hover:text-chalk"}`}
     >
@@ -697,7 +716,7 @@ function ToolButton({
       aria-pressed={active}
       aria-label={`${hint} — ${label}`}
       className={`flex min-h-(--h-tap) flex-1 items-center justify-center gap-1.5
-        rounded-[var(--radius-chip)] border px-2 text-[12px] font-semibold
+        rounded-(--radius-chip) border px-2 text-12 font-semibold
         transition-colors min-w-0
         ${active ? "border-signal/60 bg-signal/10 text-chalk" : "border-line-3 bg-surface text-chalk-3 hover:border-line-2 hover:text-chalk"}`}
     >

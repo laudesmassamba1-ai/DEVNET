@@ -72,7 +72,7 @@ function MetricBlock({
 }) {
   return (
     <div className="min-w-0 border-l border-line-2 pl-3 first:border-l-0 first:pl-0">
-      <dt className="text-[12px] text-chalk-4">{label}</dt>
+      <dt className="text-12 text-chalk-4">{label}</dt>
       <dd className="mt-1 font-mono text-[22px] font-semibold tabular-nums text-chalk">
         {metric.value === null ? "—" : metric.value.toLocaleString("fr-FR")}
       </dd>
@@ -224,8 +224,8 @@ export function AdminOverview() {
           type="button"
           onClick={() => void refresh()}
           disabled={loading}
-          className="inline-flex min-h-[var(--h-tap)] items-center gap-2 rounded-[var(--radius-input)]
-            border border-line-2 px-3 text-[12px] text-chalk-3 hover:bg-surface-2
+          className="inline-flex min-h-(--h-tap) items-center gap-2 rounded-(--radius-input)
+            border border-line-2 px-3 text-12 text-chalk-3 hover:bg-surface-2
             disabled:opacity-60"
         >
           <Icon name="chart" size={14} />
@@ -236,7 +236,7 @@ export function AdminOverview() {
       {error && (
         <div role="alert" className="mx-(--gutter) mb-4 border-l-2 border-danger px-3 py-2">
           <p className="text-[13px] text-danger">{error}</p>
-          <button type="button" className="mt-2 text-[12px] font-semibold text-signal" onClick={() => void refresh()}>
+          <button type="button" className="mt-2 text-12 font-semibold text-signal" onClick={() => void refresh()}>
             Réessayer
           </button>
         </div>
@@ -289,8 +289,8 @@ export function AdminOverview() {
           <Link
             key={href}
             href={href}
-            className="inline-flex min-h-[var(--h-tap)] items-center gap-2 border border-line-2
-              px-3 text-[12px] text-chalk-3 transition-colors hover:border-signal hover:text-signal"
+            className="inline-flex min-h-(--h-tap) items-center gap-2 border border-line-2
+              px-3 text-12 text-chalk-3 transition-colors hover:border-signal hover:text-signal"
           >
             <Icon name={icon} size={14} />
             {label}

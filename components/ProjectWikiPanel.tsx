@@ -180,8 +180,8 @@ export function ProjectWikiPanel({ projectId }: Props) {
             type="button"
             onClick={() => void create()}
             disabled={busy}
-            className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
-              rounded-[var(--radius-input)] border border-signal bg-signal
+            className="mo-press inline-flex h-(--h-tap) items-center gap-2
+              rounded-(--radius-input) border border-signal bg-signal
               px-4 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             <Icon name="plus" size={14} strokeWidth={2} />
@@ -212,7 +212,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
             disabled={busy}
             aria-label="Nouvelle page"
             title="Nouvelle page"
-            className="-mr-2 flex size-[var(--h-tap)] items-center justify-center
+            className="-mr-2 flex size-(--h-tap) items-center justify-center
               text-chalk-4 transition-colors hover:text-signal disabled:opacity-40"
           >
             <Icon name="plus" size={12} strokeWidth={2} />
@@ -233,7 +233,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                   }}
                   aria-current={active ? "page" : undefined}
                   className={`flex w-full items-center gap-2 border-l-2 px-2 py-1.5
-                    text-left transition-colors duration-[var(--d-fast)]
+                    text-left transition-colors duration-(--d-fast)
                     ${active
                       ? "border-signal bg-surface-2 text-chalk"
                       : "border-line-2 text-chalk-3 hover:border-chalk-4 hover:text-chalk"}`}
@@ -261,7 +261,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
               onChange={(e) => setDraftTitle(e.target.value)}
               aria-label="Titre de la page"
               placeholder="titre de la page"
-              className="mb-3 h-[var(--h-input)] w-full border border-line-2
+              className="mb-3 h-(--h-input) w-full border border-line-2
                 bg-surface-2 px-3 font-display text-[15px] font-bold text-chalk
                 outline focus:border-signal"
             />
@@ -286,7 +286,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                 type="button"
                 onClick={() => void save()}
                 disabled={busy || draftTitle.trim().length === 0}
-                className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
+                className="mo-press inline-flex h-(--h-tap) items-center gap-2
                   border border-signal bg-signal px-4 text-[13px] font-bold
                   text-void disabled:opacity-40"
               >
@@ -297,7 +297,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                 type="button"
                 onClick={cancelEdit}
                 disabled={busy}
-                className="mo-press inline-flex h-[var(--h-tap)] items-center
+                className="mo-press inline-flex h-(--h-tap) items-center
                   border border-line-2 px-4 text-[13px] text-chalk-3
                   hover:border-chalk-4 hover:text-chalk disabled:opacity-40"
               >
@@ -323,7 +323,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                   onClick={startEdit}
                   aria-label="Modifier la page"
                   title="Modifier"
-                  className="flex size-[var(--h-action)] items-center justify-center
+                  className="flex size-(--h-action) items-center justify-center
                     border border-line-2 text-chalk-3 transition-colors
                     hover:border-signal hover:text-signal"
                 >
@@ -334,7 +334,7 @@ export function ProjectWikiPanel({ projectId }: Props) {
                   onClick={() => setConfirmDelete((v) => !v)}
                   aria-label="Supprimer la page"
                   title="Supprimer"
-                  className="flex size-[var(--h-action)] items-center justify-center
+                  className="flex size-(--h-action) items-center justify-center
                     border border-line-2 text-chalk-3 transition-colors
                     hover:border-danger hover:text-danger"
                 >
@@ -353,16 +353,16 @@ export function ProjectWikiPanel({ projectId }: Props) {
                   type="button"
                   onClick={() => void remove()}
                   disabled={busy}
-                  className="mo-press h-[var(--h-action)] border border-danger
-                    px-3 text-[12px] font-bold text-danger disabled:opacity-40"
+                  className="mo-press h-(--h-action) border border-danger
+                    px-3 text-12 font-bold text-danger disabled:opacity-40"
                 >
                   Supprimer
                 </button>
                 <button
                   type="button"
                   onClick={() => setConfirmDelete(false)}
-                  className="mo-press h-[var(--h-action)] border border-line-2
-                    px-3 text-[12px] text-chalk-3 hover:text-chalk"
+                  className="mo-press h-(--h-action) border border-line-2
+                    px-3 text-12 text-chalk-3 hover:text-chalk"
                 >
                   Annuler
                 </button>
@@ -393,7 +393,7 @@ function Document({ body }: { body: string }) {
   if (blocks.length === 0) {
     return (
       <p className="border border-dashed border-line-2 px-3 py-6 text-center
-        font-mono text-[12px] text-chalk-4">
+        font-mono text-12 text-chalk-4">
         Page vide — passez en édition.
       </p>
     );

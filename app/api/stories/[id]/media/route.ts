@@ -2,7 +2,10 @@
  * Octets du média d'un statut.
  *
  * Même règle que la story : vivante pour tout le monde, ou visible par son
- * auteur. Le cache reste privé — un statut disparaît en 24 h.
+ * auteur. Le cache est **interdit** : `max-age=86400` laissait le navigateur
+ * resservir un média après l'expiration de la story, donc après que le
+ * serveur ait cessé de l'autoriser. Une réponse autorisée une fois ne doit
+ * pas devenir une copie permanente.
  */
 import { NextResponse } from "next/server";
 import { StoriesRepositoryError } from "@/modules/stories";
@@ -23,11 +26,14 @@ export async function GET(
     if (!media) {
       return NextResponse.json({ error: "média introuvable" }, { status: 404 });
     }
+    const mime = /^(image|video)\/[a-z0-9.+-]+$/i.test(media.mime)
+      ? media.mime
+      : "application/octet-stream";
     return new Response(new Uint8Array(media.bytes), {
       headers: {
-        "Content-Type": media.mime,
+        "Content-Type": mime,
         "Content-Length": String(media.bytes.length),
-        "Cache-Control": "private, max-age=86400",
+        "Cache-Control": "private, no-store, max-age=0",
       },
     });
   } catch (error) {

@@ -152,9 +152,9 @@ export function FollowButton({
         aria-label={
           following ? `Ne plus suivre ${targetPseudo}` : `Suivre ${targetPseudo}`
         }
-        className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-[var(--radius-input)]
+        className={`inline-flex h-8 shrink-0 items-center gap-1 rounded-(--radius-input)
           border px-2.5 font-mono text-[11px] font-bold uppercase tracking-[0.1em]
-          transition-[background-color,color,border-color] duration-[var(--d-fast)]
+          transition-[background-color,color,border-color] duration-(--d-fast)
           disabled:opacity-50
           ${following
             ? "border-line-3 bg-surface-2 text-chalk-3 hover:border-danger hover:text-danger"
@@ -178,14 +178,14 @@ export function FollowButton({
       aria-label={
         following ? `Ne plus suivre ${targetPseudo}` : `Suivre ${targetPseudo}`
       }
-      className={`inline-flex h-[var(--h-tap)] flex-1 items-center justify-center
-        gap-1.5 rounded-[var(--radius-input)] border font-mono text-[12px]
+      className={`inline-flex h-(--h-tap) flex-1 items-center justify-center
+        gap-1.5 rounded-(--radius-input) border font-mono text-12
         font-bold tracking-[0.12em] uppercase
         transition-[background-color,color,border-color,transform]
-        duration-[var(--d-fast)] active:translate-y-px disabled:opacity-50
+        duration-(--d-fast) active:translate-y-px disabled:opacity-50
         ${following
           ? "border-line-3 bg-surface-2 text-chalk-2 hover:border-danger hover:text-danger"
-          : "border-signal bg-signal text-void shadow-[var(--shadow-action)] hover:border-signal hover:shadow-[var(--shadow-lift-2)]"}`}
+          : "border-signal bg-signal text-void shadow-(--shadow-action) hover:border-signal hover:shadow-(--shadow-lift-2)"}`}
     >
       <Icon name={following ? "check" : "follow"} size={14} strokeWidth={2} />
       {following ? "suivi" : "suivre"}

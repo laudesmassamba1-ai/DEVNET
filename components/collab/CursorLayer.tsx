@@ -94,7 +94,7 @@ export function CursorLayer({
 
             {/* L'étiquette : qui écrit, au-dessus du caret. */}
             <span
-              className={`absolute -translate-y-full whitespace-nowrap rounded-[var(--radius-chip)]
+              className={`absolute -translate-y-full whitespace-nowrap rounded-(--radius-chip)
                 border px-1.5 py-px font-mono text-[10px] leading-[1.3] shadow-sh-1
                 ${avatarClass(cursor.color)}`}
               style={{ top: top - 2, left }}

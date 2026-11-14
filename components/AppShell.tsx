@@ -185,9 +185,9 @@ export function AppShell({
 
         <div className="min-w-0 flex-1">
           <header
-            className="sticky top-[var(--h-banner,0px)] z-[var(--z-sticky)] relative flex
-              h-[var(--h-topbar)] items-stretch justify-between
-              border-b-[var(--bw-heavy)] border-edge glass-strong
+            className="sticky top-[var(--h-banner,0px)] z-(--z-sticky) relative flex
+              h-(--h-topbar) items-stretch justify-between
+              border-b-(--bw-heavy) border-edge glass-strong
               rounded-none safe-top"
           >
             {/* La barre de progression de navigation : tracée à chaque
@@ -210,7 +210,7 @@ export function AppShell({
                 Fermer se fait depuis le panneau lui-même, là où le geste
                 a un sens ; rouvrir se fait depuis la position stable. */}
             {desktop && !navOpen && (
-              <div className="flex items-center border-r-[var(--bw-thin)]
+              <div className="flex items-center border-r-(--bw-thin)
                 border-line px-2">
                 <IconButton
                   label="Déplier la navigation"
@@ -221,7 +221,7 @@ export function AppShell({
             )}
 
             {backFallback && (
-              <div className="flex items-center border-r-[var(--bw-thin)] border-line px-1">
+              <div className="flex items-center border-r-(--bw-thin) border-line px-1">
                 <IconButton label="Retour" name="arrow-left" onClick={navigateBack} />
               </div>
             )}
@@ -264,7 +264,7 @@ export function AppShell({
             )}
 
             {action && (
-              <div className="flex shrink-0 items-center gap-2 border-l-[var(--bw-thin)]
+              <div className="flex shrink-0 items-center gap-2 border-l-(--bw-thin)
                 border-line px-(--gutter)">
                 {action}
               </div>
@@ -277,7 +277,7 @@ export function AppShell({
                 droite. Sans cela, la cloche sauterait d'une colonne de
                 quelques pixels selon les écrans, et l'œil la perdrait
                 en la cherchant. */}
-            <div className="flex shrink-0 items-center border-l-[var(--bw-thin)]
+            <div className="flex shrink-0 items-center border-l-(--bw-thin)
               border-line px-1 sm:px-(--gutter)">
               <NotificationBell />
             </div>
@@ -357,10 +357,10 @@ export function IconButton({
       aria-label={label}
       onClick={onClick}
       data-tour={dataTour}
-      className="mo-press flex size-[var(--h-tap)] items-center justify-center
-        rounded-full border-[var(--bw-thin)] border-line-2/40 text-chalk
+      className="mo-press flex size-(--h-tap) items-center justify-center
+        rounded-full border-(--bw-thin) border-line-2/40 text-chalk
         transition-[background-color,color,border-color]
-        duration-[var(--d-fast)] ease-[var(--ease-spring)]
+        duration-(--d-fast) ease-(--ease-spring)
         hover:border-signal hover:bg-signal hover:text-void"
     >
       <Icon name={name} size={16} />

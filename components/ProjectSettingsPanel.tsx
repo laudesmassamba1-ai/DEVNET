@@ -81,7 +81,7 @@ const EMOJI_CHOICES = [
 ] as const;
 
 const inputCls =
-  "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 " +
+  "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 " +
   "bg-surface px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4";
 const labelCls = "label mb-1.5 block text-chalk";
 
@@ -224,7 +224,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                 onClick={() => setEmoji(choice)}
                 aria-label={`Icône ${choice}`}
                 aria-pressed={emoji === choice}
-                className={`mo-press grid size-10 place-items-center rounded-[var(--radius-input)]
+                className={`mo-press grid size-10 place-items-center rounded-(--radius-input)
                   border transition-colors ${
                     emoji === choice
                       ? "border-signal bg-signal/10 text-signal"
@@ -250,7 +250,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
             onChange={(e) => setDescription(e.target.value)}
             rows={3}
             placeholder="En une phrase, ce que fait le projet."
-            className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+            className="w-full rounded-(--radius-input) border border-line-3 bg-surface
               px-3.5 py-3 text-[14px] shadow-sh-1 placeholder:text-chalk-4"
           />
         </div>
@@ -293,7 +293,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                 onClick={() => setStage(s.id)}
                 aria-pressed={stage === s.id}
                 title={s.hint}
-                className={`mo-press rounded-[var(--radius-chip)] border px-3 py-1.5 text-sm
+                className={`mo-press rounded-(--radius-chip) border px-3 py-1.5 text-sm
                   font-bold transition-colors ${
                     stage === s.id
                       ? "border-signal bg-signal/10 text-signal"
@@ -315,7 +315,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
               role="switch"
               aria-checked={seeking}
               onClick={() => setSeeking((v) => !v)}
-              className={`mo-press relative h-[26px] w-[46px] shrink-0 rounded-[var(--radius-chip)]
+              className={`mo-press relative h-[26px] w-[46px] shrink-0 rounded-(--radius-chip)
                 border transition-colors ${
                   seeking ? "border-signal bg-signal/30" : "border-line-3 bg-surface-2"
                 }`}
@@ -340,7 +340,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                     type="button"
                     onClick={() => setDemandLanguages((cur) => toggle(cur, l))}
                     aria-pressed={demandLanguages.includes(l)}
-                    className={`mo-press rounded-[var(--radius-chip)] border px-2.5 py-1
+                    className={`mo-press rounded-(--radius-chip) border px-2.5 py-1
                       font-mono text-[11.5px] transition-colors ${
                         demandLanguages.includes(l)
                           ? "border-signal text-signal"
@@ -361,8 +361,8 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                     onClick={() => setDemandRoles((cur) => toggle(cur, r.id))}
                     aria-pressed={demandRoles.includes(r.id)}
                     title={r.hint}
-                    className={`mo-press inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-                      border px-2.5 py-1.5 text-[12px] transition-colors ${
+                    className={`mo-press inline-flex items-center gap-1.5 rounded-(--radius-chip)
+                      border px-2.5 py-1.5 text-12 transition-colors ${
                         demandRoles.includes(r.id)
                           ? "border-signal text-signal"
                           : "border-line-3 text-chalk-3 hover:text-chalk"
@@ -381,8 +381,8 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
           type="button"
           onClick={() => void saveSettings()}
           disabled={saving || !canAdmin}
-          className="mo-press inline-flex h-[var(--h-tap)] items-center justify-center gap-2
-            rounded-[var(--radius-input)] border border-line-3 bg-signal px-4 text-sm
+          className="mo-press inline-flex h-(--h-tap) items-center justify-center gap-2
+            rounded-(--radius-input) border border-line-3 bg-signal px-4 text-sm
             font-bold text-void shadow-sh-1 hover:shadow-sh-2 disabled:opacity-40"
         >
           <Icon name="check" size={14} strokeWidth={2.2} />
@@ -427,7 +427,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                       onChange={(e) => void changeRole(m, e.target.value as ProjectRole)}
                       aria-label={`Rôle de ${m.prenom}`}
                       title={ROLE_HINTS[m.role as ProjectRole] ?? ""}
-                      className="h-[34px] cursor-pointer rounded-[var(--radius-input)]
+                      className="h-[34px] cursor-pointer rounded-(--radius-input)
                         border border-line-3 bg-surface px-2 text-sm text-chalk-2"
                     >
                       {(["maintainer", "editor", "viewer"] as ProjectRole[]).map((r) => (
@@ -451,7 +451,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                       onClick={() => void removeMember(m)}
                       disabled={busy === m.user_id}
                       aria-label={`Retirer ${m.prenom}`}
-                      className="mo-press grid size-[34px] place-items-center rounded-[var(--radius-chip)]
+                      className="mo-press grid size-[34px] place-items-center rounded-(--radius-chip)
                         text-chalk-4 transition-colors hover:text-danger disabled:opacity-40"
                     >
                       <Icon name="trash" size={14} />
@@ -463,7 +463,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                       type="button"
                       onClick={() => void removeMember(m)}
                       disabled={busy === m.user_id}
-                      className="mo-press rounded-[var(--radius-chip)] border border-line-3 px-2.5 py-1
+                      className="mo-press rounded-(--radius-chip) border border-line-3 px-2.5 py-1
                         font-mono text-[10.5px] font-bold uppercase tracking-[0.12em]
                         text-chalk-3 transition-colors hover:text-danger disabled:opacity-40"
                     >
@@ -494,8 +494,8 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                 type="button"
                 onClick={() => void addByPseudo()}
                 disabled={inviting || !invite.trim()}
-                className="mo-press inline-flex h-[var(--h-input)] shrink-0 items-center gap-1.5
-                  rounded-[var(--radius-input)] border border-line-3 bg-page px-3.5 text-sm
+                className="mo-press inline-flex h-(--h-input) shrink-0 items-center gap-1.5
+                  rounded-(--radius-input) border border-line-3 bg-page px-3.5 text-sm
                   font-bold text-chalk transition-colors hover:border-chalk-3 disabled:opacity-40"
               >
                 <Icon name="follow" size={14} />
@@ -529,8 +529,8 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
               <button
                 type="button"
                 onClick={() => setConfirmDelete(false)}
-                className="rounded-[var(--radius-input)] border border-line-3 px-3 py-1.5
-                  text-[12px] font-bold text-chalk-2 hover:text-chalk"
+                className="rounded-(--radius-input) border border-line-3 px-3 py-1.5
+                  text-12 font-bold text-chalk-2 hover:text-chalk"
               >
                 Annuler
               </button>
@@ -538,8 +538,8 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
                 type="button"
                 onClick={() => void confirmDeleteProject()}
                 disabled={deleting}
-                className="mo-press rounded-[var(--radius-input)] border border-danger bg-danger px-3 py-1.5
-                  text-[12px] font-bold text-void disabled:opacity-40"
+                className="mo-press rounded-(--radius-input) border border-danger bg-danger px-3 py-1.5
+                  text-12 font-bold text-void disabled:opacity-40"
               >
                 {deleting ? "Suppression…" : "Supprimer définitivement"}
               </button>
@@ -548,7 +548,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
             <button
               type="button"
               onClick={() => setConfirmDelete(true)}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2 rounded-[var(--radius-input)]
+              className="mo-press inline-flex h-(--h-tap) items-center gap-2 rounded-(--radius-input)
                 border border-danger px-3.5 text-sm font-bold text-danger transition-colors
                 hover:bg-danger hover:text-void"
             >
@@ -560,7 +560,7 @@ export function ProjectSettingsPanel({ project, me, canAdmin, onChanged, onDelet
       )}
 
       {!canAdmin && (
-        <p className="text-[12px] text-chalk-4">
+        <p className="text-12 text-chalk-4">
           Seuls le propriétaire et les mainteneurs peuvent modifier ces réglages.
         </p>
       )}

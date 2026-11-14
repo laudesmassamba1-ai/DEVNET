@@ -29,7 +29,7 @@ import {
 } from "@/lib/ui-preferences";
 
 const inputCls =
-  "h-[var(--h-input)] w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
+  "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
   "shadow-sh-1 transition-[box-shadow,border-color] placeholder:text-chalk-4 " +
   "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
@@ -66,8 +66,14 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    setNotifyState(notificationState());
-    void currentPushState().then(setPushState);
+    // Les deux lectures sont faites dans le callback asynchrone : la
+    // permission et l'abonnement ne sont pas des états React à recalculer
+    // pendant le rendu, et un `setState` synchrone dans un effet provoque
+    // un second rendu inutile au montage.
+    void currentPushState().then((push) => {
+      setPushState(push);
+      setNotifyState(notificationState());
+    });
   }, []);
 
   async function enableNotifications() {
@@ -401,7 +407,7 @@ export default function SettingsPage() {
                   onClick={() => void saveTheme(entry.id)}
                   disabled={themeBusy}
                   aria-pressed={theme === entry.id}
-                  className={`lift-press flex h-(--h-tap) flex-col items-center justify-center gap-1 rounded-(--radius-input) border px-2 text-[12px] font-bold ${
+                  className={`lift-press flex h-(--h-tap) flex-col items-center justify-center gap-1 rounded-(--radius-input) border px-2 text-12 font-bold ${
                     theme === entry.id
                       ? "border-signal bg-signal text-void"
                       : "border-line-3 bg-surface text-chalk hover:border-signal"
@@ -412,12 +418,12 @@ export default function SettingsPage() {
                 </button>
               ))}
             </div>
-            <p className="mt-2 text-[12px] text-chalk-4">
+            <p className="mt-2 text-12 text-chalk-4">
               {THEMES.find((entry) => entry.id === theme)?.hint}
             </p>
             <fieldset className="mt-6">
               <legend className="label text-chalk-3">Densité du fil</legend>
-              <p className="mt-1 text-[12px] text-chalk-4">
+              <p className="mt-1 text-12 text-chalk-4">
                 Le choix est appliqué au prochain affichage du fil.
               </p>
               <div className="mt-3 grid grid-cols-2 gap-2">
@@ -431,7 +437,7 @@ export default function SettingsPage() {
                     onClick={() => saveDensity(value)}
                     aria-pressed={feedDensity === value}
                     className={`min-h-(--h-tap) rounded-(--radius-input) border px-3
-                      text-[12px] font-semibold ${
+                      text-12 font-semibold ${
                         feedDensity === value
                           ? "border-signal bg-signal text-void"
                           : "border-line-3 bg-surface text-chalk hover:border-signal"
@@ -445,7 +451,7 @@ export default function SettingsPage() {
             <label className="mt-5 flex min-h-(--h-tap) items-center justify-between gap-4 border-t border-line-2 pt-4">
               <span>
                 <span className="block text-[13px] font-semibold text-chalk">Réduire les animations</span>
-                <span className="mt-1 block text-[12px] text-chalk-4">
+                <span className="mt-1 block text-12 text-chalk-4">
                   Désactive les mouvements de l’interface sur cet appareil.
                 </span>
               </span>
@@ -459,7 +465,7 @@ export default function SettingsPage() {
             {(appearanceMessage || appearanceError) && (
               <p
                 role={appearanceError ? "alert" : "status"}
-                className={`mt-3 text-[12px] ${appearanceError ? "text-warn" : "text-ok"}`}
+                className={`mt-3 text-12 ${appearanceError ? "text-warn" : "text-ok"}`}
               >
                 {appearanceError || appearanceMessage}
               </p>
@@ -500,7 +506,7 @@ export default function SettingsPage() {
                 <span className="block text-[13px] font-semibold text-chalk">
                   Accepter les photos et vidéos
                 </span>
-                <span className="mt-1 block text-[12px] text-chalk-4">
+                <span className="mt-1 block text-12 text-chalk-4">
                   Quand c&apos;est désactivé, vos contacts ne peuvent plus vous en envoyer en privé.
                   Le texte reste possible.
                 </span>
@@ -516,7 +522,7 @@ export default function SettingsPage() {
             {(dmMediaMessage || dmMediaError) && (
               <p
                 role={dmMediaError ? "alert" : "status"}
-                className={`mt-3 text-[12px] ${dmMediaError ? "text-warn" : "text-ok"}`}
+                className={`mt-3 text-12 ${dmMediaError ? "text-warn" : "text-ok"}`}
               >
                 {dmMediaError || dmMediaMessage}
               </p>
@@ -572,7 +578,7 @@ export default function SettingsPage() {
                   {pushTest.message && (
                     <p
                       role={pushTest.failed ? "alert" : "status"}
-                      className={`text-[12px] ${pushTest.failed ? "text-warn" : "text-ok"}`}
+                      className={`text-12 ${pushTest.failed ? "text-warn" : "text-ok"}`}
                     >
                       {pushTest.message}
                     </p>
@@ -660,7 +666,7 @@ export default function SettingsPage() {
           </section>
 
           <div className="flex justify-end">
-            {signOutError && <p role="alert" className="mr-auto self-center text-[12px] text-warn">{signOutError}</p>}
+            {signOutError && <p role="alert" className="mr-auto self-center text-12 text-warn">{signOutError}</p>}
             <button
               type="button"
               onClick={signOut}

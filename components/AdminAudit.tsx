@@ -84,8 +84,8 @@ export function AdminAudit() {
         <button
           type="button"
           onClick={() => void load()}
-          className="min-h-[var(--h-tap)] rounded-[var(--radius-input)] border border-line-2
-            px-3 text-[12px] text-chalk-3 hover:bg-surface-2"
+          className="min-h-(--h-tap) rounded-(--radius-input) border border-line-2
+            px-3 text-12 text-chalk-3 hover:bg-surface-2"
         >
           Actualiser
         </button>
@@ -94,7 +94,7 @@ export function AdminAudit() {
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2">
           <p className="text-[13px] text-danger">{error}</p>
-          <button type="button" onClick={() => void load()} className="mt-2 text-[12px] font-semibold text-signal">
+          <button type="button" onClick={() => void load()} className="mt-2 text-12 font-semibold text-signal">
             Réessayer
           </button>
         </div>
@@ -114,7 +114,7 @@ export function AdminAudit() {
                 {ACTION_LABEL[entry.action] ?? entry.action}
               </span>
               {detail(entry) && (
-                <span className="font-mono text-[12px] text-chalk-3">{detail(entry)}</span>
+                <span className="font-mono text-12 text-chalk-3">{detail(entry)}</span>
               )}
             </p>
             <p className="mt-1 font-mono text-[10.5px] text-chalk-4">

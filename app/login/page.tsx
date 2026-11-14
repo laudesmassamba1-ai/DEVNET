@@ -176,7 +176,7 @@ function LoginForm() {
         <Motion
           role="rise"
           delay={80}
-          className="rounded-[var(--radius-card)] border border-edge bg-surface
+          className="rounded-(--radius-card) border border-edge bg-surface
             p-6 sm:p-8"
         >
           <h2 className="font-display text-[1.5rem] font-bold tracking-[-0.035em] text-chalk">
@@ -197,8 +197,8 @@ function LoginForm() {
                     onClick={(event) => {
                       if (busy) event.preventDefault();
                     }}
-                    className="lift-press flex h-[var(--h-tap)] items-center justify-center gap-2
-                      rounded-[var(--radius-input)] border border-line-3 bg-surface px-3
+                    className="lift-press flex h-(--h-tap) items-center justify-center gap-2
+                      rounded-(--radius-input) border border-line-3 bg-surface px-3
                       text-[13px] font-semibold text-chalk shadow-sh-2
                       transition-colors hover:border-signal aria-disabled:opacity-40"
                   >
@@ -259,7 +259,7 @@ function LoginForm() {
                     key={u.id}
                     type="button"
                     onClick={() => chooseDemo(u)}
-                    className="group flex items-start gap-2.5 rounded-[var(--radius-card)] border
+                    className="group flex items-start gap-2.5 rounded-(--radius-card) border
                       border-line-2 bg-surface/60 p-2 text-left transition-colors
                       hover:border-signal hover:bg-surface"
                   >
@@ -296,7 +296,7 @@ function LoginForm() {
                         key={u.id}
                         type="button"
                         onClick={() => chooseDemo(u)}
-                        className="group flex items-start gap-2.5 rounded-[var(--radius-card)] border
+                        className="group flex items-start gap-2.5 rounded-(--radius-card) border
                           border-line-2 bg-surface/60 p-2 text-left transition-colors
                           hover:border-signal hover:bg-surface"
                       >
@@ -332,8 +332,8 @@ function LoginForm() {
                 type="button"
                 onClick={enterDemo}
                 disabled={busy}
-                className="lift-press flex h-[var(--h-tap)] w-full items-center justify-center gap-2
-                  rounded-[var(--radius-input)] border border-signal bg-signal
+                className="lift-press flex h-(--h-tap) w-full items-center justify-center gap-2
+                  rounded-(--radius-input) border border-signal bg-signal
                   text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
               >
                 {busy ? <Spinner /> : <>Entrer comme @{(demoPick ?? DEMO_ME).pseudo}</>}
@@ -352,8 +352,9 @@ function LoginForm() {
           {message && (
             <Motion role="rise" className="mb-3.5">
               <div
+                id="login-error"
                 role="alert"
-                className="rounded-[var(--radius-input)] border
+                className="rounded-(--radius-input) border
                   border-danger bg-danger/12 px-3.5 py-2.5 text-sm font-medium text-danger"
               >
                 {message}
@@ -374,9 +375,11 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="votre@email.com"
-                className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
+                aria-invalid={message ? true : undefined}
+                aria-describedby={message ? "login-error" : undefined}
+                className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5
                   text-[14px]
-                  transition-[transform,box-shadow] duration-[var(--d-base)] ease-[var(--ease-spring)]
+                  transition-[transform,box-shadow] duration-(--d-base) ease-(--ease-spring)
                   placeholder:text-chalk-4 focus-visible:ring-2 focus-visible:ring-signal/70
                   focus-visible:ring-offset-2 focus-visible:ring-offset-page"
               />
@@ -396,9 +399,11 @@ function LoginForm() {
                   value={pw}
                   onChange={(e) => setPw(e.target.value)}
                   placeholder="••••••••"
-                  className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+                  aria-invalid={message ? true : undefined}
+                  aria-describedby={message ? "login-error" : undefined}
+                  className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
                     px-3.5 pr-12 text-[14px]
-                    transition-[transform,box-shadow] duration-[var(--d-base)] ease-[var(--ease-spring)]
+                    transition-[transform,box-shadow] duration-(--d-base) ease-(--ease-spring)
                     placeholder:text-chalk-4 focus-visible:ring-2 focus-visible:ring-signal/70
                     focus-visible:ring-offset-2 focus-visible:ring-offset-page"
                 />
@@ -411,9 +416,9 @@ function LoginForm() {
                 type="button"
                 aria-label={showPw ? "Masquer" : "Afficher"}
                 onClick={() => setShowPw((v) => !v)}
-                className="absolute top-[2px] right-[2px] flex h-[42px] w-10 items-center
+                className="absolute top-0 right-0 flex h-11 w-11 items-center
                   justify-center text-chalk-3 transition-colors
-                  duration-[var(--d-fast)] hover:text-signal"
+                  duration-(--d-fast) hover:text-signal"
               >
                 <Icon name={showPw ? "eye-off" : "eye"} size={18} strokeWidth={2} />
               </button>
@@ -423,7 +428,7 @@ function LoginForm() {
           <Motion role="rise" delay={880} as="div" className="mb-4 flex justify-end">
             <Link
               href="/mot-de-passe-oublie"
-              className="text-[11px] font-bold text-chalk-4 hover:text-chalk"
+              className="text-12 font-bold text-chalk-4 hover:text-chalk"
             >
               Mot de passe oublié ?
             </Link>
@@ -433,8 +438,8 @@ function LoginForm() {
             <button
               type="submit"
               disabled={busy}
-              className={`lift-press flex h-[var(--h-tap)] w-full items-center justify-center gap-2
-                rounded-[var(--radius-input)] border
+              className={`lift-press flex h-(--h-tap) w-full items-center justify-center gap-2
+                rounded-(--radius-input) border
                 ${isDemo
                   ? "border-line-3 bg-surface text-chalk hover:border-signal"
                   : "border-signal bg-signal text-void"}

@@ -273,7 +273,7 @@ export default function PublicProfilePage({
   return (
     <AppShell title={user ? `~/${user.pseudo}` : "profil"}>
       {/* ── En-tête : l'identité, puis les actions ── */}
-      <Motion role="slide" className="border-b-[var(--bw-heavy)] border-line-2 px-(--gutter) py-5">
+      <Motion role="slide" className="border-b-(--bw-heavy) border-line-2 px-(--gutter) py-5">
         {/* Grille 48 px */}
         <div className="flex items-start gap-3.5">
           <Avatar name={user?.prenom} color={user?.avatar_color} src={user?.avatar_url} size="lg" />
@@ -292,7 +292,7 @@ export default function PublicProfilePage({
                 />
               )}
             </p>
-            <p className="mt-0.5 font-mono text-[12px] text-chalk-4">@{user?.pseudo}</p>
+            <p className="mt-0.5 font-mono text-12 text-chalk-4">@{user?.pseudo}</p>
 
             {/* La filière et le niveau se lisent seulement depuis la jointure :
                 les recopier dans le post les figerait à la publication. */}
@@ -347,7 +347,7 @@ export default function PublicProfilePage({
                   href={link.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
+                  className="inline-flex items-center gap-1.5 rounded-(--radius-chip)
                     border border-line-3 bg-surface px-2.5 py-1 font-mono text-[11.5px]
                     text-chalk-2 transition-colors hover:border-signal hover:text-signal"
                 >
@@ -366,9 +366,9 @@ export default function PublicProfilePage({
           <div className="mt-4">
             <Link
               href="/profile?tab=settings"
-              className="inline-flex h-[var(--h-tap)] items-center justify-center gap-1.5
-                rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
-                font-mono text-[12px] text-chalk-2 transition-colors
+              className="inline-flex h-(--h-tap) items-center justify-center gap-1.5
+                rounded-(--radius-input) border border-line-3 bg-surface px-3.5
+                font-mono text-12 text-chalk-2 transition-colors
                 hover:border-signal hover:text-signal"
             >
               <Icon name="edit" size={14} />
@@ -412,11 +412,11 @@ export default function PublicProfilePage({
               type="button"
               onClick={openConversation}
               aria-label={`Écrire à ${user.prenom}`}
-              className="inline-flex h-[var(--h-tap)] items-center justify-center gap-1.5
-                rounded-[var(--radius-input)] border border-line-3 bg-surface
-                px-3.5 font-mono text-[12px] font-bold tracking-[0.12em]
+              className="inline-flex h-(--h-tap) items-center justify-center gap-1.5
+                rounded-(--radius-input) border border-line-3 bg-surface
+                px-3.5 font-mono text-12 font-bold tracking-[0.12em]
                 uppercase transition-[border-color,color]
-                duration-[var(--d-fast)] hover:border-signal hover:text-signal"
+                duration-(--d-fast) hover:border-signal hover:text-signal"
             >
               <Icon name="messages" size={14} />
               écrire
@@ -432,10 +432,10 @@ export default function PublicProfilePage({
                 targetType="user"
                 targetLabel="ce compte"
                 targetAuthorId={user.id}
-                className="inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-                  border-[var(--bw-thin)] border-line px-2 py-1 font-mono text-[11px]
+                className="inline-flex items-center gap-1.5 rounded-(--radius-chip)
+                  border-(--bw-thin) border-line px-2 py-1 font-mono text-[11px]
                   uppercase tracking-[0.1em] text-chalk-4
-                  transition-[color,border-color] duration-[var(--d-fast)]
+                  transition-[color,border-color] duration-(--d-fast)
                   hover:border-danger hover:text-danger"
               />
             </div>
@@ -452,25 +452,25 @@ export default function PublicProfilePage({
                 combien (dépôts), quelle qualité (scores), quelle preuve
                 de code réel (GitHub). C'est le jugement, posé d'avance. */}
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">XP</div>
                 <div className="tnum mt-1 text-[15px] font-bold text-chalk">
                   {publicProgress ? publicProgress.stats.xp : 0}
                 </div>
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">Niveau</div>
-                <div className="mt-1 text-[12px] font-bold text-signal">
+                <div className="mt-1 text-12 font-bold text-signal">
                   {xpLevel ? xpLevel.title : "Nouveau"}
                 </div>
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">Dépôts</div>
                 <div className="tnum mt-1 text-[15px] font-bold text-chalk">
                   {projects?.length ?? 0}
                 </div>
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">Score moyen</div>
                 <div className="tnum mt-1 text-[15px] font-bold text-chalk">
                   {projectScoreSummary.average}
@@ -481,7 +481,7 @@ export default function PublicProfilePage({
                     : "aucun dépôt"}
                 </div>
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">Meilleur score</div>
                 <div className="tnum mt-1 text-[15px] font-bold text-chalk">
                   {projectScoreSummary.best}
@@ -489,19 +489,19 @@ export default function PublicProfilePage({
               </div>
               {/* GitHub relié est un fait, pas une décoration : le login
                   mène aux dépôts réels qui prouvent le reste. */}
-              <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
                 <div className="label-micro text-chalk-4">GitHub</div>
                 {github ? (
                   <a
                     href={`https://github.com/${github.login}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-1 inline-flex h-6 max-w-full items-center truncate font-mono text-[12px] font-bold text-signal hover:underline"
+                    className="mt-1 inline-flex h-6 max-w-full items-center truncate font-mono text-12 font-bold text-signal hover:underline"
                   >
                     @{github.login}
                   </a>
                 ) : (
-                  <div className="mt-1 font-mono text-[12px] font-bold text-chalk-4">
+                  <div className="mt-1 font-mono text-12 font-bold text-chalk-4">
                     Non relié
                   </div>
                 )}
@@ -536,7 +536,7 @@ export default function PublicProfilePage({
                   }
                   className="mo-press inline-flex items-baseline gap-1.5 py-[2px]
                     font-mono text-[11.5px] uppercase tracking-[0.1em] text-chalk-4
-                    transition-colors duration-[var(--d-fast)] hover:text-signal"
+                    transition-colors duration-(--d-fast) hover:text-signal"
                 >
                   <span className="tnum text-[15px] font-bold text-chalk">{count}</span>
                   {label}
@@ -568,7 +568,7 @@ export default function PublicProfilePage({
               onClick={() => setTab(value)}
               className={`tab-underline px-3.5 py-2 font-mono text-[11.5px]
                 font-bold uppercase tracking-[0.12em] transition-colors
-                duration-[var(--d-fast)]
+                duration-(--d-fast)
                 ${tab === value
                   ? "text-signal"
                   : "text-chalk-4 hover:text-chalk-2"}`}
@@ -641,8 +641,8 @@ export default function PublicProfilePage({
                     <button
                       type="button"
                       onClick={() => router.push("/projects")}
-                      className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
-                        rounded-[var(--radius-input)] border border-signal bg-signal
+                      className="mo-press inline-flex h-(--h-tap) items-center gap-2
+                        rounded-(--radius-input) border border-signal bg-signal
                         px-4 text-[13px] font-bold text-void shadow-sh-2"
                     >
                       <Icon name="plus" size={14} strokeWidth={2} />
@@ -711,9 +711,9 @@ export default function PublicProfilePage({
                           href={repo.html_url}
                           target="_blank"
                           rel="noreferrer"
-                          className="mo-press flex items-start gap-2 rounded-[var(--radius-card)]
+                          className="mo-press flex items-start gap-2 rounded-(--radius-card)
                             border border-line-2 bg-surface-2/70 px-3 py-2
-                            transition-colors duration-[var(--d-fast)] hover:border-signal"
+                            transition-colors duration-(--d-fast) hover:border-signal"
                         >
                           <span className="min-w-0 flex-1">
                             <span className="block truncate font-mono text-sm font-bold text-chalk">

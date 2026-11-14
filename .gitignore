@@ -78,8 +78,12 @@ __pycache__/
 /Capture*.png
 /parcours-*.png
 
-# Ignorer les fichiers de documentation markdown pour le dépôt
-*.md
+# Notes de travail locales — jamais versionnées. Les documents du dépôt
+# (`README.md`, `docs/**/*.md`, etc.) doivent rester versionnés : ignorer
+# globalement `*.md` masquait aussi les nouveaux documents d'ingénierie.
+/knowledge.md
+/devnet_status.md
+/docs-technique.md
 
 # Outils de développement locaux : recréés par les éditeurs, jamais versionnés
 AGENTS.md

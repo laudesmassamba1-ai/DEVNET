@@ -151,8 +151,8 @@ export default function GithubRepoPage() {
             action={
               <Link
                 href="/github"
-                className="h-[var(--h-input)] rounded-[var(--radius-chip)] border
-                  border-line-3 bg-surface px-4 font-mono text-[12px] font-bold
+                className="h-(--h-input) rounded-(--radius-chip) border
+                  border-line-3 bg-surface px-4 font-mono text-12 font-bold
                   tracking-[0.1em] text-chalk uppercase shadow-sh-1"
               >
                 Retour
@@ -173,7 +173,7 @@ export default function GithubRepoPage() {
           type="button"
           onClick={() => void importRepo()}
           disabled={busy || !profile || !detail}
-          className="h-[var(--h-input)] rounded-[var(--radius-chip)] border
+          className="h-(--h-input) rounded-(--radius-chip) border
             border-signal bg-signal px-3.5 font-mono text-[11px] font-bold
             tracking-[0.1em] text-void uppercase shadow-sh-1 disabled:opacity-40"
         >
@@ -186,7 +186,7 @@ export default function GithubRepoPage() {
         {!detail ? (
           <Loading label="Lecture du dépôt" />
         ) : (
-          <section className="mb-4 rounded-[var(--radius-card)] border border-line-2/60 bg-surface p-4">
+          <section className="mb-4 rounded-(--radius-card) border border-line-2/60 bg-surface p-4">
             <div className="flex items-center gap-2">
               <Icon
                 name={detail.private ? "lock" : "globe"}
@@ -243,7 +243,7 @@ export default function GithubRepoPage() {
               <select
                 value={ref}
                 onChange={(e) => setRef(e.target.value)}
-                className="h-[var(--h-input)] w-full appearance-none rounded-[var(--radius-input)]
+                className="h-(--h-input) w-full appearance-none rounded-(--radius-input)
                   border border-line-3 bg-surface pr-3 pl-8 font-mono text-sm
                   text-chalk shadow-sh-1 focus:shadow-[3px_3px_0_var(--color-signal)]"
               >
@@ -297,8 +297,8 @@ export default function GithubRepoPage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Filtrer les fichiers"
-                  className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                    border border-line-3 bg-surface pr-3 pl-8 font-mono text-[12px]
+                  className="h-(--h-input) w-full rounded-(--radius-input)
+                    border border-line-3 bg-surface pr-3 pl-8 font-mono text-12
                     shadow-sh-1 placeholder:text-chalk-4
                     focus:shadow-[3px_3px_0_var(--color-signal)]"
                 />
@@ -306,9 +306,9 @@ export default function GithubRepoPage() {
               {tree === null ? (
                 <Loading label="Lecture de l'arbre" />
               ) : visibleFiles.length === 0 ? (
-                <p className="px-1 py-3 text-[12px] text-chalk-3">Aucun fichier.</p>
+                <p className="px-1 py-3 text-12 text-chalk-3">Aucun fichier.</p>
               ) : (
-                <ul className="max-h-[60vh] overflow-y-auto rounded-[var(--radius-card)]
+                <ul className="max-h-[60vh] overflow-y-auto rounded-(--radius-card)
                   border border-line-2/60 bg-surface">
                   {visibleFiles.map((entry) => {
                     const slash = entry.path.lastIndexOf("/");
@@ -321,7 +321,7 @@ export default function GithubRepoPage() {
                           type="button"
                           onClick={() => void openFile(entry)}
                           className={`flex w-full items-center gap-2 px-3 py-2 text-left
-                            font-mono text-[12px] transition-colors ${
+                            font-mono text-12 transition-colors ${
                               active
                                 ? "bg-surface-2 text-signal"
                                 : "text-chalk-2 hover:bg-surface-2/60 hover:text-chalk"
@@ -340,17 +340,17 @@ export default function GithubRepoPage() {
               )}
             </div>
 
-            <div className="min-w-0 rounded-[var(--radius-card)] border border-line-2/60 bg-surface">
+            <div className="min-w-0 rounded-(--radius-card) border border-line-2/60 bg-surface">
               {fileLoading ? (
                 <Loading label="Lecture du fichier" />
               ) : !file ? (
-                <p className="px-4 py-8 text-center text-[12px] text-chalk-3">
+                <p className="px-4 py-8 text-center text-12 text-chalk-3">
                   Choisissez un fichier pour le lire.
                 </p>
               ) : (
                 <>
                   <div className="flex items-center justify-between gap-2 border-b border-line-3 px-3.5 py-2">
-                    <span className="truncate font-mono text-[12px] text-chalk">
+                    <span className="truncate font-mono text-12 text-chalk">
                       {file.path}
                     </span>
                     <span className="shrink-0 font-mono text-[10.5px] text-chalk-4">
@@ -358,11 +358,11 @@ export default function GithubRepoPage() {
                     </span>
                   </div>
                   {file.truncated ? (
-                    <p className="px-4 py-8 text-center text-[12px] text-warn">
+                    <p className="px-4 py-8 text-center text-12 text-warn">
                       Fichier binaire ou trop volumineux — contenu non affiché.
                     </p>
                   ) : (
-                    <pre className="max-h-[60vh] overflow-auto px-4 py-3 font-mono text-[12px]
+                    <pre className="max-h-[60vh] overflow-auto px-4 py-3 font-mono text-12
                       leading-relaxed text-chalk-2">
                       {file.content}
                     </pre>
@@ -385,7 +385,7 @@ export default function GithubRepoPage() {
                 {commits.map((c) => (
                   <li
                     key={c.sha}
-                    className="rounded-[var(--radius-card)] border border-line-2/60 bg-surface p-3.5"
+                    className="rounded-(--radius-card) border border-line-2/60 bg-surface p-3.5"
                   >
                     <p className="line-clamp-2 text-[13px] leading-relaxed text-chalk">
                       {c.message.split("\n")[0]}
@@ -415,14 +415,14 @@ export default function GithubRepoPage() {
                 {branches.map((b) => (
                   <li
                     key={b.name}
-                    className="flex items-center justify-between gap-3 rounded-[var(--radius-input)]
+                    className="flex items-center justify-between gap-3 rounded-(--radius-input)
                       border border-line-2/60 bg-surface px-3.5 py-2.5"
                   >
                     <span className="flex min-w-0 items-center gap-2 font-mono text-sm text-chalk">
                       <Icon name="branch" size={12} className="text-chalk-4" />
                       <span className="truncate">{b.name}</span>
                       {b.name === ref && (
-                        <span className="shrink-0 rounded-[var(--radius-chip)] border
+                        <span className="shrink-0 rounded-(--radius-chip) border
                           border-signal/40 px-1.5 py-0.5 font-mono text-[9.5px]
                           tracking-[0.08em] text-signal uppercase">
                           affichée

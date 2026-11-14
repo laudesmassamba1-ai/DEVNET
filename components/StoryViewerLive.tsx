@@ -178,6 +178,8 @@ export function StoryViewer({
 }) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [mediaDuration, setMediaDuration] = useState<number | null>(null);
   const [monte, setMonte] = useState(false);
 
   // État d'interaction, chargé par le lecteur.
@@ -353,6 +355,7 @@ export function StoryViewer({
     setTrayOpen(false);
     setPlacing(null);
     setViewersOpen(false);
+    setMediaDuration(null);
   }, [index, stories.length, onClose, replyOpen]);
 
   const prev = useCallback(() => {
@@ -364,16 +367,32 @@ export function StoryViewer({
     setTrayOpen(false);
     setPlacing(null);
     setViewersOpen(false);
+    setMediaDuration(null);
   }, [replyOpen]);
 
-  // Avance automatique : suspendue par la composition, le catalogue,
-  // le placement, le survol du contenu et un onglet caché.
   useEffect(() => {
-    if (paused || replyOpen || trayOpen || placing || viewersOpen || !current) return;
-    if (typeof document !== "undefined" && document.hidden) return;
-    const timer = setTimeout(next, STORY_MS);
+    setMediaDuration(null);
+  }, [current?.id]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const sync = () => setHidden(document.hidden);
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
+  }, []);
+
+  const storyDurationMs =
+    mediaDuration && mediaDuration > 0 ? Math.max(1500, Math.round(mediaDuration * 1000)) : STORY_MS;
+
+  // Avance automatique : suspendue par la composition, le catalogue,
+  // le placement, un appui, un onglet caché ou un mouvement réduit.
+  useEffect(() => {
+    if (paused || hidden || replyOpen || trayOpen || placing || viewersOpen || !current) return;
+    if (reduced) return;
+    const timer = setTimeout(next, storyDurationMs);
     return () => clearTimeout(timer);
-  }, [index, paused, replyOpen, trayOpen, placing, viewersOpen, next, current]);
+  }, [index, paused, hidden, replyOpen, trayOpen, placing, viewersOpen, next, current, storyDurationMs, reduced]);
 
   // Clavier : navigation, pause, fermeture. Le focus reste dans la surface.
   useEffect(() => {
@@ -386,6 +405,12 @@ export function StoryViewer({
           return;
         }
         onClose();
+        return;
+      }
+      // Flèches sur un sticker sélectionné : le déplacement du sticker a
+      // priorité sur la navigation entre stories.
+      const active = document.activeElement as HTMLElement | null;
+      if (active?.closest("button[aria-pressed]") && ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(event.key)) {
         return;
       }
       if (event.key === "ArrowRight" && !replyOpen) next();
@@ -659,6 +684,7 @@ export function StoryViewer({
     if (!delta) return;
 
     event.preventDefault();
+    event.stopPropagation();
     const storyId = current.id;
     const next = {
       x: clamp01(sticker.x + delta[0]),
@@ -711,7 +737,7 @@ export function StoryViewer({
       role="dialog"
       aria-modal="true"
       aria-label={`Story de ${author?.prenom ?? "quelqu'un"}`}
-      className="story-stage fixed inset-0 z-[var(--z-modal)] flex flex-col"
+      className="story-stage fixed inset-0 z-(--z-modal) flex flex-col"
       style={{
         // iPhone X et suivants : le contenu ne passe ni sous l'encoche ni
         // sous la barre d'accueil. `viewport-fit=cover` est déjà posé.
@@ -727,17 +753,17 @@ export function StoryViewer({
       {/* Barres de progression : un segment par story de la série. */}
       <div className="story-film absolute inset-x-0 top-0 z-10 flex gap-1 p-3">
         {stories.map((story, i) => (
-          <span key={story.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-void/25">
-            <span
-              key={`${story.id}-${paused}-${replyOpen}`}
+          <span key={story.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-void/25">              <span
+              key={`${story.id}-${index}-${paused}-${hidden}-${replyOpen}-${trayOpen}-${placing}-${viewersOpen}-${storyDurationMs}`}
               className={`block h-full origin-left rounded-full bg-signal will-change-transform ${
                 i < index ? "scale-x-100" : i === index ? "animate-[storyBar_linear_forwards]" : "scale-x-0"
               }`}
               style={
                 i === index
                   ? {
-                      animationDuration: `${STORY_MS}ms`,
-                      animationPlayState: paused || replyOpen ? "paused" : "running",
+                      animationDuration: `${storyDurationMs}ms`,
+                      animationPlayState:
+                        paused || hidden || replyOpen || trayOpen || placing || viewersOpen ? "paused" : "running",
                       animationName: reduced ? "none" : undefined,
                       transform: reduced ? "scaleX(1)" : undefined,
                       opacity: reduced ? 0.4 : undefined,
@@ -753,6 +779,7 @@ export function StoryViewer({
         <Avatar
           name={author?.prenom}
           color={author?.avatar_color}
+          src={author?.avatar_url}
           className="size-[34px] border border-line-2/70 text-[13px]"
         />
         <div className="min-w-0 flex-1">
@@ -851,10 +878,15 @@ export function StoryViewer({
               {mediaById[current.id]?.mime.startsWith("video/") ? (
                 <video
                   src={storyMediaUrl(current.id)}
-                  controls
                   playsInline
                   preload="auto"
+                  autoPlay={!reduced}
                   className="absolute inset-0 h-full w-full bg-void object-contain"
+                  onLoadedMetadata={(e) => {
+                    const d = e.currentTarget.duration;
+                    if (Number.isFinite(d) && d > 0) setMediaDuration(d);
+                  }}
+                  onEnded={() => next()}
                 />
               ) : mediaById[current.id] ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -871,10 +903,15 @@ export function StoryViewer({
                    autres. */
                 <video
                   src={current.media_url}
-                  controls
                   playsInline
                   preload="auto"
+                  autoPlay={!reduced}
                   className="absolute inset-0 h-full w-full bg-void object-contain"
+                  onLoadedMetadata={(e) => {
+                    const d = e.currentTarget.duration;
+                    if (Number.isFinite(d) && d > 0) setMediaDuration(d);
+                  }}
+                  onEnded={() => next()}
                 />
               ) : current.media_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -945,7 +982,7 @@ export function StoryViewer({
                           }
                           void nudge(event, sticker);
                         }}
-                        className={`absolute flex items-center justify-center rounded-[var(--radius-chip)] p-1
+                        className={`absolute flex items-center justify-center rounded-(--radius-chip) p-1
                           outline-2 outline-offset-2 outline-signal ${
                             placing ? "pointer-events-none" : "cursor-grab touch-none active:cursor-grabbing"
                           }`}
@@ -984,7 +1021,7 @@ export function StoryViewer({
                     <span
                       title={sticker.name}
                       aria-hidden
-                      className="pointer-events-none absolute select-none rounded-[var(--radius-chip)] p-1"
+                      className="pointer-events-none absolute select-none rounded-(--radius-chip) p-1"
                       style={{
                         transform: `translate(-50%, -50%) rotate(${sticker.rotation}deg) scale(${sticker.scale})`,
                       }}
@@ -1028,6 +1065,9 @@ export function StoryViewer({
         />
       </div>
 
+      <p aria-live="polite" aria-atomic="true" className="sr-only">
+        {feedback?.text ?? ""}
+      </p>
       {feedback ? (
         <p
           role={feedback.kind === "error" ? "alert" : "status"}
@@ -1060,8 +1100,8 @@ export function StoryViewer({
             aria-modal="true"
             aria-label="Personnes ayant vu ce statut"
             className="story-tray relative mx-auto max-h-[70%] min-h-[132px] w-full
-              max-w-[440px] overflow-y-auto rounded-t-[var(--radius-card)] p-3
-              pb-[max(12px,var(--h-safe-bottom))] sm:rounded-[var(--radius-card)]"
+              max-w-[440px] overflow-y-auto rounded-t-(--radius-card) p-3
+              pb-[max(12px,var(--h-safe-bottom))] sm:rounded-(--radius-card)"
           >
             <div className="mb-2 flex items-center justify-between gap-2">
               <span className="label-micro text-chalk-3">
@@ -1094,12 +1134,12 @@ export function StoryViewer({
               <ul className="flex flex-col">
                 {viewers.map((viewer) => (
                   <li key={viewer.id} className="flex items-center gap-2.5 py-1.5">
-                    <Avatar name={viewer.prenom} color={viewer.avatar_color} className="size-8 text-[12px]" />
+                    <Avatar name={viewer.prenom} color={viewer.avatar_color} className="size-8 text-12" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-[13px] font-semibold text-chalk">
                         {viewer.prenom}
                       </span>
-                      <span className="block truncate font-mono text-[12px] text-chalk/60">
+                      <span className="block truncate font-mono text-12 text-chalk/60">
                         @{viewer.pseudo}
                       </span>
                     </span>
@@ -1133,13 +1173,13 @@ export function StoryViewer({
               maxLength={STORY_REPLY_MAX}
               autoFocus
               placeholder="Répondre en privé…"
-              className="min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-2
+              className="min-w-0 flex-1 rounded-(--radius-input) border border-line-2
                 bg-surface px-3 py-2 text-[16px] text-chalk placeholder:text-chalk-4"
             />
             <button
               type="submit"
               disabled={sending || draft.trim().length === 0}
-              className="flex h-11 items-center rounded-[var(--radius-input)] bg-signal px-3
+              className="flex h-11 items-center rounded-(--radius-input) bg-signal px-3
                 text-[13px] font-bold text-void disabled:opacity-50"
             >
               {sending ? "Envoi…" : "Envoyer"}
@@ -1162,7 +1202,7 @@ export function StoryViewer({
               <span className="label-micro text-chalk-3">Pellicule de stickers</span>
               <Link
                 href="/stickers"
-                className="ml-auto min-h-9 rounded-[var(--radius-chip)] px-2
+                className="ml-auto min-h-9 rounded-(--radius-chip) px-2
                   label-micro text-signal hover:bg-surface-2"
               >
                 Créer les miens
@@ -1190,7 +1230,7 @@ export function StoryViewer({
                     type="button"
                     onClick={() => setPlacing(sticker)}
                     aria-label={`Poser ${sticker.name}`}
-                    className="flex h-11 items-center justify-center rounded-[var(--radius-chip)]
+                    className="flex h-11 items-center justify-center rounded-(--radius-chip)
                       text-[22px] hover:bg-surface-2"
                   >
                     <StickerFace

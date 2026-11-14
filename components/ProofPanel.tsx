@@ -60,7 +60,7 @@ export function ProofPanel({
 
   if (proofs.length === 0) {
     return (
-      <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2 p-4">
+      <div className="rounded-(--radius-card) border border-line-3 bg-surface-2 p-4">
         <p className="text-sm leading-snug text-chalk-3 outline">
           Aucune preuve pour l&apos;instant. Une preuve n&apos;est pas une
           déclaration : elle apparaît quand un commit est écrit, un snippet
@@ -85,7 +85,7 @@ export function ProofPanel({
   return (
     <div className="mo-slide space-y-3">
       {/* ── Le total ── */}
-      <section className="relative overflow-hidden rounded-[var(--radius-card)]
+      <section className="relative overflow-hidden rounded-(--radius-card)
         border border-signal/35 bg-surface-2 p-4">
         <div className="relative flex items-start justify-between gap-4">
           <div className="min-w-0">
@@ -119,8 +119,8 @@ export function ProofPanel({
             type="button"
             onClick={replay}
             disabled={replaying}
-            className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
-              rounded-[var(--radius-chip)] border border-signal bg-signal px-3
+            className="mo-press inline-flex h-(--h-tap) items-center gap-2
+              rounded-(--radius-chip) border border-signal bg-signal px-3
               font-mono text-[11px] font-bold uppercase tracking-[0.12em]
               text-void disabled:opacity-50"
           >
@@ -154,7 +154,7 @@ export function ProofPanel({
       </section>
 
       {/* ── Par nature ── */}
-      <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+      <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
         <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
           <Icon name="layers" size={12} strokeWidth={1.8} />
           comment la réputation s&apos;est construite
@@ -194,7 +194,7 @@ export function ProofPanel({
       <LanguageCard proofs={derived.list} />
 
       {/* ── Les dernières ── */}
-      <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+      <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
         <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
           <Icon name="command" size={12} strokeWidth={1.8} />
           dernières preuves
@@ -240,7 +240,7 @@ function LanguageCard({ proofs }: { proofs: Proof[] }) {
   const max = Math.max(...languages.map((l) => l.weight), 1);
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
         <Icon name="code" size={12} strokeWidth={1.8} />
         réputation par langage

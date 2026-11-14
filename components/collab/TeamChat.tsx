@@ -63,7 +63,7 @@ export function TeamChat({
   return (
     <section
       aria-label="Discussion d'équipe"
-      className={`flex h-full min-h-0 flex-col overflow-hidden rounded-[var(--radius-card)]
+      className={`flex h-full min-h-0 flex-col overflow-hidden rounded-(--radius-card)
         border border-line-3 bg-surface-2/40 ${className}`}
     >
       <header className="flex shrink-0 items-center gap-2 border-b border-line-2 px-3 py-2">

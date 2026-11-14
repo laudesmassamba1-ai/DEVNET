@@ -49,7 +49,7 @@ const FEATURES = [
 export default function AboutPage() {
   return (
     <main className="mo-rise min-h-dvh px-5">
-      <header className="mx-auto flex h-[var(--h-topbar)] max-w-[900px] items-center border-b border-line-2 safe-top">
+      <header className="mx-auto flex h-(--h-topbar) max-w-[900px] items-center border-b border-line-2 safe-top">
         <Link href="/" className="font-display text-lg font-bold text-chalk">
           DevNet<span className="text-signal">.</span>
         </Link>
@@ -72,7 +72,7 @@ export default function AboutPage() {
 
         <section className="mt-10 grid gap-3 sm:grid-cols-2" aria-label="Fonctionnalités">
           {FEATURES.map((feature) => (
-            <div key={feature.title} className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-4">
+            <div key={feature.title} className="rounded-(--radius-card) border border-line-2 bg-surface p-4">
               <h2 className="font-display text-lg font-bold text-chalk">{feature.title}</h2>
               <p className="mt-2 text-sm leading-relaxed text-chalk-3">{feature.text}</p>
             </div>

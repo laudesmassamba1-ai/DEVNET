@@ -106,7 +106,7 @@ export function AdminReports() {
             Toutes les cibles, tous les auteurs. Le signalant reste anonyme.
           </p>
         </div>
-        <span className="font-mono text-[12px] text-chalk-4 tnum">
+        <span className="font-mono text-12 text-chalk-4 tnum">
           {openCount} ouvert{openCount > 1 ? "s" : ""}
         </span>
       </div>
@@ -122,7 +122,7 @@ export function AdminReports() {
             role="tab"
             aria-selected={filter === value}
             onClick={() => setFilter(value)}
-            className={`tab-underline px-3.5 py-2 font-mono text-[12px] font-bold uppercase
+            className={`tab-underline px-3.5 py-2 font-mono text-12 font-bold uppercase
               tracking-[0.12em] transition-colors ${
                 filter === value ? "text-signal" : "text-chalk-4 hover:text-chalk-2"
               }`}
@@ -135,7 +135,7 @@ export function AdminReports() {
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2">
           <p className="text-[13px] text-danger">{error}</p>
-          <button type="button" onClick={() => void load()} className="mt-2 text-[12px] font-semibold text-signal">
+          <button type="button" onClick={() => void load()} className="mt-2 text-12 font-semibold text-signal">
             Réessayer
           </button>
         </div>
@@ -167,7 +167,7 @@ export function AdminReports() {
                   <span className="text-[13px] font-bold text-chalk">
                     {reason?.label ?? row.reason}
                   </span>
-                  <span className="font-mono text-[12px] text-chalk-4">
+                  <span className="font-mono text-12 text-chalk-4">
                     sur {TARGET_LABEL[row.target_type] ?? row.target_type}
                   </span>
                   <span className="label-micro text-chalk-4">{STATUS_LABEL[row.status]}</span>
@@ -179,7 +179,7 @@ export function AdminReports() {
                   </p>
                 )}
                 {row.details && (
-                  <p className="mt-1.5 text-[12px] leading-relaxed text-chalk-3">
+                  <p className="mt-1.5 text-12 leading-relaxed text-chalk-3">
                     Motif : {row.details}
                   </p>
                 )}
@@ -199,9 +199,9 @@ export function AdminReports() {
                       type="button"
                       disabled={busyId === row.id}
                       onClick={() => void classify(row, "resolved")}
-                      className="mo-press inline-flex min-h-[var(--h-tap)] flex-1 items-center justify-center
-                        gap-1.5 rounded-[var(--radius-chip)] border border-ok bg-ok/10
-                        font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-ok
+                      className="mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center
+                        gap-1.5 rounded-(--radius-chip) border border-ok bg-ok/10
+                        font-mono text-12 font-bold uppercase tracking-[0.1em] text-ok
                         disabled:opacity-40"
                     >
                       <Icon name="check" size={12} strokeWidth={2.4} />
@@ -211,9 +211,9 @@ export function AdminReports() {
                       type="button"
                       disabled={busyId === row.id}
                       onClick={() => void classify(row, "dismissed")}
-                      className="mo-press inline-flex min-h-[var(--h-tap)] flex-1 items-center justify-center
-                        gap-1.5 rounded-[var(--radius-chip)] border border-line-3
-                        font-mono text-[12px] font-bold uppercase tracking-[0.1em] text-chalk-3
+                      className="mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center
+                        gap-1.5 rounded-(--radius-chip) border border-line-3
+                        font-mono text-12 font-bold uppercase tracking-[0.1em] text-chalk-3
                         disabled:opacity-40"
                     >
                       <Icon name="close" size={12} strokeWidth={2.4} />

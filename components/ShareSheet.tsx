@@ -121,9 +121,9 @@ export function ShareSheet({ open, onClose, url, title }: ShareSheetProps) {
               aria-selected={false}
               onClick={() => shareViaApp(app.id)}
               disabled={busy}
-              className={`flex w-full items-center justify-between gap-3 rounded-[var(--radius-input)]
+              className={`flex w-full items-center justify-between gap-3 rounded-(--radius-input)
                 border px-3 py-2.5 text-left transition-[background-color,color,border-color]
-                duration-[var(--d-fast)] ${busy ? "opacity-50" : ""}
+                duration-(--d-fast) ${busy ? "opacity-50" : ""}
                 ${app.id === "copy"
                   ? "border-line-3 hover:border-line-3"
                   : "border-line-2 hover:border-signal hover:bg-signal/10"
@@ -144,8 +144,8 @@ export function ShareSheet({ open, onClose, url, title }: ShareSheetProps) {
             handleDownload(`devnet-${Date.now()}.${extensionFor(url)}`)
           }
           disabled={busy}
-          className="mo-press mt-3 inline-flex h-[var(--h-tap)] w-full items-center
-            justify-center gap-2 rounded-[var(--radius-input)] border border-line-2
+          className="mo-press mt-3 inline-flex h-(--h-tap) w-full items-center
+            justify-center gap-2 rounded-(--radius-input) border border-line-2
             bg-surface px-4 font-mono text-[11.5px] font-bold text-chalk-2
             transition-colors hover:border-line-3 hover:text-chalk
             disabled:opacity-40"

@@ -260,7 +260,7 @@ export default function ProjectsPage() {
           </p>
         </Motion>
 
-        <div className="mb-3 inline-flex rounded-[var(--radius-chip)] border border-line-2 bg-surface-2 p-0.5 shadow-sh-1">
+        <div className="mb-3 inline-flex rounded-(--radius-chip) border border-line-2 bg-surface-2 p-0.5 shadow-sh-1">
           {([["discover", "Découvrir"], ["mine", "Mes projets"]] as const).map(
             ([value, label]) => (
               <button
@@ -268,7 +268,7 @@ export default function ProjectsPage() {
                 type="button"
                 onClick={() => setScope(value)}
                 aria-pressed={scope === value}
-                className={`mo-press rounded-[var(--radius-chip)] px-3 py-1.5 font-mono text-[11.5px]
+                className={`mo-press inline-flex min-h-(--h-tap) items-center rounded-(--radius-chip) px-3.5 font-mono text-12
                   transition-colors ${scope === value
                     ? "bg-signal/15 text-signal-d"
                     : "text-chalk-3 hover:text-chalk"}`}
@@ -300,8 +300,8 @@ export default function ProjectsPage() {
               <button
                 type="button"
                 onClick={() => setOpen(true)}
-                className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
-                  rounded-[var(--radius-input)] border border-signal bg-signal
+                className="mo-press inline-flex h-(--h-tap) items-center gap-2
+                  rounded-(--radius-input) border border-signal bg-signal
                   px-4 text-[13px] font-bold text-void shadow-sh-2"
               >
                 <Icon name="plus" size={14} strokeWidth={2} />
@@ -325,8 +325,8 @@ export default function ProjectsPage() {
               <button
                 type="button"
                 onClick={() => setFilters(EMPTY_FILTERS)}
-                className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
-                  rounded-[var(--radius-input)] border border-line-3 bg-surface
+                className="mo-press inline-flex h-(--h-tap) items-center gap-2
+                  rounded-(--radius-input) border border-line-3 bg-surface
                   px-4 text-[13px] font-bold text-chalk-2 shadow-sh-1"
               >
                 <Icon name="close" size={14} strokeWidth={2} />
@@ -336,7 +336,7 @@ export default function ProjectsPage() {
           />
         )}
 
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {visible.map(({ project: p }, i) => {
             const match = candidate ? compatibility(candidate, demandOf(p)) : null;
             const spec = stageSpec(p.stage);
@@ -344,13 +344,13 @@ export default function ProjectsPage() {
             return (
               <Motion key={p.id} role="rise" delay={Math.min(i * 50, 300)}>
                 <div
-                  className="group flex h-full flex-col rounded-[var(--radius-card)] border border-line-2 bg-surface
+                  className="group flex h-full min-w-0 flex-col rounded-(--radius-card) border border-line-2 bg-surface
                     px-3.5 py-3 shadow-sh-1 transition-colors hover:border-signal"
                 >
-                  <Link href={`/projects/${p.id}`} className="flex items-start gap-3">
+                  <Link href={`/projects/${p.id}`} className="flex min-w-0 items-start gap-3">
                     <span
                       aria-hidden="true"
-                      className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-input)]
+                      className="flex size-10 shrink-0 items-center justify-center rounded-(--radius-input)
                         border border-line-2 bg-surface-2 text-signal-d"
                     >
                       <Icon name={asIconName(p.emoji, "layers")} size={18} strokeWidth={1.7} />
@@ -375,13 +375,10 @@ export default function ProjectsPage() {
                       )}
                     </span>
 
-                    {match && p.seeking && (
-                      <CompatibilityBadge score={match.score} tone={match.verdict.tone} label={match.verdict.label} />
-                    )}
                   </Link>
 
-                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] text-chalk-4">
-                    <span className="inline-flex items-center gap-1 rounded-[var(--radius-chip)] border border-line-2 px-1.5 py-0.5">
+                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-12 text-chalk-4">
+                    <span className="inline-flex items-center gap-1 rounded-(--radius-chip) border border-line-2 px-1.5 py-0.5">
                       <Icon name="target" size={11} />
                       {spec.label}
                     </span>
@@ -399,7 +396,7 @@ export default function ProjectsPage() {
                       {p.demand_languages.map((l) => (
                         <span
                           key={`dl-${l}`}
-                          className="rounded-[var(--radius-chip)] border border-line-2 bg-surface-2 px-1.5 py-0.5 font-mono text-[10.5px] text-chalk-3"
+                          className="rounded-(--radius-chip) border border-line-2 bg-surface-2 px-1.5 py-0.5 font-mono text-12 text-chalk-3"
                         >
                           {l}
                         </span>
@@ -407,7 +404,7 @@ export default function ProjectsPage() {
                       {p.demand_roles.map((r) => (
                         <span
                           key={`dr-${r}`}
-                          className="rounded-[var(--radius-chip)] border border-signal/40 bg-signal/10 px-1.5 py-0.5 font-mono text-[10.5px] text-signal-d"
+                          className="rounded-(--radius-chip) border border-signal/40 bg-signal/10 px-1.5 py-0.5 font-mono text-12 text-signal-d"
                         >
                           {roleLabel(r)}
                         </span>
@@ -415,22 +412,29 @@ export default function ProjectsPage() {
                     </div>
                   )}
 
-                  {p.seeking && p.created_by !== profile?.id && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setApplyTo(p);
-                        setApplyRole(p.demand_roles[0] ?? "developpement");
-                        setApplyMessage("");
-                      }}
-                      className="mo-press mt-3 inline-flex h-[var(--h-tap)] items-center justify-center gap-2
-                        self-start rounded-[var(--radius-input)] border border-signal bg-signal px-3.5
-                        text-[13px] font-bold text-void shadow-sh-2"
-                    >
-                      <Icon name="send" size={14} strokeWidth={2} />
-                      Postuler
-                    </button>
-                  )}
+                  {(match && p.seeking) || (p.seeking && p.created_by !== profile?.id) ? (
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-3">
+                      {match && p.seeking ? (
+                        <CompatibilityBadge score={match.score} tone={match.verdict.tone} label={match.verdict.label} />
+                      ) : <span />}
+                      {p.seeking && p.created_by !== profile?.id && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setApplyTo(p);
+                            setApplyRole(p.demand_roles[0] ?? "developpement");
+                            setApplyMessage("");
+                          }}
+                          className="mo-press inline-flex h-(--h-tap) items-center justify-center gap-2
+                            self-start rounded-(--radius-input) border border-signal bg-signal px-4
+                            text-[13px] font-bold text-void shadow-sh-2"
+                        >
+                          <Icon name="send" size={14} strokeWidth={2} />
+                          Postuler
+                        </button>
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               </Motion>
             );
@@ -453,10 +457,10 @@ export default function ProjectsPage() {
           onChange={(e) => setName(e.target.value)}
           placeholder="registre-cooperatives"
           autoFocus
-          className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+          className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
             border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
-            transition-[transform,box-shadow] duration-[var(--d-base)]
-            ease-[var(--ease-spring)] placeholder:text-chalk-4
+            transition-[transform,box-shadow] duration-(--d-base)
+            ease-(--ease-spring) placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
 
@@ -469,7 +473,7 @@ export default function ProjectsPage() {
           onChange={(e) => setDescription(e.target.value)}
           rows={2}
           placeholder="Ce que ce dépôt fait, en une phrase."
-          className="mb-4 w-full rounded-[var(--radius-input)] border border-line-3
+          className="mb-4 w-full rounded-(--radius-input) border border-line-3
             bg-surface px-3.5 py-3 text-[14px] shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -485,7 +489,7 @@ export default function ProjectsPage() {
               value={language}
               onChange={(e) => setLanguage(e.target.value)}
               placeholder="Python"
-              className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+              className="h-(--h-input) w-full rounded-(--radius-input)
                 border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -499,7 +503,7 @@ export default function ProjectsPage() {
               id="proj-stage"
               value={stage}
               onChange={(e) => setStage(e.target.value as ProjectStage)}
-              className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+              className="h-(--h-input) w-full rounded-(--radius-input)
                 border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             >
@@ -516,7 +520,7 @@ export default function ProjectsPage() {
             type="checkbox"
             checked={seeking}
             onChange={(e) => setSeeking(e.target.checked)}
-            className="size-4 accent-[var(--color-signal)]"
+            className="size-4 accent-(--color-signal)"
           />
           Ce projet recrute.
         </label>
@@ -531,7 +535,7 @@ export default function ProjectsPage() {
               value={demandLanguages}
               onChange={(e) => setDemandLanguages(e.target.value)}
               placeholder="Python, SQL"
-              className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+              className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
                 border border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -550,7 +554,7 @@ export default function ProjectsPage() {
                         on ? prev.filter((x) => x !== r.id) : [...prev, r.id],
                       )
                     }
-                    className={`mo-press rounded-[var(--radius-chip)] border px-2.5 py-1 font-mono text-[11px] transition-colors
+                    className={`mo-press rounded-(--radius-chip) border px-2.5 py-1 font-mono text-12 transition-colors
                       ${on
                         ? "border-signal bg-signal/15 text-signal-d"
                         : "border-line-2 text-chalk-3 hover:border-signal"}`}
@@ -567,7 +571,7 @@ export default function ProjectsPage() {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
+            className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
               border border-transparent text-[13px] font-bold text-chalk-2
               transition-colors hover:bg-surface-2 hover:text-chalk"
           >
@@ -577,8 +581,8 @@ export default function ProjectsPage() {
             type="button"
             onClick={submit}
             disabled={busy}
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-signal bg-signal
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+              rounded-(--radius-input) border border-signal bg-signal
               text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             Créer le projet
@@ -611,7 +615,7 @@ export default function ProjectsPage() {
               id="apply-role"
               value={applyRole}
               onChange={(e) => setApplyRole(e.target.value)}
-              className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+              className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
                 border border-line-3 bg-surface px-3 text-[14px] shadow-sh-1
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             >
@@ -632,7 +636,7 @@ export default function ProjectsPage() {
               onChange={(e) => setApplyMessage(e.target.value)}
               rows={3}
               placeholder="Ce que vous apportez, en deux phrases."
-              className="mb-5 w-full rounded-[var(--radius-input)] border border-line-3
+              className="mb-5 w-full rounded-(--radius-input) border border-line-3
                 bg-surface px-3.5 py-3 text-[14px] shadow-sh-1
                 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -642,7 +646,7 @@ export default function ProjectsPage() {
               <button
                 type="button"
                 onClick={() => setApplyTo(null)}
-                className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
+                className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
                   border border-transparent text-[13px] font-bold text-chalk-2
                   transition-colors hover:bg-surface-2 hover:text-chalk"
               >
@@ -652,8 +656,8 @@ export default function ProjectsPage() {
                 type="button"
                 onClick={submitApplication}
                 disabled={applying}
-                className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-                  rounded-[var(--radius-input)] border border-signal bg-signal
+                className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+                  rounded-(--radius-input) border border-signal bg-signal
                   text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
               >
                 <Icon name="send" size={14} strokeWidth={2} />
@@ -687,13 +691,13 @@ function FilterBar({
   onReset: () => void;
 }) {
   const selectClass =
-    "h-[34px] rounded-[var(--radius-chip)] border border-line-2 bg-surface px-2.5 " +
-    "font-mono text-[11.5px] text-chalk-2 shadow-sh-1 focus:border-signal";
+    "h-11 rounded-(--radius-chip) border border-line-2 bg-surface px-2.5 " +
+    "font-mono text-12 text-chalk-2 shadow-sh-1 focus:border-signal";
 
   return (
     <Motion role="slide" delay={80}>
       <div className="mb-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-chalk-4">
+        <span className="inline-flex items-center gap-1.5 font-mono text-12 uppercase tracking-[0.12em] text-chalk-4">
           <Icon name="search" size={12} />
           filtrer
         </span>
@@ -738,7 +742,7 @@ function FilterBar({
           type="button"
           onClick={() => onToggle("seekingOnly", true)}
           aria-pressed={filters.seekingOnly}
-          className={`mo-press h-[34px] rounded-[var(--radius-chip)] border px-2.5 font-mono text-[11.5px]
+          className={`mo-press h-11 rounded-(--radius-chip) border px-2.5 font-mono text-12
             transition-colors ${filters.seekingOnly
               ? "border-signal bg-signal/15 text-signal-d"
               : "border-line-2 text-chalk-3 hover:border-signal"}`}
@@ -750,8 +754,8 @@ function FilterBar({
           <button
             type="button"
             onClick={onReset}
-            className="mo-press inline-flex h-[34px] items-center gap-1 rounded-[var(--radius-chip)]
-              px-2 font-mono text-[11.5px] text-chalk-4 transition-colors hover:text-danger"
+            className="mo-press inline-flex h-11 items-center gap-1 rounded-(--radius-chip)
+              px-2 font-mono text-12 text-chalk-4 transition-colors hover:text-danger"
           >
             <Icon name="close" size={11} strokeWidth={2} />
             tout voir ({active})
@@ -783,10 +787,10 @@ function CompatibilityBadge({
   return (
     <span
       title={`Compatibilité : ${label}`}
-      className={`shrink-0 rounded-[var(--radius-input)] border px-2 py-1 text-center ${color}`}
+      className={`shrink-0 rounded-(--radius-input) border px-2 py-1 text-center ${color}`}
     >
       <span className="tnum block font-display text-[16px] font-bold leading-none">{score}</span>
-      <span className="mt-0.5 block font-mono text-[9.5px] uppercase tracking-[0.08em]">% compat.</span>
+      <span className="mt-0.5 block font-mono text-12 uppercase tracking-[0.08em]">% compat.</span>
     </span>
   );
 }

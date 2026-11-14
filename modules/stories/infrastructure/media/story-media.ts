@@ -19,6 +19,26 @@ export const STORY_VIDEO_INPUT_MAX = 40 * 1024 * 1024;
 export const STORY_VIDEO_MAX_SECONDS = 15;
 export const STORY_MEDIA_OUTPUT_MAX = 8 * 1024 * 1024;
 
+/**
+ * Durée maximale d'un transcodage avant arrêt forcé.
+ *
+ * Sans borne, une vidéo qui fait patiner ffmpeg immobilise une fonction
+ * serverless jusqu'au timeout de la plateforme, sans nettoyage ni message
+ * utile. 90 s couvre largement 15 s de vidéo en `veryfast` sur un vCPU
+ * partagé ; au-delà, le fichier est refusé plutôt que de faire échouer la
+ * requête entière.
+ */
+export const STORY_TRANSCODE_TIMEOUT_MS = 90_000;
+
+/**
+ * Taille maximale des journaux conservés en mémoire.
+ *
+ * ffmpeg peut écrire des lignes très longues sur un fichier corrompu. On
+ * garde de quoi diagnostiquer (`stderr`) sans laisser la mémoire de la
+ * fonction dépendre de l'entrée.
+ */
+const LOG_LIMIT = 8_000;
+
 export type StoryMediaKind = "image" | "video";
 
 export interface StoryMediaInput {
@@ -119,6 +139,7 @@ async function encodeVideo(source: Buffer): Promise<StoryMediaResult> {
 
     const result = await run("ffmpeg", [
       "-hide_banner",
+      "-nostdin",
       "-loglevel", "error",
       "-i", input,
       "-t", String(STORY_VIDEO_MAX_SECONDS),
@@ -136,6 +157,7 @@ async function encodeVideo(source: Buffer): Promise<StoryMediaResult> {
       output,
     ]);
 
+    if (result.timedOut) return { ok: false, error: "transcodage vidéo trop long" };
     if (result.code !== 0) return { ok: false, error: "vidéo illisible ou non transcodable" };
 
     const encoded = await readFile(output);
@@ -162,15 +184,60 @@ async function encodeVideo(source: Buffer): Promise<StoryMediaResult> {
   }
 }
 
-function run(command: string, args: string[]): Promise<{ code: number; stdout: string; stderr: string }> {
+interface RunResult {
+  code: number;
+  stdout: string;
+  stderr: string;
+  timedOut: boolean;
+}
+
+/**
+ * Lance un binaire avec des arguments séparés (jamais de shell construit à
+ * partir de l'entrée), un délai strict et des journaux bornés.
+ *
+ * Le fichier temporaire reste nettoyé par le `finally` de l'appelant ; ici,
+ * on garantit surtout que le processus ne survit pas à une entrée qui le
+ * fait patiner. `SIGKILL` est volontaire : ffmpeg ignore parfois `SIGTERM`
+ * au milieu d'un accès disque.
+ */
+function run(
+  command: string,
+  args: string[],
+  timeoutMs: number = STORY_TRANSCODE_TIMEOUT_MS,
+): Promise<RunResult> {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { stdio: ["ignore", "pipe", "pipe"] });
     let stdout = "";
     let stderr = "";
-    child.stdout.on("data", (chunk: Buffer) => { stdout += chunk.toString(); });
-    child.stderr.on("data", (chunk: Buffer) => { stderr += chunk.toString(); });
-    child.on("error", reject);
-    child.on("close", (code) => resolve({ code: code ?? 1, stdout, stderr }));
+    let timedOut = false;
+    let settled = false;
+
+    const timer = setTimeout(() => {
+      if (settled) return;
+      timedOut = true;
+      child.kill("SIGKILL");
+    }, timeoutMs);
+
+    const finish = (result: RunResult) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      resolve(result);
+    };
+
+    child.stdout.on("data", (chunk: Buffer) => {
+      if (stdout.length < LOG_LIMIT) stdout += chunk.toString().slice(0, LOG_LIMIT - stdout.length);
+    });
+    child.stderr.on("data", (chunk: Buffer) => {
+      if (stderr.length < LOG_LIMIT) stderr += chunk.toString().slice(0, LOG_LIMIT - stderr.length);
+    });
+    child.on("error", (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      reject(error);
+    });
+    child.on("close", (code) => finish({ code: code ?? 1, stdout, stderr, timedOut }));
   });
 }
 

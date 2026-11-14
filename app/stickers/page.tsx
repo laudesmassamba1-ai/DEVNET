@@ -142,7 +142,7 @@ export default function StickerStudioPage() {
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <section
           aria-labelledby="composer-title"
-          className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-4"
+          className="rounded-(--radius-card) border border-line-2 bg-surface p-4"
         >
           <h2 id="composer-title" className="label-micro text-chalk-3">
             Nouveau sticker
@@ -167,7 +167,7 @@ export default function StickerStudioPage() {
                 onChange={(event) => setName(event.target.value)}
                 maxLength={40}
                 placeholder="ex. Déploiement du vendredi"
-                className="mt-1 min-h-11 w-full rounded-[var(--radius-chip)] border border-line-2 bg-void px-3 text-sm text-chalk"
+                className="mt-1 min-h-11 w-full rounded-(--radius-chip) border border-line-2 bg-void px-3 text-sm text-chalk"
               />
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function StickerStudioPage() {
           <div className="mt-1 flex min-w-0 flex-col items-start gap-1.5">
             <label
               htmlFor="sticker-file"
-              className="inline-flex min-h-11 shrink-0 cursor-pointer items-center rounded-[var(--radius-chip)]
+              className="inline-flex min-h-11 shrink-0 cursor-pointer items-center rounded-(--radius-chip)
                 border border-line-2 bg-surface-2 px-4 font-mono text-[10px] font-bold
                 uppercase tracking-[0.12em] text-chalk transition-colors hover:border-signal"
             >
@@ -209,7 +209,7 @@ export default function StickerStudioPage() {
                   type="button"
                   aria-pressed={visibility === value}
                   onClick={() => setVisibility(value)}
-                  className={`min-h-11 rounded-[var(--radius-chip)] border px-3 label-micro ${
+                  className={`min-h-11 rounded-(--radius-chip) border px-3 label-micro ${
                     visibility === value
                       ? "border-signal text-chalk"
                       : "border-line-2 text-chalk-2"
@@ -226,8 +226,8 @@ export default function StickerStudioPage() {
               type="button"
               onClick={submit}
               disabled={!profile || busy || sansDepot}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center justify-center
-                rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
+              className="mo-press inline-flex h-(--h-tap) items-center justify-center
+                rounded-(--radius-input) border border-line-3 bg-signal px-4
                 text-sm font-bold text-void shadow-sh-1
                 hover:border-signal hover:shadow-sh-2
                 disabled:cursor-not-allowed disabled:opacity-50"
@@ -257,7 +257,7 @@ export default function StickerStudioPage() {
           {rows === null ? (
             <Loading />
           ) : mine.length === 0 ? (
-            <p className="rounded-[var(--radius-card)] border border-dashed border-line-2 p-6 text-sm text-chalk-3">
+            <p className="rounded-(--radius-card) border border-dashed border-line-2 p-6 text-sm text-chalk-3">
               Aucun sticker personnel. Le premier est à gauche.
             </p>
           ) : (
@@ -265,7 +265,7 @@ export default function StickerStudioPage() {
               {mine.map((sticker) => (
                 <li
                   key={sticker.id}
-                  className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-2"
+                  className="rounded-(--radius-card) border border-line-2 bg-surface p-2"
                 >
                   <div className="flex aspect-square items-center justify-center">
                     {sticker.status === "actif" ? (
@@ -334,7 +334,7 @@ export default function StickerStudioPage() {
             {catalog.map((sticker) => (
               <li
                 key={sticker.id}
-                className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-2"
+                className="rounded-(--radius-card) border border-line-2 bg-surface p-2"
               >
                 <div className="flex aspect-square items-center justify-center">
                   <StickerFace

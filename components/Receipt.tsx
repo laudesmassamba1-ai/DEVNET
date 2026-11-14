@@ -50,7 +50,7 @@ export function Receipt({
       aria-label={state === "lu" ? "Lu" : "Envoyé"}
       attrs={{ title: state === "lu" ? "Lu" : "Envoyé" }}
       className={`ml-1.5 inline-block font-mono text-[10.5px] leading-none
-        transition-colors duration-[var(--d-fast)]
+        transition-colors duration-(--d-fast)
         ${accent ? "text-signal" : "text-chalk-4"}`}
     >
       {state === "lu" ? "✓✓" : "✓"}

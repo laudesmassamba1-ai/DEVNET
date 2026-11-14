@@ -204,24 +204,24 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
     >
       <div className="px-(--gutter) pt-3">
         {/* En-tête : icône, nom, visibilité, compteur, et l'action join/leave. */}
-        <header className="depth-card mb-4 rounded-[var(--radius-card)] border border-edge glass-flat p-4">
+        <header className="depth-card mb-4 rounded-(--radius-card) border border-edge glass-flat p-4">
           <div className="flex items-start gap-3.5">
-            <span className="flex size-[44px] shrink-0 items-center justify-center rounded-[var(--radius-input)]
+            <span className="flex size-[44px] shrink-0 items-center justify-center rounded-(--radius-input)
               border border-line-3 bg-surface-2 text-signal-d">
               <Icon name={asIconName(community.icon, "globe")} size={20} strokeWidth={1.6} />
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-[18px] font-extrabold text-chalk">{community.name}</h1>
-                <span className="rounded-[var(--radius-chip)] border border-line-3 px-2 py-0.5
-                  text-[9px] font-bold uppercase tracking-[0.1em] text-chalk-3">
+                <span className="rounded-(--radius-chip) border border-line-3 px-2 py-0.5
+                  text-12 font-bold uppercase tracking-[0.1em] text-chalk-3">
                   {VISIBILITY_LABEL[community.visibility]}
                 </span>
               </div>
               <p className="mt-1 text-[13px] leading-relaxed text-chalk-3">
                 {community.description || "Pas encore de description."}
               </p>
-              <p className="mt-1 font-mono text-[11px] text-chalk-4">
+              <p className="mt-1 font-mono text-12 text-chalk-4">
                 {community.member_count} membre{community.member_count !== 1 ? "s" : ""}
                 {role && ` · vous êtes ${ROLE_LABEL[role]}`}
               </p>
@@ -238,15 +238,15 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
               {amMember ? (
                 community.created_by !== profile?.id && (
                   <button type="button" onClick={leave}
-                    className="mo-press rounded-[var(--radius-chip)] border border-line-3 px-3.5 py-1.5
-                      text-[11.5px] font-bold text-chalk-2 hover:text-chalk">
+                    className="mo-press rounded-(--radius-chip) border border-line-3 px-3.5 py-1.5
+                      text-12 font-bold text-chalk-2 hover:text-chalk">
                     Quitter
                   </button>
                 )
               ) : (
                 <button type="button" onClick={join}
-                  className="mo-press rounded-[var(--radius-chip)] border border-line-3 bg-signal px-3.5
-                    py-1.5 text-[11.5px] font-bold text-void shadow-sh-1">
+                  className="mo-press rounded-(--radius-chip) border border-line-3 bg-signal px-3.5
+                    py-1.5 text-12 font-bold text-void shadow-sh-1">
                   Rejoindre
                 </button>
               )}
@@ -256,8 +256,8 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
           {/* Règlement intérieur : il vit dans la communauté, pas dans un
               écran à part — c'est ce qu'on lit avant de publier. */}
           {community.rules.trim() && (
-            <div className="mt-4 rounded-[var(--radius-input)] border border-line-2 bg-surface-2 px-3.5 py-3">
-              <p className="mb-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-chalk-3">
+            <div className="mt-4 rounded-(--radius-input) border border-line-2 bg-surface-2 px-3.5 py-3">
+              <p className="mb-1.5 text-12 font-bold uppercase tracking-[0.16em] text-chalk-3">
                 Règlement
               </p>
               <p className="whitespace-pre-line text-sm leading-relaxed text-chalk-2">
@@ -274,13 +274,13 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
               aria-label="Publier un message dans la communauté"
               value={draft} onChange={(e) => setDraft(e.target.value)}
               rows={2} placeholder={`Publier dans ${community.name}…`}
-              className="mb-2 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
+              className="mb-2 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
                 text-[14px] leading-[1.6] shadow-sh-1 placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
             <div className="flex justify-end">
               <button type="button" onClick={publish} disabled={busy}
-                className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2 rounded-[var(--radius-input)]
+                className="mo-press inline-flex h-(--h-tap) items-center gap-2 rounded-(--radius-input)
                   border border-line-3 bg-signal px-4 text-sm font-bold text-void shadow-sh-2
                   disabled:opacity-40">
                 <Icon name="send" size={14} />
@@ -334,10 +334,10 @@ export default function CommunityPage({ params }: { params: Promise<{ slug: stri
           <div className="mb-4 flex gap-2">
             <input value={invite} aria-label="Inviter par pseudo" onChange={(e) => setInvite(e.target.value)}
               placeholder="Inviter par pseudo (@…)"
-              className="h-[var(--h-input)] flex-1 rounded-[var(--radius-input)] border border-line-3 bg-surface
+              className="h-(--h-input) flex-1 rounded-(--radius-input) border border-line-3 bg-surface
                 px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
             <button type="button" onClick={addInvite}
-              className="mo-press rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
+              className="mo-press rounded-(--radius-input) border border-line-3 bg-signal px-4
                 text-sm font-bold text-void shadow-sh-1">
               Ajouter
             </button>
@@ -399,26 +399,26 @@ function MemberRow({ m, staff, meId, onChangeRole, onRemove }: {
 }) {
   const isMe = m.user_id === meId;
   return (
-    <div className="mb-2 flex items-center gap-2.5 rounded-[var(--radius-input)] border border-line bg-surface-2
+    <div className="mb-2 flex items-center gap-2.5 rounded-(--radius-input) border border-line bg-surface-2
       px-2.5 py-2">
       <Avatar name={m.user?.prenom ?? "?"} color={m.user?.avatar_color} />
       <div className="min-w-0 flex-1">
         <p className="truncate text-[13px] font-bold text-chalk">
           {m.user?.prenom ?? "Compte supprimé"}
         </p>
-        <p className="truncate font-mono text-[11px] text-chalk-4">@{m.user?.pseudo ?? "—"}</p>
+        <p className="truncate font-mono text-12 text-chalk-4">@{m.user?.pseudo ?? "—"}</p>
       </div>
 
       {staff && !isMe ? (
         <select value={m.role} aria-label="Rôle du membre" onChange={(e) => onChangeRole(e.target.value as CommunityRole)}
-          className="h-8 cursor-pointer rounded-[var(--radius-chip)] border border-line-3 bg-surface px-2
-            text-[11px] font-bold outline">
+          className="h-8 cursor-pointer rounded-(--radius-chip) border border-line-3 bg-surface px-2
+            text-12 font-bold outline">
           <option value="member">membre</option>
           <option value="moderator">modérateur</option>
           <option value="owner">créateur</option>
         </select>
       ) : (
-        <span className={`shrink-0 font-mono text-[10px] font-bold uppercase tracking-[0.12em]
+        <span className={`shrink-0 font-mono text-12 font-bold uppercase tracking-[0.12em]
           ${m.role === "owner" ? "text-warn" : isCommunityStaff(m.role) ? "text-signal" : "text-chalk-4"}`}>
           {ROLE_LABEL[m.role]}
         </span>
@@ -426,7 +426,7 @@ function MemberRow({ m, staff, meId, onChangeRole, onRemove }: {
 
       {staff && !isMe && m.role !== "owner" && (
         <button type="button" onClick={onRemove}
-          className="shrink-0 text-[11px] font-bold text-danger hover:underline">
+          className="shrink-0 text-12 font-bold text-danger hover:underline">
           Retirer
         </button>
       )}
@@ -499,19 +499,19 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
     <Sheet open={open} onClose={onClose} title="Réglages">
       <Field label="Nom">
         <input value={name} onChange={(e) => setName(e.target.value)}
-          className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+          className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
             px-3.5 text-[14px] shadow-sh-1" />
       </Field>
 
       <Field label="Description">
         <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={2}
-          className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
+          className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
             text-[14px] shadow-sh-1 " />
       </Field>
 
       <Field label="Règlement intérieur">
         <textarea value={rules} onChange={(e) => setRules(e.target.value)} rows={4}
-          className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
+          className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
             text-[14px] shadow-sh-1 " />
       </Field>
 
@@ -519,7 +519,7 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
         <div className="grid grid-cols-3 gap-2">
           {VISIBILITIES.map((v) => (
             <button key={v} type="button" onClick={() => setVisibility(v)}
-              className={`mo-press rounded-[var(--radius-input)] border px-2 py-2.5 text-[12px] font-bold
+              className={`mo-press rounded-(--radius-input) border px-2 py-2.5 text-12 font-bold
                 ${visibility === v
                   ? "border-line-3 bg-signal text-void"
                   : "border-line-3 bg-surface text-chalk-2"}`}>
@@ -527,7 +527,7 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[11.5px] text-chalk-4">{VISIBILITY_HELP[visibility]}</p>
+        <p className="mt-2 text-12 text-chalk-4">{VISIBILITY_HELP[visibility]}</p>
       </Field>
 
       <Field label="Icône">
@@ -535,7 +535,7 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
           {ICONS.map((k) => (
             <button key={k} type="button" onClick={() => setIcon(k)}
               aria-label={`Icône ${k}`} aria-pressed={icon === k}
-              className={`flex aspect-square items-center justify-center rounded-[var(--radius-input)]
+              className={`flex aspect-square items-center justify-center rounded-(--radius-input)
                 border border-line-3 ${icon === k ? "bg-signal text-void" : "bg-surface text-signal-d"}`}>
               <Icon name={k} size={18} strokeWidth={1.6} />
             </button>
@@ -544,34 +544,34 @@ function SettingsSheet({ community, open, onClose, onSaved, onDeleted }: {
       </Field>
 
       <button type="button" onClick={save} disabled={busy}
-        className="mo-press mb-5 flex h-[var(--h-tap)] w-full items-center justify-center
-          rounded-[var(--radius-input)] border border-line-3 bg-signal text-[13px] font-bold text-void
+        className="mo-press mb-5 flex h-(--h-tap) w-full items-center justify-center
+          rounded-(--radius-input) border border-line-3 bg-signal text-[13px] font-bold text-void
           shadow-sh-2 disabled:opacity-40">
         Enregistrer
       </button>
 
-      <div className="rounded-[var(--radius-input)] border border-danger/40 p-3.5">
-        <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-danger">Zone sensible</p>
-        <p className="mt-1 text-[12px] text-chalk-3">
+      <div className="rounded-(--radius-input) border border-danger/40 p-3.5">
+        <p className="text-12 font-bold uppercase tracking-[0.16em] text-danger">Zone sensible</p>
+        <p className="mt-1 text-12 text-chalk-3">
           Supprimer la communauté ferme le fil. Les publications survivent,
           détachées de tout rayon.
         </p>
         {confirmDelete ? (
           <div className="mt-3 flex gap-2">
             <button type="button" onClick={() => setConfirmDelete(false)}
-              className="flex-1 rounded-[var(--radius-input)] border border-line-3 py-2 text-[12px]
+              className="flex-1 rounded-(--radius-input) border border-line-3 py-2 text-12
                 font-bold text-chalk-2">
               Annuler
             </button>
             <button type="button" onClick={destroy} disabled={busy}
-              className="flex-1 rounded-[var(--radius-input)] border border-danger bg-danger py-2
-                text-[12px] font-bold text-void disabled:opacity-40">
+              className="flex-1 rounded-(--radius-input) border border-danger bg-danger py-2
+                text-12 font-bold text-void disabled:opacity-40">
               Supprimer
             </button>
           </div>
         ) : (
           <button type="button" onClick={() => setConfirmDelete(true)}
-            className="mt-3 rounded-[var(--radius-input)] border border-danger px-3.5 py-2 text-[12px]
+            className="mt-3 rounded-(--radius-input) border border-danger px-3.5 py-2 text-12
               font-bold text-danger hover:bg-danger/10">
             Supprimer la communauté
           </button>

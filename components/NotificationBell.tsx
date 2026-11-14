@@ -171,11 +171,11 @@ export function NotificationBell() {
           : "Notifications — rien de non lu"
       }
       aria-current={here ? "page" : undefined}
-      className={`mo-press relative flex size-[var(--h-tap)] items-center justify-center
-        border-[var(--bw-thin)] transition-[background-color,color,border-color]
-        duration-[var(--d-fast)] ease-[var(--ease-spring)]
+      className={`mo-press relative flex size-(--h-tap) items-center justify-center
+        border-(--bw-thin) transition-[background-color,color,border-color]
+        duration-(--d-fast) ease-(--ease-spring)
         ${here
-          ? "border-signal bg-signal text-void shadow-[var(--shadow-action)]"
+          ? "border-signal bg-signal text-void shadow-(--shadow-action)"
           : "border-line-2/40 text-chalk hover:border-signal hover:bg-signal/10 hover:text-signal"
         }`}
       >
@@ -186,11 +186,11 @@ export function NotificationBell() {
           sa pression — ce qui est déjà le cas partout. */}
       {unread > 0 && (
         <span
-          className={`tnum absolute -top-1 -right-0.5 flex min-w-[17px] rounded-full
-            items-center justify-center border px-1 font-mono text-[9.5px]
-            leading-[13px] font-bold
-${here ? "border-surface bg-signal text-void shadow-[var(--shadow-action)]"
-          : "border-void bg-signal text-void shadow-[var(--shadow-action)]"}`}
+          className={`tnum absolute -top-1 -right-0.5 flex min-w-[20px] rounded-full
+            items-center justify-center border px-1 font-mono text-12
+            leading-[15px] font-bold
+${here ? "border-surface bg-signal text-void shadow-(--shadow-action)"
+          : "border-void bg-signal text-void shadow-(--shadow-action)"}`}
         >
           {label}
         </span>

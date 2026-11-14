@@ -327,10 +327,10 @@ export function MonacoCodeEditor({
 
   return (
     <div
-      className={`overflow-hidden bg-[var(--color-code-bg)] ${
+      className={`overflow-hidden bg-(--color-code-bg) ${
         fill
           ? "flex h-full min-h-0 flex-col"
-          : "rounded-[var(--radius-card)] border border-line-3 shadow-sh-1 focus-within:border-signal"
+          : "rounded-(--radius-card) border border-line-3 shadow-sh-1 focus-within:border-signal"
       }`}
     >
       <div className={fill ? "min-h-0 flex-1" : ""}>
@@ -417,8 +417,8 @@ export function MonacoCodeEditor({
             type="button"
             onClick={() => void copier()}
             aria-label="Copier le code"
-            className="rounded-[var(--radius-input)] border border-line-3 px-2 py-0.5
-              text-[11px] font-bold text-chalk-3 transition-colors
+            className="rounded-(--radius-input) border border-line-3 px-2 py-0.5
+              text-12 font-bold text-chalk-3 transition-colors
               hover:border-signal hover:text-signal"
           >
             Copier
@@ -428,8 +428,8 @@ export function MonacoCodeEditor({
               type="button"
               onClick={() => void coller()}
               aria-label="Coller depuis le presse-papiers"
-              className="rounded-[var(--radius-input)] border border-line-3 px-2 py-0.5
-                text-[11px] font-bold text-chalk-3 transition-colors
+              className="rounded-(--radius-input) border border-line-3 px-2 py-0.5
+                text-12 font-bold text-chalk-3 transition-colors
                 hover:border-signal hover:text-signal"
             >
               Coller
@@ -445,11 +445,11 @@ export function MonacoCodeEditor({
 function Box({ children, fill = false }: { children: React.ReactNode; fill?: boolean }) {
   return (
     <div
-      className={`flex items-center justify-center gap-2 bg-[var(--color-code-bg)]
-        px-4 py-6 font-mono text-[12px] text-chalk-4 ${
+      className={`flex items-center justify-center gap-2 bg-(--color-code-bg)
+        px-4 py-6 font-mono text-12 text-chalk-4 ${
           fill
             ? "h-full min-h-0 rounded-none"
-            : "min-h-[120px] rounded-[var(--radius-card)] border border-line-3"
+            : "min-h-[120px] rounded-(--radius-card) border border-line-3"
         }`}
     >
       {children}

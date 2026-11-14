@@ -6,7 +6,7 @@ import { api, usingDemoData } from "@/lib/api/client";
 import { Logo } from "@/components/Logo";
 
 const inputCls =
-  "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
+  "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
   "shadow-sh-1 transition-[transform,box-shadow] placeholder:text-chalk-4 " +
   "focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]";
 
@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
       <span className="mo-breathe absolute -top-[70px] -right-[70px] size-[200px] rounded-full bg-ok opacity-12" />
       <div className="relative z-1 w-full max-w-[400px]">
         <div className="mb-5 text-center">
-          <Logo size={54} className="mx-auto rounded-[var(--radius-card)] border border-line-3" />
+          <Logo size={54} className="mx-auto rounded-(--radius-card) border border-line-3" />
         </div>
 
         <h1 className="text-center font-display text-2xl font-bold tracking-tight text-chalk">
@@ -60,7 +60,7 @@ export default function ForgotPasswordPage() {
         </p>
 
         {sent ? (
-          <div className="mt-7 rounded-[var(--radius-card)] border border-ok/50 bg-surface p-5 text-center">
+          <div className="mt-7 rounded-(--radius-card) border border-ok/50 bg-surface p-5 text-center">
             <p className="font-display text-[15px] font-bold text-chalk">Demande envoyée.</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk-3">
               Si un compte correspond à <span className="text-chalk">{email.trim()}</span>,
@@ -81,7 +81,7 @@ export default function ForgotPasswordPage() {
         ) : (
           <form onSubmit={submit} className="mt-7 space-y-3">
             {error && (
-              <p role="alert" className="rounded-[var(--radius-input)] border border-danger bg-danger/8 px-3.5 py-2.5 text-[13px] text-danger">
+              <p role="alert" className="rounded-(--radius-input) border border-danger bg-danger/8 px-3.5 py-2.5 text-[13px] text-danger">
                 {error}
               </p>
             )}
@@ -100,11 +100,11 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={busy}
-              className="lift-press flex h-[var(--h-tap)] w-full items-center justify-center rounded-[var(--radius-input)] border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
+              className="lift-press flex h-(--h-tap) w-full items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-60"
             >
               {busy ? "Envoi…" : "Envoyer le lien"}
             </button>
-            <p className="pt-1 text-center text-[12px] text-chalk-4">
+            <p className="pt-1 text-center text-12 text-chalk-4">
               <Link href="/login" className="hover:text-chalk-2">← Retour à la connexion</Link>
             </p>
           </form>

@@ -22,13 +22,13 @@ export default function NotFound() {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
             <Link
               href="/feed"
-              className="lift-press flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2"
+              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-signal bg-signal px-5 text-[13px] font-bold text-void shadow-sh-2"
             >
               Aller au fil
             </Link>
             <Link
               href="/"
-              className="lift-press flex h-[var(--h-tap)] items-center justify-center rounded-[var(--radius-input)] border border-line-3 bg-surface px-5 text-[13px] font-bold text-chalk hover:border-signal"
+              className="lift-press flex h-(--h-tap) items-center justify-center rounded-(--radius-input) border border-line-3 bg-surface px-5 text-[13px] font-bold text-chalk hover:border-signal"
             >
               Retour à l’accueil
             </Link>

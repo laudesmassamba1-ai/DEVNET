@@ -123,7 +123,7 @@ export default function Register() {
   }
 
   const inputCls =
-    "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
+    "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
     "outline transition-[transform,box-shadow] placeholder:text-chalk-4 " +
     "focus-visible:ring-2 focus-visible:ring-signal/70 focus-visible:ring-offset-2 focus-visible:ring-offset-page";
 
@@ -144,7 +144,7 @@ export default function Register() {
           </div>
         </Motion>
 
-        <div className="mb-5 flex items-center justify-between text-[12px] text-chalk-3">
+        <div className="mb-5 flex items-center justify-between text-12 text-chalk-3">
           <span>Création du compte</span>
           <span className="font-mono tabular-nums">Étape {step} sur 2</span>
         </div>
@@ -156,7 +156,7 @@ export default function Register() {
               border-line-3 bg-surface-3">
               <span
                 className="block h-full origin-left bg-signal transition-transform
-                  duration-[var(--d-base)] ease-[var(--ease-spring)]"
+                  duration-(--d-base) ease-(--ease-spring)"
                 style={{ transform: i < step ? "scaleX(1)" : "scaleX(0)" }}
               />
             </span>
@@ -166,8 +166,9 @@ export default function Register() {
         {error && (
           <Motion role="rise" className="mb-3.5">
             <div
+              id="register-error"
               role="alert"
-              className="rounded-[var(--radius-input)] border
+              className="rounded-(--radius-input) border
                 border-danger bg-danger/12 px-3.5 py-2.5 text-sm font-medium text-danger"
             >
               {error}
@@ -183,7 +184,7 @@ export default function Register() {
             key="etape-1"
             role="slide"
             delay={460}
-            className="rounded-[var(--radius-card)] border border-edge bg-surface
+            className="rounded-(--radius-card) border border-edge bg-surface
               p-5 sm:p-7"
           >
             <h2 className="mb-1 font-display text-[1.5rem] font-bold tracking-[-0.03em]">
@@ -204,9 +205,9 @@ export default function Register() {
                       type="button"
                       onClick={() => setAccountType(value)}
                       aria-pressed={accountType === value}
-                      className={`w-full rounded-[var(--radius-input)] border px-3 py-2.5
+                      className={`w-full rounded-(--radius-input) border px-3 py-2.5
                         text-left transition-[background-color,border-color]
-                        duration-[var(--d-fast)] ${accountType === value
+                        duration-(--d-fast) ${accountType === value
                           ? "border-signal bg-signal/10"
                           : "border-line-2 bg-surface hover:border-line-3 hover:bg-surface-2"}`}
                     >
@@ -239,6 +240,8 @@ export default function Register() {
               <Motion role="rise" delay={750} as="div">
                 <input id="email" type="email" autoComplete="email" value={email}
                   onChange={(e) => setEmail(e.target.value)} placeholder="votre@email.com"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? "register-error" : undefined}
                   className={inputCls} />
               </Motion>
             </div>
@@ -268,8 +271,8 @@ export default function Register() {
 
             <Motion role="rise" delay={915} as="div">
               <button type="button" onClick={next}
-                className="lift-press flex h-[var(--h-tap)] w-full items-center justify-center
-                  rounded-[var(--radius-input)] border border-line-3 bg-signal
+                className="lift-press flex h-(--h-tap) w-full items-center justify-center
+                  rounded-(--radius-input) border border-line-3 bg-signal
                   text-[13px] font-bold text-void shadow-sh-2"
               >
                 Continuer
@@ -283,7 +286,7 @@ export default function Register() {
         {step === 2 && (
           <Motion key="etape-2" role="rise" delay={120} as="form"
             onSubmit={submit}
-            className="rounded-[var(--radius-card)] border border-edge glass-strong
+            className="rounded-(--radius-card) border border-edge glass-strong
               p-5 shadow-sh-3 sm:p-7"
           >
             <h2 className="mb-1 font-display text-[1.5rem] font-bold tracking-[-0.03em]">
@@ -301,9 +304,9 @@ export default function Register() {
                       type="button"
                       onClick={() => toggleLang(l)}
                       aria-pressed={langs.has(l)}
-                      className={`rounded-[var(--radius-chip)] border-[var(--bw-thin)] px-3 py-1.5
+                      className={`rounded-(--radius-chip) border-(--bw-thin) px-3 py-1.5
                         text-[11.5px] font-bold transition-[background-color,color,border-color]
-                        duration-[var(--d-fast)] ${langs.has(l)
+                        duration-(--d-fast) ${langs.has(l)
                           ? "border-signal bg-signal/15 text-signal"
                           : "border-line-2 text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"}`}
                     >
@@ -319,6 +322,8 @@ export default function Register() {
               <Motion role="rise" delay={420} as="div">
                 <input id="pw" type="password" autoComplete="new-password" value={pw}
                   onChange={(e) => setPw(e.target.value)} placeholder="Minimum 6 caractères"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? "register-error" : undefined}
                   className={inputCls} />
               </Motion>
             </div>
@@ -328,20 +333,24 @@ export default function Register() {
               <Motion role="rise" delay={475} as="div">
                 <input id="pw2" type="password" autoComplete="new-password" value={pw2}
                   onChange={(e) => setPw2(e.target.value)} placeholder="Répétez votre mot de passe"
+                  aria-invalid={error ? true : undefined}
+                  aria-describedby={error ? "register-error" : undefined}
                   className={inputCls} />
               </Motion>
             </div>
 
-            <label className="mb-4 flex items-start gap-2.5 text-[12px] leading-relaxed text-chalk-3">
+            <label className="mb-4 flex items-start gap-2.5 text-12 leading-relaxed text-chalk-3">
               <input
                 type="checkbox"
                 checked={acceptedTerms}
                 onChange={(event) => setAcceptedTerms(event.target.checked)}
-                className="mt-0.5 accent-[var(--color-signal)]"
+                aria-invalid={error ? true : undefined}
+                aria-describedby={error ? "register-error" : undefined}
+                className="mt-0.5 accent-(--color-signal)"
               />
               <span>
                 J’accepte les{" "}
-                <Link href="/cgu" target="_blank" className="text-signal underline">
+                <Link href="/cgu" target="_blank" rel="noopener noreferrer" className="text-signal underline">
                   conditions générales d’utilisation
                 </Link>.
               </span>
@@ -354,7 +363,7 @@ export default function Register() {
                   onClick={() => setStep(1)}
                   aria-label="Revenir aux informations"
                   className="lift-press flex size-[44px] items-center justify-center
-                    rounded-[var(--radius-input)] border border-line-3 bg-transparent
+                    rounded-(--radius-input) border border-line-3 bg-transparent
                     text-chalk hover:bg-surface-2"
                 >
                   <Icon name="chevron-left" size={16} strokeWidth={2.5} />
@@ -365,8 +374,8 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={busy || !acceptedTerms}
-                  className="lift-press flex h-[var(--h-tap)] w-full items-center justify-center gap-2
-                    rounded-[var(--radius-input)] border border-line-3 bg-signal
+                  className="lift-press flex h-(--h-tap) w-full items-center justify-center gap-2
+                    rounded-(--radius-input) border border-line-3 bg-signal
                     text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
                 >
                   {busy ? <Spinner /> : "Créer mon compte"}

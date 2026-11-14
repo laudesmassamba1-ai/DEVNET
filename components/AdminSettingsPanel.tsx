@@ -59,7 +59,7 @@ export function AdminSettingsPanel() {
                 key={level.level}
                 className="flex items-baseline justify-between gap-2 border-b border-line-2 py-2"
               >
-                <span className="truncate text-[12px] text-chalk-3">
+                <span className="truncate text-12 text-chalk-3">
                   {level.level}. {level.title}
                 </span>
                 <span className="font-mono text-[11px] tabular-nums text-chalk-4">
@@ -91,16 +91,16 @@ export function AdminSettingsPanel() {
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
             href="/admin/radar"
-            className="inline-flex min-h-[var(--h-tap)] items-center gap-2 border border-line-2 px-3
-              text-[12px] font-semibold text-chalk-3 hover:border-signal hover:text-signal"
+            className="inline-flex min-h-(--h-tap) items-center gap-2 border border-line-2 px-3
+              text-12 font-semibold text-chalk-3 hover:border-signal hover:text-signal"
           >
             <Icon name="target" size={14} />
             Voir le Radar
           </Link>
           <Link
             href="/settings"
-            className="inline-flex min-h-[var(--h-tap)] items-center gap-2 border border-line-2 px-3
-              text-[12px] font-semibold text-chalk-3 hover:border-signal hover:text-signal"
+            className="inline-flex min-h-(--h-tap) items-center gap-2 border border-line-2 px-3
+              text-12 font-semibold text-chalk-3 hover:border-signal hover:text-signal"
           >
             <Icon name="profile" size={14} />
             Préférences personnelles

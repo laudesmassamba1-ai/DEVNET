@@ -52,7 +52,7 @@ export default function PreviewCode() {
   return (
     <main className="mo-rise mx-auto max-w-[520px] px-(--gutter) py-6">
       <h1 className="label-micro mb-1 text-chalk-3">DevNet · banc d&apos;essai</h1>
-      <h2 className="font-display mb-5 text-[var(--text-display-l)] font-bold
+      <h2 className="font-display mb-5 text-(--text-display-l) font-bold
         tracking-[-0.03em]">
         Coloration syntaxique
       </h2>
@@ -73,7 +73,7 @@ export default function PreviewCode() {
       <CodeBlock code={RUST} lang="Rust" variant="terminal" />
 
       <h3 className="label mb-3 mt-8 text-chalk">Jeu d&apos;icônes</h3>
-      <div className="flex flex-wrap gap-2 rounded-[var(--radius-card)] border
+      <div className="flex flex-wrap gap-2 rounded-(--radius-card) border
         border-line-3 bg-surface p-4 shadow-sh-1">
         {(
           [
@@ -86,7 +86,7 @@ export default function PreviewCode() {
           <span key={n}
             title={n}
             className="flex size-[34px] items-center justify-center
-              border-[var(--bw-thin)] border-line-2 text-chalk-2">
+              border-(--bw-thin) border-line-2 text-chalk-2">
             <Icon name={n} size={16} />
           </span>
         ))}

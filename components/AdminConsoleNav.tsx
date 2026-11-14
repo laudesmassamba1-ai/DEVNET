@@ -20,9 +20,9 @@ export function AdminConsoleNav({ active }: { active: AdminModuleKey }) {
             key={module.key}
             href={module.href}
             aria-current={active === module.key ? "page" : undefined}
-            className={`inline-flex min-h-[var(--h-tap)] shrink-0 items-center gap-2
-              rounded-[var(--radius-input)] px-3 text-[12px] transition-colors
-              duration-[var(--d-fast)]
+            className={`inline-flex min-h-(--h-tap) shrink-0 items-center gap-2
+              rounded-(--radius-input) px-3 text-12 transition-colors
+              duration-(--d-fast)
               ${active === module.key
                 ? "bg-surface-2 font-semibold text-signal"
                 : "text-chalk-3 hover:bg-surface-2 hover:text-chalk"}`}
@@ -41,7 +41,7 @@ export function AdminConsoleNav({ active }: { active: AdminModuleKey }) {
         <select
           value={activeHref}
           onChange={(event) => router.push(event.target.value)}
-          className="min-h-[var(--h-tap)] w-full rounded-[var(--radius-input)]
+          className="min-h-(--h-tap) w-full rounded-(--radius-input)
             border border-line-2 bg-surface px-3 text-[14px] text-chalk
             focus-visible:outline-2 focus-visible:outline-offset-2
             focus-visible:outline-signal"

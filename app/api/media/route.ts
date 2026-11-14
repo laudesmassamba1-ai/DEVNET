@@ -14,6 +14,7 @@ import sharp from "sharp";
 import { NextResponse } from "next/server";
 import { currentUserId } from "@/lib/api/server";
 import { putMediaObject } from "@/lib/media-storage";
+import { matchesDeclaredType, sniffMedia } from "@/lib/media-signature";
 import { withUser } from "@/platform/infrastructure/postgres/with-user";
 
 export const runtime = "nodejs";
@@ -33,6 +34,26 @@ function kindOf(mime: string): "image" | "video" | null {
   if (/^image\/(png|jpeg|webp|gif|avif)$/.test(mime)) return "image";
   if (/^video\/(mp4|webm|quicktime)$/.test(mime)) return "video";
   return null;
+}
+
+/**
+ * Une image n'est acceptée que si `sharp` sait réellement la décoder.
+ *
+ * La signature binaire prouve que les octets *commencent* comme un PNG ;
+ * elle ne prouve pas que le fichier est complet. Un décodeur qui échoue est
+ * donc un refus, pas une raison de conserver le fichier d'origine : c'est
+ * cette tolérance qui laissait passer un contenu tronqué.
+ */
+async function decodableImage(bytes: Buffer<ArrayBufferLike>): Promise<boolean> {
+  try {
+    const metadata = await sharp(bytes, {
+      failOn: "error",
+      limitInputPixels: 50_000_000,
+    }).metadata();
+    return Number(metadata.width) > 0 && Number(metadata.height) > 0;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -126,11 +147,41 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   let bytes: Buffer<ArrayBufferLike> = Buffer.from(await file.arrayBuffer());
-  let mime = file.type;
+  let mime = file.type.toLowerCase();
+
+  // Le type déclaré ne suffit jamais : on lit les octets. Un fichier dont
+  // la signature ne correspond pas à la famille annoncée est refusé avant
+  // tout stockage, y compris quand le client est un script.
+  const sniffed = sniffMedia(bytes);
+  if (!sniffed || sniffed.kind !== kind || !matchesDeclaredType(sniffed, mime)) {
+    return NextResponse.json(
+      { error: "le contenu du fichier ne correspond pas à son type" },
+      { status: 415, headers: NO_STORE },
+    );
+  }
+  if (kind === "image" && !(await decodableImage(bytes))) {
+    return NextResponse.json(
+      { error: "image illisible ou corrompue" },
+      { status: 415, headers: NO_STORE },
+    );
+  }
+  mime = sniffed.mime;
+
   if (kind === "image") {
     const compressed = await compressImage(bytes, mime);
     bytes = compressed.bytes;
     mime = compressed.mime;
+
+    // Le réencodage change le type (WebP) : on revérifie la signature pour
+    // que la colonne `mime` décrive toujours les octets réellement stockés.
+    const finalSniff = sniffMedia(bytes);
+    if (!finalSniff || finalSniff.kind !== "image") {
+      return NextResponse.json(
+        { error: "réencodage de l'image impossible" },
+        { status: 422, headers: NO_STORE },
+      );
+    }
+    mime = finalSniff.mime;
   }
 
   // Le stockage objet est facultatif : une panne ou une absence de clés ne

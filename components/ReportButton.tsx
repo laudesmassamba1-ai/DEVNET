@@ -150,9 +150,9 @@ export function ReportButton({
                     groupe?.querySelectorAll<HTMLButtonElement>('[role="radio"]')
                       [suivant]?.focus();
                   }}
-                  className={`flex items-center gap-2.5 rounded-[var(--radius-input)]
+                  className={`flex items-center gap-2.5 rounded-(--radius-input)
                     border px-3 py-2.5 text-left transition-[background-color,color,border-color]
-                    duration-[var(--d-fast)] ${chosen
+                    duration-(--d-fast) ${chosen
                       ? "border-signal bg-signal/10 text-chalk"
                       : "border-line-2 bg-surface text-chalk-2 hover:border-line-3"}`}
                 >
@@ -188,7 +188,7 @@ export function ReportButton({
                 placeholder="Ce que tu as vu, sans interprétation."
                 className="w-full resize-none border border-line-2 bg-surface px-2.5 py-2
                   text-[13px] leading-relaxed text-chalk outline
-                  duration-[var(--d-fast)] placeholder:text-chalk-4/60 focus:border-signal"
+                  duration-(--d-fast) placeholder:text-chalk-4/60 focus:border-signal"
               />
               <p className="mt-1 text-right font-mono text-[10.5px] text-chalk-4 tnum">
                 {details.length}/1000
@@ -200,9 +200,9 @@ export function ReportButton({
             type="button"
             onClick={submit}
             disabled={!reason || busy}
-            className="mo-press mt-4 inline-flex h-[var(--h-tap)] w-full items-center
-              justify-center gap-2 rounded-[var(--radius-input)] border border-signal
-              bg-signal px-4 font-mono text-[12px] font-bold uppercase
+            className="mo-press mt-4 inline-flex h-(--h-tap) w-full items-center
+              justify-center gap-2 rounded-(--radius-input) border border-signal
+              bg-signal px-4 font-mono text-12 font-bold uppercase
               tracking-[0.12em] text-void disabled:opacity-40"
           >
             <Icon name="flag" size={14} strokeWidth={2} />

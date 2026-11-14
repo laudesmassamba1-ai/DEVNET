@@ -253,8 +253,8 @@ export function PullRequestPanel({
             <button
               type="button"
               onClick={() => void ouvrirFeuille()}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
-                rounded-[var(--radius-input)] border border-signal bg-signal
+              className="mo-press inline-flex h-(--h-tap) items-center gap-2
+                rounded-(--radius-input) border border-signal bg-signal
                 px-4 text-[13px] font-bold text-void shadow-sh-2"
             >
               <Icon name="plus" size={14} strokeWidth={2} />
@@ -277,7 +277,7 @@ export function PullRequestPanel({
         onClose={() => setComposant(false)}
         title={`Intégrer « ${brancheCourante} »`}
       >
-        <p className="mb-3 font-mono text-[11px] text-chalk-4">
+        <p className="mb-3 font-mono text-12 text-chalk-4">
           {brancheCourante} → {brancheParDefaut}
         </p>
 
@@ -285,14 +285,14 @@ export function PullRequestPanel({
             clair : quelqu'un qui va proposer un travail doit voir ce
             qu'il propose avant de le nommer. */}
         {apport !== null && (
-          <p className="mb-3 font-mono text-[11px] text-chalk-4">
+          <p className="mb-3 font-mono text-12 text-chalk-4">
             {apport.length === 0
               ? "aucun changement — enregistrez d'abord un commit."
               : `cette branche apporte ${apport.length} fichier(s), +${apport.reduce((n, d) => n + d.insertions, 0)} −${apport.reduce((n, d) => n + d.deletions, 0)}`}
           </p>
         )}
 
-        <label className="mb-1 block font-mono text-[11px] text-chalk-3">
+        <label className="mb-1 block font-mono text-12 text-chalk-3">
           titre
         </label>
         <input
@@ -300,12 +300,12 @@ export function PullRequestPanel({
           onChange={(e) => setTitre(e.target.value)}
           aria-label="Titre de la demande"
           placeholder="ce que cette branche change"
-          className="mb-3 h-[var(--h-input)] w-full border border-line-2
+          className="mb-3 h-(--h-input) w-full border border-line-2
             bg-surface-2 px-3 text-[13px] text-chalk
             focus:border-signal"
         />
 
-        <label className="mb-1 block font-mono text-[11px] text-chalk-3">
+        <label className="mb-1 block font-mono text-12 text-chalk-3">
           description
         </label>
         <textarea
@@ -323,7 +323,7 @@ export function PullRequestPanel({
             type="button"
             onClick={() => void soumettre()}
             disabled={occupé || titre.trim().length < 3 || apport?.length === 0}
-            className="mo-press h-[var(--h-tap)] flex-1 border border-signal
+            className="mo-press h-(--h-tap) flex-1 border border-signal
               bg-signal px-4 text-[13px] font-bold text-void
               disabled:opacity-40 disabled:hover:bg-signal"
           >
@@ -332,7 +332,7 @@ export function PullRequestPanel({
           <button
             type="button"
             onClick={() => setComposant(false)}
-            className="mo-press h-[var(--h-tap)] border border-line-2 px-4
+            className="mo-press h-(--h-tap) border border-line-2 px-4
               text-[13px] text-chalk-3 hover:border-chalk-4 hover:text-chalk"
           >
             Annuler
@@ -340,7 +340,7 @@ export function PullRequestPanel({
         </div>
 
         {titre.trim().length > 0 && titre.trim().length < 3 && (
-          <p className="mt-2 font-mono text-[11px] text-chalk-4">
+          <p className="mt-2 font-mono text-12 text-chalk-4">
             3 caractères minimum.
           </p>
         )}
@@ -358,8 +358,8 @@ export function PullRequestPanel({
         <button
           type="button"
           onClick={() => void ouvrirFeuille()}
-          className="mo-press inline-flex min-h-[var(--h-tap)] items-center gap-1.5
-            border border-line-2 px-3 font-mono text-[11.5px] text-chalk-3
+          className="mo-press inline-flex min-h-(--h-tap) items-center gap-1.5
+            border border-line-2 px-3 font-mono text-12 text-chalk-3
             hover:border-signal hover:text-signal"
         >
           <Icon name="plus" size={12} strokeWidth={2} />
@@ -378,7 +378,7 @@ export function PullRequestPanel({
           return (
             <Motion key={pull.id} role="rise" delay={Math.min(index * 40, 320)} as="li">
               <div
-                className={`border bg-surface transition-colors duration-[var(--d-fast)]
+                className={`border bg-surface transition-colors duration-(--d-fast)
                   ${deploye ? "border-signal" : "border-line-2 hover:border-line-3"}`}
               >
                 <button
@@ -390,7 +390,7 @@ export function PullRequestPanel({
                 >
                   <span
                     aria-hidden="true"
-                    className={`tnum mt-0.5 shrink-0 font-mono text-[11.5px]
+                    className={`tnum mt-0.5 shrink-0 font-mono text-12
                       ${pull.status === "ouverte" ? "text-signal" : "text-chalk-4"}`}
                   >
                     #{pull.number}
@@ -412,7 +412,7 @@ export function PullRequestPanel({
                         du texte, quelle que soit sa largeur — et une
                         icône de 9 px poserait des points de suspension
                         visuellement détachés du texte qu'elle relie. */}
-                    <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 font-mono text-[10.5px] text-chalk-4">
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-1.5 font-mono text-12 text-chalk-4">
                       <Icon name="branch" size={9} />
                       <span className="text-signal">{pull.source_branch}</span>
                       <span aria-hidden>→</span>
@@ -423,7 +423,7 @@ export function PullRequestPanel({
                       <span>{timeAgo(pull.created_at)}</span>
                     </span>
 
-                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 font-mono text-[10.5px] text-chalk-4">
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 font-mono text-12 text-chalk-4">
                       {/* Une branche supprimée n'a pas de diff à
                           annoncer : la comparer à une branche vide
                           ferait dire à la demande qu'elle a tout
@@ -473,13 +473,13 @@ export function PullRequestPanel({
 
                     {/* ── Le diff ── */}
                     {brancheAbsente ? (
-                      <p className="mb-3 font-mono text-[11px] text-chalk-4">
+                      <p className="mb-3 font-mono text-12 text-chalk-4">
                         la branche « {pull.source_branch} » a été supprimée — son
                         travail est dans « {pull.target_branch} ».
                       </p>
                     ) : (
                       diff.length === 0 && (
-                        <p className="mb-3 font-mono text-[11px] text-chalk-4">
+                        <p className="mb-3 font-mono text-12 text-chalk-4">
                           Aucun changement.
                         </p>
                       )
@@ -487,10 +487,10 @@ export function PullRequestPanel({
 
                     {diff.map((d) => (
                       <div key={d.path} className="mb-2 last:mb-0">
-                        <p className="mb-1 font-mono text-[11px] text-chalk-3">
+                        <p className="mb-1 font-mono text-12 text-chalk-3">
                           {d.path}
                         </p>
-                        <pre className="overflow-x-auto font-mono text-[11.5px] leading-[1.55]">
+                        <pre className="overflow-x-auto font-mono text-12 leading-[1.55]">
                           {d.lines.map((l, i) => (
                             <span
                               key={i}
@@ -518,7 +518,7 @@ export function PullRequestPanel({
                     {pull.status === "ouverte" && verdict && (
                       <>
                         <p
-                          className={`mt-3 mb-2 font-mono text-[11px] leading-relaxed
+                          className={`mt-3 mb-2 font-mono text-12 leading-relaxed
                             ${fusionnable ? "text-chalk-3" : "text-danger"}`}
                         >
                           {verdict.raison}
@@ -534,9 +534,9 @@ export function PullRequestPanel({
                             type="button"
                             onClick={() => void fusionner(pull)}
                             disabled={!fusionnable || occupé}
-                            className="mo-press inline-flex min-h-[var(--h-tap)]
+                            className="mo-press inline-flex min-h-(--h-tap)
                               items-center gap-1.5 border border-ok px-3
-                              font-mono text-[11.5px] font-bold text-ok
+                              font-mono text-12 font-bold text-ok
                               disabled:border-line-2 disabled:text-chalk-4
                               disabled:opacity-60"
                           >
@@ -548,8 +548,8 @@ export function PullRequestPanel({
                             type="button"
                             onClick={() => void fermer(pull)}
                             disabled={occupé}
-                            className="mo-press min-h-[var(--h-tap)] border
-                              border-line-2 px-3 font-mono text-[11.5px]
+                            className="mo-press min-h-(--h-tap) border
+                              border-line-2 px-3 font-mono text-12
                               text-chalk-4 hover:border-danger hover:text-danger"
                           >
                             Fermer
@@ -559,7 +559,7 @@ export function PullRequestPanel({
                     )}
 
                     {pull.status === "fusionnee" && (
-                      <p className="mt-3 flex items-center gap-1.5 font-mono text-[11px] text-ok">
+                      <p className="mt-3 flex items-center gap-1.5 font-mono text-12 text-ok">
                         <Icon name="check-double" size={12} strokeWidth={2} />
                         intégrée dans {pull.target_branch}
                         {pull.merged_at ? ` · ${timeAgo(pull.merged_at)}` : ""}

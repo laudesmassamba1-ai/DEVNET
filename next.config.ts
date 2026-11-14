@@ -24,11 +24,24 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=()",
           },
+          {
+            // Le site est servi en HTTPS en production. Sans HSTS, une
+            // première requête en clair reste possible avant la redirection.
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000",
+          },
         ],
       },
     ];
   },
   async rewrites() {
+    // Ces réécritures ne visent que la pile Supabase locale
+    // (`supabase start`). Les garder en production ferait proxifier
+    // `/rest/v1/*` vers `127.0.0.1:54321` sur chaque instance serverless :
+    // une réponse 502 opaque au lieu du service réel. Le dépôt expose sa
+    // propre passerelle `/api/rest/*`, qui est le chemin utilisé par
+    // l'application ; ces alias ne servent qu'au développement.
+    if (process.env.NODE_ENV === "production") return [];
     return [
       {
         source: "/rest/v1/:path*",

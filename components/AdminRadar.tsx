@@ -85,7 +85,7 @@ export function AdminRadar() {
           type="button"
           onClick={() => void refresh()}
           disabled={loading}
-          className="min-h-[var(--h-tap)] rounded-[var(--radius-input)]
+          className="min-h-(--h-tap) rounded-(--radius-input)
             border border-line-2 px-3 text-[13px] text-chalk
             hover:bg-surface-2 disabled:opacity-50"
         >
@@ -120,7 +120,7 @@ export function AdminRadar() {
           </div>
           <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
             <dt className="text-[13px] text-chalk-3">Dernier contrôle</dt>
-            <dd className="font-mono text-[12px] text-chalk-4">
+            <dd className="font-mono text-12 text-chalk-4">
               {checkedAt?.toLocaleString("fr-FR") ?? "Inconnu"}
             </dd>
           </div>
@@ -135,7 +135,7 @@ export function AdminRadar() {
         </dl>
       )}
 
-      <p className="mt-4 max-w-prose text-[12px] leading-relaxed text-chalk-4">
+      <p className="mt-4 max-w-prose text-12 leading-relaxed text-chalk-4">
         Cette sonde teste un accès à PostgREST. Elle ne mesure pas la latence,
         les sauvegardes, les migrations, les événements de sécurité ni l&apos;état
         des autres services.

@@ -160,9 +160,9 @@ function CommentRow({
           onClick={() => onRemove(comment.id)}
           disabled={busy}
           aria-label="Supprimer ce commentaire"
-          className="h-7 shrink-0 self-start rounded-[var(--radius-chip)]
-            border-[var(--bw-thin)] border-line px-1.5 text-chalk-4
-            transition-[color,border-color] duration-[var(--d-fast)]
+          className="h-7 shrink-0 self-start rounded-(--radius-chip)
+            border-(--bw-thin) border-line px-1.5 text-chalk-4
+            transition-[color,border-color] duration-(--d-fast)
             hover:border-danger hover:text-danger
             disabled:opacity-40"
         >
@@ -181,9 +181,9 @@ function CommentRow({
         targetLabel="ce commentaire"
         targetAuthorId={comment.author_id}
         compact
-        className="h-7 shrink-0 self-start rounded-[var(--radius-chip)]
-          border-[var(--bw-thin)] border-line text-chalk-4
-          transition-[color,border-color] duration-[var(--d-fast)]
+        className="h-7 shrink-0 self-start rounded-(--radius-chip)
+          border-(--bw-thin) border-line text-chalk-4
+          transition-[color,border-color] duration-(--d-fast)
           hover:border-danger hover:text-danger"
       />
     </Motion>
@@ -410,7 +410,7 @@ export function CommentsPanel({
         {comments === null && <Loading label="Lecture des commentaires" />}
 
         {comments?.length === 0 && (
-          <p className="py-8 text-center font-mono text-[12px] text-chalk-4">
+          <p className="py-8 text-center font-mono text-12 text-chalk-4">
             aucun commentaire
           </p>
         )}
@@ -529,7 +529,7 @@ export function CommentsPanel({
             aria-label="Écrire un commentaire"
             placeholder={me ? "Répondre…" : "Connecte-toi pour répondre"}
             disabled={!me}
-            className="min-h-[42px] flex-1 resize-none rounded-[var(--radius-input)]
+            className="min-h-[42px] flex-1 resize-none rounded-(--radius-input)
               border border-line-3 bg-surface px-3 py-2 text-[13.5px]
               leading-[1.55] text-chalk shadow-sh-1
               transition-[transform,box-shadow] placeholder:text-chalk-4
@@ -540,10 +540,10 @@ export function CommentsPanel({
             type="submit"
             disabled={!me || busy || !canSendMessage(text, attachment ?? undefined)}
             aria-label="Publier le commentaire"
-            className="h-[42px] shrink-0 rounded-[var(--radius-chip)] border
-              border-signal bg-signal px-3.5 font-mono text-[12px] font-bold
+            className="h-[42px] shrink-0 rounded-(--radius-chip) border
+              border-signal bg-signal px-3.5 font-mono text-12 font-bold
               tracking-[0.1em] text-void uppercase
-              transition-[transform,opacity] duration-[var(--d-fast)]
+              transition-[transform,opacity] duration-(--d-fast)
               active:translate-y-px disabled:opacity-35"
           >
             <Icon name="send" size={14} />

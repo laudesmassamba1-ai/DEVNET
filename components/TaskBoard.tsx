@@ -187,8 +187,8 @@ export function TaskBoard({
             key={col.id}
             role="rise"
             as="section"
-            className={`flex min-h-[220px] flex-col rounded-[var(--radius-card)]
-              border depth-card transition-colors duration-[var(--d-fast)]
+            className={`flex min-h-[220px] flex-col rounded-(--radius-card)
+              border depth-card transition-colors duration-(--d-fast)
               ${over === col.id ? "border-signal" : "border-line-2"}`}
           >
             <header className="flex items-center justify-between border-b border-line-2 px-3 py-2">
@@ -243,8 +243,8 @@ export function TaskBoard({
                         e.dataTransfer.setData("text/devnet-task", task.id);
                         e.dataTransfer.effectAllowed = "move";
                       }}
-                      className="group cursor-grab rounded-[var(--radius-input)] border
-                        border-line-2 bg-surface p-2.5 transition-colors duration-[var(--d-fast)]
+                      className="group cursor-grab rounded-(--radius-input) border
+                        border-line-2 bg-surface p-2.5 transition-colors duration-(--d-fast)
                         hover:border-line-3 active:cursor-grabbing"
                     >
                       <div className="flex items-start gap-2">
@@ -264,19 +264,19 @@ export function TaskBoard({
                       </div>
 
               {task.body && (
-                <p className="mt-1 text-[12px] leading-snug text-chalk-3">{task.body}</p>
+                <p className="mt-1 text-12 leading-snug text-chalk-3">{task.body}</p>
               )}
 
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 {task.language && (
-                  <span className="inline-flex items-center gap-1 rounded-[var(--radius-chip)]
+                  <span className="inline-flex items-center gap-1 rounded-(--radius-chip)
                     border border-line-2 px-1.5 py-0.5 font-mono text-[10.5px] text-chalk-3">
                     <Icon name="code" size={11} strokeWidth={2} />
                     {task.language}
                   </span>
                 )}
 
-                <label className="inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
+                <label className="inline-flex items-center gap-1.5 rounded-(--radius-chip)
                   border border-line-2 px-1.5 py-0.5 font-mono text-[10.5px] text-chalk-3">
                   <Icon name="profile" size={11} strokeWidth={2} />
                   <select
@@ -352,7 +352,7 @@ export function TaskBoard({
                       if (e.key === "Enter") void add();
                     }}
                     placeholder="Nouvelle tâche…"
-                    className="h-[var(--h-input)] min-w-0 flex-1 rounded-[var(--radius-input)]
+                    className="h-(--h-input) min-w-0 flex-1 rounded-(--radius-input)
                       border border-line-2 bg-surface px-3 text-[13px] text-chalk
                       placeholder:text-chalk-4 focus:border-signal"
                   />
@@ -361,8 +361,8 @@ export function TaskBoard({
                     onClick={() => void add()}
                     disabled={busy || !title.trim()}
                     aria-label="Ajouter la tâche"
-                    className="mo-press flex size-[var(--h-input)] shrink-0 items-center
-                      justify-center rounded-[var(--radius-input)] border border-signal
+                    className="mo-press flex size-(--h-input) shrink-0 items-center
+                      justify-center rounded-(--radius-input) border border-signal
                       bg-signal text-void disabled:opacity-40"
                   >
                     <Icon name="plus" size={14} strokeWidth={2.4} />

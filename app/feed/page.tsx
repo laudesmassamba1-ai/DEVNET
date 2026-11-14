@@ -871,7 +871,7 @@ export default function FeedPage() {
           temps. `shrink-0` sur la colonne garantit qu'elle ne se laisse
           jamais comprimer par le panneau.
         */}
-        <div className="mx-auto flex w-full max-w-[1000px] items-start justify-center gap-6">
+        <div className="mx-auto flex w-full min-w-0 max-w-[1000px] items-start justify-center gap-6 overflow-x-clip">
         <div className="w-full min-w-0 max-w-[720px] shrink-0 sm:max-w-[620px]">
         <div className="mb-3 flex min-h-11 items-center justify-between gap-3">
           <h1 className="font-display text-[22px] font-semibold tracking-[-0.03em]">
@@ -881,7 +881,7 @@ export default function FeedPage() {
             <div
               role="group"
               aria-label="Densité des publications"
-              className="flex items-center rounded-[var(--radius-input)] border border-line-2 p-0.5"
+              className="flex items-center rounded-(--radius-input) border border-line-2 p-0.5"
             >
               {([
                 ["comfortable", "Confortable"],
@@ -892,8 +892,8 @@ export default function FeedPage() {
                   type="button"
                   aria-pressed={density === value}
                   onClick={() => setDensity(value)}
-                  className={`min-h-[var(--h-tap)] rounded-[var(--radius-chip)] px-2.5 text-[12px]
-                    transition-colors duration-[var(--d-fast)]
+                  className={`min-h-(--h-tap) rounded-(--radius-chip) px-2.5 text-12
+                    transition-colors duration-(--d-fast)
                     ${density === value
                       ? "bg-surface-3 text-chalk"
                       : "text-chalk-3 hover:text-chalk"}`}
@@ -907,12 +907,12 @@ export default function FeedPage() {
               onClick={() => setOpen(true)}
               aria-label="Publier une publication"
               data-tour="composer"
-              className="inline-flex min-h-[var(--h-tap)] min-w-[var(--h-tap)]
-                items-center justify-center gap-2 rounded-[var(--radius-input)]
+              className="inline-flex min-h-(--h-tap) min-w-(--h-tap)
+                items-center justify-center gap-2 rounded-(--radius-input)
                 border border-signal bg-signal px-3 text-void hover:opacity-90"
             >
               <Icon name="edit" size={16} />
-              <span className="hidden text-[12px] font-semibold sm:inline">
+              <span className="hidden text-12 font-semibold sm:inline">
                 Publier
               </span>
             </button>
@@ -978,9 +978,9 @@ export default function FeedPage() {
                 type="button"
                 aria-selected={scope === value}
                 onClick={() => setScopeAndReset(value)}
-                className={`-mb-0.5 flex min-h-[var(--h-tap)] items-center tab-underline px-3.5 py-2 font-mono text-[11.5px]
+                className={`-mb-0.5 flex min-h-(--h-tap) items-center tab-underline px-3.5 py-2 font-mono text-12 max-[340px]:px-1.5 max-[340px]:tracking-[0.08em]
                   font-bold uppercase tracking-[0.12em] transition-colors
-                  duration-[var(--d-fast)]
+                  duration-(--d-fast)
                   ${scope === value
                     ? "text-signal"
                     : "text-chalk-4 hover:text-chalk-2"}`}
@@ -1002,7 +1002,7 @@ export default function FeedPage() {
             <button
               type="button"
               onClick={() => void refresh()}
-              className="min-h-[var(--h-tap)] px-3 font-bold text-signal
+              className="min-h-(--h-tap) px-3 font-bold text-signal
                 hover:underline focus-visible:outline-2
                 focus-visible:outline-offset-2 focus-visible:outline-signal"
             >
@@ -1044,8 +1044,8 @@ export default function FeedPage() {
                     type="button"
                     onClick={seed}
                     disabled={seeding}
-                    className="inline-flex h-[var(--h-tap)] items-center gap-2
-                      rounded-[var(--radius-input)] border border-line-2 px-4
+                    className="inline-flex h-(--h-tap) items-center gap-2
+                      rounded-(--radius-input) border border-line-2 px-4
                       text-sm font-bold text-chalk-3 transition-colors
                       hover:border-signal hover:text-signal disabled:opacity-40"
                   >
@@ -1098,11 +1098,11 @@ export default function FeedPage() {
                 type="button"
                 onClick={loadMore}
                 disabled={loadingMore}
-                className="inline-flex h-[var(--h-tap)] items-center gap-2
-                  rounded-[var(--radius-input)] border border-line-2
-                  px-4 font-mono text-[11.5px] font-bold uppercase
+                className="inline-flex h-(--h-tap) items-center gap-2
+                  rounded-(--radius-input) border border-line-2
+                  px-4 font-mono text-12 font-bold uppercase
                   tracking-[0.12em] text-chalk-3 transition-colors
-                  duration-[var(--d-fast)]
+                  duration-(--d-fast)
                   hover:border-signal hover:text-signal disabled:opacity-40"
               >
                 <span aria-hidden={loadingMore || undefined}>
@@ -1141,7 +1141,7 @@ export default function FeedPage() {
           rows={Math.min(12, Math.max(4, text.split("\n").length))}
           aria-label="Texte de la publication"
           placeholder="Partage une question, un extrait ou une avancée."
-          className="mb-3 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
+          className="mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
             text-[14px] leading-[1.6] placeholder:text-chalk-4"
         />
 
@@ -1153,10 +1153,10 @@ export default function FeedPage() {
             type="button"
             onClick={() => setGifOpen(true)}
             aria-haspopup="dialog"
-            className="inline-flex min-h-[var(--h-tap)] items-center gap-1.5
-              rounded-[var(--radius-chip)] border border-line-3 px-3 font-mono
-              text-[12px] font-bold uppercase tracking-[0.08em] text-chalk-3
-              transition-colors duration-[var(--d-fast)]
+            className="inline-flex min-h-(--h-tap) items-center gap-1.5
+              rounded-(--radius-chip) border border-line-3 px-3 font-mono
+              text-12 font-bold uppercase tracking-[0.08em] text-chalk-3
+              transition-colors duration-(--d-fast)
               hover:border-signal hover:text-signal"
           >
             <Icon name="gif" size={16} />
@@ -1166,7 +1166,7 @@ export default function FeedPage() {
 
         {gif && (
           <Motion role="scale" className="mb-3">
-            <div className="relative overflow-hidden rounded-[var(--radius-input)] border border-line-2">
+            <div className="relative overflow-hidden rounded-(--radius-input) border border-line-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={gif.preview}
@@ -1214,7 +1214,7 @@ export default function FeedPage() {
         {/* Bouton photo / vidéo */}
         {media && (
           <Motion role="scale" className="mb-3">
-            <div className="relative overflow-hidden rounded-[var(--radius-input)] border border-line-2">
+            <div className="relative overflow-hidden rounded-(--radius-input) border border-line-2">
               {media.kind === "video" ? (
                 <video
                   src={media.url}
@@ -1258,8 +1258,8 @@ export default function FeedPage() {
               <select
                 aria-label="Langage du code"
                 value={lang} onChange={(e) => setLang(e.target.value)}
-                className="h-[var(--h-input)] w-full cursor-pointer
-                  rounded-[var(--radius-input)] border border-line-3 bg-surface
+                className="h-(--h-input) w-full cursor-pointer
+                  rounded-(--radius-input) border border-line-3 bg-surface
                   px-3.5 text-[14px] shadow-sh-1"
               >
                 {LANG_OPTIONS.map((l) => (
@@ -1279,9 +1279,9 @@ export default function FeedPage() {
                 aria-label="Code à publier"
                 value={code} onChange={(e) => setCode(e.target.value)} rows={7}
                 placeholder="// Ton code ici…"
-                className="w-full rounded-[var(--radius-input)] border border-line-3
-                  bg-surface-2 px-3.5 py-3 font-mono text-[var(--text-code)]
-                  leading-[var(--lh-code)] shadow-sh-1
+                className="w-full rounded-(--radius-input) border border-line-3
+                  bg-surface-2 px-3.5 py-3 font-mono text-(--text-code)
+                  leading-(--lh-code) shadow-sh-1
                   placeholder:text-chalk-4"
               />
             </div>
@@ -1319,9 +1319,9 @@ export default function FeedPage() {
                 type="button"
                 onClick={() => setProjectId(null)}
                 aria-pressed={projectId === null}
-                className={`inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-                  border px-2.5 py-1.5 font-mono text-[11.5px] transition-colors
-                  duration-[var(--d-fast)]
+                className={`inline-flex items-center gap-1.5 rounded-(--radius-chip)
+                  border px-2.5 py-1.5 font-mono text-12 transition-colors
+                  duration-(--d-fast)
                   ${projectId === null
                     ? "text-signal"
                     : "border-line-3 text-chalk-3 hover:text-chalk"}`}
@@ -1335,9 +1335,9 @@ export default function FeedPage() {
                   type="button"
                   onClick={() => setProjectId(pr.id)}
                   aria-pressed={projectId === pr.id}
-                  className={`inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-                    border px-2.5 py-1.5 font-mono text-[11.5px] transition-colors
-                    duration-[var(--d-fast)]
+                  className={`inline-flex items-center gap-1.5 rounded-(--radius-chip)
+                    border px-2.5 py-1.5 font-mono text-12 transition-colors
+                    duration-(--d-fast)
                     ${projectId === pr.id
                       ? "text-signal"
                       : "border-line-3 text-chalk-3 hover:border-line-3 hover:text-chalk"}`}
@@ -1354,14 +1354,14 @@ export default function FeedPage() {
 
         <div className="mt-1 flex gap-2.5">
           <button type="button" onClick={resetSheet}
-            className="rounded-[var(--radius-input)] border border-transparent px-5 text-[13px]
+            className="rounded-(--radius-input) border border-transparent px-5 text-[13px]
               font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
             Annuler
           </button>
           <button
             type="button" onClick={publish} disabled={busy || mediaBusy}
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-line-3 bg-signal text-[13px] font-bold
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+              rounded-(--radius-input) border border-line-3 bg-signal text-[13px] font-bold
               text-void shadow-sh-2 disabled:opacity-40"
           >
             Publier

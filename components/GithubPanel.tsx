@@ -326,7 +326,7 @@ export function GithubPanel({
   return (
     <div className="flex flex-col gap-4">
       {/* ── Connexion ── */}
-      <section className="rounded-[var(--radius-card)] border border-line-2/60 bg-surface p-4">
+      <section className="rounded-(--radius-card) border border-line-2/60 bg-surface p-4">
         <h3 className="prompt-label mb-2 text-chalk-2">Connexion GitHub</h3>
 
         {connection === null ? (
@@ -343,7 +343,7 @@ export function GithubPanel({
                   value={login}
                   onChange={(e) => setLogin(e.target.value)}
                   placeholder="koffi-devnet"
-                  className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+                  className="h-(--h-input) w-full rounded-(--radius-input)
                     border border-line-3 bg-surface px-3 font-mono text-[13px]
                     shadow-sh-1 placeholder:text-chalk-4
                     focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -353,8 +353,8 @@ export function GithubPanel({
                 type="button"
                 onClick={() => void doConnect()}
                 disabled={busy || !login.trim()}
-                className="h-[var(--h-input)] rounded-[var(--radius-chip)] border
-                  border-signal bg-signal px-4 font-mono text-[12px] font-bold
+                className="h-(--h-input) rounded-(--radius-chip) border
+                  border-signal bg-signal px-4 font-mono text-12 font-bold
                   tracking-[0.1em] text-void uppercase shadow-sh-1
                   disabled:opacity-40"
               >
@@ -394,7 +394,7 @@ export function GithubPanel({
 
       {/* ── Lien de projet ── */}
       {connection && (
-        <section className="rounded-[var(--radius-card)] border border-line-2/60 bg-surface p-4">
+        <section className="rounded-(--radius-card) border border-line-2/60 bg-surface p-4">
           <h3 className="prompt-label mb-2 text-chalk-2">Dépôt lié</h3>
 
           {link === undefined ? (
@@ -416,7 +416,7 @@ export function GithubPanel({
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="https://github.com/koffi-devnet/cooperative"
-                  className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+                  className="h-(--h-input) w-full rounded-(--radius-input)
                     border border-line-3 bg-surface px-3 font-mono text-[13px]
                     shadow-sh-1 placeholder:text-chalk-4
                     focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -430,8 +430,8 @@ export function GithubPanel({
                     type="button"
                     onClick={() => void doLink()}
                     disabled={busy || !parsed?.ok}
-                    className="h-[var(--h-input)] rounded-[var(--radius-chip)] border
-                      border-signal bg-signal px-4 font-mono text-[12px] font-bold
+                    className="h-(--h-input) rounded-(--radius-chip) border
+                      border-signal bg-signal px-4 font-mono text-12 font-bold
                       tracking-[0.1em] text-void uppercase shadow-sh-1
                       disabled:opacity-40"
                   >
@@ -547,7 +547,7 @@ function ConnectionsSection({ me }: { me: string }) {
   }
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2/60 bg-surface p-4">
+    <section className="rounded-(--radius-card) border border-line-2/60 bg-surface p-4">
       <h3 className="prompt-label mb-2 text-chalk-2">Autres connexions</h3>
       <p className="mb-3 max-w-[62ch] text-sm leading-relaxed text-chalk-3">
         Un tunnel VS Code, une API à prévenir. Le secret de chaque destination
@@ -564,7 +564,7 @@ function ConnectionsSection({ me }: { me: string }) {
           return (
             <div
               key={p.id}
-              className="rounded-[var(--radius-input)] border border-line-2/60 bg-surface-2 p-3"
+              className="rounded-(--radius-input) border border-line-2/60 bg-surface-2 p-3"
             >
               <div className="mb-2 flex items-center gap-2">
                 <Icon name={asIconName(p.icon, "server")} size={14} />
@@ -600,7 +600,7 @@ function ConnectionsSection({ me }: { me: string }) {
                     type="button"
                     disabled={busyId === conn.id}
                     onClick={() => void doTouch(conn.id)}
-                    className="h-[var(--h-action)] rounded-[var(--radius-chip)] border
+                    className="h-(--h-action) rounded-(--radius-chip) border
                       border-line-3 px-3 font-mono text-sm font-bold tracking-[0.08em]
                       text-chalk uppercase transition-colors hover:border-signal hover:text-signal
                       disabled:opacity-40"
@@ -631,7 +631,7 @@ function ConnectionsSection({ me }: { me: string }) {
                       setDrafts((d) => ({ ...d, [p.id]: { ...draft, login: e.target.value } }))
                     }
                     placeholder={p.identityPlaceholder}
-                    className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+                    className="h-(--h-input) w-full rounded-(--radius-input)
                       border border-line-3 bg-surface px-3 font-mono text-[13px]
                       shadow-sh-1 placeholder:text-chalk-4
                       focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -644,7 +644,7 @@ function ConnectionsSection({ me }: { me: string }) {
                         setDrafts((d) => ({ ...d, [p.id]: { ...draft, endpoint: e.target.value } }))
                       }
                       placeholder={p.endpointPlaceholder}
-                      className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+                      className="h-(--h-input) w-full rounded-(--radius-input)
                         border border-line-3 bg-surface px-3 font-mono text-[13px]
                         shadow-sh-1 placeholder:text-chalk-4
                         focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -656,7 +656,7 @@ function ConnectionsSection({ me }: { me: string }) {
                       type="button"
                       onClick={() => void doConnect(p)}
                       disabled={busyId === p.id || !canConnect}
-                      className="h-[var(--h-input)] shrink-0 rounded-[var(--radius-chip)] border
+                      className="h-(--h-input) shrink-0 rounded-(--radius-chip) border
                         border-signal bg-signal px-4 font-mono text-sm font-bold
                         tracking-[0.1em] text-void uppercase shadow-sh-1 disabled:opacity-40"
                     >
@@ -714,7 +714,7 @@ function ModeChoice({
               aria-checked={selected}
               disabled={disabled}
               onClick={() => onChange(m.value)}
-              className={`flex min-h-[var(--h-tap)] items-start gap-2 border px-3 py-2 text-left
+              className={`flex min-h-(--h-tap) items-start gap-2 border px-3 py-2 text-left
                 transition-colors disabled:opacity-40
                 ${selected ? "border-signal bg-signal/10" : "border-line-2 hover:border-chalk-3"}`}
             >
@@ -722,7 +722,7 @@ function ModeChoice({
                 <Icon name={selected ? "check" : "globe"} size={12} />
               </span>
               <span className="min-w-0">
-                <span className="block font-mono text-[12px] font-bold text-chalk">
+                <span className="block font-mono text-12 font-bold text-chalk">
                   {m.label}
                 </span>
                 <span className="block text-sm leading-snug text-chalk-4">{m.hint}</span>
@@ -853,7 +853,7 @@ function LinkedView({
                     aria-checked={selected}
                     disabled={busy}
                     onClick={() => onChangeInterval(seconds)}
-                    className={`h-[var(--h-action)] rounded-[var(--radius-chip)] border px-2
+                    className={`h-(--h-action) rounded-(--radius-chip) border px-2
                       font-mono text-sm disabled:opacity-40
                       ${selected
                         ? "border-signal bg-signal/10 text-signal"
@@ -868,7 +868,7 @@ function LinkedView({
               type="button"
               onClick={() => live?.checkNow()}
               disabled={busy}
-              className="ml-auto h-[var(--h-action)] rounded-[var(--radius-chip)]
+              className="ml-auto h-(--h-action) rounded-(--radius-chip)
                 border border-line-3 px-3 font-mono text-sm font-bold text-chalk-3
                 hover:border-chalk-3 disabled:opacity-40"
             >
@@ -889,7 +889,7 @@ function LinkedView({
           type="button"
           onClick={onPush}
           disabled={busy || !canPush}
-          className="h-[var(--h-action)] rounded-[var(--radius-chip)] border
+          className="h-(--h-action) rounded-(--radius-chip) border
             border-signal bg-signal px-3 font-mono text-sm font-bold
             tracking-[0.08em] text-void uppercase shadow-sh-1
             disabled:opacity-40"
@@ -900,7 +900,7 @@ function LinkedView({
           type="button"
           onClick={onMarkSynced}
           disabled={busy || !headSha}
-          className="h-[var(--h-action)] rounded-[var(--radius-chip)] border
+          className="h-(--h-action) rounded-(--radius-chip) border
             border-line-2 px-3 font-mono text-sm font-bold tracking-[0.08em]
             text-chalk-3 uppercase transition-colors hover:border-signal hover:text-signal
             disabled:opacity-40"
@@ -911,7 +911,7 @@ function LinkedView({
           type="button"
           onClick={onUnlink}
           disabled={busy}
-          className="h-[var(--h-action)] rounded-[var(--radius-chip)] border
+          className="h-(--h-action) rounded-(--radius-chip) border
             border-line-2 px-3 font-mono text-sm font-bold tracking-[0.08em]
             text-chalk-4 uppercase transition-colors hover:border-danger hover:text-danger
             disabled:opacity-40"
@@ -952,7 +952,7 @@ function RepoPicker({
 
   if (error === "no-token" || error === "unconfigured") {
     return (
-      <p className="mb-3 max-w-[62ch] text-[12px] leading-relaxed text-chalk-3">
+      <p className="mb-3 max-w-[62ch] text-12 leading-relaxed text-chalk-3">
         Connecte ton compte GitHub dans{" "}
         <a
           href="/profile?tab=work"
@@ -966,31 +966,31 @@ function RepoPicker({
   }
   if (error === "no-scope") {
     return (
-      <p className="mb-3 text-[12px] text-warn">
+      <p className="mb-3 text-12 text-warn">
         Reconnecte GitHub : le jeton n&apos;a pas le droit de lire tes dépôts.
       </p>
     );
   }
   if (error === "api") {
     return (
-      <p className="mb-3 text-[12px] text-danger">
+      <p className="mb-3 text-12 text-danger">
         GitHub n&apos;a pas répondu. Réessaie dans un instant.
       </p>
     );
   }
   if (!repos) {
-    return <p className="mb-3 text-[12px] text-chalk-4">Lecture de tes dépôts…</p>;
+    return <p className="mb-3 text-12 text-chalk-4">Lecture de tes dépôts…</p>;
   }
   if (repos.length === 0) {
     return (
-      <p className="mb-3 text-[12px] text-chalk-4">
+      <p className="mb-3 text-12 text-chalk-4">
         Aucun dépôt sur ce compte. Lie par URL ci-dessous.
       </p>
     );
   }
 
   return (
-    <div className="mb-3 rounded-[var(--radius-input)] border border-line-2/60 bg-surface-2">
+    <div className="mb-3 rounded-(--radius-input) border border-line-2/60 bg-surface-2">
       <label className="block border-b border-line-2/60 p-2">
         <span className="label-micro mb-1 block text-chalk-3">
           Choisir dans mes dépôts
@@ -999,7 +999,7 @@ function RepoPicker({
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Filtrer…"
-          className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
+          className="h-(--h-input) w-full rounded-(--radius-input) border
             border-line-3 bg-surface px-3 font-mono text-[13px] shadow-sh-1
             placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
@@ -1012,14 +1012,14 @@ function RepoPicker({
               <button
                 type="button"
                 onClick={() => onPick(r.full_name)}
-                className={`flex min-h-[var(--h-tap)] w-full items-center gap-2 rounded-[var(--radius-input)]
+                className={`flex min-h-(--h-tap) w-full items-center gap-2 rounded-(--radius-input)
                   px-2 py-1.5 text-left transition-colors hover:bg-surface-3
                   ${selected ? "bg-signal/10" : ""}`}
               >
                 <span className={`shrink-0 ${selected ? "text-signal" : "text-chalk-4"}`}>
                   <Icon name={selected ? "check" : r.private ? "lock" : "globe"} size={12} />
                 </span>
-                <span className="min-w-0 flex-1 truncate font-mono text-[12px] font-bold text-chalk">
+                <span className="min-w-0 flex-1 truncate font-mono text-12 font-bold text-chalk">
                   {r.full_name}
                 </span>
                 {r.language && (
@@ -1030,7 +1030,7 @@ function RepoPicker({
           );
         })}
         {list.length === 0 && (
-          <li className="px-2 py-3 text-[12px] text-chalk-4">Aucun dépôt ne correspond.</li>
+          <li className="px-2 py-3 text-12 text-chalk-4">Aucun dépôt ne correspond.</li>
         )}
       </ul>
     </div>

@@ -96,7 +96,7 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
   if (!relation && children.length === 0) return null;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center gap-1.5 text-chalk-3">
         <Icon name="fork" size={12} strokeWidth={1.8} />
         Lignée du dépôt
@@ -108,7 +108,7 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
           <button
             type="button"
             onClick={() => router.push(`/projects/${parent.id}`)}
-            className="mo-press flex items-center gap-2.5 rounded-[var(--radius-chip)]
+            className="mo-press flex items-center gap-2.5 rounded-(--radius-chip)
               border border-line-2 bg-surface px-3 py-2 text-left transition-colors
               hover:border-signal"
             title={`Origine : ${parent.name}`}
@@ -134,14 +134,14 @@ export function ForkTreePanel({ projectId }: { projectId: string }) {
                   <button
                     type="button"
                     onClick={() => router.push(`/projects/${c.id}`)}
-                    className="mo-press flex w-full items-center gap-2 rounded-[var(--radius-chip)]
+                    className="mo-press flex w-full items-center gap-2 rounded-(--radius-chip)
                       bg-surface px-2.5 py-1.5 text-left text-chalk transition-colors
                       hover:bg-surface-2"
                     title={c.language}
                   >
                     <span
                       aria-hidden="true"
-                      className="flex size-5 shrink-0 items-center justify-center rounded-[var(--radius-chip)]
+                      className="flex size-5 shrink-0 items-center justify-center rounded-(--radius-chip)
                         border border-line-2 bg-surface-2 text-signal"
                     >
                       <Icon name={asEmoji(c.emoji)} size={9} />

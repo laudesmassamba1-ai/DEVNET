@@ -111,8 +111,8 @@ export function AdminSecurity() {
           type="button"
           onClick={() => void load()}
           disabled={busyId !== null}
-          className="min-h-[var(--h-tap)] rounded-[var(--radius-input)] border border-line-2
-            px-3 text-[12px] text-chalk-3 hover:bg-surface-2 disabled:opacity-50"
+          className="min-h-(--h-tap) rounded-(--radius-input) border border-line-2
+            px-3 text-12 text-chalk-3 hover:bg-surface-2 disabled:opacity-50"
         >
           Actualiser
         </button>
@@ -121,7 +121,7 @@ export function AdminSecurity() {
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2">
           <p className="text-[13px] text-danger">{error}</p>
-          <button type="button" onClick={() => void load()} className="mt-2 text-[12px] font-semibold text-signal">
+          <button type="button" onClick={() => void load()} className="mt-2 text-12 font-semibold text-signal">
             Réessayer
           </button>
         </div>
@@ -140,7 +140,7 @@ export function AdminSecurity() {
               ["Administrateurs", data.counts.admins],
             ] as const).map(([label, value]) => (
               <div key={label} className="min-w-0">
-                <dt className="text-[12px] text-chalk-4">{label}</dt>
+                <dt className="text-12 text-chalk-4">{label}</dt>
                 <dd className="mt-1 font-mono text-[20px] font-semibold tabular-nums text-chalk">
                   {value.toLocaleString("fr-FR")}
                 </dd>
@@ -162,7 +162,7 @@ export function AdminSecurity() {
                   />
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[13px] font-semibold text-chalk">
-                      {session.prenom} <span className="font-mono text-[12px] text-chalk-4">@{session.pseudo}</span>
+                      {session.prenom} <span className="font-mono text-12 text-chalk-4">@{session.pseudo}</span>
                     </p>
                     <p className="truncate font-mono text-[10.5px] text-chalk-4">
                       {session.user_agent || "agent inconnu"} · créée le{" "}
@@ -174,7 +174,7 @@ export function AdminSecurity() {
                     type="button"
                     disabled={busyId === session.id || !session.active}
                     onClick={() => void revoke(session)}
-                    className="min-h-[var(--h-tap)] rounded-[var(--radius-chip)] border border-line-3
+                    className="min-h-(--h-tap) rounded-(--radius-chip) border border-line-3
                       px-3 font-mono text-[10.5px] font-bold uppercase tracking-[0.1em]
                       text-chalk-3 hover:border-danger hover:text-danger disabled:opacity-30"
                   >

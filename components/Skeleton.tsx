@@ -18,7 +18,7 @@ export function Skeleton({ className = "" }: { className?: string }) {
   return (
     <div
       aria-hidden="true"
-      className={`mo-pulse rounded-[var(--radius-chip)] bg-surface-2 ${className}`}
+      className={`mo-pulse rounded-(--radius-chip) bg-surface-2 ${className}`}
     />
   );
 }
@@ -44,7 +44,7 @@ export function ListSkeleton({
         {Array.from({ length: rows }).map((_, i) => (
           <div
             key={i}
-            className="rounded-[var(--radius-card)] border border-line-2 bg-surface px-3.5 py-3"
+            className="rounded-(--radius-card) border border-line-2 bg-surface px-3.5 py-3"
           >
             <div className="flex gap-3">
               {avatar && (

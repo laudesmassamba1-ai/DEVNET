@@ -112,7 +112,7 @@ export function Sheet({
   return createPortal(
     <div
       className={`overlay-veil fixed inset-0 flex items-end justify-center ${
-        stacked ? "z-[calc(var(--z-modal)+10)]" : "z-[var(--z-sheet)]"
+        stacked ? "z-[calc(var(--z-modal)+10)]" : "z-(--z-sheet)"
       }`}
       onClick={onClose}
       role="presentation"
@@ -136,7 +136,7 @@ export function Sheet({
           }}
           className="sheet-glass depth-panel max-h-[92vh] w-full overflow-y-auto
             rounded-t-[calc(var(--radius-card)+8px)] border border-b-0 border-edge
-            px-[1.3rem] pb-10 shadow-[var(--shadow-sh-1)]"
+            px-[1.3rem] pb-10 shadow-(--shadow-sh-1)"
         >
           <div className="mx-auto my-[13px] h-[5px] w-11 rounded-full bg-chalk-2 opacity-40" />
           <h2 className="mb-[1.15rem] font-display text-[1.3rem] font-bold tracking-[-0.02em]">

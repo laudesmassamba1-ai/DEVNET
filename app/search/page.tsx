@@ -235,10 +235,10 @@ function SearchScreen() {
               aria-label="Rechercher"
               data-tour="search-input"
               autoFocus
-              className="h-[var(--h-tap)] w-full rounded-[var(--radius-input)] border
+              className="h-(--h-tap) w-full rounded-(--radius-input) border
                 border-line-3 bg-surface pr-10 pl-8 text-[14px] shadow-sh-1
-                transition-[transform,box-shadow] duration-[var(--d-base)]
-                ease-[var(--ease-spring)] placeholder:text-chalk-4
+                transition-[transform,box-shadow] duration-(--d-base)
+                ease-(--ease-spring) placeholder:text-chalk-4
                 focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
             />
             {(query || tag) && (
@@ -261,7 +261,7 @@ function SearchScreen() {
         {/* Le hashtag consulté, quand on est arrivé par un lien. */}
         {tag && (
           <Motion role="rise">
-            <p className="mb-3 flex items-center gap-2 font-mono text-[12px] text-chalk-3">
+            <p className="mb-3 flex items-center gap-2 font-mono text-12 text-chalk-3">
               <Icon name="hash" size={12} className="text-signal" />
               publications étiquetées
               <span className="text-signal">#{tag}</span>
@@ -295,7 +295,7 @@ function SearchScreen() {
               onClick={() => setTab(value)}
               className={`-mb-0.5 flex min-h-(--h-tap) items-center gap-1.5 tab-underline px-3
                 font-mono text-[11.5px] font-bold uppercase tracking-[0.12em]
-                transition-colors duration-[var(--d-fast)]
+                transition-colors duration-(--d-fast)
                 ${tab === value
                   ? "text-signal"
                   : "text-chalk-4 hover:text-chalk-2"}`}
@@ -356,7 +356,7 @@ function SearchScreen() {
                     </span>
                   )}
                 </span>
-                <span className="block truncate font-mono text-[12px] text-chalk-4">
+                <span className="block truncate font-mono text-12 text-chalk-4">
                   @{u.pseudo}
                   {u.filiere ? ` · ${u.filiere}` : ""}
                 </span>
@@ -429,9 +429,9 @@ function SearchScreen() {
                   <button
                     type="button"
                     onClick={() => openTag(t.tag)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-line-2 px-3 py-2 font-mono text-[12px]
-                      text-chalk-2 transition-colors duration-[var(--d-fast)]
-                      hover:border-signal hover:text-signal hover:shadow-[var(--shadow-sh-1)]"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-line-2 px-3 py-2 font-mono text-12
+                      text-chalk-2 transition-colors duration-(--d-fast)
+                      hover:border-signal hover:text-signal hover:shadow-(--shadow-sh-1)"
                       style={{ background: "linear-gradient(135deg, var(--color-surface) 0%, var(--color-surface-2) 100%)" }}
                   >
                     <Icon name="hash" size={11} className="text-signal" />

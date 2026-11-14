@@ -166,14 +166,14 @@ export function AvatarEditor({
         role="dialog"
         aria-modal="true"
         aria-labelledby="avatar-editor-title"
-        className="max-h-full w-full max-w-[430px] overflow-y-auto rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-3"
+        className="max-h-full w-full max-w-[430px] overflow-y-auto rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-3"
       >
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <h2 id="avatar-editor-title" className="font-display text-[18px] font-bold">
               Photo de profil
             </h2>
-            <p className="mt-0.5 text-[12px] text-chalk-4">
+            <p className="mt-0.5 text-12 text-chalk-4">
               Déplace, zoome et tourne l’image dans le carré.
             </p>
           </div>
@@ -181,15 +181,15 @@ export function AvatarEditor({
             type="button"
             onClick={onCancel}
             aria-label="Fermer l’éditeur"
-            className="grid size-[var(--h-tap)] place-items-center rounded-full border border-line-2 text-chalk-3 hover:text-chalk"
+            className="grid size-(--h-tap) place-items-center rounded-full border border-line-2 text-chalk-3 hover:text-chalk"
           >
             <Icon name="close" size={16} />
           </button>
         </div>
 
-        <div className="mb-3 flex items-center gap-3 rounded-[var(--radius-input)] border border-line-2 bg-surface-2 p-3">
+        <div className="mb-3 flex items-center gap-3 rounded-(--radius-input) border border-line-2 bg-surface-2 p-3">
           <Avatar name={name} size="md" src={image ? undefined : currentUrl} />
-          <label className="inline-flex min-h-[var(--h-tap)] cursor-pointer items-center gap-2 rounded-[var(--radius-input)] border border-line-3 px-3 text-[12px] font-semibold text-chalk-2 hover:border-signal hover:text-signal">
+          <label className="inline-flex min-h-(--h-tap) cursor-pointer items-center gap-2 rounded-(--radius-input) border border-line-3 px-3 text-12 font-semibold text-chalk-2 hover:border-signal hover:text-signal">
             <Icon name="image" size={14} />
             Choisir une image
             <input
@@ -207,14 +207,14 @@ export function AvatarEditor({
                 setImage(null);
                 setObjectUrl("");
               }}
-              className="text-[12px] text-chalk-4 hover:text-danger"
+              className="text-12 text-chalk-4 hover:text-danger"
             >
               Remplacer
             </button>
           )}
         </div>
 
-        <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-[var(--radius-input)] border border-line-2 bg-void">
+        <div className="relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-(--radius-input) border border-line-2 bg-void">
           <canvas
             ref={canvasRef}
             width={PREVIEW}
@@ -235,7 +235,7 @@ export function AvatarEditor({
         </div>
 
         <div className="mt-3 space-y-2.5">
-          <label className="block text-[12px] font-semibold text-chalk-2">
+          <label className="block text-12 font-semibold text-chalk-2">
             Zoom
             <input
               type="range"
@@ -249,7 +249,7 @@ export function AvatarEditor({
               className="mt-1 w-full accent-signal"
             />
           </label>
-          <label className="block text-[12px] font-semibold text-chalk-2">
+          <label className="block text-12 font-semibold text-chalk-2">
             Rotation · {Math.round(transform.rotation)}°
             <input
               type="range"
@@ -266,14 +266,14 @@ export function AvatarEditor({
           <button
             type="button"
             onClick={() => setTransform({ zoom: 1, rotation: 0, x: 0, y: 0 })}
-            className="text-[12px] font-semibold text-chalk-3 hover:text-signal"
+            className="text-12 font-semibold text-chalk-3 hover:text-signal"
           >
             Réinitialiser le cadrage
           </button>
         </div>
 
         {error && (
-          <p role="alert" className="mt-3 border-l-2 border-danger pl-2.5 text-[12px] text-danger">
+          <p role="alert" className="mt-3 border-l-2 border-danger pl-2.5 text-12 text-danger">
             {error}
           </p>
         )}
@@ -282,7 +282,7 @@ export function AvatarEditor({
           <button
             type="button"
             onClick={onCancel}
-            className="min-h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)] border border-line-3 text-[13px] font-semibold text-chalk-3"
+            className="min-h-(--h-tap) flex-1 rounded-(--radius-input) border border-line-3 text-[13px] font-semibold text-chalk-3"
           >
             Annuler
           </button>
@@ -290,7 +290,7 @@ export function AvatarEditor({
             type="button"
             onClick={() => void save()}
             disabled={!image || busy}
-            className="min-h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)] border border-signal bg-signal text-[13px] font-bold text-void disabled:opacity-40"
+            className="min-h-(--h-tap) flex-1 rounded-(--radius-input) border border-signal bg-signal text-[13px] font-bold text-void disabled:opacity-40"
           >
             {busy ? "Envoi…" : "Utiliser cette photo"}
           </button>

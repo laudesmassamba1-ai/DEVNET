@@ -136,7 +136,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
   }
 
   const inputCls =
-    "h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 " +
+    "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 " +
     "bg-surface px-3.5 text-[14px] shadow-sh-1 transition-[transform,box-shadow] " +
     "placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px " +
     "focus:shadow-[3px_3px_0_var(--color-signal)]";
@@ -213,8 +213,8 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
               <button
                 type="button"
                 onClick={() => setPassword(generatePassword())}
-                className="mo-press inline-flex h-[var(--h-input)] shrink-0 items-center
-                  gap-1.5 rounded-[var(--radius-input)] border border-line-3 px-3
+                className="mo-press inline-flex h-(--h-input) shrink-0 items-center
+                  gap-1.5 rounded-(--radius-input) border border-line-3 px-3
                   font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                   text-chalk-3 hover:text-chalk"
               >
@@ -236,9 +236,9 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                   type="button"
                   aria-pressed={accountType === value}
                   onClick={() => setAccountType(value)}
-                  className={`h-[var(--h-input)] rounded-[var(--radius-input)] border
+                  className={`h-(--h-input) rounded-(--radius-input) border
                     text-sm font-bold transition-[background-color,border-color]
-                    duration-[var(--d-fast)] ${accountType === value
+                    duration-(--d-fast) ${accountType === value
                       ? "border-signal bg-signal/10 text-chalk"
                       : "border-line-2 bg-surface hover:border-line-3 hover:bg-surface-2"}`}
                 >
@@ -254,9 +254,9 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
               type="button"
               aria-pressed={giveRole}
               onClick={() => setGiveRole((v) => !v)}
-              className={`flex h-[var(--h-input)] w-full items-center justify-center gap-2
-                rounded-[var(--radius-input)] border text-sm font-bold
-                transition-[background-color,border-color] duration-[var(--d-fast)] ${giveRole
+              className={`flex h-(--h-input) w-full items-center justify-center gap-2
+                rounded-(--radius-input) border text-sm font-bold
+                transition-[background-color,border-color] duration-(--d-fast) ${giveRole
                   ? "border-signal bg-signal/10 text-chalk"
                   : "border-line-2 bg-surface text-chalk-3 hover:border-line-3"}`}
             >
@@ -271,8 +271,8 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
             type="button"
             disabled={creating}
             onClick={() => void submitNew()}
-            className="mo-press inline-flex min-h-[var(--h-tap)] items-center gap-1.5
-              rounded-[var(--radius-chip)] border border-signal bg-signal/10 px-3.5
+            className="mo-press inline-flex min-h-(--h-tap) items-center gap-1.5
+              rounded-(--radius-chip) border border-signal bg-signal/10 px-3.5
               font-mono text-[11px]
               font-bold uppercase tracking-[0.1em] text-signal disabled:opacity-40"
           >
@@ -324,8 +324,8 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
             <button
               type="button"
               onClick={() => setSearch("")}
-              className="mo-press inline-flex h-[var(--h-input)] items-center gap-1.5
-                rounded-[var(--radius-input)] border border-line-3 px-3 font-mono
+              className="mo-press inline-flex h-(--h-input) items-center gap-1.5
+                rounded-(--radius-input) border border-line-3 px-3 font-mono
                 text-[11px] font-bold uppercase tracking-[0.1em] text-chalk-3"
             >
               <Icon name="close" size={12} />
@@ -342,7 +342,7 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
             <button
               type="button"
               onClick={() => void load()}
-              className="mt-3 min-h-[var(--h-tap)] rounded-[var(--radius-input)]
+              className="mt-3 min-h-(--h-tap) rounded-(--radius-input)
                 border border-danger px-3 text-[13px] text-danger"
             >
               Réessayer
@@ -401,8 +401,8 @@ export function AdminAccounts({ selfId }: { selfId: string }) {
                       type="button"
                       disabled={busyId === a.id}
                       onClick={() => void toggleRole(a)}
-                      className={`mo-press inline-flex min-h-[var(--h-tap)] items-center
-                        gap-1.5 rounded-[var(--radius-chip)] border px-3 font-mono
+                      className={`mo-press inline-flex min-h-(--h-tap) items-center
+                        gap-1.5 rounded-(--radius-chip) border px-3 font-mono
                         text-[10.5px] font-bold uppercase
                         tracking-[0.1em] disabled:opacity-40 ${a.is_admin
                           ? "border-danger bg-danger/8 text-danger"

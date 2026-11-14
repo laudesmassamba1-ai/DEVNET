@@ -252,18 +252,18 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
             lit à l'échelle du travail — le sommet et le nombre de dépôts
             réellement notés. */}
         <div className="mt-3 grid grid-cols-2 gap-2">
-          <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+          <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
             <div className="label-micro text-chalk-4">Meilleur score</div>
             <div className="tnum mt-1 font-display text-[1.1rem] font-bold leading-none text-chalk">
               {scores?.best ?? 0}
             </div>
           </div>
-          <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2/80 p-2.5">
+          <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/80 p-2.5">
             <div className="label-micro text-chalk-4">Dépôts notés</div>
             <div className="tnum mt-1 font-display text-[1.1rem] font-bold leading-none text-chalk">
               {scores?.count ?? 0}
             </div>
-            <div className="mt-0.5 text-[10px] uppercase tracking-[0.08em] text-chalk-4">
+            <div className="mt-0.5 text-12 uppercase tracking-[0.08em] text-chalk-4">
               {scores && scores.count > 0 ? `moyenne ${scores.average}` : "aucun dépôt"}
             </div>
           </div>
@@ -290,8 +290,8 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
           </div>
           <Link
             href="/projects"
-            className="inline-flex h-[var(--h-action)] items-center gap-1.5 border border-line-2
-              px-2.5 font-mono text-[11px] font-bold text-chalk-2 transition-colors
+            className="inline-flex h-(--h-action) items-center gap-1.5 border border-line-2
+              px-2.5 font-mono text-12 font-bold text-chalk-2 transition-colors
               hover:border-signal-d hover:text-signal-d"
           >
             <Icon name="plus" size={12} />
@@ -317,7 +317,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                       href={`https://github.com/${repository.owner}/${repository.repo}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="mb-3 ml-3 inline-flex h-6 items-center gap-1.5 font-mono text-[11px]
+                      className="mb-3 ml-3 inline-flex h-6 items-center gap-1.5 font-mono text-12
                         text-signal-d hover:underline"
                     >
                       <Icon name="code" size={11} />
@@ -341,8 +341,8 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
           </div>
           <Link
             href="/groups"
-            className="inline-flex h-[var(--h-action)] items-center gap-1.5 border border-line-2
-              px-2.5 font-mono text-[11px] font-bold text-chalk-2 transition-colors
+            className="inline-flex h-(--h-action) items-center gap-1.5 border border-line-2
+              px-2.5 font-mono text-12 font-bold text-chalk-2 transition-colors
               hover:border-signal-d hover:text-signal-d"
           >
             Explorer
@@ -370,7 +370,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[13px] font-semibold">{group.name}</span>
-                    <span className="mt-0.5 block font-mono text-[10.5px] text-chalk-3">
+                    <span className="mt-0.5 block font-mono text-12 text-chalk-3">
                       {group.member_count} membres · {ROLE_LABEL[group.role]}
                     </span>
                   </span>
@@ -403,7 +403,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                 href={`https://github.com/${connection.login}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-(--h-tap) min-w-0 flex-1 items-center font-mono text-[12px] font-bold text-signal-d hover:underline"
+                className="inline-flex min-h-(--h-tap) min-w-0 flex-1 items-center font-mono text-12 font-bold text-signal-d hover:underline"
               >
                 @{connection.login}
               </a>
@@ -411,7 +411,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                 href={`https://github.com/${connection.login}?tab=repositories`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-(--h-tap) items-center font-mono text-[10.5px] font-bold text-chalk-3 hover:text-signal-d"
+                className="inline-flex min-h-(--h-tap) items-center px-1.5 font-mono text-12 font-bold text-chalk-3 hover:text-signal-d"
               >
                 {repos ? `${repos.length} dépôts` : "Dépôts"}
               </a>
@@ -419,7 +419,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                 type="button"
                 disabled={disconnecting}
                 onClick={() => void disconnect()}
-                className="inline-flex min-h-(--h-tap) items-center font-mono text-[10.5px] font-bold text-danger disabled:opacity-50"
+                className="inline-flex min-h-(--h-tap) items-center font-mono text-12 font-bold text-danger disabled:opacity-50"
               >
                 {disconnecting ? "…" : "Déconnecter"}
               </button>
@@ -433,7 +433,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                       target="_blank"
                       rel="noreferrer"
                       className="inline-flex h-6 items-center gap-1.5 border border-line-2 bg-surface-2
-                        px-2 font-mono text-[11px] text-chalk-2 transition-colors
+                        px-2 font-mono text-12 text-chalk-2 transition-colors
                         hover:border-signal-d hover:text-signal-d"
                     >
                       <Icon
@@ -446,7 +446,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                   </li>
                 ))}
                 {repos.length > 8 && (
-                  <li className="inline-flex items-center px-1 font-mono text-[11px] text-chalk-4">
+                  <li className="inline-flex items-center px-1 font-mono text-12 text-chalk-4">
                     +{repos.length - 8}
                   </li>
                 )}
@@ -464,8 +464,8 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                   <button
                     type="button"
                     onClick={startGithubOAuth}
-                    className="inline-flex h-[var(--h-tap)] items-center gap-2 border border-signal-d
-                      bg-signal px-3.5 font-mono text-[11px] font-bold text-void transition-colors
+                    className="inline-flex h-(--h-tap) items-center gap-2 border border-signal-d
+                      bg-signal px-3.5 font-mono text-12 font-bold text-void transition-colors
                       hover:bg-signal-d"
                   >
                     <Icon name="code" size={14} />
@@ -478,8 +478,8 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                     setTokenOpen((open) => !open);
                     setTokenError(null);
                   }}
-                  className="inline-flex h-[var(--h-tap)] items-center gap-2 border border-line-2
-                    px-3.5 font-mono text-[11px] font-bold text-chalk-2 transition-colors
+                  className="inline-flex h-(--h-tap) items-center gap-2 border border-line-2
+                    px-3.5 font-mono text-12 font-bold text-chalk-2 transition-colors
                     hover:border-signal hover:text-signal"
                 >
                   <Icon name="lock" size={14} />
@@ -489,7 +489,7 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
             </div>
 
             {!oauthConfigured && (
-              <p className="mt-2 text-[11.5px] leading-relaxed text-chalk-4">
+              <p className="mt-2 text-12 leading-relaxed text-chalk-4">
                 L&apos;OAuth GitHub n&apos;est pas configuré sur ce déploiement.
                 Un jeton personnel relie immédiatement tes dépôts.
               </p>
@@ -514,11 +514,11 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                   value={token}
                   onChange={(event) => setToken(event.target.value)}
                   placeholder="ghp_… ou github_pat_…"
-                  className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
-                    border border-line-3 bg-surface px-3.5 font-mono text-[12px]
+                  className="h-(--h-input) w-full rounded-(--radius-input)
+                    border border-line-3 bg-surface px-3.5 font-mono text-12
                     text-chalk placeholder:text-chalk-4"
                 />
-                <p className="text-[11px] leading-relaxed text-chalk-4">
+                <p className="text-12 leading-relaxed text-chalk-4">
                   Portées nécessaires : <code>repo</code> et <code>read:user</code>.
                   Le jeton est chiffré dans un cookie <code>httpOnly</code>, jamais
                   écrit en base.{" "}
@@ -540,8 +540,8 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                   <button
                     type="submit"
                     disabled={!token.trim() || tokenBusy}
-                    className="inline-flex h-[var(--h-tap)] items-center gap-2 border border-signal-d
-                      bg-signal px-3.5 font-mono text-[11px] font-bold text-void
+                    className="inline-flex h-(--h-tap) items-center gap-2 border border-signal-d
+                      bg-signal px-3.5 font-mono text-12 font-bold text-void
                       transition-colors hover:bg-signal-d disabled:opacity-40"
                   >
                     <Icon name="check" size={14} />
@@ -553,8 +553,8 @@ export function ProfileWorkPanel({ profileId }: { profileId: string }) {
                       setTokenOpen(false);
                       setTokenError(null);
                     }}
-                    className="inline-flex h-[var(--h-tap)] items-center border border-line-2 px-3.5
-                      font-mono text-[11px] font-bold text-chalk-3 hover:text-chalk"
+                    className="inline-flex h-(--h-tap) items-center border border-line-2 px-3.5
+                      font-mono text-12 font-bold text-chalk-3 hover:text-chalk"
                   >
                     Annuler
                   </button>

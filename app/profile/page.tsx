@@ -64,7 +64,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: "work", label: "Travail" },
   { key: "progress", label: "Progrès" },
   { key: "infos", label: "Infos" },
-  { key: "settings", label: "Paramètres" },
+  { key: "settings", label: "Réglages" },
 ];
 
 /** Objectif de la semaine : combien de posts publier d'ici dimanche.
@@ -113,15 +113,15 @@ function WeeklyGoalCard({ profileId }: { profileId: string }) {
   }
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+    <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
       <div className="mb-1 flex items-center justify-between gap-3">
         <div className="text-[13.5px] font-bold">Objectif de la semaine</div>
         <select
           value={target}
           onChange={(e) => changeTarget(Number(e.target.value))}
           aria-label="Nombre de posts à publier cette semaine"
-          className="h-[var(--h-tap)] rounded-[var(--radius-input)] border border-line-3
-            bg-surface-2 px-2 text-[12px] font-bold text-chalk-2"
+          className="h-(--h-tap) rounded-(--radius-input) border border-line-3
+            bg-surface-2 px-2 text-12 font-bold text-chalk-2"
         >
           {[3, 5, 7, 10].map((n) => (
             <option key={n} value={n}>{n} posts</option>
@@ -142,12 +142,12 @@ function WeeklyGoalCard({ profileId }: { profileId: string }) {
         className="h-[10px] w-full overflow-hidden rounded-full bg-surface-2"
       >
         <div
-          className="h-full rounded-full bg-[var(--gradient-amber-fire)] shadow-[var(--shadow-sh-1)]
-            transition-[width] duration-[var(--d-base)] ease-[var(--ease-continuous)]"
+          className="h-full rounded-full bg-(--gradient-amber-fire) shadow-(--shadow-sh-1)
+            transition-[width] duration-(--d-base) ease-(--ease-continuous)"
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="mt-2 flex items-center gap-1.5 text-[11.5px] text-chalk-4">
+      <p className="mt-2 flex items-center gap-1.5 text-12 text-chalk-4">
         <strong className="tnum text-chalk">{count}</strong> / {target} cette semaine
         {reached && <span className="text-ok">— objectif atteint</span>}
       </p>
@@ -431,20 +431,17 @@ export default function ProfilePage() {
       ) : (
         <>
           <div className="px-(--gutter)" data-tour="profile-header">
-            <div className="mt-4 mb-3 inline-block">
+            <div className="mt-4 mb-3 flex items-start gap-3.5">
               <Avatar name={profile.prenom} color={profile.avatar_color} size="lg" />
-            </div>
-
-            <div className="mb-3 flex items-start justify-between gap-3">
-              <div>
-                <h1 className="font-display text-[1.5rem] font-bold tracking-[-0.03em] leading-tight">
+              <div className="min-w-0 flex-1 pt-0.5">
+                <h1 className="font-display text-[1.65rem] font-bold tracking-[-0.04em] leading-tight">
                   {profile.prenom}
                 </h1>
-                <div className="mt-0.5 mb-2 font-mono text-[12px] text-chalk-3">
+                <div className="mt-0.5 mb-2 font-mono text-12 text-chalk-3">
                   @{profile.pseudo}
                 </div>
                 <div className="flex flex-wrap gap-1.5">
-                  <span className={`rounded-[var(--radius-chip)] border-[var(--bw-thin)] px-2 py-1 text-[10px]
+                  <span className={`rounded-(--radius-chip) border-(--bw-thin) px-2 py-1 text-12
                     font-bold tracking-[0.06em] uppercase
                     ${profile.account_type === "professional"
                       ? "border-warn bg-warn text-page"
@@ -469,11 +466,11 @@ export default function ProfilePage() {
 
             <div className="mb-4 flex flex-wrap gap-1.5">
               {(profile.langages ?? []).length === 0
-                ? <span className="text-[12px] text-chalk-4">Aucun langage renseigné</span>
+                ? <span className="text-12 text-chalk-4">Aucun langage renseigné</span>
                 : profile.langages.map((l) => (
                   <span key={l}
-                    className="rounded-[var(--radius-chip)] border-[var(--bw-thin)] border-line-2
-                      bg-surface-2 px-2 py-1 text-[10px] font-semibold tracking-[0.06em]
+                    className="rounded-(--radius-chip) border-(--bw-thin) border-line-2
+                      bg-surface-2 px-2 py-1 text-12 font-semibold tracking-[0.06em]
                       text-info uppercase">
                     {l}
                   </span>
@@ -510,37 +507,37 @@ export default function ProfilePage() {
             </div>
 
             <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2/80 p-3">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/60 px-3 py-2.5">
                 <div className="label-micro text-chalk-4">XP</div>
                 <div className="tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-signal">
                   {progress?.stats.xp ?? 0}
                 </div>
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2/80 p-3">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/60 px-3 py-2.5">
                 <div className="label-micro text-chalk-4">Niveau</div>
                 <div className="mt-1 text-sm font-bold leading-tight text-signal">
                   {progress ? levelFor(progress.stats.xp).title : "Nouveau"}
                 </div>
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2/80 p-3">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/60 px-3 py-2.5">
                 <div className="label-micro text-chalk-4">Dépôts</div>
                 <div className="tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-chalk">
                   {profileSummary.projects}
                 </div>
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2/80 p-3">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/60 px-3 py-2.5">
                 <div className="label-micro text-chalk-4">Score moyen</div>
                 {profileSummary.scoreLoading ? (
                   <div className="mt-1 flex items-center gap-2">
                     <Loading label="" />
-                    <span className="text-[10px] text-chalk-4">Calcul en cours…</span>
+                    <span className="text-12 text-chalk-4">Calcul en cours…</span>
                   </div>
                 ) : (
                   <>
                     <div className="tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-chalk">
                       {profileSummary.scoreAverage}
                     </div>
-                    <div className="mt-0.5 text-[10px] uppercase tracking-[0.08em] text-chalk-4">
+                    <div className="mt-0.5 text-12 uppercase tracking-[0.08em] text-chalk-4">
                       {profileSummary.scoreCount > 0
                         ? `sur ${profileSummary.scoreCount} dépôt${profileSummary.scoreCount > 1 ? "s" : ""}`
                         : "aucun dépôt analysable"}
@@ -548,15 +545,15 @@ export default function ProfilePage() {
                   </>
                 )}
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2/80 p-3">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/60 px-3 py-2.5">
                 <div className="label-micro text-chalk-4">Groupes</div>
                 <div className="tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-chalk">
                   {profileSummary.groups}
                 </div>
               </div>
-              <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface-2/80 p-3">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface-2/60 px-3 py-2.5">
                 <div className="label-micro text-chalk-4">GitHub</div>
-                <div className="mt-1 font-mono text-[11px] font-bold leading-tight text-chalk-2">
+                <div className="mt-1 font-mono text-12 font-bold leading-tight text-chalk-2">
                   {profileSummary.githubLogin ? `@${profileSummary.githubLogin}` : "Non relié"}
                 </div>
               </div>
@@ -569,7 +566,7 @@ export default function ProfilePage() {
                 role="tablist"
                 aria-label="Contenu du profil"
                 data-tour="profile-tabs"
-                className="flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="grid grid-cols-5"
               >
                 {TABS.map((t) => (
                   <button
@@ -578,9 +575,9 @@ export default function ProfilePage() {
                     type="button"
                     aria-selected={tab === t.key}
                     onClick={() => setTab(t.key)}
-                    className={`tab-underline min-h-[var(--h-tap)] shrink-0 snap-start whitespace-nowrap px-4 py-3 text-[11px] font-bold
-                      tracking-[0.1em] uppercase transition-colors
-                      duration-[var(--d-fast)] ${tab === t.key
+                    className={`tab-underline min-h-(--h-tap) min-w-0 px-1 py-3 text-12 font-bold
+                      tracking-[0.03em] whitespace-nowrap uppercase transition-colors
+                      duration-(--d-fast) ${tab === t.key
                         ? "text-chalk"
                         : "text-chalk-3 hover:bg-surface-2 hover:text-chalk"}`}
                   >
@@ -588,7 +585,6 @@ export default function ProfilePage() {
                   </button>
                 ))}
               </div>
-              <span aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 w-8 bg-gradient-to-l from-[var(--color-surface)] to-transparent sm:hidden" />
             </div>
 
             {tab === "work" && (
@@ -603,7 +599,7 @@ export default function ProfilePage() {
                 )}
                 {posts?.map((p) => (
                   <article key={p.id}
-                    className="mo-rise mb-3 rounded-[var(--radius-card)] border
+                    className="mo-rise mb-3 rounded-(--radius-card) border
                       border-l-[6px] border-line-3 border-l-line-3 bg-surface px-4 py-4 shadow-sh-1">
                     {/* Le texte est rendu tel quel : React l'échappe, et
                         `esc()` ici pouvait couper une entité en deux au
@@ -613,13 +609,13 @@ export default function ProfilePage() {
                       {p.text.slice(0, 240)}
                     </div>
                     {p.has_code && (
-                      <div className="mb-2 inline-flex items-center rounded-[var(--radius-chip)] border
-                        border-line-3 bg-surface-3 px-2 py-0.5 font-mono text-[9.5px] font-bold
+                      <div className="mb-2 inline-flex items-center rounded-(--radius-chip) border
+                        border-line-3 bg-surface-3 px-2 py-0.5 font-mono text-12 font-bold
                         tracking-[0.06em] text-chalk uppercase">
                         {p.lang || "Code"}
                       </div>
                     )}
-                    <div className="flex gap-4 text-[11.5px] text-chalk-3">
+                    <div className="flex gap-4 text-12 text-chalk-3">
                       <span className="flex items-center gap-1.5">
                         <Icon name="like" size={12} />
                         <span className="tnum">{p.likes || 0}</span>
@@ -657,21 +653,21 @@ export default function ProfilePage() {
 
             {tab === "infos" && (
               <div className="mo-slide space-y-2 py-4">
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="label-micro mb-1.5 text-chalk-3">
                     Email
                   </div>
                   <div className="text-[14px]">{profile.email}</div>
                 </div>
                 {progress && progress.stats.activeDays.length > 0 && (
-                  <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                  <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                     <div className="label-micro mb-2.5 text-chalk-3">
                       Activité — 14 derniers jours
                     </div>
                     <ContributionStrip activeDays={progress.stats.activeDays} />
                   </div>
                 )}
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="label-micro mb-1.5 text-chalk-3">
                     Formation
                   </div>
@@ -679,14 +675,14 @@ export default function ProfilePage() {
                     {[profile.filiere, profile.niveau].filter(Boolean).join(" — ") || "—"}
                   </div>
                 </div>
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="label-micro mb-2 text-chalk-3">
                     Type de compte
                   </div>
                   <button type="button" title="Gérer le type de compte"
                     onClick={() => setTab("settings")}
-                    className={`inline-flex cursor-pointer rounded-[var(--radius-chip)] border-[var(--bw-thin)] px-2 py-1
-                    text-[10px] font-bold tracking-[0.06em] uppercase transition-colors
+                    className={`inline-flex cursor-pointer rounded-(--radius-chip) border-(--bw-thin) px-2 py-1
+                    text-12 font-bold tracking-[0.06em] uppercase transition-colors
                     ${profile.account_type === "professional"
                       ? "border-warn bg-warn text-page hover:border-warn/70"
                       : "border-ok bg-ok text-page hover:border-ok/70"}`}
@@ -694,7 +690,7 @@ export default function ProfilePage() {
                     {accountLabel(profile.account_type)}
                   </button>
                   {!profile.verified && profile.account_type === "professional" && (
-                    <p className="mt-2.5 text-[11.5px] leading-[1.5] text-chalk-3">
+                    <p className="mt-2.5 text-12 leading-[1.5] text-chalk-3">
                       Le type de compte ne suffit pas : le cachet s&apos;obtient après une
                       demande examinée dans{" "}
                       <button type="button" onClick={() => setTab("settings")}
@@ -704,14 +700,14 @@ export default function ProfilePage() {
                     </p>
                   )}
                 </div>
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="label-micro mb-1.5 text-chalk-3">Membre depuis</div>
                   <div className="text-[14px]">
                     {new Date(profile.created_at).toLocaleDateString("fr",
                       { year: "numeric", month: "long", day: "numeric" })}
                   </div>
                 </div>
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="label-micro mb-2.5 text-chalk-3">Abonnements</div>
                   <div className="flex gap-6 text-[14px]">
                     <span>
@@ -725,13 +721,13 @@ export default function ProfilePage() {
                   </div>
                 </div>
                 {profile.langages.length > 0 && (
-                  <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                  <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                     <div className="label-micro mb-2 text-chalk-3">Langages</div>
                     <div className="flex flex-wrap gap-1.5">
                       {profile.langages.map((l) => (
                         <span key={l}
-                          className="rounded-[var(--radius-chip)] border-[var(--bw-thin)]
-                            border-line-3 px-2 py-1 text-[11px] text-chalk-3">
+                          className="rounded-(--radius-chip) border-(--bw-thin)
+                            border-line-3 px-2 py-1 text-12 text-chalk-3">
                           {l}
                         </span>
                       ))}
@@ -743,12 +739,12 @@ export default function ProfilePage() {
 
             {tab === "settings" && (
               <div className="mo-slide space-y-3 py-4">
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="mb-1 text-[13.5px] font-bold">Compte</div>
                   <div className="mb-4 text-sm text-chalk-3">{profile.email}</div>
                   <button type="button" onClick={logout}
-                    className="flex h-[var(--h-tap)] w-full items-center justify-center gap-2
-                      rounded-[var(--radius-input)] border border-danger bg-transparent
+                    className="flex h-(--h-tap) w-full items-center justify-center gap-2
+                      rounded-(--radius-input) border border-danger bg-transparent
                       text-[13px] font-bold text-danger transition-colors hover:bg-danger
                       hover:text-chalk">
                     <Icon name="logout" size={14} strokeWidth={2} />
@@ -756,14 +752,14 @@ export default function ProfilePage() {
                   </button>
                 </div>
 
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="mb-1 text-[13.5px] font-bold">Type de compte</div>
                   <p className="mb-3 text-sm leading-[1.5] text-chalk-3">
                     Le type de compte décrit qui vous êtes ; il ne vérifie rien. Le
                     cachet se demande plus bas, et il s&apos;obtient après examen.
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-[12px] font-semibold uppercase tracking-[0.06em]
+                    <span className="text-12 font-semibold uppercase tracking-[0.06em]
                       text-chalk-3">
                       {accountLabel(profile.account_type)}
                     </span>
@@ -771,9 +767,9 @@ export default function ProfilePage() {
                       type="button"
                       disabled={switchingType}
                       onClick={() => void switchAccountType(profile.account_type)}
-                      className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
-                        rounded-[var(--radius-input)] border border-line-3 px-3.5
-                        text-[12px] font-bold text-chalk-2 transition-colors
+                      className="mo-press inline-flex h-(--h-tap) items-center gap-2
+                        rounded-(--radius-input) border border-line-3 px-3.5
+                        text-12 font-bold text-chalk-2 transition-colors
                         hover:border-signal hover:text-signal disabled:opacity-40"
                     >
                       <Icon name="globe" size={12} strokeWidth={2} />
@@ -791,12 +787,12 @@ export default function ProfilePage() {
                   `verification_status` est une colonne, pas une table :
                   `attente` remplace `none`, `acceptee` remplace `attente`.
                 */}
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="mb-1 flex items-center gap-2 text-[13.5px] font-bold">
                     <Icon name="verified" size={14} strokeWidth={2} />
                     Vérification
-                    <span className="rounded-[var(--radius-chip)] border-[var(--bw-thin)]
-                      border-line-3 px-1.5 py-0.5 font-mono text-[9.5px] font-bold
+                    <span className="rounded-(--radius-chip) border-(--bw-thin)
+                      border-line-3 px-1.5 py-0.5 font-mono text-12 font-bold
                       uppercase tracking-[0.1em] text-chalk-3">
                       {VERIFY_STATUS_LABEL[verifyStatus]}
                     </span>
@@ -814,7 +810,7 @@ export default function ProfilePage() {
                   </p>
 
                   {verifyStatus === "attente" && profile.verification_note && (
-                    <p className="mb-3 border-l border-line-2 pl-2.5 text-[12px]
+                    <p className="mb-3 border-l border-line-2 pl-2.5 text-12
                       leading-relaxed text-chalk-2">
                       {profile.verification_note}
                     </p>
@@ -828,7 +824,7 @@ export default function ProfilePage() {
                       rows={3}
                       maxLength={400}
                       placeholder="Nom réel, lien GitHub ou professionnel, pourquoi ce cachet…"
-                      className="mb-2 w-full resize-none rounded-[var(--radius-input)]
+                      className="mb-2 w-full resize-none rounded-(--radius-input)
                         border border-line-2 bg-base px-3 py-2 text-[13px] text-chalk
                         placeholder:text-chalk-4 focus:border-signal"
                     />
@@ -840,9 +836,9 @@ export default function ProfilePage() {
                         type="button"
                         disabled={verifyBusy}
                         onClick={() => void sendVerification()}
-                        className="mo-press inline-flex h-[var(--h-tap)] flex-1
-                          items-center justify-center gap-2 rounded-[var(--radius-input)]
-                          border border-signal bg-signal/10 text-[12px] font-bold
+                        className="mo-press inline-flex h-(--h-tap) flex-1
+                          items-center justify-center gap-2 rounded-(--radius-input)
+                          border border-signal bg-signal/10 text-12 font-bold
                           text-signal transition-colors hover:bg-signal/20
                           disabled:opacity-40"
                       >
@@ -856,9 +852,9 @@ export default function ProfilePage() {
                         type="button"
                         disabled={verifyBusy}
                         onClick={() => void cancelVerification()}
-                        className="mo-press inline-flex h-[var(--h-tap)] flex-1
-                          items-center justify-center gap-2 rounded-[var(--radius-input)]
-                          border border-line-3 text-[12px] font-bold text-chalk-3
+                        className="mo-press inline-flex h-(--h-tap) flex-1
+                          items-center justify-center gap-2 rounded-(--radius-input)
+                          border border-line-3 text-12 font-bold text-chalk-3
                           transition-colors hover:border-danger hover:text-danger
                           disabled:opacity-40"
                       >
@@ -872,14 +868,14 @@ export default function ProfilePage() {
                     <div className="mt-3 flex flex-wrap items-center gap-3">
                       <Link
                         href="/admin"
-                        className="inline-flex items-center gap-1.5 font-mono text-[11px]
+                        className="inline-flex items-center gap-1.5 font-mono text-12
                           font-bold text-signal hover:underline"
                       >
                         <Icon name="lock" size={11} strokeWidth={2.4} />
                         Panneau d&apos;administration                      </Link>
                       <Link
                         href="/moderation"
-                        className="inline-flex items-center gap-1.5 font-mono text-[11px]
+                        className="inline-flex items-center gap-1.5 font-mono text-12
                           font-bold text-chalk-2 hover:underline"
                       >
                         <Icon name="flag" size={11} strokeWidth={2.4} />
@@ -892,7 +888,7 @@ export default function ProfilePage() {
                       que le sien. Le palier atteint s'y détache par la
                       taille ; le survol donne le titre de chaque forme. */}
                   <div className="mt-3 border-t border-line-2 pt-3">
-                    <p className="mb-2 font-mono text-[10px] font-bold uppercase
+                    <p className="mb-2 font-mono text-12 font-bold uppercase
                       tracking-[0.1em] text-chalk-4">
                       Les onze cachets
                     </p>
@@ -902,14 +898,14 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+                <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
                   <div className="mb-1 text-[13.5px] font-bold">Mes données</div>
                   <p className="mb-3 text-sm leading-[1.5] text-chalk-3">
                     Toutes vos données en un fichier JSON.
                   </p>
                   <button type="button" disabled={exporting} onClick={exportData}
-                    className="flex h-[var(--h-tap)] w-full items-center justify-center gap-2
-                      rounded-[var(--radius-input)] border border-line-2 bg-transparent
+                    className="flex h-(--h-tap) w-full items-center justify-center gap-2
+                      rounded-(--radius-input) border border-line-2 bg-transparent
                       text-[13px] font-bold text-chalk-2 transition-colors
                       hover:border-signal hover:text-signal disabled:opacity-40">
                     <Icon name="download" size={14} strokeWidth={2} />
@@ -1002,7 +998,7 @@ function EditForm({
   // Deux variantes du même champ : `inputBox` sans largeur, pour les champs
   // posés côte à côte (lignes de liens), et `inputCls` pleine largeur.
   const inputBox =
-    "h-[var(--h-input)] rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 text-[14px] " +
+    "h-(--h-input) rounded-(--radius-input) border border-line-3 bg-surface px-3.5 text-[14px] " +
     "shadow-sh-1 placeholder:text-chalk-4";
   const inputCls = `w-full ${inputBox}`;
   const label = "label mb-1.5 block text-chalk";
@@ -1013,7 +1009,7 @@ function EditForm({
 
       {/* Aperçu vivant : on voit la couleur d'avatar et le prénom s'accorder
           avant d'enregistrer — sinon on choisit à l'aveugle. */}
-      <div className="mb-5 flex items-center gap-3 rounded-[var(--radius-card)] border border-line-3 bg-surface p-3.5">
+      <div className="mb-5 flex items-center gap-3 rounded-(--radius-card) border border-line-3 bg-surface p-3.5">
         <span
           className={`grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-full border text-[20px] font-bold ${avatarClass(color)}`}
         >
@@ -1035,7 +1031,7 @@ function EditForm({
             <button
               type="button"
               onClick={() => setEditingAvatar(true)}
-              className="inline-flex h-[var(--h-tap)] items-center gap-1.5 rounded-[var(--radius-input)] border border-signal px-3 text-[12.5px] font-bold text-signal"
+              className="inline-flex h-(--h-tap) items-center gap-1.5 rounded-(--radius-input) border border-signal px-3 text-[12.5px] font-bold text-signal"
             >
               {avatarUrl ? "Changer la photo" : "Ajouter une photo"}
             </button>
@@ -1043,7 +1039,7 @@ function EditForm({
               <button
                 type="button"
                 onClick={() => setAvatarUrl("")}
-                className="inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)] border border-line-3 px-3 text-[12.5px] font-bold text-chalk-3 hover:border-danger hover:text-danger"
+                className="inline-flex h-(--h-tap) items-center rounded-(--radius-input) border border-line-3 px-3 text-[12.5px] font-bold text-chalk-3 hover:border-danger hover:text-danger"
               >
                 Retirer
               </button>
@@ -1074,7 +1070,7 @@ function EditForm({
               onClick={() => { setTheme(t.id); broadcastTheme(t.id); }}
               aria-label={`Thème ${t.label}`}
               aria-pressed={theme === t.id}
-              className={`mo-press inline-flex items-center gap-1.5 rounded-[var(--radius-chip)] border px-3 py-1.5 text-[12px] font-bold
+              className={`mo-press inline-flex items-center gap-1.5 rounded-(--radius-chip) border px-3 py-1.5 text-12 font-bold
                 transition-colors ${
                   theme === t.id
                     ? "border-signal bg-signal/10 text-signal"
@@ -1123,7 +1119,7 @@ function EditForm({
       <div className="mb-4">
         <label className={label}>Pseudo</label>
         <input value={profile.pseudo} aria-label="Pseudonyme" disabled className={`${inputCls} cursor-not-allowed opacity-60`} />
-        <p className="mt-1.5 text-[11.5px] text-chalk-4">
+        <p className="mt-1.5 text-12 text-chalk-4">
           Identifiant public (URL, mentions) — non modifiable.
         </p>
       </div>
@@ -1131,7 +1127,7 @@ function EditForm({
       <div className="mb-4">
         <div className="mb-1.5 flex items-baseline justify-between">
           <label className="label text-chalk">Bio</label>
-          <span className={`tnum text-[11px] ${bio.length > BIO_MAX ? "text-err" : "text-chalk-4"}`}>
+          <span className={`tnum text-12 ${bio.length > BIO_MAX ? "text-err" : "text-chalk-4"}`}>
             {bio.length}/{BIO_MAX}
           </span>
         </div>
@@ -1141,7 +1137,7 @@ function EditForm({
           onChange={(e) => setBio(e.target.value)}
           rows={3}
           placeholder="Une ligne sur vous…"
-          className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
+          className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
             text-[14px] shadow-sh-1 placeholder:text-chalk-4"
         />
       </div>
@@ -1187,7 +1183,7 @@ function EditForm({
                 type="button"
                 onClick={() => toggleLang(l)}
                 aria-pressed={on}
-                className={`rounded-[var(--radius-chip)] border px-3 py-1.5 text-sm font-semibold
+                className={`rounded-(--radius-chip) border px-3 py-1.5 text-sm font-semibold
                   transition-colors ${
                     on
                       ? "border-signal bg-signal/12 text-chalk"
@@ -1224,8 +1220,8 @@ function EditForm({
                 type="button"
                 onClick={() => setLinks((cur) => cur.filter((_, idx) => idx !== i))}
                 aria-label="Retirer ce lien"
-                className="mo-press grid h-[var(--h-input)] w-10 shrink-0 place-items-center
-                  rounded-[var(--radius-input)] border border-line-3 text-chalk-3
+                className="mo-press grid h-(--h-input) w-10 shrink-0 place-items-center
+                  rounded-(--radius-input) border border-line-3 text-chalk-3
                   transition-colors hover:text-danger"
               >
                 <Icon name="trash" size={16} />
@@ -1236,7 +1232,7 @@ function EditForm({
             <button
               type="button"
               onClick={() => setLinks((cur) => [...cur, { label: "", url: "" }])}
-              className="flex h-[var(--h-tap)] items-center justify-center gap-1.5 rounded-[var(--radius-input)]
+              className="flex h-(--h-tap) items-center justify-center gap-1.5 rounded-(--radius-input)
                 border border-dashed border-line-3 text-[13px] font-bold text-chalk-2
                 transition-colors hover:border-chalk-3 hover:text-chalk"
             >
@@ -1248,12 +1244,12 @@ function EditForm({
 
       <div className="flex gap-2.5">
         <button type="button" onClick={onCancel}
-          className="rounded-[var(--radius-input)] border border-transparent px-5 text-[13px]
+          className="rounded-(--radius-input) border border-transparent px-5 text-[13px]
             font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
           Annuler
         </button>
         <button type="button" onClick={save} disabled={saving}
-          className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center rounded-[var(--radius-input)]
+          className="mo-press flex h-(--h-tap) flex-1 items-center justify-center rounded-(--radius-input)
             border border-line-3 bg-signal text-[13px] font-bold text-void shadow-sh-2
             disabled:opacity-40">
           Enregistrer

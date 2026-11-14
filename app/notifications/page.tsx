@@ -252,8 +252,8 @@ export default function NotificationsPage() {
             <button
               type="button"
               onClick={readAll}
-              className="label-micro flex min-h-[var(--h-action)] shrink-0 items-center
-                border border-line-2 px-2 text-chalk-3 transition-colors duration-[var(--d-fast)]
+              className="label-micro flex min-h-(--h-action) shrink-0 items-center
+                border border-line-2 px-2 text-chalk-3 transition-colors duration-(--d-fast)
                 hover:border-signal hover:text-signal"
             >
               tout lire
@@ -266,9 +266,9 @@ export default function NotificationsPage() {
                 <button
                   type="button"
                   onClick={clear}
-                  className="label-micro flex min-h-[var(--h-action)] items-center border
+                  className="label-micro flex min-h-(--h-action) items-center border
                     border-danger px-2 text-danger
-                    transition-colors duration-[var(--d-fast)] hover:bg-danger
+                    transition-colors duration-(--d-fast) hover:bg-danger
                     hover:text-void"
                 >
                   vider
@@ -276,8 +276,8 @@ export default function NotificationsPage() {
                 <button
                   type="button"
                   onClick={() => setConfirmClear(false)}
-                  className="label-micro flex min-h-[var(--h-action)] items-center border
-                    border-line-2 px-2 text-chalk-4 transition-colors duration-[var(--d-fast)] hover:text-chalk"
+                  className="label-micro flex min-h-(--h-action) items-center border
+                    border-line-2 px-2 text-chalk-4 transition-colors duration-(--d-fast) hover:text-chalk"
                 >
                   annuler
                 </button>
@@ -286,9 +286,9 @@ export default function NotificationsPage() {
               <button
                 type="button"
                 onClick={() => setConfirmClear(true)}
-                className="label-micro flex min-h-[var(--h-action)] shrink-0 items-center
+                className="label-micro flex min-h-(--h-action) shrink-0 items-center
                   border border-line-2 px-2 text-chalk-4 transition-colors
-                  duration-[var(--d-fast)] hover:border-danger hover:text-danger"
+                  duration-(--d-fast) hover:border-danger hover:text-danger"
               >
                 vider
               </button>
@@ -316,9 +316,9 @@ export default function NotificationsPage() {
                 type="button"
                 aria-selected={filter === value}
                 onClick={() => setFilter(value)}
-                className={`-mb-0.5 flex min-h-[var(--h-tap)] shrink-0 items-center tab-underline px-3 py-2 font-mono text-[11.5px]
+                className={`-mb-0.5 flex min-h-(--h-tap) shrink-0 items-center tab-underline px-3 py-2 font-mono text-[11.5px]
                   font-bold tracking-[0.12em] uppercase transition-colors
-                  duration-[var(--d-fast)]
+                  duration-(--d-fast)
                   ${filter === value
                     ? "text-signal"
                     : "text-chalk-4 hover:text-chalk-2"}`}
@@ -386,7 +386,7 @@ export default function NotificationsPage() {
               className={leaving.has(group.key) ? "mo-exit" : ""}
             >
               <div
-                className={`lift-card mb-2 flex overflow-hidden rounded-[var(--radius-card)]
+                className={`lift-card mb-2 flex overflow-hidden rounded-(--radius-card)
                   border bg-surface shadow-sh-1
                   ${unreadGroup ? "border-line-3" : "border-line-2/60"}`}
               >
@@ -404,7 +404,7 @@ export default function NotificationsPage() {
                     <span
                       aria-hidden="true"
                       className="flex size-[34px] shrink-0 items-center justify-center
-                        rounded-[var(--radius-input)] border border-signal/40 bg-signal/12 text-signal"
+                        rounded-(--radius-input) border border-signal/40 bg-signal/12 text-signal"
                     >
                       <Icon name="target" size={16} strokeWidth={1.9} />
                     </span>
@@ -416,7 +416,7 @@ export default function NotificationsPage() {
                     {group.kind === "challenge" ? (
                       <>
                         <p className="text-[13.5px] font-bold">{KIND_LABEL.challenge} du jour</p>
-                        <p className="mt-1 text-[12px] text-chalk-4">
+                        <p className="mt-1 text-12 text-chalk-4">
                           Trois défis vous attendent aujourd&apos;hui. Relevez-les sur votre profil.
                         </p>
                       </>
@@ -446,7 +446,7 @@ export default function NotificationsPage() {
                         {/* L'extrait dit *de quoi* parle la notification.
                             Sans lui, douze likes se ressemblent douze fois. */}
                         {excerpt && (
-                          <p className="mt-1 truncate text-[12px] text-chalk-4">« {excerpt} »</p>
+                          <p className="mt-1 truncate text-12 text-chalk-4">« {excerpt} »</p>
                         )}
                       </>
                     )}
@@ -463,7 +463,7 @@ export default function NotificationsPage() {
                   aria-label="Supprimer cette notification"
                   className="flex w-11 shrink-0 items-center justify-center border-l
                     border-line text-chalk-4 transition-colors
-                    duration-[var(--d-fast)] hover:border-danger hover:text-danger"
+                    duration-(--d-fast) hover:border-danger hover:text-danger"
                 >
                   <Icon name="close" size={12} />
                 </button>
@@ -478,11 +478,11 @@ export default function NotificationsPage() {
               type="button"
               onClick={loadMore}
               disabled={loadingMore}
-              className="inline-flex h-[var(--h-tap)] items-center gap-2
-                rounded-[var(--radius-input)] border border-line-2 px-4
+              className="inline-flex h-(--h-tap) items-center gap-2
+                rounded-(--radius-input) border border-line-2 px-4
                 font-mono text-[11.5px] font-bold tracking-[0.12em]
                 text-chalk-3 uppercase transition-colors
-                duration-[var(--d-fast)] hover:border-signal hover:text-signal
+                duration-(--d-fast) hover:border-signal hover:text-signal
                 disabled:opacity-40"
             >
               <span aria-hidden={loadingMore || undefined}>

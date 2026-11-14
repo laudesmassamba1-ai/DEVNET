@@ -124,24 +124,6 @@ function attrText(attr) {
 
 const hasAttr = (attrs, name) => attrs.has(name);
 
-/** Texte visible d'un élément : JSXText et expressions chaînes, récursivement. */
-function textOf(children) {
-  let text = "";
-  const visit = (n) => {
-    if (ts.isJsxText(n)) text += n.containsOnlyTriviaWhiteSpaces ? "" : n.text;
-    else if (ts.isStringLiteral(n)) text += n.text;
-    else if (ts.isJsxExpression(n)) {
-      if (n.expression) ts.forEachChild(n.expression, visit);
-    } else if (ts.isJsxElement(n) || ts.isJsxSelfClosingElement(n) || ts.isJsxFragment(n)) {
-      // Un enfant composant peut porter son propre texte : on le parcourt aussi,
-      // mais ses attributs ne sont pas du texte.
-      if (ts.isJsxElement(n)) n.children.forEach(visit);
-    }
-  };
-  for (const c of children ?? []) visit(c);
-  return text.replace(/\s+/g, " ").trim();
-}
-
 /** Balises qui ne portent jamais de texte lisible (icônes, traits de SVG). */
 const SILENT_TAGS = /^(Icon|Spinner|svg|path|circle|rect|line|polyline|polygon|g|defs)$/i;
 
@@ -248,10 +230,8 @@ function hasVisibleContent(children) {
 /* Mesures                                                             */
 /* ------------------------------------------------------------------ */
 
-const TINY = /\btext-\[(?:9|10|11)px\]/;
 const TINY_G = /\btext-\[(?:9|10|11)px\]/g;
 const ARBITRARY_G = /\[[^\]\s]+\]/g;
-const CSS_COLOR = /#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(/;
 const CSS_COLOR_G = /#[0-9a-fA-F]{3,8}\b|\b(?:rgb|rgba|hsl|hsla)\(/g;
 
 const METRICS = {

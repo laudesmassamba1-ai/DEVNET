@@ -89,7 +89,7 @@ export default function BookmarksPage() {
     <AppShell path="~/signets">
       <div className="px-(--gutter) pt-3" data-tour="signets-list">
         <Motion role="slide" delay={0}>
-          <header className="mb-3 border-b-[var(--bw-heavy)] border-line-2 pb-4">
+          <header className="mb-3 border-b-(--bw-heavy) border-line-2 pb-4">
             <h1 className="font-display text-[1.375rem] font-bold tracking-[-0.02em]">
               Signets
             </h1>

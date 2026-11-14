@@ -7,7 +7,7 @@ export default function LoadingUI() {
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="mo-rise rounded-[var(--radius-card)] border border-line-2 bg-surface px-4 py-4 shadow-sh-1"
+            className="mo-rise rounded-(--radius-card) border border-line-2 bg-surface px-4 py-4 shadow-sh-1"
             style={{ animationDelay: `${i * 40}ms` }}
           >
             <div className="flex gap-3">

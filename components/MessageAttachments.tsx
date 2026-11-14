@@ -41,7 +41,7 @@ export function MessageAttachmentButtons({
         aria-label="Envoyer un GIF"
         aria-haspopup="dialog"
         title="Envoyer un GIF"
-        className="mo-press flex size-[var(--h-input)] shrink-0 items-center
+        className="mo-press flex size-(--h-input) shrink-0 items-center
           justify-center rounded-full border border-line-3 bg-surface
           text-chalk-4 transition-colors hover:text-signal disabled:opacity-40"
       >
@@ -52,7 +52,7 @@ export function MessageAttachmentButtons({
         <label
           aria-label="Envoyer une photo ou une vidéo"
           title={disabled ? "Choisis une conversation" : "Envoyer une photo ou une vidéo"}
-          className={`mo-press flex size-[var(--h-input)] shrink-0 cursor-pointer items-center
+          className={`mo-press flex size-(--h-input) shrink-0 cursor-pointer items-center
             justify-center rounded-full border border-line-3 bg-surface
             text-chalk-4 transition-colors hover:text-signal ${disabled ? "pointer-events-none opacity-40" : ""}`}
         >

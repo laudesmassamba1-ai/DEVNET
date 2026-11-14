@@ -56,7 +56,7 @@ export function StdinBubble({
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-3 z-[var(--z-sheet)]
+      className="pointer-events-none fixed inset-x-3 z-(--z-sheet)
         bottom-[calc(var(--h-bottomnav)+0.75rem)] flex justify-center
         sm:inset-x-auto sm:right-5 sm:justify-end lg:bottom-5"
     >
@@ -73,7 +73,7 @@ export function StdinBubble({
 
         <Motion
           role="scale"
-          className="relative w-full rounded-[var(--radius-card)] border-2
+          className="relative w-full rounded-(--radius-card) border-2
             border-signal bg-surface p-3.5 shadow-sh-2"
         >
           {/* Une queue de bulle : elle ne flotte pas au hasard, elle pointe
@@ -86,7 +86,7 @@ export function StdinBubble({
 
           <div className="mb-2 flex items-center gap-2">
             <Icon name="keyboard" size={14} strokeWidth={2} className="shrink-0 text-signal" />
-            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk">
+            <p className="font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk">
               Le programme attend une saisie
             </p>
             {/* Un point qui pulse : le même signal que la sortie en
@@ -100,13 +100,13 @@ export function StdinBubble({
               onClick={onClose}
               aria-label="Fermer"
               className="mo-press -mr-1 ml-auto flex size-6 items-center justify-center
-                rounded-[var(--radius-chip)] text-chalk-4 hover:bg-surface-2 hover:text-chalk"
+                rounded-(--radius-chip) text-chalk-4 hover:bg-surface-2 hover:text-chalk"
             >
               <Icon name="close" size={12} strokeWidth={2} />
             </button>
           </div>
 
-          <p className="mb-2 font-mono text-[11.5px] leading-snug text-chalk-3">
+          <p className="mb-2 font-mono text-12 leading-snug text-chalk-3">
             Il lit l&apos;entrée standard (<code>input()</code>, <code>gets</code>,
             <code>scanf</code>…). Donnez une valeur par ligne — Entrée pour lancer.
           </p>
@@ -125,17 +125,17 @@ export function StdinBubble({
             spellCheck={false}
             aria-label="Entrées du programme, une valeur par ligne"
             placeholder={"20\nAminata"}
-            className="w-full resize-y rounded-[var(--radius-input)] border
+            className="w-full resize-y rounded-(--radius-input) border
               border-line-3 bg-surface px-3 py-2 font-mono text-sm
               leading-relaxed text-chalk outline transition-colors
-              duration-[var(--d-fast)] placeholder:text-chalk-4 focus:border-signal"
+              duration-(--d-fast) placeholder:text-chalk-4 focus:border-signal"
           />
 
           <div className="mt-2.5 flex gap-2">
             <button
               type="button"
               onClick={onClose}
-              className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
+              className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
                 border border-transparent text-sm font-bold text-chalk-2
                 hover:bg-surface-2 hover:text-chalk"
             >
@@ -144,8 +144,8 @@ export function StdinBubble({
             <button
               type="button"
               onClick={onRun}
-              className="mo-press flex h-[var(--h-tap)] flex-1 items-center
-                justify-center gap-1.5 rounded-[var(--radius-input)] border
+              className="mo-press flex h-(--h-tap) flex-1 items-center
+                justify-center gap-1.5 rounded-(--radius-input) border
                 border-signal bg-signal text-sm font-bold text-void shadow-sh-1"
             >
               <Icon name="bolt" size={12} strokeWidth={2.2} />
@@ -153,7 +153,7 @@ export function StdinBubble({
               <span
                 aria-hidden="true"
                 className="ml-0.5 rounded-[4px] border border-void/25 px-1
-                  font-mono text-[10px] leading-[1.4] text-void/70"
+                  font-mono text-12 leading-[1.4] text-void/70"
               >
                 ⏎
               </span>

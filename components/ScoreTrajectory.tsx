@@ -62,7 +62,7 @@ export function ScoreTrajectory({
         : `${movement}, soit ${rate} point(s) par dépôt — plus que l'écart entre tes dépôts (±${frNumber(stats.noise, 0)} point(s)).`;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <h3 className="label mb-3 flex items-center justify-between gap-2 text-chalk-3">
         <span className="flex items-center gap-1.5">
           <Icon name="chart" size={12} strokeWidth={1.8} />

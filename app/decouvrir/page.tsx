@@ -84,7 +84,7 @@ export default function DiscoverPage() {
             <aside className="space-y-4 lg:sticky lg:top-[calc(var(--h-topbar)+12px)]">
               <NextStep xp={data.myXp} ready={!sessionLoading} signedIn={Boolean(profile)} />
               <Shortcuts />
-              <section className="rounded-[var(--radius-card)] border border-dashed border-line-2 p-4">
+              <section className="rounded-(--radius-card) border border-dashed border-line-2 p-4">
                 <p className="label-micro text-chalk-4">Règle du vivier</p>
                 <p className="mt-2 text-sm leading-relaxed text-chalk-3">
                   Rien ici ne se découvre au hasard : une preuve publiée, un atelier qui
@@ -105,7 +105,7 @@ function Hero({ data }: { data: Discover | null }) {
   const level = xp === undefined ? null : levelFor(xp);
 
   return (
-    <section className="relative overflow-hidden rounded-[var(--radius-card)] border border-line-2 bg-surface p-6 depth-panel sm:p-8">
+    <section className="relative overflow-hidden rounded-(--radius-card) border border-line-2 bg-surface p-6 depth-panel sm:p-8">
       <div className="pointer-events-none absolute -right-10 -top-10 hidden opacity-90 sm:block">
         <Sonar signals={data?.signalsWeek ?? 0} />
       </div>
@@ -219,7 +219,7 @@ function Rising({ rows }: { rows: LeaderEntry[] }) {
           <Avatar
             name={r.prenom}
             color={r.avatarColor}
-            className="size-[28px] border-[var(--bw-thin)] text-[11px]"
+            className="size-[28px] border-(--bw-thin) text-[11px]"
           />
           <div className="min-w-0 flex-1">
             <Link href={`/u/${r.pseudo}`} className="flex items-center gap-1.5 truncate text-[13.5px] font-semibold text-chalk hover:text-signal">
@@ -270,14 +270,14 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
   return (
     <Link
       href={`/post/${proof.id}`}
-      className={`group flex min-w-0 flex-col overflow-hidden rounded-[var(--radius-card)] border border-line-2 bg-surface p-4 depth-card transition-colors hover:border-line-3 hover:bg-surface-2/50
+      className={`group flex min-w-0 flex-col overflow-hidden rounded-(--radius-card) border border-line-2 bg-surface p-4 depth-card transition-colors hover:border-line-3 hover:bg-surface-2/50
         ${featured ? "sm:col-span-2" : ""}`}
     >
       <div className="flex items-center gap-2">
         <Avatar
           name={author?.prenom ?? "?"}
           color={author?.avatar_color}
-          className="size-[24px] border-[var(--bw-thin)] text-[10px]"
+          className="size-[24px] border-(--bw-thin) text-[10px]"
         />
         <span className="flex min-w-0 items-center gap-1.5 truncate text-sm font-semibold text-chalk">
           {author?.prenom ?? "Anonyme"}
@@ -303,7 +303,7 @@ function ProofCard({ proof, featured = false }: { proof: PostWithAuthor; feature
         </div>
       ) : (
         proof.code && (
-          <pre className="mt-2.5 max-h-[64px] overflow-hidden rounded-[var(--radius-input)] border border-line bg-void/90 px-3 py-2 font-mono text-[10.5px] leading-[1.5] text-page/85">
+          <pre className="mt-2.5 max-h-[64px] overflow-hidden rounded-(--radius-input) border border-line bg-void/90 px-3 py-2 font-mono text-[10.5px] leading-[1.5] text-page/85">
             {proof.code.split("\n").slice(0, 3).join("\n")}
           </pre>
         )
@@ -335,9 +335,9 @@ function Ateliers({ ateliers }: { ateliers: Project[] }) {
         <li key={p.id}>
           <Link
             href={`/projects/${p.id}`}
-            className="group flex items-start gap-3 rounded-[var(--radius-input)] border border-line px-3 py-2.5 transition-colors hover:border-line-3 hover:bg-surface-2/50"
+            className="group flex items-start gap-3 rounded-(--radius-input) border border-line px-3 py-2.5 transition-colors hover:border-line-3 hover:bg-surface-2/50"
           >
-            <span className="grid size-9 shrink-0 place-items-center rounded-[var(--radius-input)] border border-line bg-surface-2 text-[16px]">
+            <span className="grid size-9 shrink-0 place-items-center rounded-(--radius-input) border border-line bg-surface-2 text-[16px]">
               {isIconName(p.emoji) ? (
                 <Icon name={p.emoji} size={16} />
               ) : /\p{Extended_Pictographic}/u.test(p.emoji) ? (
@@ -351,7 +351,7 @@ function Ateliers({ ateliers }: { ateliers: Project[] }) {
                 <span className="truncate text-[13.5px] font-semibold text-chalk">{p.name}</span>
                 <span className="label-micro shrink-0 text-chalk-4">{stageSpec(p.stage).label}</span>
               </div>
-              <p className="mt-0.5 line-clamp-1 text-[12px] text-chalk-3">{p.description}</p>
+              <p className="mt-0.5 line-clamp-1 text-12 text-chalk-3">{p.description}</p>
               {p.demand_languages.length > 0 && (
                 <div className="mt-1.5 flex flex-wrap gap-1">
                   {p.demand_languages.slice(0, 4).map((l) => (
@@ -381,7 +381,7 @@ function Cercles({ cercles, joined }: { cercles: Community[]; joined: Set<string
         <Link
           key={c.id}
           href={`/communities/${c.slug}`}
-          className="group flex items-start justify-between gap-3 rounded-[var(--radius-card)] border border-line-2 bg-surface p-4 transition-colors hover:border-line-3 hover:bg-surface-2/50"
+          className="group flex items-start justify-between gap-3 rounded-(--radius-card) border border-line-2 bg-surface p-4 transition-colors hover:border-line-3 hover:bg-surface-2/50"
         >
           <span className="grid size-9 place-items-center rounded-full border border-line bg-surface-2 text-chalk-2">
             <Icon name={asIconName(c.icon, "globe")} size={16} />
@@ -406,7 +406,7 @@ function NextStep({ xp, ready, signedIn }: { xp?: number; ready: boolean; signed
 
   if (!signedIn) {
     return (
-      <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-4">
+      <section className="rounded-(--radius-card) border border-line-2 bg-surface p-4">
         <p className="prompt-label text-chalk-2">Ta prochaine marche</p>
         <p className="mt-2 text-sm text-chalk-3">Connecte-toi pour suivre ton palier.</p>
         <Link href="/login" className="label-micro mt-3 inline-flex items-center gap-1 text-signal">
@@ -419,7 +419,7 @@ function NextStep({ xp, ready, signedIn }: { xp?: number; ready: boolean; signed
   const level = levelFor(xp ?? 0);
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-4 depth-card">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface p-4 depth-card">
       <p className="prompt-label text-chalk-2">Ta prochaine marche</p>
       <div className="mt-3 flex items-center gap-2">
         <span className="font-display text-[15px] font-bold text-chalk">{level.title}</span>
@@ -428,7 +428,7 @@ function NextStep({ xp, ready, signedIn }: { xp?: number; ready: boolean; signed
       <div className="mt-2.5 h-[4px] overflow-hidden rounded-full bg-line-2">
         <div className="h-full rounded-full bg-signal" style={{ width: `${level.progress * 100}%` }} />
       </div>
-      <p className="mt-2 text-[12px] text-chalk-3">
+      <p className="mt-2 text-12 text-chalk-3">
         {level.next
           ? `${level.toNext} pts avant ${level.next.title}`
           : "Palier maximal — tu transmets."}
@@ -451,12 +451,12 @@ function Shortcuts() {
   );
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-2">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface p-2">
       {links.map((l) => (
         <Link
           key={l.href}
           href={l.href}
-          className="flex items-center gap-2.5 rounded-[var(--radius-input)] px-2.5 py-2 text-sm text-chalk-3 transition-colors hover:bg-surface-2/60 hover:text-chalk"
+          className="flex items-center gap-2.5 rounded-(--radius-input) px-2.5 py-2 text-sm text-chalk-3 transition-colors hover:bg-surface-2/60 hover:text-chalk"
         >
           <Icon name={l.icon} size={14} />
           {l.label}

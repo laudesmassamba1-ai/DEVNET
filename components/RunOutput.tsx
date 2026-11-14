@@ -72,8 +72,8 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
   return (
     <Motion
       role="rise"
-      className={`relative mt-3 overflow-hidden rounded-[var(--radius-card)] border
-        border-l-[5px] border-line-3 ${tone.border} bg-[var(--color-code-bg)] shadow-sh-1`}
+      className={`relative mt-3 overflow-hidden rounded-(--radius-card) border
+        border-l-[5px] border-line-3 ${tone.border} bg-(--color-code-bg) shadow-sh-1`}
     >
       <section
         // `aria-live` : une exécution qui se termine seule doit être
@@ -106,11 +106,11 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
 
           <span className="ml-auto flex items-center gap-1.5">
             {outcome.status === "done" && (
-              <span className="tnum rounded-[var(--radius-chip)] border border-line-3 bg-surface-2 px-1.5 py-0.5 font-mono text-[10.5px] text-chalk-3">
+              <span className="tnum rounded-(--radius-chip) border border-line-3 bg-surface-2 px-1.5 py-0.5 font-mono text-[10.5px] text-chalk-3">
                 {outcome.durationMs} ms
               </span>
             )}
-            <span className="label-micro rounded-[var(--radius-chip)] border border-line-3 px-1.5 py-0.5 text-chalk-3">
+            <span className="label-micro rounded-(--radius-chip) border border-line-3 px-1.5 py-0.5 text-chalk-3">
               {engineLabel(outcome.engine)}
             </span>
           </span>
@@ -132,8 +132,8 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
               className="mt-0.5 shrink-0 text-danger"
             />
             <pre
-              className="min-w-0 flex-1 font-mono text-[var(--text-code)]
-                leading-[var(--lh-code)] whitespace-pre-wrap text-danger"
+              className="min-w-0 flex-1 font-mono text-(--text-code)
+                leading-(--lh-code) whitespace-pre-wrap text-danger"
             >
               {outcome.error}
             </pre>
@@ -142,8 +142,8 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
 
         {outcome.output.length > 0 && (
           <pre
-            className="overflow-x-auto px-3 py-2.5 font-mono text-[var(--text-code)]
-              leading-[var(--lh-code)]"
+            className="overflow-x-auto px-3 py-2.5 font-mono text-(--text-code)
+              leading-(--lh-code)"
             style={{ color: "var(--color-code-plain)" }}
           >
             {outcome.output}
@@ -154,7 +154,7 @@ export function RunOutput({ outcome }: { outcome: RunOutcome }) {
             respire. Le vide *actif* se lit comme « ça travaille » ; une
             boîte noire immobile se lit comme « c'est cassé ». */}
         {running && outcome.output.length === 0 && !outcome.error && (
-          <div className="flex items-center gap-2 px-3 py-2.5 font-mono text-[var(--text-code)]">
+          <div className="flex items-center gap-2 px-3 py-2.5 font-mono text-(--text-code)">
             <span className="text-signal">&rsaquo;</span>
             <span className="mo-breathe inline-block h-[1em] w-[0.55em] bg-signal/80" />
           </div>

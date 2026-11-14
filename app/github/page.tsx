@@ -132,8 +132,8 @@ export default function GithubPage() {
       }
     >
       <div className="px-(--gutter) pt-3">
-        <div className="mb-4 rounded-[var(--radius-input)] border border-line-3 bg-surface-2 px-3.5 py-3
-          text-[12px] leading-relaxed text-chalk-2">
+        <div className="mb-4 rounded-(--radius-input) border border-line-3 bg-surface-2 px-3.5 py-3
+          text-12 leading-relaxed text-chalk-2">
           Vos dépôts GitHub, <span className="font-bold text-chalk">sans quitter DevNet</span> :
           parcourez le code, les commits et les branches, puis <span className="font-bold text-chalk">
           copiez un dépôt vers un projet</span> — fichiers et historique.
@@ -152,8 +152,8 @@ export default function GithubPage() {
                   <button
                     type="button"
                     onClick={connect}
-                    className="h-[var(--h-input)] rounded-[var(--radius-chip)] border
-                      border-signal bg-signal px-4 font-mono text-[12px] font-bold
+                    className="h-(--h-input) rounded-(--radius-chip) border
+                      border-signal bg-signal px-4 font-mono text-12 font-bold
                       tracking-[0.1em] text-void uppercase shadow-sh-1"
                   >
                     Connecter GitHub
@@ -162,8 +162,8 @@ export default function GithubPage() {
                   <button
                     type="button"
                     onClick={() => void load()}
-                    className="h-[var(--h-input)] rounded-[var(--radius-chip)] border
-                      border-line-3 bg-surface px-4 font-mono text-[12px] font-bold
+                    className="h-(--h-input) rounded-(--radius-chip) border
+                      border-line-3 bg-surface px-4 font-mono text-12 font-bold
                       tracking-[0.1em] text-chalk uppercase shadow-sh-1"
                   >
                     Réessayer
@@ -184,7 +184,7 @@ export default function GithubPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Filtrer vos dépôts"
-                className="h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+                className="h-(--h-input) w-full rounded-(--radius-input)
                   border border-line-3 bg-surface pr-3 pl-9 font-mono text-[13px]
                   shadow-sh-1 placeholder:text-chalk-4
                   focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -208,7 +208,7 @@ export default function GithubPage() {
                 {visible.map((r) => (
                   <li
                     key={r.id}
-                    className="rounded-[var(--radius-card)] border border-line-2/60 bg-surface p-3.5"
+                    className="rounded-(--radius-card) border border-line-2/60 bg-surface p-3.5"
                   >
                     <div className="flex items-start gap-3">
                       <div className="min-w-0 flex-1">
@@ -226,7 +226,7 @@ export default function GithubPage() {
                           </span>
                         </Link>
                         {r.description && (
-                          <p className="mt-1 line-clamp-2 text-[12px] leading-relaxed text-chalk-3">
+                          <p className="mt-1 line-clamp-2 text-12 leading-relaxed text-chalk-3">
                             {r.description}
                           </p>
                         )}
@@ -240,7 +240,7 @@ export default function GithubPage() {
                         type="button"
                         onClick={() => void importRepo(r)}
                         disabled={busy !== null || !profile}
-                        className="h-[var(--h-input)] shrink-0 rounded-[var(--radius-chip)]
+                        className="h-(--h-input) shrink-0 rounded-(--radius-chip)
                           border border-signal bg-signal px-3 font-mono text-[11px]
                           font-bold tracking-[0.1em] text-void uppercase shadow-sh-1
                           disabled:opacity-40"

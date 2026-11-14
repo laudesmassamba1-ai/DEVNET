@@ -109,7 +109,7 @@ export function ContributionMap({
   const gridWidth = cells.length * CELL + (cells.length - 1) * GAP;
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+    <div className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
       <header className="mb-3 flex items-baseline justify-between gap-2">
         <h3 className="prompt-label text-chalk-2">Carte d&apos;activité</h3>
         <span className="label-micro text-chalk-3">{weeks} semaines</span>
@@ -178,7 +178,7 @@ export function ContributionMap({
                       onFocus={() => setHover(cell)}
                       onBlur={() => setHover(null)}
                       className={`relative h-[11px] w-[11px] border transition-transform
-                        duration-[var(--d-fast)] hover:z-10 hover:scale-110 hover:border-line-3
+                        duration-(--d-fast) hover:z-10 hover:scale-110 hover:border-line-3
                         ${LEVEL_CLASS[cell.level]}
                         ${cell.future ? "opacity-30" : ""}
                         ${isToday ? "ring-1 ring-signal-d/70" : ""}`}

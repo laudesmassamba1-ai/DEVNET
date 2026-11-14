@@ -190,7 +190,7 @@ export function StoryStudio({
               style={{ background: "var(--story-ring-gradient)" }}
             >
               <div
-                className="relative overflow-hidden rounded-[var(--radius-card)] bg-void"
+                className="relative overflow-hidden rounded-(--radius-card) bg-void"
                 style={{ aspectRatio: "9 / 16" }}
                 onDragOver={(event) => event.preventDefault()}
                 onDrop={onDrop}

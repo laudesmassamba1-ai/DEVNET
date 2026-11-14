@@ -93,7 +93,7 @@ export default function ConfirmEmailPage() {
       <span className="mo-breathe absolute -top-[70px] -right-[70px] size-[200px] rounded-full bg-ok opacity-12" />
       <div className="relative z-1 w-full max-w-[400px]">
         <div className="mb-5 text-center">
-          <Logo size={54} className="mx-auto rounded-[var(--radius-card)] border border-line-3" />
+          <Logo size={54} className="mx-auto rounded-(--radius-card) border border-line-3" />
         </div>
 
         <h1 className="text-center font-display text-2xl font-bold tracking-tight text-chalk">
@@ -104,13 +104,13 @@ export default function ConfirmEmailPage() {
         </p>
 
         {checking && (
-          <div className="mt-7 rounded-[var(--radius-card)] border border-line-2 bg-surface p-5 text-center">
+          <div className="mt-7 rounded-(--radius-card) border border-line-2 bg-surface p-5 text-center">
             <p className="text-sm text-chalk-3">Vérification du lien…</p>
           </div>
         )}
 
         {invalid && !checking && (
-          <div className="mt-7 rounded-[var(--radius-card)] border border-warn/60 bg-surface p-5 text-center">
+          <div className="mt-7 rounded-(--radius-card) border border-warn/60 bg-surface p-5 text-center">
             <p className="font-display text-[15px] font-bold text-chalk">Lien invalide ou expiré.</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk-3">
               Le lien de confirmation a expiré ou est déjà utilisé. Tu peux te reconnecter
@@ -126,7 +126,7 @@ export default function ConfirmEmailPage() {
         )}
 
         {ok && !checking && (
-          <div className="mt-7 rounded-[var(--radius-card)] border border-ok/50 bg-surface p-5 text-center">
+          <div className="mt-7 rounded-(--radius-card) border border-ok/50 bg-surface p-5 text-center">
             <p className="font-display text-[15px] font-bold text-chalk">Email confirmé.</p>
             <p className="mt-2 text-sm leading-relaxed text-chalk-3">
               Ton adresse email est vérifiée. Tu peux accéder à ton espace.

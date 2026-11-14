@@ -565,7 +565,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
           `shell` : le rail de canaux tient alors à côté de la discussion.
           Un seul arbre, deux dispositions — le composeur vit **dans** la
           colonne, il ne peut donc pas être recouvert. */}
-      <div className="fixed inset-0 z-[var(--z-sheet)] flex flex-col overlay-frost
+      <div className="fixed inset-0 z-(--z-sheet) flex flex-col overlay-frost
         shell:static shell:bg-page shell:z-auto shell:h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] shell:flex-row">
 
         {/* Rail de canaux — colonne à gauche sur grand écran seulement :
@@ -584,7 +584,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   onClick={() => setActiveSlug(c.slug)}
                   aria-current={on ? "true" : undefined}
                   className={`relative flex w-full items-center gap-1.5
-                    rounded-[var(--radius-chip)] px-2.5 py-2 text-left text-[13px]
+                    rounded-(--radius-chip) px-2.5 py-2 text-left text-[13px]
                     transition-colors
                     ${on
                       ? "bg-surface-2 font-semibold text-signal"
@@ -599,7 +599,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             })}
 
             <button type="button" onClick={() => setOpenNew(true)}
-              className="flex w-full items-center gap-1.5 rounded-[var(--radius-chip)]
+              className="flex w-full items-center gap-1.5 rounded-(--radius-chip)
                 px-2.5 py-2 text-left text-[13px] text-chalk-4 transition-colors
                 hover:bg-surface-2/60 hover:text-chalk">
               <Icon name="plus" size={12} strokeWidth={2} />
@@ -615,7 +615,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
               <div className="flex flex-col gap-0.5 px-1.5 pb-3">
                 {repos.map((r) => (
                   <Link key={r.id} href={`/projects/${r.id}`} title={`Ouvrir ${r.name}`}
-                    className="flex w-full items-center gap-1.5 rounded-[var(--radius-chip)]
+                    className="flex w-full items-center gap-1.5 rounded-(--radius-chip)
                       px-2.5 py-2 text-left text-sm text-chalk-3 transition-colors
                       hover:bg-surface-2/60 hover:text-signal">
                     <span aria-hidden="true" className="shrink-0 leading-none text-signal-d">
@@ -632,11 +632,11 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
         {/* ── Discussion ── */}
         <div className="relative flex min-w-0 min-h-0 flex-1 flex-col">
           <header className="shrink-0 border-b border-edge glass-strong">
-            <div className="flex h-[var(--h-topbar)] items-center gap-2.5 px-3 safe-top">
+            <div className="flex h-(--h-topbar) items-center gap-2.5 px-3 safe-top">
               <button type="button" aria-label="Retour aux groupes"
                 onClick={() => router.push("/groups")}
-                className="mo-press flex size-[var(--h-tap)] shrink-0 items-center
-                  justify-center border-[var(--bw-thin)] border-line-2/40 text-chalk
+                className="mo-press flex size-(--h-tap) shrink-0 items-center
+                  justify-center border-(--bw-thin) border-line-2/40 text-chalk
                   transition-colors hover:border-signal hover:bg-signal hover:text-void
                   shell:hidden">
                 <Icon name="chevron-left" size={16} />
@@ -647,7 +647,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   ouvert sur grand écran. */}
               <div className="flex min-w-0 flex-1 items-center gap-2.5">
                 <span className="flex size-[34px] shrink-0 items-center justify-center
-                  rounded-[var(--radius-input)] border border-line-3 bg-surface-2
+                  rounded-(--radius-input) border border-line-3 bg-surface-2
                   text-signal-d shell:hidden">
                   <Icon name={asIconName(group?.emoji, "groups")} size={16} strokeWidth={1.7} />
                 </span>
@@ -660,7 +660,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                       {active ? channelLabel(active) : "#"}
                     </span>
                     {active?.topic && (
-                      <span className="hidden truncate text-[11.5px] text-chalk-4 shell:inline">
+                      <span className="hidden truncate text-12 text-chalk-4 shell:inline">
                         {active.topic}
                       </span>
                     )}
@@ -685,7 +685,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   <button key={c.id} type="button" onClick={() => setActiveSlug(c.slug)}
                     aria-current={on ? "true" : undefined}
                     className={`relative flex shrink-0 items-center gap-1.5
-                      rounded-[var(--radius-chip)] px-2.5 py-1.5 text-sm transition-colors
+                      rounded-(--radius-chip) px-2.5 py-1.5 text-sm transition-colors
                       ${on ? "bg-surface-2 font-semibold text-signal"
                            : "text-chalk-3 hover:bg-surface-2/60 hover:text-chalk"}`}>
                     <Icon name={c.is_private ? "lock" : "hash"} size={11} strokeWidth={2}
@@ -695,7 +695,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                 );
               })}
               <button type="button" onClick={() => setOpenNew(true)}
-                className="flex shrink-0 items-center gap-1.5 rounded-[var(--radius-chip)]
+                className="flex shrink-0 items-center gap-1.5 rounded-(--radius-chip)
                   px-2.5 py-1.5 text-sm text-chalk-4 transition-colors
                   hover:bg-surface-2/60 hover:text-chalk">
                 <Icon name="plus" size={11} strokeWidth={2} />
@@ -755,7 +755,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                   {!mine && <Avatar name={m.author_name} color={m.author_color} />}
                   <div className={`flex max-w-[78%] flex-col gap-0.5 ${mine ? "items-end" : ""}`}>
                     {!mine && (
-                      <span className="pl-0.5 text-[11px] font-bold text-chalk-3">
+                      <span className="pl-0.5 text-12 font-bold text-chalk-3">
                         {m.author_name}
                       </span>
                     )}
@@ -772,10 +772,10 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                       />
                     )}
                     <div
-                      className={`rounded-[var(--radius-input)] border px-3.5 py-2.5 text-[13.5px]
+                      className={`rounded-(--radius-input) border px-3.5 py-2.5 text-[13.5px]
                         leading-[1.55] break-words whitespace-pre-wrap
                         ${m.is_code && !mine
-                          ? "border-l-[5px] border-signal glass-flat font-mono text-[12px]"
+                          ? "border-l-[5px] border-signal glass-flat font-mono text-12"
                           : mine
                             ? "border-signal/60 glass-flat text-chalk"
                             : "border-line-2 glass-flat text-chalk-2"}`}
@@ -791,7 +791,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                       />
                       {m.text}
                     </div>
-                    <span className="px-0.5 text-[10px] tracking-wider text-chalk-4">
+                    <span className="px-0.5 text-12 tracking-wider text-chalk-4">
                       {clockTime(m.created_at)}
                       {receipt && (
                         <GroupReceipt count={receipt.count} total={receipt.total} />
@@ -815,7 +815,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                         role="alertdialog"
                         aria-label="Confirmer la suppression du message"
                         className={`flex flex-wrap items-center gap-2 border border-danger
-                          bg-surface px-2.5 py-2 text-[12px] text-chalk shadow-sh-1
+                          bg-surface px-2.5 py-2 text-12 text-chalk shadow-sh-1
                           ${mine ? "self-end" : "self-start"}`}
                       >
                         <Icon name="trash" size={14} className="text-danger" />
@@ -827,8 +827,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                         <button
                           type="button"
                           onClick={() => setPendingDelete(null)}
-                          className="rounded-[var(--radius-chip)] border border-line-3 px-2 py-1
-                            font-mono text-[10.5px] font-bold uppercase tracking-[0.12em]
+                          className="rounded-(--radius-chip) border border-line-3 px-2 py-1
+                            font-mono text-12 font-bold uppercase tracking-[0.12em]
                             text-chalk-3 transition-colors hover:text-chalk"
                         >
                           annuler
@@ -836,8 +836,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                         <button
                           type="button"
                           onClick={() => void removeMessage(m.id)}
-                          className="rounded-[var(--radius-chip)] border border-danger bg-danger px-2 py-1
-                            font-mono text-[10.5px] font-bold uppercase tracking-[0.12em] text-void
+                          className="rounded-(--radius-chip) border border-danger bg-danger px-2 py-1
+                            font-mono text-12 font-bold uppercase tracking-[0.12em] text-void
                             transition-transform active:translate-y-px"
                         >
                           supprimer
@@ -857,8 +857,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
           </div>
           <ComposerBar>
             {replyTo && (
-              <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
-                border border-line-2 bg-surface px-2.5 py-1.5 text-[11.5px] text-chalk-3">
+              <div className="mb-1.5 flex items-center gap-2 rounded-(--radius-input)
+                border border-line-2 bg-surface px-2.5 py-1.5 text-12 text-chalk-3">
                 <Icon name="comment" size={12} className="shrink-0 text-signal" />
                 <span className="min-w-0 flex-1 truncate">
                   Réponse à{" "}
@@ -905,7 +905,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             placeholder="développement"
-            className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
+            className="h-(--h-input) w-full rounded-(--radius-input) border
               border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
               placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
@@ -930,7 +930,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             value={newTopic}
             onChange={(e) => setNewTopic(e.target.value)}
             placeholder="À quoi sert ce canal ?"
-            className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border
+            className="h-(--h-input) w-full rounded-(--radius-input) border
               border-line-3 bg-surface px-3.5 text-[14px] shadow-sh-1
               placeholder:text-chalk-4 focus:shadow-[3px_3px_0_var(--color-signal)]"
           />
@@ -938,14 +938,14 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
 
         <div className="mt-1 flex gap-2.5">
           <button type="button" onClick={() => setOpenNew(false)}
-            className="rounded-[var(--radius-input)] border border-transparent px-5
+            className="rounded-(--radius-input) border border-transparent px-5
               text-[13px] font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
             Annuler
           </button>
           <button
             type="button" onClick={createChannel} disabled={creating}
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-line-3 bg-signal text-[13px]
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+              rounded-(--radius-input) border border-line-3 bg-signal text-[13px]
               font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             {creating ? "Création…" : "Ouvrir le canal"}
@@ -987,13 +987,13 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                         />
                       )}
                     </p>
-                    <p className="truncate font-mono text-[11px] text-chalk-4">
+                    <p className="truncate font-mono text-12 text-chalk-4">
                       @{m.user?.pseudo ?? "—"}
                     </p>
                   </div>
 
                   <span
-                    className={`shrink-0 font-mono text-[10px] font-bold uppercase
+                    className={`shrink-0 font-mono text-12 font-bold uppercase
                       tracking-[0.12em] ${
                         m.role === "owner"
                           ? "text-warn"
@@ -1017,8 +1017,8 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                           m.role === "moderator" ? "member" : "moderator",
                         )
                       }
-                      className="mo-press shrink-0 rounded-[var(--radius-chip)] border border-line-3
-                        px-2 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.1em]
+                      className="mo-press shrink-0 rounded-(--radius-chip) border border-line-3
+                        px-2 py-1 font-mono text-12 font-bold uppercase tracking-[0.1em]
                         text-chalk-2 transition-colors hover:border-signal hover:text-signal
                         disabled:opacity-40"
                     >
@@ -1037,7 +1037,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
                         onClick={() => void kickMember(m)}
                         aria-label={`Retirer ${m.user?.prenom ?? "ce membre"} du groupe`}
                         className="mo-press flex size-[30px] shrink-0 items-center justify-center
-                          rounded-[var(--radius-chip)] text-chalk-4 transition-colors
+                          rounded-(--radius-chip) text-chalk-4 transition-colors
                           hover:text-danger disabled:opacity-40"
                       >
                         <Icon name="close" size={14} />
@@ -1049,7 +1049,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
           </ul>
         )}
 
-        <p className="mt-3 text-[11.5px] leading-[1.5] text-chalk-4">
+        <p className="mt-3 text-12 leading-[1.5] text-chalk-4">
           Le créateur gère les rôles.
         </p>
 
@@ -1059,7 +1059,7 @@ export default function GroupChatPage({ params }: { params: Promise<{ id: string
             disabled={busyMember !== null}
             onClick={() => void leaveGroup()}
             className="mo-press mt-4 flex h-[44px] w-full items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-danger bg-surface
+              rounded-(--radius-input) border border-danger bg-surface
               text-[13px] font-bold text-danger transition-colors hover:bg-danger
               hover:text-void disabled:opacity-40"
           >

@@ -76,15 +76,15 @@ export function CodeBlock({
   return (
     <figure
       data-code-variant={variant}
-      className="mb-1 overflow-hidden rounded-[var(--radius-card)] border
-        border-line-3 bg-[var(--color-code-bg)]"
+      className="mb-1 overflow-hidden rounded-(--radius-card) border
+        border-line-3 bg-(--color-code-bg)"
     >
       <figcaption
-        className="flex min-h-[var(--h-tap)] items-center gap-2 border-b
+        className="flex min-h-(--h-tap) items-center gap-2 border-b
           border-line-3 bg-surface-3 px-3"
       >
         {filename && (
-          <span className="truncate font-mono text-[11px] text-chalk-2">
+          <span className="truncate font-mono text-12 text-chalk-2">
             {filename}
           </span>
         )}
@@ -96,8 +96,8 @@ export function CodeBlock({
               type="button"
               onClick={() => setExpanded((value) => !value)}
               aria-expanded={expanded}
-              className="inline-flex min-h-[var(--h-tap)] items-center px-2
-                font-mono text-[10px] text-chalk-3 hover:text-chalk"
+              className="inline-flex min-h-(--h-tap) items-center px-2
+                font-mono text-12 text-chalk-3 hover:text-chalk"
             >
               {expanded ? "Réduire" : `+${lines.length - COLLAPSE_AFTER} lignes`}
             </button>
@@ -107,10 +107,10 @@ export function CodeBlock({
               type="button"
               onClick={copy}
               aria-label={copied ? "Copié" : "Copier le code"}
-              className={`inline-flex min-h-[var(--h-tap)] items-center gap-1
-                border-[var(--bw-thin)] px-1.5
+              className={`inline-flex min-h-(--h-tap) items-center gap-1
+                border-(--bw-thin) px-1.5
                 transition-[color,border-color,background-color]
-                duration-[var(--d-fast)] ease-[var(--ease-continuous)]
+                duration-(--d-fast) ease-(--ease-continuous)
                 active:translate-y-px
                 ${copied
                   ? "border-ok text-ok"
@@ -123,7 +123,7 @@ export function CodeBlock({
               {copied
                 ? <Icon name="check" size={11} strokeWidth={2.6} />
                 : <Icon name="copy" size={11} />}
-              <span className="label-micro text-[10px]">
+              <span className="label-micro text-12">
                 {copied ? "Copié" : "Copier"}
               </span>
             </button>
@@ -142,8 +142,8 @@ export function CodeBlock({
         style={maxHeight ? { maxHeight } : undefined}
       >
         <pre
-          className="m-0 px-3.5 py-3 font-mono text-[var(--text-code)]
-            leading-[var(--lh-code)]"
+          className="m-0 px-3.5 py-3 font-mono text-(--text-code)
+            leading-(--lh-code)"
           style={{ color: "var(--color-code-plain)" }}
         >
           <code>

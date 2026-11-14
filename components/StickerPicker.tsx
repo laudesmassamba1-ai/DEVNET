@@ -51,14 +51,14 @@ export function StickerPicker({
           {Array.from({ length: 8 }).map((_, i) => (
             <span
               key={i}
-              className="block aspect-square mo-pulse rounded-[var(--radius-input)] bg-surface-2"
+              className="block aspect-square mo-pulse rounded-(--radius-input) bg-surface-2"
             />
           ))}
         </div>
       )}
 
       {stickers !== null && stickers.length === 0 && (
-        <div className="rounded-[var(--radius-input)] border border-line-2 bg-surface-2 px-3.5 py-3">
+        <div className="rounded-(--radius-input) border border-line-2 bg-surface-2 px-3.5 py-3">
           <p className="text-[13px] font-semibold text-chalk">{error}</p>
           <p className="mt-1 text-sm leading-relaxed text-chalk-3">
             Crée ton premier sticker juste ici — un sticker est une image, pas un
@@ -79,8 +79,8 @@ export function StickerPicker({
                 }}
                 aria-label={`Envoyer le sticker ${sticker.name}`}
                 className="flex aspect-square w-full items-center justify-center
-                  rounded-[var(--radius-input)] border border-line-2 bg-surface-2
-                  transition-[border-color,transform] duration-[var(--d-fast)]
+                  rounded-(--radius-input) border border-line-2 bg-surface-2
+                  transition-[border-color,transform] duration-(--d-fast)
                   hover:border-signal active:translate-y-px"
               >
                 <StickerFace

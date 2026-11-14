@@ -119,7 +119,7 @@ export default function ModerationPage() {
     <AppShell title="Modération" path="~/moderation">
       <Motion
         role="slide"
-        className="border-b-[var(--bw-heavy)] border-line-2 px-(--gutter) py-4"
+        className="border-b-(--bw-heavy) border-line-2 px-(--gutter) py-4"
       >
         <h1 className="font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk">
           Signalements
@@ -146,7 +146,7 @@ export default function ModerationPage() {
               aria-selected={status === value}
               onClick={() => setStatus(value)}
               className={`tab-underline px-3.5 py-2 font-mono text-[11.5px] font-bold
-                uppercase tracking-[0.12em] transition-colors duration-[var(--d-fast)]
+                uppercase tracking-[0.12em] transition-colors duration-(--d-fast)
                 ${status === value ? "text-signal" : "text-chalk-4 hover:text-chalk-2"}`}
             >
               {label}
@@ -228,7 +228,7 @@ export default function ModerationPage() {
                     onClick={() => classify(r, "resolved")}
                     disabled={busyId === r.id}
                     className="mo-press inline-flex h-8 flex-1 items-center justify-center
-                      gap-1.5 rounded-[var(--radius-chip)] border border-ok bg-ok/10
+                      gap-1.5 rounded-(--radius-chip) border border-ok bg-ok/10
                       font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                       text-ok disabled:opacity-40"
                   >
@@ -241,7 +241,7 @@ export default function ModerationPage() {
                     onClick={() => classify(r, "dismissed")}
                     disabled={busyId === r.id}
                     className="mo-press inline-flex h-8 flex-1 items-center justify-center
-                      gap-1.5 rounded-[var(--radius-chip)] border border-line-3
+                      gap-1.5 rounded-(--radius-chip) border border-line-3
                       font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                       text-chalk-3 disabled:opacity-40"
                   >

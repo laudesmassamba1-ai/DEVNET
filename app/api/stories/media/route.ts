@@ -13,6 +13,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { STORY_MAX } from "@/lib/stories";
 import { currentUserId } from "@/lib/api/server";
+import { isInternalMediaPath, normalizeStoryMediaUrl } from "@/lib/story-media-url";
+import { withUser } from "@/platform/infrastructure/postgres/with-user";
 import {
   encodeStoryMedia,
   getServerStoriesRepository,
@@ -24,8 +26,43 @@ export const dynamic = "force-dynamic";
 
 const NO_STORE = { "Cache-Control": "no-store" };
 const DATA_URL = /^data:((?:image|video)\/[a-z0-9.+-]+);base64,([A-Za-z0-9+/=]+)$/i;
-/** URL publique du stockage objet : https uniquement, jamais de data URL. */
-const MEDIA_URL = /^https:\/\/[^\s"'<>]{1,600}$/;
+
+/**
+ * Résout l'adresse d'un média déjà téléversé.
+ *
+ * Une URL externe arbitraire n'est plus acceptée : elle doit appartenir au
+ * stockage configuré, à un fournisseur GIF connu, ou être un chemin interne
+ * dont l'appelant est bien propriétaire. Sans ce dernier contrôle, n'importe
+ * quel compte pouvait afficher sous son nom le fichier d'un autre.
+ */
+async function resolveMediaUrl(
+  raw: string,
+  authorId: string,
+  origin: string,
+): Promise<{ url: string } | { error: string }> {
+  const normalized = normalizeStoryMediaUrl(raw, { origin });
+  if (!normalized) return { error: "adresse de média non autorisée" };
+
+  if (!isInternalMediaPath(normalized)) return { url: normalized };
+
+  const path = normalized.slice("/api/media/".length);
+  try {
+    const rows = await withUser(authorId, (query) =>
+      query<{ path: string }>(
+        "select path from public.media_files where path = $1 and owner_id = $2 limit 1",
+        [path, authorId],
+      ),
+    );
+    if (rows.length === 0) return { error: "média introuvable" };
+    return { url: new URL(normalized, origin).href };
+  } catch (error) {
+    console.error(
+      "[stories] vérification du média impossible",
+      error instanceof Error ? error.message : String(error),
+    );
+    return { error: "média indisponible" };
+  }
+}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const authorId = await currentUserId();
@@ -52,16 +89,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // re-encoder ici. On refuse tout ce qui n'est pas https pour ne pas
   // transformer la story en relais vers une ressource locale ou `data:`.
   if (mediaUrl) {
-    if (!MEDIA_URL.test(mediaUrl)) {
+    const resolved = await resolveMediaUrl(mediaUrl, authorId, request.nextUrl.origin);
+    if ("error" in resolved) {
       return NextResponse.json(
-        { error: "adresse de média invalide" },
+        { error: resolved.error },
         { status: 400, headers: NO_STORE },
       );
     }
     try {
       const created = await getServerStoriesRepository().createStory(authorId, {
         caption,
-        mediaUrl,
+        mediaUrl: resolved.url,
       });
       return NextResponse.json({ ok: true, id: created.id }, { headers: NO_STORE });
     } catch (error) {

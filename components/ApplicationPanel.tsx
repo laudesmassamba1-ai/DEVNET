@@ -104,9 +104,9 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
 
     return (
       <Motion role="rise">
-        <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface px-4 py-3.5 shadow-sh-1">
+        <div className="rounded-(--radius-card) border border-line-2 bg-surface px-4 py-3.5 shadow-sh-1">
           <div className="flex items-center gap-2">
-            <span className={`rounded-[var(--radius-chip)] border px-2 py-0.5 font-mono text-[10.5px] ${STATUS[mine.status].className}`}>
+            <span className={`rounded-(--radius-chip) border px-2 py-0.5 font-mono text-[10.5px] ${STATUS[mine.status].className}`}>
               {STATUS[mine.status].label}
             </span>
             <span className="text-sm text-chalk-3">
@@ -139,7 +139,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
         <div className="grid gap-2">
           {pending.map((a, i) => (
             <Motion key={a.id} role="rise" delay={Math.min(i * 40, 240)}>
-              <div className="rounded-[var(--radius-card)] border border-line-2 bg-surface px-3.5 py-3 shadow-sh-1">
+              <div className="rounded-(--radius-card) border border-line-2 bg-surface px-3.5 py-3 shadow-sh-1">
                 <div className="flex items-start gap-3">
                   <Avatar name={a.prenom || a.pseudo} color={a.avatar_color} />
                   <div className="min-w-0 flex-1">
@@ -148,7 +148,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
                         {a.prenom || a.pseudo}
                       </span>
                       <span className="font-mono text-[11px] text-chalk-4">@{a.pseudo}</span>
-                      <span className="rounded-[var(--radius-chip)] border border-signal/40 bg-signal/10 px-1.5 py-0.5 font-mono text-[10.5px] text-signal-d">
+                      <span className="rounded-(--radius-chip) border border-signal/40 bg-signal/10 px-1.5 py-0.5 font-mono text-[10.5px] text-signal-d">
                         {roleLabel(a.role)}
                       </span>
                     </p>
@@ -168,7 +168,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
                     type="button"
                     onClick={() => decide(a.id, false)}
                     disabled={busyId === a.id}
-                    className="mo-press inline-flex h-[var(--h-tap)] items-center gap-1.5 rounded-[var(--radius-input)]
+                    className="mo-press inline-flex h-(--h-tap) items-center gap-1.5 rounded-(--radius-input)
                       border border-line-3 px-3 text-[13px] font-bold text-chalk-2
                       transition-colors hover:border-danger hover:text-danger disabled:opacity-40"
                   >
@@ -179,7 +179,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
                     type="button"
                     onClick={() => decide(a.id, true)}
                     disabled={busyId === a.id}
-                    className="mo-press inline-flex h-[var(--h-tap)] items-center gap-1.5 rounded-[var(--radius-input)]
+                    className="mo-press inline-flex h-(--h-tap) items-center gap-1.5 rounded-(--radius-input)
                       border border-signal bg-signal px-3.5 text-[13px] font-bold text-void
                       shadow-sh-2 disabled:opacity-40"
                   >
@@ -200,7 +200,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
             {decided.map((a) => (
               <div
                 key={a.id}
-                className="flex items-center gap-3 rounded-[var(--radius-card)] border border-line-2
+                className="flex items-center gap-3 rounded-(--radius-card) border border-line-2
                   bg-surface-2 px-3.5 py-2.5"
               >
                 <Avatar name={a.prenom || a.pseudo} color={a.avatar_color} />
@@ -215,7 +215,7 @@ export function ApplicationPanel({ projectId, meId, canDecide }: Props) {
                     {timeAgo(a.created_at)}
                   </p>
                 </div>
-                <span className={`shrink-0 rounded-[var(--radius-chip)] border px-2 py-0.5 font-mono text-[10.5px] ${STATUS[a.status].className}`}>
+                <span className={`shrink-0 rounded-(--radius-chip) border px-2 py-0.5 font-mono text-[10.5px] ${STATUS[a.status].className}`}>
                   {STATUS[a.status].label}
                 </span>
               </div>

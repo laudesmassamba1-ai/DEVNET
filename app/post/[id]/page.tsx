@@ -183,11 +183,11 @@ export default function PostPage() {
               <button
                 type="button"
                 onClick={() => router.push("/feed")}
-                className="inline-flex h-[var(--h-tap)] items-center gap-2
-                  rounded-[var(--radius-input)] border border-line-2 px-4
+                className="inline-flex h-(--h-tap) items-center gap-2
+                  rounded-(--radius-input) border border-line-2 px-4
                   font-mono text-[11.5px] font-bold tracking-[0.12em]
                   text-chalk-3 uppercase transition-colors
-                  duration-[var(--d-fast)] hover:border-signal hover:text-signal"
+                  duration-(--d-fast) hover:border-signal hover:text-signal"
               >
                 Retour au fil
               </button>

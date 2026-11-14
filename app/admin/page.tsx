@@ -120,7 +120,7 @@ export default function AdminPage() {
       <AdminConsoleNav active="accounts" />
       <Motion
         role="slide"
-        className="border-b-[var(--bw-heavy)] border-line-2 px-(--gutter) py-4"
+        className="border-b-(--bw-heavy) border-line-2 px-(--gutter) py-4"
       >
         <div className="flex items-center gap-2">
           <h1 className="font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk">
@@ -147,7 +147,7 @@ export default function AdminPage() {
               onClick={() => setTab(key)}
               className={`tab-underline pb-1.5 font-mono text-[11.5px] font-bold
                 uppercase tracking-[0.12em] transition-colors
-                duration-[var(--d-fast)] ${
+                duration-(--d-fast) ${
                   tab === key ? "text-chalk" : "text-chalk-4 hover:text-chalk-2"
                 }`}
             >
@@ -197,7 +197,7 @@ export default function AdminPage() {
             <button
               type="button"
               onClick={() => void load()}
-              className="mt-3 min-h-[var(--h-tap)] rounded-[var(--radius-input)]
+              className="mt-3 min-h-(--h-tap) rounded-(--radius-input)
                 border border-danger px-3 text-[13px] text-danger"
             >
               Réessayer
@@ -262,8 +262,8 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => void decide(r, true)}
                   disabled={busyId === r.id}
-                  className="mo-press inline-flex min-h-[var(--h-tap)] flex-1 items-center justify-center
-                    gap-1.5 rounded-[var(--radius-chip)] border border-ok bg-ok/10
+                  className="mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center
+                    gap-1.5 rounded-(--radius-chip) border border-ok bg-ok/10
                     font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                     text-ok disabled:opacity-40"
                 >
@@ -275,8 +275,8 @@ export default function AdminPage() {
                   type="button"
                   onClick={() => void decide(r, false)}
                   disabled={busyId === r.id}
-                  className="mo-press inline-flex min-h-[var(--h-tap)] flex-1 items-center justify-center
-                    gap-1.5 rounded-[var(--radius-chip)] border border-line-3
+                  className="mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center
+                    gap-1.5 rounded-(--radius-chip) border border-line-3
                     font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                     text-chalk-3 disabled:opacity-40"
                 >
@@ -294,8 +294,8 @@ export default function AdminPage() {
                     type="button"
                     onClick={() => void revoke(r)}
                     disabled={busyId === r.id}
-                    className="mo-press inline-flex min-h-[var(--h-tap)] items-center justify-center
-                      gap-1.5 rounded-[var(--radius-chip)] border border-danger bg-danger/8
+                    className="mo-press inline-flex min-h-(--h-tap) items-center justify-center
+                      gap-1.5 rounded-(--radius-chip) border border-danger bg-danger/8
                       font-mono text-[11px] font-bold uppercase tracking-[0.1em]
                       text-danger disabled:opacity-40"
                   >

@@ -246,18 +246,18 @@ export function TourOverlay({
     const last = slideIndex === INTRO_SLIDES.length - 1;
     return createPortal(
       <div
-        className="fixed inset-0 z-[var(--z-modal)] flex items-center justify-center overlay-veil p-4"
+        className="fixed inset-0 z-(--z-modal) flex items-center justify-center overlay-veil p-4"
         role="dialog"
         aria-modal="true"
         aria-label="Prise en main de DevNet"
       >
         <div
           ref={bulbRef}
-          className="depth-panel overlay-panel w-full max-w-[460px] rounded-[var(--radius-card)]
-            border border-edge px-6 py-7 shadow-[var(--shadow-drop-lg)]"
+          className="depth-panel overlay-panel w-full max-w-[460px] rounded-(--radius-card)
+            border border-edge px-6 py-7 shadow-(--shadow-drop-lg)"
         >
           <span
-            className="mb-5 flex size-14 items-center justify-center rounded-[var(--radius-input)]
+            className="mb-5 flex size-14 items-center justify-center rounded-(--radius-input)
               border border-signal bg-signal/15 text-signal-d"
           >
             <Icon name={slide.icon} size={24} strokeWidth={1.7} />
@@ -287,7 +287,7 @@ export function TourOverlay({
               {INTRO_SLIDES.map((s, i) => (
                 <span
                   key={s.title}
-                  className={`size-1.5 rounded-full transition-colors duration-[var(--d-fast)]
+                  className={`size-1.5 rounded-full transition-colors duration-(--d-fast)
                     ${i === slideIndex ? "bg-signal" : "bg-chalk-4/40"}`}
                 />
               ))}
@@ -296,7 +296,7 @@ export function TourOverlay({
             <button
               type="button"
               onClick={onClose}
-              className="ml-auto rounded-[var(--radius-input)] border border-transparent px-3
+              className="ml-auto rounded-(--radius-input) border border-transparent px-3
                 text-sm font-bold text-chalk-3 transition-colors hover:text-chalk"
             >
               Quitter
@@ -305,7 +305,7 @@ export function TourOverlay({
             <button
               type="button"
               onClick={onSkipIntro}
-              className="rounded-[var(--radius-input)] border border-transparent px-3
+              className="rounded-(--radius-input) border border-transparent px-3
                 text-sm font-bold text-chalk-3 transition-colors hover:text-chalk"
             >
               Passer l&apos;intro
@@ -315,7 +315,7 @@ export function TourOverlay({
               <button
                 type="button"
                 onClick={onPrev}
-                className="mo-press rounded-[var(--radius-input)] border border-line-3 px-4
+                className="mo-press rounded-(--radius-input) border border-line-3 px-4
                   text-sm font-bold text-chalk transition-colors hover:border-signal hover:text-signal"
               >
                 Précédent
@@ -326,7 +326,7 @@ export function TourOverlay({
               type="button"
               ref={primaryRef}
               onClick={onNext}
-              className="mo-press flex h-[var(--h-tap)] items-center gap-2 rounded-[var(--radius-input)]
+              className="mo-press flex h-(--h-tap) items-center gap-2 rounded-(--radius-input)
                 border border-signal bg-signal px-4 text-sm font-bold text-void shadow-sh-2"
             >
               {last ? "Commencer la visite" : "Suivant"}
@@ -346,7 +346,7 @@ export function TourOverlay({
     const last = stopIndex === total - 1;
     return createPortal(
       <div
-        className="fixed inset-0 z-[var(--z-modal)]"
+        className="fixed inset-0 z-(--z-modal)"
         role="dialog"
         aria-modal="true"
         aria-label="Visite guidée de DevNet"
@@ -381,11 +381,11 @@ export function TourOverlay({
             width: bulbStyle?.width,
             // Idem : la bulle se pose, elle ne glisse pas à travers l'écran.
           }}
-          className="depth-panel overlay-panel rounded-[var(--radius-card)] border border-edge
-            p-4 shadow-[var(--shadow-drop-lg)]"
+          className="depth-panel overlay-panel rounded-(--radius-card) border border-edge
+            p-4 shadow-(--shadow-drop-lg)"
         >
           <div className="mb-2 flex items-center gap-2">
-            <span className="flex size-7 shrink-0 items-center justify-center rounded-[var(--radius-input)] bg-signal/15 text-signal-d">
+            <span className="flex size-7 shrink-0 items-center justify-center rounded-(--radius-input) bg-signal/15 text-signal-d">
               <Icon name={stop.icon} size={14} strokeWidth={1.9} />
             </span>
             <h2 className="font-display text-[15px] font-bold tracking-[-0.01em] text-chalk">
@@ -405,7 +405,7 @@ export function TourOverlay({
             aria-label="Progression de la visite"
           >
             <div
-              className="h-full rounded-full bg-signal transition-[width] duration-[var(--d-slow)] ease-out"
+              className="h-full rounded-full bg-signal transition-[width] duration-(--d-slow) ease-out"
               style={{ width: `${((stopIndex + 1) / total) * 100}%` }}
             />
           </div>
@@ -416,8 +416,8 @@ export function TourOverlay({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-[var(--radius-input)] border border-transparent px-2.5
-                text-[12px] font-bold text-chalk-3 transition-colors hover:text-chalk"
+              className="rounded-(--radius-input) border border-transparent px-2.5
+                text-12 font-bold text-chalk-3 transition-colors hover:text-chalk"
             >
               Quitter
             </button>
@@ -427,8 +427,8 @@ export function TourOverlay({
                 <button
                   type="button"
                   onClick={onPrev}
-                  className="mo-press flex h-9 items-center gap-1.5 rounded-[var(--radius-input)]
-                    border border-line-3 px-3 text-[12px] font-bold text-chalk
+                  className="mo-press flex h-9 items-center gap-1.5 rounded-(--radius-input)
+                    border border-line-3 px-3 text-12 font-bold text-chalk
                     transition-colors hover:border-signal hover:text-signal"
                 >
                   <Icon name="chevron-left" size={12} strokeWidth={2.2} />
@@ -439,8 +439,8 @@ export function TourOverlay({
                 type="button"
                 ref={primaryRef}
                 onClick={onNext}
-                className="mo-press flex h-9 items-center gap-1.5 rounded-[var(--radius-input)]
-                  border border-signal bg-signal px-3.5 text-[12px] font-bold text-void shadow-sh-2"
+                className="mo-press flex h-9 items-center gap-1.5 rounded-(--radius-input)
+                  border border-signal bg-signal px-3.5 text-12 font-bold text-void shadow-sh-2"
               >
                 {last ? "Terminer" : "Suivant"}
                 {!last && <Icon name="chevron-right" size={12} strokeWidth={2.2} />}

@@ -174,11 +174,11 @@ export function IssuePanel({ projectId }: { projectId: string }) {
         <button
           type="button"
           onClick={() => setComposing(true)}
-          className="mo-press inline-flex h-[32px] shrink-0 items-center gap-1.5
-            rounded-[var(--radius-chip)] border border-signal px-2.5
-            font-mono text-[11px] font-bold uppercase tracking-[0.12em]
+          className="mo-press inline-flex h-11 shrink-0 items-center gap-1.5
+            rounded-(--radius-chip) border border-signal px-2.5
+            font-mono text-12 font-bold uppercase tracking-[0.12em]
             text-signal transition-[background-color,color]
-            duration-[var(--d-fast)] hover:bg-signal hover:text-void"
+            duration-(--d-fast) hover:bg-signal hover:text-void"
         >
           <Icon name="plus" size={11} strokeWidth={2} />
           issue
@@ -193,8 +193,8 @@ export function IssuePanel({ projectId }: { projectId: string }) {
             <button
               type="button"
               onClick={() => setComposing(true)}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center gap-2
-                rounded-[var(--radius-input)] border border-signal bg-signal
+              className="mo-press inline-flex h-(--h-tap) items-center gap-2
+                rounded-(--radius-input) border border-signal bg-signal
                 px-4 text-[13px] font-bold text-void shadow-sh-2"
             >
               <Icon name="plus" size={14} strokeWidth={2} />
@@ -212,7 +212,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           return (
             <Motion key={issue.id} role="rise" delay={Math.min(index * 40, 320)} as="li">
               <div
-                className={`border bg-surface transition-colors duration-[var(--d-fast)]
+                className={`border bg-surface transition-colors duration-(--d-fast)
                   ${expanded ? "border-signal" : "border-line-2 hover:border-line-3"}`}
               >
                 <button
@@ -226,7 +226,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                       « #3 » seul ne dit pas ce qu'il représente. */}
                   <span
                     aria-label={`Issue numéro ${issue.number}`}
-                    className={`tnum mt-0.5 shrink-0 font-mono text-[11.5px]
+                    className={`tnum mt-0.5 shrink-0 font-mono text-12
                       ${issue.status === "open" ? "text-signal" : "text-chalk-4"}`}
                   >
                     #{issue.number}
@@ -239,7 +239,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                     >
                       {issue.title}
                     </span>
-                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 font-mono text-[10.5px] text-chalk-4">
+                    <span className="mt-0.5 flex flex-wrap items-center gap-x-2 font-mono text-12 text-chalk-4">
                       <span>@{issue.author?.pseudo ?? "inconnu"}</span>
                       <span>·</span>
                       <span>{timeAgo(issue.created_at)}</span>
@@ -269,7 +269,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
 
                     {/* ── Discussion ── */}
                     {comments.length === 0 && (
-                      <p className="mb-3 font-mono text-[11px] text-chalk-4">
+                      <p className="mb-3 font-mono text-12 text-chalk-4">
                         aucune réponse.
                       </p>
                     )}
@@ -281,10 +281,10 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                             name={c.author?.prenom ?? "?"}
                             color={c.author?.avatar_color}
                             size="sm"
-                            className="mt-0.5 !text-[9px]"
+                            className="mt-0.5 !text-12"
                           />
                           <div className="min-w-0 flex-1">
-                            <p className="font-mono text-[10.5px] text-chalk-4">
+                            <p className="font-mono text-12 text-chalk-4">
                               @{c.author?.pseudo ?? "inconnu"} · {timeAgo(c.created_at)}
                             </p>
                             <p className="mt-0.5 whitespace-pre-wrap text-sm leading-relaxed text-chalk-2">
@@ -304,10 +304,10 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                         }}
                         placeholder="répondre…"
                         aria-label={`Répondre à l'issue ${issue.number}`}
-                        className="h-[var(--h-input)] min-w-0 flex-1
-                          rounded-[var(--radius-input)] border border-line-3
+                        className="h-(--h-input) min-w-0 flex-1
+                          rounded-(--radius-input) border border-line-3
                           bg-surface-2 px-3 font-mono text-sm
-                          transition-[border-color] duration-[var(--d-fast)]
+                          transition-[border-color] duration-(--d-fast)
                           placeholder:text-chalk-4 focus:border-signal"
                       />
                       <button
@@ -315,10 +315,10 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                         onClick={() => void answer(issue)}
                         disabled={busy || !reply.trim()}
                         aria-label="Envoyer la réponse"
-                        className="mo-press h-[var(--h-input)] shrink-0 rounded-[var(--radius-input)]
-                          border border-line-3 px-3 font-mono text-[11px] font-bold
+                        className="mo-press h-(--h-input) shrink-0 rounded-(--radius-input)
+                          border border-line-3 px-3 font-mono text-12 font-bold
                           uppercase tracking-[0.12em] text-chalk-3
-                          transition-[border-color,color] duration-[var(--d-fast)]
+                          transition-[border-color,color] duration-(--d-fast)
                           hover:border-signal hover:text-signal disabled:opacity-40"
                       >
                         <Icon name="check" size={12} strokeWidth={2} />
@@ -335,10 +335,10 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                         onClick={() => void toggleStatus(issue)}
                         disabled={busy}
                         className="mo-press inline-flex h-[30px] items-center gap-1.5
-                          rounded-[var(--radius-chip)] border border-line-3 px-2.5
-                          font-mono text-[11px] font-bold uppercase tracking-[0.12em]
+                          rounded-(--radius-chip) border border-line-3 px-2.5
+                          font-mono text-12 font-bold uppercase tracking-[0.12em]
                           text-chalk-3 transition-[border-color,color]
-                          duration-[var(--d-fast)] hover:border-signal hover:text-signal
+                          duration-(--d-fast) hover:border-signal hover:text-signal
                           disabled:opacity-40"
                       >
                         {/* `✓✓` ferme, `✓` rouvre : fermer est le geste
@@ -360,10 +360,10 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                           onClick={() => void remove(issue)}
                           disabled={busy}
                           className="mo-press inline-flex h-[30px] items-center gap-1.5
-                            rounded-[var(--radius-chip)] border border-line-3 px-2.5
-                            font-mono text-[11px] font-bold uppercase tracking-[0.12em]
+                            rounded-(--radius-chip) border border-line-3 px-2.5
+                            font-mono text-12 font-bold uppercase tracking-[0.12em]
                             text-chalk-4 transition-[border-color,color]
-                            duration-[var(--d-fast)] hover:border-danger hover:text-danger
+                            duration-(--d-fast) hover:border-danger hover:text-danger
                             disabled:opacity-40"
                         >
                           <Icon name="trash" size={11} strokeWidth={1.8} />
@@ -398,7 +398,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Le registre écrase les livraisons de la veille"
           autoFocus
-          className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+          className="mb-4 h-(--h-input) w-full rounded-(--radius-input)
             border border-line-3 bg-surface px-3.5 text-[13px] shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -413,7 +413,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           onChange={(e) => setBody(e.target.value)}
           rows={5}
           placeholder="Comment on l'a vu, ce qu'on attend."
-          className="mb-5 w-full resize-y rounded-[var(--radius-input)] border
+          className="mb-5 w-full resize-y rounded-(--radius-input) border
             border-line-3 bg-surface px-3.5 py-2.5 text-[13px] leading-relaxed
             shadow-sh-1 transition-[transform,box-shadow]
             placeholder:text-chalk-4 focus:-translate-x-px focus:-translate-y-px
@@ -424,7 +424,7 @@ export function IssuePanel({ projectId }: { projectId: string }) {
           <button
             type="button"
             onClick={() => setComposing(false)}
-            className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
+            className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
               border border-transparent text-[13px] font-bold text-chalk-2
               hover:bg-surface-2 hover:text-chalk"
           >
@@ -439,8 +439,8 @@ export function IssuePanel({ projectId }: { projectId: string }) {
                 ? "3 caractères minimum."
                 : undefined
             }
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-signal bg-signal
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+              rounded-(--radius-input) border border-signal bg-signal
               text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             <Icon name="flag" size={12} strokeWidth={2} />

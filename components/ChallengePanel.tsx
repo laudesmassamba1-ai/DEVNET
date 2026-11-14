@@ -28,7 +28,7 @@ export function ChallengePanel({ challenges }: { challenges: Challenge[] }) {
   const gain = challengeXp(challenges);
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+    <section className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
       <h3 className="label mb-3 flex items-center justify-between text-chalk-3">
         <span className="flex items-center gap-1.5">
           <Icon name="target" size={12} strokeWidth={1.8} />
@@ -45,7 +45,7 @@ export function ChallengePanel({ challenges }: { challenges: Challenge[] }) {
           return (
             <li
               key={c.id}
-              className={`rounded-[var(--radius-chip)] border px-3 py-2.5 ${
+              className={`rounded-(--radius-chip) border px-3 py-2.5 ${
                 c.done
                   ? "border-signal bg-signal/8"
                   : "border-line-2 bg-surface-2"
@@ -53,7 +53,7 @@ export function ChallengePanel({ challenges }: { challenges: Challenge[] }) {
             >
               <div className="flex items-center gap-2.5">
                 <span
-                  className={`flex size-7 shrink-0 items-center justify-center rounded-[var(--radius-chip)] border ${
+                  className={`flex size-7 shrink-0 items-center justify-center rounded-(--radius-chip) border ${
                     c.done
                       ? "border-signal bg-signal text-void"
                       : "border-line-2 text-chalk-3"

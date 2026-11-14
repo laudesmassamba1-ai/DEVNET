@@ -30,7 +30,7 @@ export function AchievementsPanel({ counters }: { counters: AchievementCounters 
   const selected = list.find((a) => a.id === selectedId) ?? null;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 shadow-sh-1">
+    <section className="rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-1">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="label flex items-center gap-1.5 text-chalk-3">
@@ -66,7 +66,7 @@ export function AchievementsPanel({ counters }: { counters: AchievementCounters 
       {selected && (
         <div
           aria-live="polite"
-          className="mt-3 rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-3 text-[11.5px] leading-snug text-chalk-3"
+          className="mt-3 rounded-(--radius-card) border border-line-2 bg-surface-2 p-3 text-[11.5px] leading-snug text-chalk-3"
         >
           <div className="mb-1.5 flex items-center gap-1.5">
             <Icon name={selected.icon} size={12} strokeWidth={2} className="text-signal" />
@@ -99,7 +99,7 @@ export function AchievementsPanel({ counters }: { counters: AchievementCounters 
               return (
                 <li
                   key={tier}
-                  className={`rounded-[var(--radius-chip)] border px-1.5 py-0.5 font-mono
+                  className={`rounded-(--radius-chip) border px-1.5 py-0.5 font-mono
                     text-[10px] uppercase tracking-[0.08em]
                     ${reached
                       ? "border-signal/60 bg-signal/12 text-signal"
@@ -160,7 +160,7 @@ function AchievementRow({
     <button
       type="button"
       onClick={onSelect}
-      className={`w-full rounded-[var(--radius-chip)] border px-3 py-2 text-left ${
+      className={`w-full rounded-(--radius-chip) border px-3 py-2 text-left ${
         a.tier === "or" ? "border-signal bg-signal/8" : "border-line-2 bg-surface-2"
       } ${selected ? "ring-1 ring-signal/60" : ""}`}
     >

@@ -141,6 +141,7 @@ export function StoryRail({
                   <Avatar
                     name={mine?.author?.prenom ?? "moi"}
                     color={mine?.author?.avatar_color ?? "av-lime"}
+                    src={mine?.author?.avatar_url}
                     className="size-[38px] border-0 text-[14px]"
                   />
                 </span>
@@ -227,6 +228,7 @@ export function StoryRail({
                     <Avatar
                       name={g.author?.prenom}
                       color={g.author?.avatar_color}
+                      src={g.author?.avatar_url}
                       className="size-[38px] border-0 text-[14px]"
                     />
                   </span>

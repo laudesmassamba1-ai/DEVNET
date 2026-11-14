@@ -891,7 +891,7 @@ async function showDiff(sha: string) {
             <button
               type="button"
               onClick={() => router.push("/projects")}
-              className="mo-press inline-flex h-[var(--h-tap)] items-center rounded-[var(--radius-input)]
+              className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-input)
                 border border-line-3 px-4 text-[13px] font-bold text-chalk-2
                 hover:border-signal hover:text-signal"
             >
@@ -991,15 +991,15 @@ async function showDiff(sha: string) {
                   )}
                 </div>
 
-                <div className={`${view === "code" ? "mt-0" : "mt-3"} flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-[11px] text-chalk-4`}>
-                  <div className="inline-flex items-center gap-1">
-                    <label className="inline-flex h-[var(--h-tap)] items-center gap-1.5">
+                <div className={`${view === "code" ? "mt-0" : "mt-3"} flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-12 text-chalk-4`}>
+                  <div className="inline-flex min-w-0 max-w-full items-center gap-1">
+                    <label className="inline-flex h-(--h-tap) min-w-0 max-w-[190px] items-center gap-1.5">
                       <Icon name="branch" size={11} className="text-signal" />
                       <select
                         value={branch}
                         onChange={(e) => setBranch(e.target.value)}
                         aria-label="Branche"
-                        className="h-[var(--h-tap)] cursor-pointer bg-transparent
+                        className="h-(--h-tap) min-w-0 max-w-full cursor-pointer truncate bg-transparent
                           text-chalk-2"
                       >
                         {branches.length === 0 && <option value={branch}>{branch}</option>}
@@ -1022,8 +1022,8 @@ async function showDiff(sha: string) {
                       onClick={() => setNamingBranch(true)}
                       aria-label="Nouvelle branche"
                       title="Nouvelle branche"
-                      className="flex size-[var(--h-tap)] items-center justify-center
-                        rounded-[var(--radius-chip)] text-chalk-4
+                      className="flex size-(--h-tap) items-center justify-center
+                        rounded-(--radius-chip) text-chalk-4
                         transition-colors hover:text-signal"
                     >
                       <Icon name="plus" size={12} strokeWidth={2} />
@@ -1035,8 +1035,8 @@ async function showDiff(sha: string) {
                       aria-label="Supprimer la branche"
                       title="Supprimer la branche"
                       disabled={branch === (project?.default_branch || DEFAULT_BRANCH)}
-                      className="flex size-[var(--h-tap)] items-center justify-center
-                        rounded-[var(--radius-chip)] text-chalk-4
+                      className="flex size-(--h-tap) items-center justify-center
+                        rounded-(--radius-chip) text-chalk-4
                         transition-colors hover:text-danger disabled:opacity-25
                         disabled:hover:text-chalk-4"
                     >
@@ -1086,9 +1086,9 @@ async function showDiff(sha: string) {
                   type="button"
                   aria-selected={view === value}
                   onClick={() => setView(value)}
-                  className={`-mb-0.5 flex min-h-[var(--h-tap)] shrink-0 items-center tab-underline px-3 py-2 font-mono text-[11.5px]
+                  className={`-mb-0.5 flex min-h-(--h-tap) shrink-0 items-center tab-underline px-3 py-2 font-mono text-12
                     font-bold tracking-[0.12em] uppercase transition-colors
-                    duration-[var(--d-fast)]
+                    duration-(--d-fast)
                     ${view === value ? "text-signal" : "text-chalk-4 hover:text-chalk-2"}`}
                 >
                   {label}
@@ -1250,7 +1250,7 @@ async function showDiff(sha: string) {
           onKeyDown={(e) => {
             if (e.key === "Enter") void createNewBranch();
           }}
-          className="mb-2 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+          className="mb-2 h-(--h-input) w-full rounded-(--radius-input)
             border border-line-3 bg-surface px-3.5 font-mono text-[13px] shadow-sh-1
              transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -1258,18 +1258,18 @@ async function showDiff(sha: string) {
 
         {branchCheck && (
           branchCheck.ok ? (
-            <p className="mb-5 font-mono text-[11px] text-ok">
+            <p className="mb-5 font-mono text-12 text-ok">
               part de <span className="text-chalk-3">{branch}</span>
             </p>
           ) : (
-            <p className="mb-5 font-mono text-[11px] text-danger">
+            <p className="mb-5 font-mono text-12 text-danger">
               {branchErrorText(branchCheck.reason)}
             </p>
           )
         )}
 
         {branchCheck === null && (
-          <p className="mb-5 font-mono text-[11px] text-chalk-4">
+          <p className="mb-5 font-mono text-12 text-chalk-4">
             Les accents et « / » sont acceptés ; les espaces ne le sont pas.
           </p>
         )}
@@ -1278,7 +1278,7 @@ async function showDiff(sha: string) {
           <button
             type="button"
             onClick={() => setNamingBranch(false)}
-            className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
+            className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
               border border-transparent text-[13px] font-bold text-chalk-2
               hover:bg-surface-2 hover:text-chalk"
           >
@@ -1288,8 +1288,8 @@ async function showDiff(sha: string) {
             type="button"
             onClick={createNewBranch}
             disabled={busy || branchCheck === null || !branchCheck.ok}
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-signal bg-signal
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+              rounded-(--radius-input) border border-signal bg-signal
               text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             <Icon name="branch" size={12} strokeWidth={2} />
@@ -1318,7 +1318,7 @@ async function showDiff(sha: string) {
           <button
             type="button"
             onClick={() => setDropping(null)}
-            className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
+            className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
               border border-transparent text-[13px] font-bold text-chalk-2
               hover:bg-surface-2 hover:text-chalk"
           >
@@ -1328,8 +1328,8 @@ async function showDiff(sha: string) {
             type="button"
             onClick={() => dropping && void removeBranch(dropping)}
             disabled={busy}
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-danger bg-danger
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+              rounded-(--radius-input) border border-danger bg-danger
               text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             <Icon name="trash" size={12} strokeWidth={2} />
@@ -1354,12 +1354,12 @@ async function showDiff(sha: string) {
           onKeyDown={(e) => {
             if (e.key === "Enter") void createFile();
           }}
-          className="mb-2 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+          className="mb-2 h-(--h-input) w-full rounded-(--radius-input)
             border border-line-3 bg-surface px-3.5 font-mono text-[13px] shadow-sh-1
              transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
-        <p className="mb-5 font-mono text-[11px] text-chalk-4">
+        <p className="mb-5 font-mono text-12 text-chalk-4">
           langage détecté : {newPath.trim() ? guessLanguage(newPath.trim()) || "aucun" : "—"}
         </p>
 
@@ -1367,7 +1367,7 @@ async function showDiff(sha: string) {
           <button
             type="button"
             onClick={() => setCreating(false)}
-            className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
+            className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
               border border-transparent text-[13px] font-bold text-chalk-2
               hover:bg-surface-2 hover:text-chalk"
           >
@@ -1377,8 +1377,8 @@ async function showDiff(sha: string) {
             type="button"
             onClick={createFile}
             disabled={busy || !newPath.trim()}
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-signal bg-signal
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+              rounded-(--radius-input) border border-signal bg-signal
               text-[13px] font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             Créer

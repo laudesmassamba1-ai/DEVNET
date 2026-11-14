@@ -362,9 +362,9 @@ export function CodeEditor({
 
   return (
     <div
-      className="relative overflow-hidden rounded-[var(--radius-card)] border
-        border-line-2 bg-[var(--color-code-bg)] shadow-sh-1 transition-[border-color]
-        duration-[var(--d-fast)] focus-within:border-signal"
+      className="relative overflow-hidden rounded-(--radius-card) border
+        border-line-2 bg-(--color-code-bg) shadow-sh-1 transition-[border-color]
+        duration-(--d-fast) focus-within:border-signal"
     >
       {/* Un seul rouleau pour les trois couches. La marge verticale vit
           sur le rouleau, pas sur une couche : la numérotation, la
@@ -378,7 +378,7 @@ export function CodeEditor({
         <pre
           aria-hidden="true"
           className={`${CODE_FONT} shrink-0 select-none border-r border-line-3/60
-            pl-2 pr-2 text-right text-[var(--color-code-comment)]`}
+            pl-2 pr-2 text-right text-(--color-code-comment)`}
         >
           {Array.from({ length: numbers }, (_, i) => `${i + 1}\n`).join("")}
         </pre>
@@ -445,7 +445,7 @@ export function CodeEditor({
             }}
             className={`${LAYER} [grid-area:1/1] block w-full resize-none overflow-hidden
               border-0 bg-transparent text-transparent caret-signal outline
-              placeholder:text-[var(--color-code-comment)]`}
+              placeholder:text-(--color-code-comment)`}
           />
         </div>
       </div>
@@ -457,7 +457,7 @@ export function CodeEditor({
           id="code-suggest"
           role="listbox"
           aria-label="Suggestions"
-          className="fixed z-[var(--z-toast)] max-h-48 w-56 overflow-auto rounded-[var(--radius-card)]
+          className="fixed z-(--z-toast) max-h-48 w-56 overflow-auto rounded-(--radius-card)
             border border-line-3 bg-surface py-1 shadow-sh-3"
           style={{ left: suggest.left, top: suggest.top }}
         >
@@ -495,7 +495,7 @@ export function CodeEditor({
  * que par relecture.
  */
 const CODE_FONT =
-  "m-0 font-mono text-[var(--text-code)] leading-[var(--lh-code)] " +
+  "m-0 font-mono text-(--text-code) leading-(--lh-code) " +
   "whitespace-pre tab-size-2";
 
 const LAYER = `${CODE_FONT} px-3`;

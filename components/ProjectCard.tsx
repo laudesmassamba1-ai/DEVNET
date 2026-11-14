@@ -47,13 +47,13 @@ export function ProjectCard({
       <Tilt>
       <Link
         href={`/projects/${project.id}`}
-        className="group mb-2 flex items-start gap-3 rounded-[var(--radius-card)] border border-line-2 bg-surface
-          px-3.5 py-3 shadow-sh-1 transition-colors duration-[var(--d-fast)]
+        className="group mb-2 flex items-start gap-3 rounded-(--radius-card) border border-line-2 bg-surface
+          px-3.5 py-3 shadow-sh-1 transition-colors duration-(--d-fast)
           hover:border-signal"
       >
         <span
           aria-hidden="true"
-          className="flex size-10 shrink-0 items-center justify-center rounded-[var(--radius-input)] border
+          className="flex size-10 shrink-0 items-center justify-center rounded-(--radius-input) border
             border-line-2 bg-surface-2 text-signal-d"
         >
           <Icon name={asIconName(project.emoji, "layers")} size={18} strokeWidth={1.7} />
@@ -78,8 +78,8 @@ export function ProjectCard({
           )}
 
           {project.lastCommitMessage && (
-            <span className="mt-1 block truncate font-mono text-[11.5px] text-chalk-4">
-              <span className="text-signal">{project.lastCommitMessage}</span>
+            <span className="mt-1 block truncate font-mono text-12 text-chalk-4">
+              <span className="block truncate text-signal">{project.lastCommitMessage}</span>
             </span>
           )}
 
@@ -87,7 +87,7 @@ export function ProjectCard({
               enregistrées, publications rattachées, dernière activité.
               Un projet sans révision n'affiche pas « 0 révisions » — il
               n'affiche rien, parce que « 0 » serait une promesse. */}
-          <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] text-chalk-4">
+          <span className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-12 text-chalk-4">
             <span className="tnum inline-flex items-center gap-1">
               <Icon name="command" size={11} />
               {project.commitCount} {project.commitCount === 1 ? "révision" : "révisions"}
@@ -113,8 +113,8 @@ export function ProjectCard({
             {typeof score === "number" && score > 0 && (
               <span
                 title="Note du dépôt"
-                className="tnum inline-flex items-center gap-1 rounded-[var(--radius-chip)]
-                  border-[var(--bw-thin)] border-signal/60 bg-signal/10 px-1.5
+                className="tnum inline-flex items-center gap-1 rounded-(--radius-chip)
+                  border-(--bw-thin) border-signal/60 bg-signal/10 px-1.5
                   font-bold text-signal"
               >
                 <Icon name="target" size={11} />
@@ -152,8 +152,8 @@ export function ProjectPostsButton({
       type="button"
       onClick={onClick}
       className="mt-1.5 inline-flex items-center gap-1.5 border border-line-3
-        px-2 py-1 font-mono text-[11px] text-chalk-3 transition-colors
-        duration-[var(--d-fast)] hover:border-signal hover:text-signal"
+        px-2 py-1 font-mono text-12 text-chalk-3 transition-colors
+        duration-(--d-fast) hover:border-signal hover:text-signal"
     >
       <Icon name="comment" size={11} />
       {count} publication{count === 1 ? "" : "s"}

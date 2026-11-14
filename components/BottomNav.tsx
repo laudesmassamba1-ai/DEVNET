@@ -120,10 +120,11 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
     <nav
       data-tour="nav-main"
       aria-label="Navigation principale"
-      className="fixed inset-x-0 bottom-0 z-[var(--z-nav)] grid grid-cols-6
-        h-[var(--h-bottomnav)] items-stretch border-t-[var(--bw-heavy)]
+      data-allow-tiny
+      className="fixed inset-x-0 bottom-0 z-(--z-nav) grid grid-cols-6
+        h-(--h-bottomnav) items-stretch border-t-(--bw-heavy)
         border-edge glass-strong pb-[env(safe-area-inset-bottom)]
-        rounded-[var(--radius-card)] shell:hidden"
+        rounded-(--radius-card) shell:hidden"
     >
       {MOBILE_LINKS.slice(0, 2).map((l) => {
         const active = pathname.startsWith(l.href);
@@ -132,13 +133,13 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`relative mx-1 my-1 flex min-w-0 flex-col items-center
-              justify-center gap-[5px] rounded-[var(--radius-chip)]
-              text-[10px] font-medium tracking-[-0.01em] normal-case
-              transition-[color,background-color] duration-[var(--d-fast)]
-              ease-[var(--ease-continuous)] active:translate-y-px
+            className={`relative mx-0 my-1 flex min-w-0 flex-col items-center
+              justify-center gap-[4px] rounded-(--radius-chip)
+              text-12 max-[340px]:text-[11px] font-medium tracking-[-0.02em] normal-case
+              transition-[color,background-color] duration-(--d-fast)
+              ease-(--ease-continuous) active:translate-y-px
               ${active
-                ? "bg-surface-2 text-signal shadow-[var(--glass-rim)]"
+                ? "bg-surface-2 text-signal shadow-(--glass-rim)"
                 : "text-chalk-4 hover:bg-surface-2/60 hover:text-chalk-2"}`}
           >
             {/* L'onglet actif est une gélule : la capsule translucide
@@ -167,10 +168,10 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
         onClick={openComposer}
         aria-label="Créer une publication"
         aria-haspopup="dialog"
-        className="mo-press mx-1 my-1 flex min-w-0 flex-col items-center
-          justify-center gap-[5px] rounded-[var(--radius-chip)] bg-signal
-          text-[10px] font-semibold text-void transition-opacity
-          duration-[var(--d-fast)] hover:opacity-90"
+        className="mo-press mx-0 my-1 flex min-w-0 flex-col items-center
+          justify-center gap-[4px] rounded-(--radius-chip) bg-signal
+          text-12 max-[340px]:text-[11px] font-semibold text-void transition-opacity
+          duration-(--d-fast) hover:opacity-90"
       >
         <Icon name="plus" size={20} strokeWidth={2} />
         <span className="w-full truncate text-center">Créer</span>
@@ -182,13 +183,13 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
             key={l.href}
             href={l.href}
             aria-current={active ? "page" : undefined}
-            className={`relative mx-1 my-1 flex min-w-0 flex-col items-center
-              justify-center gap-[5px] rounded-[var(--radius-chip)]
-              text-[10px] font-medium tracking-[-0.01em] normal-case
-              transition-[color,background-color] duration-[var(--d-fast)]
-              ease-[var(--ease-continuous)] active:translate-y-px
+            className={`relative mx-0 my-1 flex min-w-0 flex-col items-center
+              justify-center gap-[4px] rounded-(--radius-chip)
+              text-12 max-[340px]:text-[11px] font-medium tracking-[-0.02em] normal-case
+              transition-[color,background-color] duration-(--d-fast)
+              ease-(--ease-continuous) active:translate-y-px
               ${active
-                ? "bg-surface-2 text-signal shadow-[var(--glass-rim)]"
+                ? "bg-surface-2 text-signal shadow-(--glass-rim)"
                 : "text-chalk-4 hover:bg-surface-2/60 hover:text-chalk-2"}`}
           >
             <Icon name={l.icon} size={20} strokeWidth={active ? 2 : 1.8} />
@@ -202,12 +203,12 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
         aria-label="Ouvrir les autres sections"
         aria-expanded={moreOpen}
         aria-haspopup="dialog"
-        className={`mo-press mx-1 my-1 flex min-w-0 flex-col items-center
-          justify-center gap-[5px] rounded-[var(--radius-chip)]
-          text-[10px] font-medium tracking-[-0.01em] normal-case
-          transition-[color,background-color] duration-[var(--d-fast)]
+        className={`mo-press mx-0 my-1 flex min-w-0 flex-col items-center
+          justify-center gap-[4px] rounded-(--radius-chip)
+          text-12 max-[340px]:text-[11px] font-medium tracking-[-0.02em] normal-case
+          transition-[color,background-color] duration-(--d-fast)
           ${moreActive || moreOpen
-            ? "bg-surface-2 text-signal shadow-[var(--glass-rim)]"
+            ? "bg-surface-2 text-signal shadow-(--glass-rim)"
             : "text-chalk-4 hover:bg-surface-2/60 hover:text-chalk-2"}`}
       >
         <Icon name="menu" size={20} strokeWidth={1.8} />
@@ -219,11 +220,11 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
         title="Toutes les sections"
       >
         <div className="mb-2 flex items-center justify-between gap-3">
-          <p className="text-[12px] text-chalk-4">Navigation</p>
+          <p className="text-12 text-chalk-4">Navigation</p>
           <button
             type="button"
             onClick={() => setMoreOpen(false)}
-            className="min-h-[var(--h-tap)] rounded-[var(--radius-input)]
+            className="min-h-(--h-tap) rounded-(--radius-input)
               px-3 text-[13px] text-chalk-3 hover:bg-surface-2"
           >
             Fermer
@@ -238,8 +239,8 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
                 href={link.href}
                 onClick={() => setMoreOpen(false)}
                 aria-current={active ? "page" : undefined}
-                className={`flex min-h-[var(--h-tap)] items-center gap-3
-                  rounded-[var(--radius-input)] px-3 text-[14px]
+                className={`flex min-h-(--h-tap) items-center gap-3
+                  rounded-(--radius-input) px-3 text-[14px]
                   ${active ? "bg-surface-2 text-signal" : "text-chalk-2 hover:bg-surface-2"}`}
               >
                 <SectionIcon name={link.icon} size={18} />
@@ -252,8 +253,8 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
               href="/admin"
               onClick={() => setMoreOpen(false)}
               aria-current={pathname.startsWith("/admin") ? "page" : undefined}
-              className={`flex min-h-[var(--h-tap)] items-center gap-3
-                rounded-[var(--radius-input)] px-3 text-[14px]
+              className={`flex min-h-(--h-tap) items-center gap-3
+                rounded-(--radius-input) px-3 text-[14px]
                 ${pathname.startsWith("/admin")
                   ? "bg-surface-2 text-signal"
                   : "text-chalk-2 hover:bg-surface-2"}`}
@@ -268,8 +269,8 @@ export function BottomNav({ isAdmin }: { isAdmin: boolean }) {
               key={link.href}
               href={link.href}
               onClick={() => setMoreOpen(false)}
-              className="flex min-h-[var(--h-tap)] items-center gap-3
-                rounded-[var(--radius-input)] px-3 text-[14px] text-chalk-3
+              className="flex min-h-(--h-tap) items-center gap-3
+                rounded-(--radius-input) px-3 text-[14px] text-chalk-3
                 hover:bg-surface-2"
             >
               {link.label}
@@ -311,12 +312,12 @@ export function Sidebar({
     <aside
       data-tour="nav-main"
       className="sticky top-[var(--h-banner,0px)] hidden h-[calc(100dvh-var(--h-banner,0px))]
-        w-[236px] shrink-0 flex-col rounded-[var(--radius-card)] border-r-[var(--bw-heavy)] border-edge
+        w-[236px] shrink-0 flex-col rounded-(--radius-card) border-r-(--bw-heavy) border-edge
         glass shell:flex"
     >
       {/* Marque */}
       <div className="flex h-[calc(var(--h-topbar)-var(--h-safe-top))] shrink-0 items-center gap-2.5
-        border-b-[var(--bw-thin)] border-line px-4">
+        border-b-(--bw-thin) border-line px-4">
         <Logo size={26} className="mo-pop" key={path} />
         <span className="font-display text-[1.15rem] font-bold
           tracking-[-0.02em] leading-none text-chalk">
@@ -328,8 +329,8 @@ export function Sidebar({
             onClick={onCollapse}
             aria-label="Replier la navigation"
             title="Replier la navigation"
-            className="mo-press ml-auto flex size-[var(--h-action)] shrink-0 items-center
-              justify-center rounded-full border-[var(--bw-thin)] border-line-2/40 text-chalk-4
+            className="mo-press ml-auto flex size-(--h-action) shrink-0 items-center
+              justify-center rounded-full border-(--bw-thin) border-line-2/40 text-chalk-4
               transition-colors hover:border-signal hover:bg-signal hover:text-void"
           >
             <Icon name="chevron-left" size={14} />
@@ -350,10 +351,10 @@ export function Sidebar({
                   aria-current={active ? "page" : undefined}
                   className={`relative mx-2 flex items-center gap-2.5 rounded-full
                     px-3.5 py-2.5 text-[13.5px]
-                    transition-[color,background-color] duration-[var(--d-fast)]
-                    ease-[var(--ease-continuous)]
+                    transition-[color,background-color] duration-(--d-fast)
+                    ease-(--ease-continuous)
                     ${active
-                      ? "bg-surface-2 font-semibold text-signal shadow-[var(--glass-rim)]"
+                      ? "bg-surface-2 font-semibold text-signal shadow-(--glass-rim)"
                       : "text-chalk-3 hover:bg-surface-2/60 hover:text-chalk"}`}
                 >
                   <Icon name={l.icon} size={16} strokeWidth={active ? 2 : 1.6} />
@@ -374,9 +375,9 @@ export function Sidebar({
                   href={l.href}
                   aria-current={active ? "page" : undefined}
                   className={`relative flex items-center gap-2.5 py-2.5 pl-4 pr-3
-                    rounded-[var(--radius-input)] text-[13.5px]
-                    transition-[color,background-color] duration-[var(--d-fast)]
-                    ease-[var(--ease-continuous)]
+                    rounded-(--radius-input) text-[13.5px]
+                    transition-[color,background-color] duration-(--d-fast)
+                    ease-(--ease-continuous)
                     ${active
                       ? "bg-surface-2 font-semibold text-signal"
                       : "text-chalk-3 hover:bg-surface-2/60 hover:text-chalk"}`}
@@ -409,9 +410,9 @@ export function Sidebar({
                   href={l.href}
                   aria-current={active ? "page" : undefined}
                   className={`relative flex items-center gap-2.5 py-2.5 pl-4 pr-3
-                    rounded-[var(--radius-input)] text-[13.5px]
-                    transition-[color,background-color] duration-[var(--d-fast)]
-                    ease-[var(--ease-continuous)]
+                    rounded-(--radius-input) text-[13.5px]
+                    transition-[color,background-color] duration-(--d-fast)
+                    ease-(--ease-continuous)
                     ${active
                       ? "bg-surface-2 font-semibold text-signal"
                       : "text-chalk-3 hover:bg-surface-2/60 hover:text-chalk"}`}
@@ -437,7 +438,7 @@ export function Sidebar({
 
       <nav
         aria-label="Informations"
-        className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 border-t-[var(--bw-thin)]
+        className="flex shrink-0 flex-wrap gap-x-3 gap-y-1 border-t-(--bw-thin)
           border-line px-4 py-2 font-mono text-[10px] text-chalk-4"
       >
         <Link href="/settings" className="inline-flex items-center gap-1 hover:text-chalk-2">
@@ -453,7 +454,7 @@ export function Sidebar({
 
       {/* Ligne d'état : sur grand écran elle rejoint le pied du panneau,
           qui est exactement où un éditeur la place. */}
-      <div className="shrink-0 border-t-[var(--bw-thin)] border-line px-4 py-2.5">
+      <div className="shrink-0 border-t-(--bw-thin) border-line px-4 py-2.5">
         {path && (
           <p className="label-micro flex items-center gap-1.5 text-chalk-4">
             <Icon name="terminal" size={11} />

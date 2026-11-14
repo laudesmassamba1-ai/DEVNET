@@ -13,7 +13,7 @@
 | Accès données | Gateway maison `app/api/rest` (contrat PostgREST) + adaptateurs PostgreSQL |
 | Auth | Sessions httpOnly, mots de passe scrypt, OAuth Google/GitHub, routes `/api/auth/*` |
 | Temps réel | Diffusion locale `BroadcastChannel` (le polling reste la référence serveur) |
-| Polices | `next/font` — Fraunces, Space Grotesk, JetBrains Mono |
+| Polices | `next/font` — Space Grotesk (titres Encre/Papier), Instrument Sans (texte), Inter + Poppins (Savane), IBM Plex Mono (données) |
 
 ## Démarrage
 
@@ -189,36 +189,36 @@ Le type n'est pas une étiquette mais une **échelle de capacités**. Un compte 
 
 ## Direction artistique
 
-**Système « Liquid Ivoire »** — un fond ivoire mat en dégradé vertical,
-sans halo, porte des panneaux de **verre translucide** : reflet
-directionnel, bord fin, ombre de contact et flou réservé aux surfaces
-flottantes révèlent leur profondeur. Issu des systèmes
-« Terminal », « Phosphore », « Papier » puis « Verre clair », qu'il
-prolonge sans les renier.
+**Quatre thèmes, une seule grammaire.** Les thèmes sont des jeux de tokens
+CSS (`app/globals.css`) choisis dans Réglages et mémorisés dans
+`devnet:theme`. Encre est le thème par défaut ; aucun bloc
+`prefers-color-scheme` ne l'impose.
 
-- **Fond ivoire mat** (dégradé vertical sans nimbes) — la lumière
-  vient des surfaces, pas d'un halo d'arrière-plan. **Une seule identité** :
-  pas de variante sombre, pas de bloc `prefers-color-scheme`.
-- **Olive** `#C5D58C` comme accent d'action, avec une encre graphite.
-  **Vert** pour la donnée vivante
-  (présence, en ligne). Vert / rouge / or / cyan sont sémantiques et
-  rares. Aucun dégradé « Instagram ».
-- **Barre de statut** en bas (chemin · mode · heure) et **barre d'onglets** en haut —
-  l'héritage de l'outillage terminal.
-- **Gouttière de lignes** sur chaque carte de post : une structure stable sous un
-  flux de contenu.
-- **Libellés au prompt shell** — `❯ CARTE D'ACTIVITÉ`, `❯ adresse email`.
-- **Typographie** : **Inter** variable (tout le texte) + **IBM Plex Mono**
-  (toute donnée, tout code).
-- **Icônes Lucide** — glyphes standards associés à leur action; noms historiques
-  conservés pour les données et les écrans existants.
-- **Verre clair transparent** : cartes = verre **par transmission** (aucun
-  voile de couleur + reflet + liseré, sans calcul live → défilement fluide) ;
-  barres, volants et le FAB floutent le fond en direct; le composeur garde
-  un liseré directionnel discret, sans filtre de déformation.
+- **Encre** — nuit chaude `#11110E`, surfaces encre, accent ambre. La
+  DA historique du produit. Instrument Sans + IBM Plex Mono.
+- **Papier** — ivoire mat `#F6F4EF`, encre graphite, même accent.
+- **Savane** — vert nuit `#0B1715`, accents turquoise `#20BFA9` et or
+  `#D6A84F`. Inter + Poppins pour les titres, IBM Plex Mono pour les données.
+- **Savane clair** — l'ivoire de Savane, mêmes accents, `color-scheme: light`.
 
-Aucun angle droit — contrôles, glyphes et images arrondis par la couche de base.
-- **Symboles Adinkra** conservés en filigrane à 10 % d'opacité — jamais sur du texte.
+Le **verre** est réservé aux surfaces flottantes (en-tête, navigation,
+feuilles, composeur) : liseré de bord, ombre de contact, flou. Les cartes de
+contenu restent des surfaces opaques pour que le texte garde son contraste.
+
+- Navigation **basse** sur mobile (Fil, Explorer, Créer, Messages, Profil,
+  Plus), **barre latérale** à partir de 880 px.
+- **Barre de statut** terminal en bas (chemin · mode · heure) et gouttière
+  de lignes sur les publications.
+- Cible tactile minimale de **44 px**, focus en filet d'accent, mouvements
+  neutralisés sous `prefers-reduced-motion`, zones sûres iOS respectées.
+- Aucun angle droit sur les contrôles, glyphes et images.
+
+> **Note de vérité** — la direction « Liquid Ivoire » décrite dans une
+> version antérieure de ce README (ivoire unique, olive, barre d'onglets en
+> haut) **n'est pas implémentée** dans le code. Elle n'a jamais été migrée :
+> les quatre thèmes ci-dessus sont la direction réelle. Ce document décrit
+> désormais le produit, pas une intention ; toute refonte de la DA demande
+> une décision explicite.
 
 ## Structure
 

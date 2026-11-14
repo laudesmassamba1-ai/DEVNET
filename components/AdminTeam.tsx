@@ -95,7 +95,7 @@ export function AdminTeam() {
           <button
             type="button"
             onClick={() => void load()}
-            className="mt-3 inline-flex min-h-[var(--h-tap)] items-center rounded-[var(--radius-input)]
+            className="mt-3 inline-flex min-h-(--h-tap) items-center rounded-(--radius-input)
               border border-danger px-3 text-[13px] text-danger"
           >
             Réessayer
@@ -153,7 +153,7 @@ export function AdminTeam() {
               </p>
             </div>
 
-            <span className="label-micro rounded-[var(--radius-chip)] border border-line-3 px-2 py-1 text-chalk-3">
+            <span className="label-micro rounded-(--radius-chip) border border-line-3 px-2 py-1 text-chalk-3">
               admin
             </span>
           </Stagger>

@@ -53,7 +53,7 @@ function LevelCard({ stats }: { stats: ProgressStats }) {
   const pct = Math.round(level.progress * 100);
 
   return (
-    <section className="relative overflow-hidden rounded-[var(--radius-card)] border
+    <section className="relative overflow-hidden rounded-(--radius-card) border
       border-level/35 bg-surface-2 p-4 text-chalk shadow-sh-2">
       <div className="relative flex items-start justify-between gap-4">
         <div className="min-w-0">
@@ -127,7 +127,7 @@ function StreakCard({ stats }: { stats: ProgressStats }) {
   const freezesLeft = streak.freezes - streak.freezesUsed;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 depth-card">
+    <section className="rounded-(--radius-card) border border-line-3 bg-surface p-4 depth-card">
       <header className="mb-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <span className={`flex size-[42px] items-center justify-center border
@@ -232,7 +232,7 @@ function BadgeCard({ stats }: { stats: ProgressStats }) {
   const selected = badges.find((b) => b.id === selectedId) ?? null;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 depth-card">
+    <section className="rounded-(--radius-card) border border-line-3 bg-surface p-4 depth-card">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="prompt-label text-chalk-2">Collection</h3>
@@ -253,7 +253,7 @@ function BadgeCard({ stats }: { stats: ProgressStats }) {
             aria-pressed={selectedId === b.id}
             onClick={() => setSelectedId((prev) => (prev === b.id ? null : b.id))}
             title={b.earned ? `${b.label} — ${b.hint}` : `${b.hint} (${b.progress}/${b.target})`}
-            className={`flex flex-col items-center gap-1.5 border-[var(--bw-thin)] px-1.5 py-2.5 text-center
+            className={`flex flex-col items-center gap-1.5 border-(--bw-thin) px-1.5 py-2.5 text-center
               ${b.earned ? "border-line-3 bg-surface-2" : "border-line bg-surface-2/40"}
               ${selectedId === b.id ? "ring-1 ring-signal/60" : ""}`}
           >
@@ -279,7 +279,7 @@ function BadgeCard({ stats }: { stats: ProgressStats }) {
       {selected && (
         <div
           aria-live="polite"
-          className="mt-3 rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-3 text-[11.5px] leading-snug text-chalk-3"
+          className="mt-3 rounded-(--radius-card) border border-line-2 bg-surface-2 p-3 text-[11.5px] leading-snug text-chalk-3"
         >
           <div className="mb-1.5 flex items-center gap-1.5">
             <Icon name={selected.icon} size={12} strokeWidth={2}
@@ -330,7 +330,7 @@ function badgeStory(b: { id: string; earned: boolean; hint: string; progress: nu
 
 function LeaderboardCard({ rows }: { rows: LeaderEntry[] }) {
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 depth-card">
+    <section className="rounded-(--radius-card) border border-line-3 bg-surface p-4 depth-card">
       <header className="mb-3 flex items-baseline justify-between">
         <h3 className="prompt-label text-chalk-2">Top de la semaine</h3>
         <span className="label-micro text-chalk-3">7 derniers jours</span>
@@ -353,7 +353,7 @@ function LeaderboardCard({ rows }: { rows: LeaderEntry[] }) {
               <Avatar
                 name={r.prenom}
                 color={r.avatarColor}
-                className="size-[26px] border-[var(--bw-thin)] text-[11px]"
+                className="size-[26px] border-(--bw-thin) text-[11px]"
               />
 
               <span className="min-w-0 flex-1">
@@ -391,7 +391,7 @@ function JournalCard({ stats }: { stats: ProgressStats }) {
 
   if (recent.length === 0) {
     return (
-      <section className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 depth-card">
+      <section className="rounded-(--radius-card) border border-line-3 bg-surface p-4 depth-card">
         <h3 className="label mb-2 text-chalk">Journal</h3>
         <p className="text-sm text-chalk-3">
           Ton journal est vide.
@@ -401,7 +401,7 @@ function JournalCard({ stats }: { stats: ProgressStats }) {
   }
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-3 bg-surface p-4 depth-card">
+    <section className="rounded-(--radius-card) border border-line-3 bg-surface p-4 depth-card">
       <header className="mb-2.5 flex items-baseline justify-between">
         <h3 className="prompt-label text-chalk-2">Journal</h3>
         <span className="label-micro text-chalk-3">{stats.events.length} actions</span>
@@ -430,7 +430,7 @@ function JournalCard({ stats }: { stats: ProgressStats }) {
 function PerksCard({ stats }: { stats: ProgressStats }) {
   const { level, unlocked, next } = perksForXp(stats.xp);
   return (
-    <section className="relative overflow-hidden rounded-[var(--radius-card)] border border-signal/30 bg-surface-2 p-4 shadow-sh-2">
+    <section className="relative overflow-hidden rounded-(--radius-card) border border-signal/30 bg-surface-2 p-4 shadow-sh-2">
       <div className="relative mb-2 flex items-center justify-between">
         <h3 className="label text-chalk">Privilèges débloqués</h3>
         <span className="rounded-full border border-signal/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-signal">
@@ -439,7 +439,7 @@ function PerksCard({ stats }: { stats: ProgressStats }) {
       </div>
       <div className="relative grid gap-2 sm:grid-cols-2">
         {unlocked.map((p) => (
-          <div key={p.id} className="flex items-start gap-2.5 rounded-[var(--radius-panel)] border border-line-3 bg-surface p-2.5">
+          <div key={p.id} className="flex items-start gap-2.5 rounded-(--radius-panel) border border-line-3 bg-surface p-2.5">
             <div className="mt-0.5 flex h-7 w-7 items-center justify-center rounded-full border border-signal/40 bg-signal/10 text-signal">
               <Icon name={asIconName(p.icon, "package")} size={14} />
             </div>
@@ -451,7 +451,7 @@ function PerksCard({ stats }: { stats: ProgressStats }) {
         ))}
       </div>
       {next && (
-        <div className="relative mt-2 flex items-center gap-2 rounded-[var(--radius-panel)] border border-line-3 bg-surface p-2.5 opacity-80">
+        <div className="relative mt-2 flex items-center gap-2 rounded-(--radius-panel) border border-line-3 bg-surface p-2.5 opacity-80">
           <div className="flex h-7 w-7 items-center justify-center rounded-full border border-line-3 bg-surface-3 text-chalk-3">
             <Icon name={asIconName(next.icon, "target")} size={14} />
           </div>

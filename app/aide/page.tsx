@@ -102,7 +102,7 @@ const FAQ: { theme: string; items: { q: string; a: string }[] }[] = [
 export default function HelpPage() {
   return (
     <main className="mo-rise min-h-dvh px-5">
-      <header className="mx-auto flex h-[var(--h-topbar)] max-w-[900px] items-center border-b border-line-2 safe-top">
+      <header className="mx-auto flex h-(--h-topbar) max-w-[900px] items-center border-b border-line-2 safe-top">
         <Link href="/" className="font-display text-lg font-bold text-chalk">
           DevNet<span className="text-signal">.</span>
         </Link>
@@ -127,7 +127,7 @@ export default function HelpPage() {
               <h2 className="font-display text-xl font-bold text-chalk">{group.theme}</h2>
               <div className="mt-3 space-y-4">
                 {group.items.map((item) => (
-                  <div key={item.q} className="rounded-[var(--radius-card)] border border-line-2 bg-surface p-4">
+                  <div key={item.q} className="rounded-(--radius-card) border border-line-2 bg-surface p-4">
                     <h3 className="font-display text-[15px] font-bold text-chalk">{item.q}</h3>
                     <p className="mt-1.5 text-sm leading-relaxed text-chalk-3">{item.a}</p>
                   </div>

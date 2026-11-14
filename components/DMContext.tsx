@@ -62,7 +62,7 @@ export function DMContext({ peer }: { peer: UserLite }) {
 
   return (
     <div className="mx-(--gutter) mb-3 border border-line-2 bg-surface-2/50">
-      <p className="label-micro flex items-center gap-1.5 border-b-[var(--bw-thin)]
+      <p className="label-micro flex items-center gap-1.5 border-b-(--bw-thin)
         border-line px-3 py-1.5 text-chalk-4">
         <Icon name="terminal" size={9} className="text-signal" />
         {story ? "en ce moment" : "en cours"}

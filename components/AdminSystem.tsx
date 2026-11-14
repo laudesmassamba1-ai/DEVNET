@@ -98,8 +98,8 @@ export function AdminSystem() {
           type="button"
           onClick={() => void load()}
           disabled={loading}
-          className="min-h-[var(--h-tap)] rounded-[var(--radius-input)] border border-line-2
-            px-3 text-[12px] text-chalk-3 hover:bg-surface-2 disabled:opacity-50"
+          className="min-h-(--h-tap) rounded-(--radius-input) border border-line-2
+            px-3 text-12 text-chalk-3 hover:bg-surface-2 disabled:opacity-50"
         >
           {loading ? "Actualisation…" : "Actualiser"}
         </button>
@@ -108,7 +108,7 @@ export function AdminSystem() {
       {error && (
         <div role="alert" className="mt-4 border-l-2 border-danger bg-danger/8 px-3 py-2">
           <p className="text-[13px] text-danger">{error}</p>
-          <button type="button" onClick={() => void load()} className="mt-2 text-[12px] font-semibold text-signal">
+          <button type="button" onClick={() => void load()} className="mt-2 text-12 font-semibold text-signal">
             Réessayer
           </button>
         </div>
@@ -128,15 +128,15 @@ export function AdminSystem() {
             </div>
             <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
               <dt className="text-[13px] text-chalk-3">Région d’exécution</dt>
-              <dd className="font-mono text-[12px] text-chalk-2">{data.region ?? "locale / inconnue"}</dd>
+              <dd className="font-mono text-12 text-chalk-2">{data.region ?? "locale / inconnue"}</dd>
             </div>
             <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
               <dt className="text-[13px] text-chalk-3">Taille de la base</dt>
-              <dd className="font-mono text-[12px] text-chalk-2">{formatBytes(data.sizeBytes)}</dd>
+              <dd className="font-mono text-12 text-chalk-2">{formatBytes(data.sizeBytes)}</dd>
             </div>
             <div className="flex flex-wrap items-baseline justify-between gap-2 py-3">
               <dt className="text-[13px] text-chalk-3">Dernière migration</dt>
-              <dd className="font-mono text-[12px] text-chalk-2">{data.migration ?? "inconnue"}</dd>
+              <dd className="font-mono text-12 text-chalk-2">{data.migration ?? "inconnue"}</dd>
             </div>
           </dl>
 
@@ -150,7 +150,7 @@ export function AdminSystem() {
               ["Sessions actives", "sessions_active"],
             ] as const).map(([label, key]) => (
               <div key={key}>
-                <dt className="text-[12px] text-chalk-4">{label}</dt>
+                <dt className="text-12 text-chalk-4">{label}</dt>
                 <dd className="mt-1 font-mono text-[20px] font-semibold tabular-nums text-chalk">
                   {(data.counts[key] ?? 0).toLocaleString("fr-FR")}
                 </dd>
@@ -163,7 +163,7 @@ export function AdminSystem() {
             {Object.entries(data.services).map(([key, enabled]) => (
               <li key={key} className="flex items-center justify-between gap-3 py-3">
                 <span className="text-[13px] text-chalk-3">{SERVICE_LABELS[key] ?? key}</span>
-                <span className={`inline-flex items-center gap-1.5 font-mono text-[12px] font-semibold ${enabled ? "text-ok" : "text-chalk-4"}`}>
+                <span className={`inline-flex items-center gap-1.5 font-mono text-12 font-semibold ${enabled ? "text-ok" : "text-chalk-4"}`}>
                   <Icon name={enabled ? "check" : "close"} size={12} strokeWidth={2.2} />
                   {enabled ? "configuré" : "absent"}
                 </span>

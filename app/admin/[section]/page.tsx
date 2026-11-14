@@ -60,7 +60,7 @@ export default async function AdminSectionPage({
           <p className="mt-2 max-w-prose text-[13px] leading-relaxed text-chalk-3">
             {moduleInfo.reason}
           </p>
-          <p className="mt-3 text-[12px] text-chalk-4">
+          <p className="mt-3 text-12 text-chalk-4">
             Aucun chiffre de démonstration ni aucune action d&apos;administration
             n&apos;est présenté comme réel.
           </p>

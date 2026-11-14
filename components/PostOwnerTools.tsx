@@ -56,18 +56,18 @@ export function PostOwnerTools({
           <button
             type="button"
             onClick={cancelDelete}
-            className="rounded-[var(--radius-chip)] border border-line-3 px-2.5 py-1.5
+            className="rounded-(--radius-chip) border border-line-3 px-2.5 py-1.5
               font-mono text-[11px] font-bold uppercase tracking-[0.12em] text-chalk-3
-              transition-colors duration-[var(--d-fast)] hover:text-chalk"
+              transition-colors duration-(--d-fast) hover:text-chalk"
           >
             annuler
           </button>
           <button
             type="button"
             onClick={confirmDelete}
-            className="rounded-[var(--radius-chip)] border border-danger bg-danger
+            className="rounded-(--radius-chip) border border-danger bg-danger
               px-2.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-[0.12em]
-              text-void transition-transform duration-[var(--d-fast)] active:translate-y-px"
+              text-void transition-transform duration-(--d-fast) active:translate-y-px"
           >
             supprimer
           </button>
@@ -86,7 +86,7 @@ export function PostOwnerTools({
           onChange={(e) => setEditText(e.target.value)}
           rows={5}
           placeholder="Le texte du post…"
-          className="mb-3 w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
+          className="mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
             text-[14px] leading-[1.6] shadow-sh-1
             transition-[transform,box-shadow] placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -95,7 +95,7 @@ export function PostOwnerTools({
         <div className="flex gap-2">
           <button
             type="button" onClick={cancelEdit}
-            className="mo-press h-[var(--h-tap)] flex-1 rounded-[var(--radius-input)]
+            className="mo-press h-(--h-tap) flex-1 rounded-(--radius-input)
               border border-transparent text-[13px] font-bold text-chalk-2
               transition-colors hover:bg-surface-2 hover:text-chalk"
           >
@@ -103,8 +103,8 @@ export function PostOwnerTools({
           </button>
           <button
             type="button" onClick={saveEdit} disabled={busy}
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center gap-2
-              rounded-[var(--radius-input)] border border-line-3 bg-signal text-[13px]
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center gap-2
+              rounded-(--radius-input) border border-line-3 bg-signal text-[13px]
               font-bold text-void shadow-sh-2 disabled:opacity-40"
           >
             Enregistrer

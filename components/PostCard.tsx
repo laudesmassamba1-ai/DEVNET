@@ -25,9 +25,9 @@ import type { PostWithAuthor } from "@/lib/types";
  * que le prochain bouton ajouté hérite de la bonne cible.
  */
 const ACTION =
-  "inline-flex min-h-[var(--h-tap)] min-w-[var(--h-tap)] items-center justify-center gap-1.5 " +
-  "rounded-[var(--radius-chip)] border-[var(--bw-thin)] px-3 font-mono text-[12px] font-medium " +
-  "transition-[color,border-color,background-color,transform] duration-[var(--d-fast)] " +
+  "inline-flex min-h-(--h-tap) min-w-(--h-tap) items-center justify-center gap-1.5 " +
+  "rounded-(--radius-chip) border-(--bw-thin) px-3 font-mono text-12 font-medium " +
+  "transition-[color,border-color,background-color,transform] duration-(--d-fast) " +
   "active:translate-y-px";
 
 /** Icône seule : même cible, sans largeur de texte. */
@@ -35,7 +35,7 @@ const ACTION_ICON = `${ACTION} px-0`;
 
 /** Ligne de la feuille d'actions : même hauteur de cible que la barre. */
 const MENU_ROW =
-  "flex min-h-[var(--h-tap)] items-center gap-3 rounded-[var(--radius-input)] " +
+  "flex min-h-(--h-tap) items-center gap-3 rounded-(--radius-input) " +
   "px-3 text-left text-[14px] text-chalk-2 hover:bg-surface-2";
 
 /**
@@ -57,9 +57,9 @@ function InlineVideo({ src }: { src: string }) {
         href={src}
         target="_blank"
         rel="noreferrer"
-        className="mb-3 flex min-h-[var(--h-tap)] items-center justify-center
-          rounded-[var(--radius-input)] border border-line-2 bg-surface-2 px-4
-          text-center font-mono text-[12px] text-chalk-3"
+        className="mb-3 flex min-h-(--h-tap) items-center justify-center
+          rounded-(--radius-input) border border-line-2 bg-surface-2 px-4
+          text-center font-mono text-12 text-chalk-3"
       >
         Vidéo non lisible ici (format ou codec non pris en charge) — l’ouvrir
       </a>
@@ -73,7 +73,7 @@ function InlineVideo({ src }: { src: string }) {
       playsInline
       preload="metadata"
       onError={() => setFailed(true)}
-      className="mb-3 max-h-[420px] w-full rounded-[var(--radius-input)]
+      className="mb-3 max-h-[420px] w-full rounded-(--radius-input)
         border border-line-2 bg-surface-2 object-contain"
     />
   );
@@ -212,7 +212,7 @@ export function PostCard({
       */
       className="feed-post flex overflow-hidden border-b border-line-2
         bg-surface/30 transition-[background-color,border-color,transform]
-        duration-[var(--d-fast)] ease-[var(--ease-spring)]
+        duration-(--d-fast) ease-(--ease-spring)
         hover:-translate-y-px hover:border-line-3 hover:bg-surface/60"
     >
       {/* Gouttière de lecture, distincte du texte et du code intégré. */}
@@ -277,7 +277,7 @@ export function PostCard({
               <button
                 type="button"
                 onClick={() => onOpenProfile?.(pseudo)}
-                className="group/author -ml-0.5 flex min-h-[var(--h-tap)] flex-col
+                className="group/author -ml-0.5 flex min-h-(--h-tap) flex-col
                   justify-center py-1 text-left"
               >
                 <span className="inline-flex items-center gap-1.5 text-[14px]
@@ -291,7 +291,7 @@ export function PostCard({
                   )}
                 </span>
                 <span
-                  className="ml-1.5 font-mono text-[12px] font-normal
+                  className="ml-1.5 font-mono text-12 font-normal
                     text-chalk-3 transition-colors group-hover/author:text-signal/70"
                 >
                   @{pseudo}
@@ -300,7 +300,7 @@ export function PostCard({
             ) : (
               <div className="text-[13.5px] font-semibold">{name}</div>
             )}
-            <div className="mt-1 font-mono text-[12px] text-chalk-4">
+            <div className="mt-1 font-mono text-12 text-chalk-4">
               {meta ? `${meta} · ` : ""}
               {timeAgo(post.created_at)}
             </div>
@@ -374,7 +374,7 @@ export function PostCard({
               alt={post.gif_alt || "GIF joint à la publication"}
               loading="lazy"
               decoding="async"
-              className="mb-2.5 max-h-[420px] w-full rounded-[var(--radius-input)]
+              className="mb-2.5 max-h-[420px] w-full rounded-(--radius-input)
                 border border-line-2 bg-surface-2 object-contain"
             />
           </Motion>
@@ -396,7 +396,7 @@ export function PostCard({
                 alt="Photo jointe à la publication"
                 loading="lazy"
                 decoding="async"
-                className="mb-2.5 max-h-[420px] w-full rounded-[var(--radius-input)]
+                className="mb-2.5 max-h-[420px] w-full rounded-(--radius-input)
                   border border-line-2 bg-surface-2 object-contain"
               />
             )}
@@ -420,9 +420,9 @@ export function PostCard({
             <button
               type="button"
               onClick={() => onOpenProject?.(project.id)}
-              className="mb-2.5 inline-flex min-h-[var(--h-tap)] items-center gap-1.5
-                rounded-[var(--radius-chip)] border border-line-3 px-3 font-mono
-                text-[12px] text-chalk-3 transition-colors duration-[var(--d-fast)]
+              className="mb-2.5 inline-flex min-h-(--h-tap) items-center gap-1.5
+                rounded-(--radius-chip) border border-line-3 px-3 font-mono
+                text-12 text-chalk-3 transition-colors duration-(--d-fast)
                 hover:border-signal hover:text-signal"
             >
               <span aria-hidden="true" className="shrink-0 leading-none">
@@ -443,7 +443,7 @@ export function PostCard({
         {/* ── Actions ── */}
         <Motion
           role="slide"
-          className="flex flex-wrap items-center gap-1.5"
+          className="mt-1 flex flex-wrap items-center gap-1.5 border-t border-line/70 pt-3"
         >
           <button
             type="button"
@@ -504,7 +504,7 @@ export function PostCard({
               un `0` : un chiffre à zéro sur une carte vide est du bruit,
               et il n'apprend rien. */}
           {post.reactions ? (
-            <span className="tnum font-mono text-[12px] text-chalk-4">
+            <span className="tnum font-mono text-12 text-chalk-4">
               {post.reactions}
             </span>
           ) : null}

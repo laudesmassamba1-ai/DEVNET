@@ -30,12 +30,12 @@ export function PostShareButton({
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Partager cette publication"
-        className="ml-auto inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
-          border-[var(--bw-thin)] border-line px-2.5 py-2 min-h-[var(--h-action)]
-          max-sm:min-h-[var(--h-tap)] max-sm:w-[var(--h-tap)] max-sm:justify-center
+        className="ml-auto inline-flex items-center gap-1.5 rounded-(--radius-chip)
+          border-(--bw-thin) border-line px-2.5 py-2 min-h-(--h-action)
+          max-sm:min-h-(--h-tap) max-sm:w-(--h-tap) max-sm:justify-center
           max-sm:px-0 inline-flex items-center label
           text-chalk-3 transition-[color,background-color,border-color]
-          duration-[var(--d-fast)] hover:border-signal hover:bg-signal hover:text-void
+          duration-(--d-fast) hover:border-signal hover:bg-signal hover:text-void
           active:translate-y-px"
       >
         <Icon name="share" size={12} strokeWidth={2} />

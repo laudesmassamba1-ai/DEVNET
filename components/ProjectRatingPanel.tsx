@@ -117,7 +117,7 @@ export function ProjectRatingPanel({
   const note = rating?.votes ? rating.stars.toFixed(1) : "—";
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line-2 bg-surface-2 p-4">
+    <section className="rounded-(--radius-card) border border-line-2 bg-surface-2 p-4">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
         <div className="flex min-w-0 items-center gap-2">
           <Icon name="star" size={14} className="shrink-0 text-signal" />
@@ -137,7 +137,7 @@ export function ProjectRatingPanel({
                   aria-checked={myVote === n}
                   disabled={busy}
                   onClick={() => void vote(n)}
-                  className={`mo-press flex size-[var(--h-tap)] items-center justify-center rounded-[var(--radius-chip)] transition-colors
+                  className={`mo-press flex size-(--h-tap) items-center justify-center rounded-(--radius-chip) transition-colors
                     ${myVote !== null && n <= (myVote ?? 0) ? "text-signal" : "text-chalk-4 hover:text-chalk-2"}`
                   }
                   title={myVote === n ? `Votre note : ${n}` : `Noter ${n}/5`}
@@ -153,7 +153,7 @@ export function ProjectRatingPanel({
           type="button"
           onClick={() => void doFork()}
           disabled={forking || !me}
-          className="mo-press ml-auto inline-flex items-center gap-1.5 rounded-[var(--radius-chip)]
+          className="mo-press ml-auto inline-flex items-center gap-1.5 rounded-(--radius-chip)
             border border-signal bg-signal/10 px-3 py-2 font-mono text-[11px] font-bold
             uppercase tracking-[0.12em] text-signal transition-colors
             disabled:opacity-40"

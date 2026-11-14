@@ -70,7 +70,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             // toast » trouve le bandeau et conclut qu'aucune confirmation
             // n'a été affichée — un échec inventé par le sélecteur.
             data-toast={t.kind}
-            className={`depth-panel pointer-events-auto whitespace-nowrap rounded-[var(--radius-input)] border
+            className={`depth-panel pointer-events-auto whitespace-nowrap rounded-(--radius-input) border
               border-line-3 bg-surface px-4 py-2 text-sm font-bold tracking-wide text-chalk
               ${t.kind === "err" ? "border-danger" : "border-ok"}
               ${leaving.has(t.id)

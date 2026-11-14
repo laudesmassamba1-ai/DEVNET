@@ -103,7 +103,7 @@ function TreeNode({
         aria-current={open === node.path ? "true" : undefined}
         style={pad}
         className={`flex w-full items-center gap-1.5 py-1 text-left font-mono text-[11.5px]
-          transition-colors duration-[var(--d-fast)]
+          transition-colors duration-(--d-fast)
           ${
             open === node.path
               ? "bg-surface-2 text-signal"
@@ -646,7 +646,7 @@ export default function IdePage() {
                 key={p}
                 type="button"
                 onClick={() => setOpen(p)}
-                className={`flex max-w-[220px] items-center gap-1.5 rounded-t-[var(--radius-chip)] border-x border-t px-2.5 py-1 font-mono text-[11px] transition-colors
+                className={`flex max-w-[220px] items-center gap-1.5 rounded-t-(--radius-chip) border-x border-t px-2.5 py-1 font-mono text-[11px] transition-colors
                   ${
                     open === p
                       ? "border-line-3 bg-surface text-chalk"
@@ -697,7 +697,7 @@ export default function IdePage() {
             <div className="min-h-0 flex-1 overflow-auto py-1">
               {(files ?? []).length === 0 && (
                 <div className="px-3 py-4 text-center">
-                  <p className="text-[12px] leading-relaxed text-chalk-4">
+                  <p className="text-12 leading-relaxed text-chalk-4">
                     Dépôt vide. Créez le premier fichier — il sera écrit sur
                     la branche <span className="font-mono text-chalk-3">{branch}</span>.
                   </p>

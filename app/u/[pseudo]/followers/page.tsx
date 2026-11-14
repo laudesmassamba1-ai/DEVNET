@@ -146,7 +146,7 @@ export default function FollowersPage({
               href={`/u/${user?.pseudo ?? pseudo}/followers${k === "following" ? "?which=following" : ""}`}
               className={`tab-underline px-3.5 py-2 font-mono text-[11.5px]
                 font-bold uppercase tracking-[0.12em] transition-colors
-                duration-[var(--d-fast)]
+                duration-(--d-fast)
                 ${kind === k ? "text-signal" : "text-chalk-4 hover:text-chalk-2"}`}
             >
               {k === "followers" ? "Abonnés" : "Suivis"}

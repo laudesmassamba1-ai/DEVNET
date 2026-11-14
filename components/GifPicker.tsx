@@ -83,7 +83,7 @@ export function GifPicker({
         aria-label="Rechercher un GIF"
         placeholder="Chercher un GIF…"
         autoFocus
-        className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)]
+        className="mb-3 h-(--h-input) w-full rounded-(--radius-input)
           border border-line-3 bg-surface px-3.5 text-[16px] shadow-sh-1
           placeholder:text-chalk-4
           focus:shadow-[3px_3px_0_var(--color-signal)]"
@@ -94,14 +94,14 @@ export function GifPicker({
           {Array.from({ length: 6 }).map((_, i) => (
             <span
               key={i}
-              className="block h-24 mo-pulse rounded-[var(--radius-input)] bg-surface-2"
+              className="block h-24 mo-pulse rounded-(--radius-input) bg-surface-2"
             />
           ))}
         </div>
       )}
 
       {state === "error" && (
-        <div className="rounded-[var(--radius-input)] border border-line-2 bg-surface-2 px-3.5 py-3">
+        <div className="rounded-(--radius-input) border border-line-2 bg-surface-2 px-3.5 py-3">
           <p className="text-[13px] font-semibold text-chalk">
             {configured ? "La recherche de GIF est indisponible" : "Recherche de GIF non configurée"}
           </p>
@@ -116,14 +116,14 @@ export function GifPicker({
               onChange={(e) => setDirectUrl(e.target.value)}
               aria-label="Adresse du GIF"
               placeholder="https://media.tenor.com/…"
-              className="h-10 min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-3
+              className="h-10 min-w-0 flex-1 rounded-(--radius-input) border border-line-3
                 bg-surface px-3 text-[16px] placeholder:text-chalk-4"
             />
             <button
               type="button"
               onClick={pickDirect}
               disabled={!isAllowedGifUrl(directUrl.trim())}
-              className="h-10 shrink-0 rounded-[var(--radius-input)] border border-signal bg-signal
+              className="h-10 shrink-0 rounded-(--radius-input) border border-signal bg-signal
                 px-3 font-mono text-[11px] font-bold uppercase tracking-wide text-void disabled:opacity-40"
             >
               Utiliser
@@ -150,9 +150,9 @@ export function GifPicker({
                     onClose();
                   }}
                   aria-label={`Choisir le GIF : ${gif.alt}`}
-                  className="block w-full overflow-hidden rounded-[var(--radius-input)]
+                  className="block w-full overflow-hidden rounded-(--radius-input)
                     border border-line-2 bg-surface-2 transition-[border-color,transform]
-                    duration-[var(--d-fast)] hover:border-signal active:translate-y-px"
+                    duration-(--d-fast) hover:border-signal active:translate-y-px"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -166,7 +166,7 @@ export function GifPicker({
               </li>
             ))}
           </ul>
-          <p className="mt-2 text-[12px] text-chalk-4">
+          <p className="mt-2 text-12 text-chalk-4">
             <span aria-hidden="true" className="mr-1 inline-flex">
               <Icon name="gif" size={12} />
             </span>
@@ -176,7 +176,7 @@ export function GifPicker({
       )}
 
       <div className="mt-3 border-t border-line pt-3">
-        <p className="mb-1.5 text-[12px] text-chalk-3">
+        <p className="mb-1.5 text-12 text-chalk-3">
           Colle l&apos;adresse d&apos;un GIF (Tenor ou Giphy) pour l&apos;envoyer directement
         </p>
         <div className="flex gap-2">
@@ -185,14 +185,14 @@ export function GifPicker({
             onChange={(e) => setDirectUrl(e.target.value)}
             aria-label="Adresse directe du GIF"
             placeholder="https://media.tenor.com/…"
-            className="h-10 min-w-0 flex-1 rounded-[var(--radius-input)] border border-line-3
+            className="h-10 min-w-0 flex-1 rounded-(--radius-input) border border-line-3
               bg-surface px-3 text-[16px] placeholder:text-chalk-4"
           />
           <button
             type="button"
             onClick={pickDirect}
             disabled={!isAllowedGifUrl(directUrl.trim())}
-            className="h-10 shrink-0 rounded-[var(--radius-input)] border border-signal bg-signal
+            className="h-10 shrink-0 rounded-(--radius-input) border border-signal bg-signal
               px-3 font-mono text-[11px] font-bold uppercase tracking-wide text-void disabled:opacity-40"
           >
             Utiliser

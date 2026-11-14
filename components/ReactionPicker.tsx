@@ -73,12 +73,12 @@ export function ReactionPicker({
           if (!wrap.current?.contains(e.relatedTarget as Node)) hideSoon();
         }}
         onClick={() => (disabled ? undefined : setOpen((v) => !v))}
-        className={`inline-flex min-h-[var(--h-tap)] min-w-[var(--h-tap)] items-center
-          justify-center gap-1.5 rounded-[var(--radius-chip)]
-          border-[var(--bw-thin)] px-2.5 py-2
-          font-mono text-[12px] font-medium
+        className={`inline-flex min-h-(--h-tap) min-w-(--h-tap) items-center
+          justify-center gap-1.5 rounded-(--radius-chip)
+          border-(--bw-thin) px-2.5 py-2
+          font-mono text-12 font-medium
           transition-[color,border-color,background-color,transform]
-          duration-[var(--d-fast)]
+          duration-(--d-fast)
           ${mine
             ? "border-signal text-signal"
             : "border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"}
@@ -106,7 +106,7 @@ export function ReactionPicker({
           role="scale"
           delay={0}
           className="absolute bottom-full left-0 z-(--z-sheet) mb-2 flex gap-0.5
-            rounded-[var(--radius-card)] border border-edge overlay-panel
+            rounded-(--radius-card) border border-edge overlay-panel
             p-1 shadow-sh-3"
         >
           {POST_REACTIONS.map((r) => {
@@ -126,10 +126,10 @@ export function ReactionPicker({
                 }}
                 className={`mo-press flex size-[30px] items-center justify-center
                   rounded-full text-[17px] leading-none
-                  transition-[background-color,transform,box-shadow] duration-[var(--d-fast)]
+                  transition-[background-color,transform,box-shadow] duration-(--d-fast)
                   hover:scale-115 hover:-translate-y-0.5
                   ${chosen
-                    ? "bg-surface-2 shadow-[var(--shadow-sh-1)] ring-2 ring-signal/50"
+                    ? "bg-surface-2 shadow-(--shadow-sh-1) ring-2 ring-signal/50"
                     : "hover:bg-surface-2"}`}
               >
                 <span aria-hidden>{r.emoji}</span>

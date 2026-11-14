@@ -969,15 +969,15 @@ export default function MessagesPage() {
             la grammaire d'un tchat, pas d'un aller-retour. */}
         <section className="min-w-0 min-h-0 shell:order-2">
           {active && peer ? (
-            <div className="fixed inset-0 z-[var(--z-sheet)] flex flex-col
+            <div className="fixed inset-0 z-(--z-sheet) flex flex-col
               overlay-frost shell:static shell:bg-page shell:z-auto shell:h-full">
-              <header className="flex h-[var(--h-topbar)] shrink-0 items-center gap-2.5
-                border-b-[var(--bw-heavy)] border-edge glass-strong px-4 text-chalk
+              <header className="flex h-(--h-topbar) shrink-0 items-center gap-2.5
+                border-b-(--bw-heavy) border-edge glass-strong px-4 text-chalk
                 safe-top">
                 <button type="button" aria-label="Fermer"
                   onClick={() => { setActive(null); setMessages(null); }}
-                  className="mo-press -ml-1.5 flex size-[var(--h-tap)] items-center justify-center
-                    border-[var(--bw-thin)] border-line-2/40 transition-colors hover:bg-signal
+                  className="mo-press -ml-1.5 flex size-(--h-tap) items-center justify-center
+                    border-(--bw-thin) border-line-2/40 transition-colors hover:bg-signal
                     shell:hidden">
                   <Icon name="chevron-left" size={16} />
                 </button>
@@ -987,7 +987,7 @@ export default function MessagesPage() {
                     {peer.prenom}
                     {peer.verified && <VerifiedBadge tier={badgeFor(peer, xpOf(peer))} size="sm" className="ml-1.5 translate-y-[1px]" />}
                   </div>
-                  <div className="truncate font-mono text-[10.5px] text-chalk-4">
+                  <div className="truncate font-mono text-12 text-chalk-4">
                     @{peer.pseudo}
                   </div>
                 </div>
@@ -998,8 +998,8 @@ export default function MessagesPage() {
                     if (v) setFind("");
                     return !v;
                   })}
-                  className={`mo-press flex size-[var(--h-tap)] shrink-0 items-center justify-center
-                    border-[var(--bw-thin)] transition-colors
+                  className={`mo-press flex size-(--h-tap) shrink-0 items-center justify-center
+                    border-(--bw-thin) transition-colors
                     ${findOpen
                       ? "border-signal bg-signal text-void"
                       : "border-line-2/40 text-chalk-4 hover:bg-signal hover:text-void"}`}>
@@ -1007,8 +1007,8 @@ export default function MessagesPage() {
                 </button>
                 <Link href={`/u/${encodeURIComponent(peer.pseudo)}`} aria-label="Voir le profil"
                   title="Voir le profil"
-                  className="mo-press flex size-[var(--h-tap)] shrink-0 items-center justify-center
-                    border-[var(--bw-thin)] border-line-2/40 transition-colors hover:bg-signal">
+                  className="mo-press flex size-(--h-tap) shrink-0 items-center justify-center
+                    border-(--bw-thin) border-line-2/40 transition-colors hover:bg-signal">
                   <Icon name="info" size={14} />
                 </Link>
               </header>
@@ -1089,10 +1089,10 @@ export default function MessagesPage() {
                           }
                         />
                       )}
-                      <div className={`max-w-[82%] rounded-[var(--radius-input)] border px-3 py-2
+                      <div className={`max-w-[82%] rounded-(--radius-input) border px-3 py-2
                         text-[13.5px] leading-[1.5] break-words whitespace-pre-wrap
                         ${m.is_code
-                          ? "border-l-[5px] border-line-2 border-l-signal glass-flat font-mono text-[12px] leading-[1.6] text-chalk-2"
+                          ? "border-l-[5px] border-line-2 border-l-signal glass-flat font-mono text-12 leading-[1.6] text-chalk-2"
                           : mine
                             ? "border-signal/60 glass-flat text-chalk"
                             : "border-line-2 glass-flat text-chalk-2"}`}
@@ -1100,12 +1100,12 @@ export default function MessagesPage() {
                         {/* Carte de la story d'origine — le contexte du message. */}
                         {m.story_id && (
                           <div
-                            className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-chip)]
+                            className="mb-1.5 flex items-center gap-2 rounded-(--radius-chip)
                               border border-line-2 bg-surface-2/60 px-2.5 py-1.5"
                           >
                             <Icon name="image" size={11} strokeWidth={2.2} className="shrink-0 text-signal-d" />
                             <span className="label-micro shrink-0 text-chalk-3">Story</span>
-                            <span className="min-w-0 truncate text-[11.5px] text-chalk-2">
+                            <span className="min-w-0 truncate text-12 text-chalk-2">
                               {storyCards[m.story_id] === null
                                 ? "Story expirée"
                                 : storyCards[m.story_id]?.caption?.trim() || "Story"}
@@ -1211,7 +1211,7 @@ export default function MessagesPage() {
                           role="alertdialog"
                           aria-label="Confirmer la suppression du message"
                           className={`mt-1 flex flex-wrap items-center gap-2 border border-danger
-                            bg-surface px-2.5 py-2 text-[12px] text-chalk shadow-sh-1
+                            bg-surface px-2.5 py-2 text-12 text-chalk shadow-sh-1
                             ${mine ? "self-end" : "self-start"}`}
                         >
                           <Icon name="trash" size={14} className="text-danger" />
@@ -1219,8 +1219,8 @@ export default function MessagesPage() {
                           <button
                             type="button"
                             onClick={() => setPendingDelete(null)}
-                            className="rounded-[var(--radius-chip)] border border-line-3 px-2 py-1
-                              font-mono text-[10.5px] font-bold uppercase tracking-[0.12em]
+                            className="rounded-(--radius-chip) border border-line-3 px-2 py-1
+                              font-mono text-12 font-bold uppercase tracking-[0.12em]
                               text-chalk-3 transition-colors hover:text-chalk"
                           >
                             annuler
@@ -1228,8 +1228,8 @@ export default function MessagesPage() {
                           <button
                             type="button"
                             onClick={() => void removeMessage(m.id)}
-                            className="mo-press rounded-[var(--radius-chip)] border border-danger bg-danger
-                              px-2 py-1 font-mono text-[10.5px] font-bold uppercase tracking-[0.12em]
+                            className="mo-press rounded-(--radius-chip) border border-danger bg-danger
+                              px-2 py-1 font-mono text-12 font-bold uppercase tracking-[0.12em]
                               text-void"
                           >
                             supprimer
@@ -1241,7 +1241,7 @@ export default function MessagesPage() {
                 })}
 
                 {find.trim() && (
-                  <p className="px-1 pb-0.5 pt-1.5 text-[11px] text-chalk-4">
+                  <p className="px-1 pb-0.5 pt-1.5 text-12 text-chalk-4">
                     {visible?.length ?? 0} résultat{(visible?.length ?? 0) > 1 ? "s" : ""}{" "}
                     sur {messages?.length ?? 0} messages
                   </p>
@@ -1257,8 +1257,8 @@ export default function MessagesPage() {
               </div>
               <ComposerBar>
                 {editing && (
-                  <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
-                    border border-signal/50 bg-signal/10 px-2.5 py-1.5 text-[11.5px] text-chalk-3">
+                  <div className="mb-1.5 flex items-center gap-2 rounded-(--radius-input)
+                    border border-signal/50 bg-signal/10 px-2.5 py-1.5 text-12 text-chalk-3">
                     <Icon name="edit" size={12} className="shrink-0 text-signal" />
                     <span className="min-w-0 flex-1 truncate">
                       Correction du message…
@@ -1274,8 +1274,8 @@ export default function MessagesPage() {
                   </div>
                 )}
                 {replyTo && (
-                  <div className="mb-1.5 flex items-center gap-2 rounded-[var(--radius-input)]
-                    border border-line-2 bg-surface px-2.5 py-1.5 text-[11.5px] text-chalk-3">
+                  <div className="mb-1.5 flex items-center gap-2 rounded-(--radius-input)
+                    border border-line-2 bg-surface px-2.5 py-1.5 text-12 text-chalk-3">
                     <Icon name="comment" size={12} className="shrink-0 text-signal" />
                     <span className="min-w-0 flex-1 truncate">
                       Réponse à{" "}
@@ -1337,7 +1337,7 @@ export default function MessagesPage() {
         <input value={search} onChange={(e) => setSearch(e.target.value)}
           aria-label="Rechercher une conversation"
           placeholder="Rechercher…"
-            className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+            className="mb-3 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
               px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
               focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]" />
 
@@ -1357,7 +1357,7 @@ export default function MessagesPage() {
             return (
             <button key={conv.id} type="button" onClick={() => void openConversation(peer)}
               className={`depth-card mo-rise mb-1.5 flex w-full items-center gap-3
-                rounded-[var(--radius-card)] border glass-flat p-2.5 text-left
+                rounded-(--radius-card) border glass-flat p-2.5 text-left
                 ${unread > 0 ? "border-signal" : "border-line-2/60"}`}
               style={{ animationDelay: `${cascade(i)}ms` }}>
               <Avatar name={other?.prenom} color={other?.avatar_color} src={other?.avatar_url} />
@@ -1368,14 +1368,14 @@ export default function MessagesPage() {
                   </span>
                   {other?.verified && <VerifiedBadge tier={badgeFor(other, xpOf(other))} size="sm" />}
                 </div>
-                <div className="mt-0.5 overflow-hidden text-[11.5px] text-chalk-3
+                <div className="mt-0.5 overflow-hidden text-12 text-chalk-3
                   text-ellipsis whitespace-nowrap">
                   {conv.last_message || "…"}
                 </div>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1.5">
                 {conv.last_message_at && (
-                  <span className="text-[10.5px] tracking-wide text-chalk-4">
+                  <span className="text-12 tracking-wide text-chalk-4">
                     {clockTime(conv.last_message_at)}
                   </span>
                 )}
@@ -1396,7 +1396,7 @@ export default function MessagesPage() {
       <Sheet open={openNew} onClose={() => setOpenNew(false)} title="Nouvelle conversation">
         <input value={userSearch} aria-label="Rechercher un pseudo" onChange={(e) => setUserSearch(e.target.value)}
           placeholder="Rechercher un pseudo…"
-          className="mb-3 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+          className="mb-3 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
             px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
 
         {users.length === 0 && (
@@ -1405,7 +1405,7 @@ export default function MessagesPage() {
 
         {users.map((u) => (
           <button key={u.id} type="button" onClick={() => openWith(u)}
-            className="mb-1.5 flex w-full items-center gap-3 rounded-[var(--radius-card)] border
+            className="mb-1.5 flex w-full items-center gap-3 rounded-(--radius-card) border
               border-line-3 bg-surface p-3 shadow-sh-1 transition-[transform,box-shadow]
               hover:-translate-x-[2px] hover:-translate-y-[2px] hover:bg-surface-2 hover:shadow-sh-2">
             <Avatar name={u.prenom} color={u.avatar_color} src={u.avatar_url} />
@@ -1414,7 +1414,7 @@ export default function MessagesPage() {
                 <span className="text-[13.5px] font-bold">{u.prenom}</span>
                 {u.verified && <VerifiedBadge tier={badgeFor(u, xpOf(u))} size="sm" />}
               </div>
-              <span className="font-mono text-[11px] text-chalk-3">@{u.pseudo}</span>
+              <span className="font-mono text-12 text-chalk-3">@{u.pseudo}</span>
             </div>
             <span className="label-micro text-chalk-4">
               {u.account_type === "professional" ? "Pro" : "Étu"}

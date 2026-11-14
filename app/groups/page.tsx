@@ -190,7 +190,7 @@ export default function GroupsPage() {
           aria-label="Rechercher un groupe"
           value={query} onChange={(e) => setQuery(e.target.value)}
           placeholder="Rechercher un groupe…"
-          className="mb-4 h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface
+          className="mb-4 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface
             px-3.5 text-[14px] shadow-sh-1 placeholder:text-chalk-4
             focus:-translate-x-px focus:-translate-y-px focus:shadow-[3px_3px_0_var(--color-signal)]"
         />
@@ -203,7 +203,7 @@ export default function GroupsPage() {
 
         {mine.length > 0 && (
           <>
-            <div className="mb-2.5 flex items-center gap-2.5 pt-2 text-[10px] font-bold
+            <div className="mb-2.5 flex items-center gap-2.5 pt-2 text-12 font-bold
               uppercase tracking-[0.16em]">
               Mes groupes
               <span className="h-0.5 flex-1 bg-surface/85" />
@@ -216,7 +216,7 @@ export default function GroupsPage() {
 
         {others.length > 0 && (
           <>
-            <div className="mb-2.5 flex items-center gap-2.5 pt-4 text-[10px] font-bold
+            <div className="mb-2.5 flex items-center gap-2.5 pt-4 text-12 font-bold
               uppercase tracking-[0.16em]">
               Découvrir
               <span className="h-0.5 flex-1 bg-surface/85" />
@@ -235,7 +235,7 @@ export default function GroupsPage() {
           </label>
           <input value={name} aria-label="Nom du groupe" onChange={(e) => setName(e.target.value)}
             placeholder="ex: Algo & Structures L2"
-            className="h-[var(--h-input)] w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
+            className="h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5
               text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </div>
 
@@ -245,7 +245,7 @@ export default function GroupsPage() {
           </label>
           <textarea value={desc} aria-label="Description du groupe" onChange={(e) => setDesc(e.target.value)} rows={2}
             placeholder="À quoi sert ce groupe ?"
-            className="w-full rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5 py-3
+            className="w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3
               text-[14px] shadow-sh-1 placeholder:text-chalk-4" />
         </div>
 
@@ -254,7 +254,7 @@ export default function GroupsPage() {
             Catégorie
           </label>
           <select value={category} aria-label="Catégorie du groupe" onChange={(e) => setCategory(e.target.value)}
-            className="h-[var(--h-input)] w-full cursor-pointer rounded-[var(--radius-input)] border border-line-3
+            className="h-(--h-input) w-full cursor-pointer rounded-(--radius-input) border border-line-3
               bg-surface px-3.5 text-[14px] shadow-sh-1">
             {CATEGORIES.map((c) => <option key={c}>{c}</option>)}
           </select>
@@ -268,8 +268,8 @@ export default function GroupsPage() {
             {ICONS.map((name) => (
               <button key={name} type="button" onClick={() => setEmoji(name)}
                 aria-label={`Icône ${name}`} aria-pressed={emoji === name}
-                className={`flex aspect-square items-center justify-center rounded-[var(--radius-input)]
-                  border-[var(--bw-thin)] text-signal-d transition-[transform,border-color]
+                className={`flex aspect-square items-center justify-center rounded-(--radius-input)
+                  border-(--bw-thin) text-signal-d transition-[transform,border-color]
                   ${emoji === name
                     ? "border-line-3 bg-surface"
                     : "border-line-2 bg-surface-2 hover:border-line-3 hover:-translate-y-0.5"}`}
@@ -282,12 +282,12 @@ export default function GroupsPage() {
 
         <div className="mt-1 flex gap-2.5">
           <button type="button" onClick={() => setOpen(false)}
-            className="rounded-[var(--radius-input)] border border-transparent px-5 text-[13px]
+            className="rounded-(--radius-input) border border-transparent px-5 text-[13px]
               font-bold text-chalk-2 transition-colors hover:bg-surface-2 hover:text-chalk">
             Annuler
           </button>
           <button type="button" onClick={create} disabled={busy}
-            className="mo-press flex h-[var(--h-tap)] flex-1 items-center justify-center rounded-[var(--radius-input)]
+            className="mo-press flex h-(--h-tap) flex-1 items-center justify-center rounded-(--radius-input)
               border border-line-3 bg-signal text-[13px] font-bold text-void shadow-sh-2
               disabled:opacity-40">
             Créer
@@ -311,21 +311,21 @@ function GroupRow({ g, joined, onJoin }: {
           en médaillon — la même signature qu'une pièce qui abrite
           plusieurs personnes, sans avoir à charger leurs avatars. */}
       <span className="relative size-[42px] shrink-0">
-        <span className="flex size-[34px] items-center justify-center rounded-[var(--radius-input)]
+        <span className="flex size-[34px] items-center justify-center rounded-(--radius-input)
           border border-line-3 bg-surface-2 text-signal-d">
           <Icon name={asIconName(g.emoji, "groups")} size={18} strokeWidth={1.7} />
         </span>
         <span className="absolute -right-1 -bottom-1 flex size-[18px] items-center justify-center
-          rounded-full border border-line-2 bg-signal text-[9px] font-extrabold text-void">
+          rounded-full border border-line-2 bg-signal text-12 font-extrabold text-void">
           {count > 9 ? "9+" : count}
         </span>
       </span>
       <div className="min-w-0 flex-1">
         <div className="text-[14px] font-bold">{g.name}</div>
         {g.description ? (
-          <div className="mt-0.5 truncate text-[11.5px] text-chalk-3">{g.description}</div>
+          <div className="mt-0.5 truncate text-12 text-chalk-3">{g.description}</div>
         ) : null}
-        <div className="mt-0.5 font-mono text-[10.5px] uppercase tracking-[0.08em] text-chalk-4">
+        <div className="mt-0.5 font-mono text-12 uppercase tracking-[0.08em] text-chalk-4">
           {count} membre{count > 1 ? "s" : ""}
           {g.category ? ` · ${g.category}` : ""}
         </div>
@@ -334,8 +334,8 @@ function GroupRow({ g, joined, onJoin }: {
         ? <span aria-hidden="true" className="shrink-0 pl-1 font-mono text-[16px] text-chalk-4">›</span>
         : (
           <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); onJoin?.(); }}
-            className="mo-press h-[34px] rounded-[var(--radius-chip)] border-[var(--bw-thin)] border-line-3 bg-signal
-              px-3.5 text-[11.5px] font-bold text-void shadow-sh-1">
+            className="mo-press inline-flex h-(--h-tap) items-center rounded-(--radius-chip) border-(--bw-thin) border-line-3 bg-signal
+              px-3.5 text-12 font-bold text-void shadow-sh-1">
             Rejoindre
           </button>
         )}
@@ -348,7 +348,7 @@ function GroupRow({ g, joined, onJoin }: {
   // liste des conversations — feraient que le même geste aurait deux
   // réponses différentes selon l'écran.
   const cls =
-    "depth-card mb-[9px] flex items-center gap-3.5 rounded-[var(--radius-card)] " +
+    "depth-card mb-[9px] flex items-center gap-3.5 rounded-(--radius-card) " +
     "border border-edge glass-flat p-3.5";
 
   return joined ? (

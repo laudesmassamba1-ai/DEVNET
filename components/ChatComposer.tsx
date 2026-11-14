@@ -99,8 +99,8 @@ export function ChatComposer({
           }
         }}
         placeholder={placeholder}
-        className="max-h-[132px] min-h-[var(--h-input)] flex-1 resize-none
-          rounded-[var(--radius-input)] border border-line-3 bg-surface px-3.5
+        className="max-h-[132px] min-h-(--h-input) flex-1 resize-none
+          rounded-(--radius-input) border border-line-3 bg-surface px-3.5
           py-[10px] text-[16px] leading-[1.5] outline
           placeholder:text-chalk-4 focus:border-signal
           disabled:opacity-50"
@@ -113,7 +113,7 @@ export function ChatComposer({
           aria-pressed={code}
           aria-label="Envoyer comme code"
           title="Envoyer comme code"
-          className={`mo-press flex size-[var(--h-input)] shrink-0 items-center
+          className={`mo-press flex size-(--h-input) shrink-0 items-center
             justify-center rounded-full border transition-colors
             ${
               code
@@ -130,9 +130,9 @@ export function ChatComposer({
         onClick={onSend}
         disabled={sending || disabled || value.trim().length === 0}
         aria-label="Envoyer"
-        className="mo-press flex size-[var(--h-input)] shrink-0 items-center
+        className="mo-press flex size-(--h-input) shrink-0 items-center
           justify-center rounded-full border border-signal
-          bg-signal text-void shadow-[var(--shadow-action)] disabled:opacity-40"
+          bg-signal text-void shadow-(--shadow-action) disabled:opacity-40"
       >
         <Icon name="send" size={18} strokeWidth={2} />
       </button>
@@ -163,7 +163,7 @@ export function ComposerBar({
         pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2"
     >
       <div className="mx-auto w-full" style={{ maxWidth }}>
-        <div className="relative isolate rounded-[var(--radius-card)] glass-lens p-1.5">
+        <div className="relative isolate rounded-(--radius-card) glass-lens p-1.5">
           {children}
         </div>
       </div>

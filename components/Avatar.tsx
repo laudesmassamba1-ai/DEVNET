@@ -9,7 +9,7 @@ import type { AvatarColor } from "@/lib/types";
 const SIZE = {
   sm: "size-[34px] text-[13px]",
   md: "size-[42px] text-[15px]",
-  lg: "size-[72px] text-[26px] border-[var(--bw-heavy)]",
+  lg: "size-[72px] text-[26px] border-(--bw-heavy)",
 } as const;
 
 export function Avatar({
@@ -29,7 +29,7 @@ export function Avatar({
   return (
     <div
       aria-hidden="true"
-      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-[var(--radius-input)] border font-display font-bold
+      className={`flex shrink-0 items-center justify-center overflow-hidden rounded-(--radius-input) border font-display font-bold
         ${SIZE[size]} ${avatarClass(color as AvatarColor)} ${className}`}
       style={size === "lg" ? { boxShadow: "var(--shadow-avatar-ring)" } : {}}
     >
@@ -89,7 +89,7 @@ export function EmptyState({
   action?: React.ReactNode;
 }) {
   return (
-    <div className="mx-3 my-4 rounded-[var(--radius-card)] border border-dashed border-line-2 bg-surface/50"
+    <div className="mx-3 my-4 rounded-(--radius-card) border border-dashed border-line-2 bg-surface/50"
       role="status">
       <div className="flex items-center gap-2 border-b border-dashed border-line-2 px-4 py-2">
         <Icon name="terminal" size={11} className="text-signal" />
@@ -97,7 +97,7 @@ export function EmptyState({
       </div>
 
       <div className="flex flex-col items-center gap-3 px-7 py-8 text-center">
-        <div className="flex size-[46px] items-center justify-center rounded-[var(--radius-input)] border
+        <div className="flex size-[46px] items-center justify-center rounded-(--radius-input) border
           border-line-2 bg-surface-2 text-chalk-3">
           {icon ?? (
             <span className="font-mono text-[1.1rem] font-bold leading-none text-signal"
@@ -145,8 +145,8 @@ export function PrimaryButton({
     <button
       type={type}
       onClick={onClick}
-      className="mo-press inline-flex h-[var(--h-tap)] items-center justify-center gap-2
-        rounded-[var(--radius-input)] border border-line-3 bg-signal px-4
+      className="mo-press inline-flex h-(--h-tap) items-center justify-center gap-2
+        rounded-(--radius-input) border border-line-3 bg-signal px-4
         text-sm font-bold text-void shadow-sh-1
         hover:border-signal hover:shadow-sh-2"
     >
