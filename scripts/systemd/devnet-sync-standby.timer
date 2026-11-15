@@ -1,0 +1,10 @@
+[Unit]
+Description=Remise à niveau DevNet de la base de secours (quotidienne, 4 h)
+
+[Timer]
+OnCalendar=*-*-* 04:10:00
+Persistent=true
+RandomizedDelaySec=20min
+
+[Install]
+WantedBy=timers.target

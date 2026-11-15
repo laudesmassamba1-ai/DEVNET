@@ -1,0 +1,13 @@
+[Unit]
+Description=Remise à niveau du schéma de la base de secours DevNet
+Documentation=file:///home/laudes/Documents/Hackathon/devnet/docs/ops/failover.md
+After=devnet-backup.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/laudes/Documents/Hackathon/devnet
+Environment=PATH=/home/laudes/.nvm/versions/node/v22.23.2/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/laudes/Documents/Hackathon/devnet/scripts/db/sync-standby-daily.sh
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=30min

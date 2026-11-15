@@ -1,0 +1,381 @@
+import { createHash, randomBytes } from "node:crypto";
+import {
+  chmodSync,
+  closeSync,
+  createReadStream,
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  openSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  statSync,
+  unlinkSync,
+  writeFileSync,
+} from "node:fs";
+import { homedir, tmpdir } from "node:os";
+import path from "node:path";
+import { spawn } from "node:child_process";
+import { assertSafeTarget, maskHost, parseEndpoint, readTarget } from "./guard";
+import { loadEnvFileFor, loadEnvFiles, MigrationError, parseFlag, resolveDatabaseUrl } from "./lib";
+import { Client } from "pg";
+import { resolvePostgresConnection } from "../../platform/infrastructure/postgres/tls";
+
+const DEFAULT_BACKUP_DIR = path.join(homedir(), ".local", "share", "devnet", "backups");
+const DEFAULT_PASSPHRASE_FILE = path.join(homedir(), ".config", "devnet", "backup-passphrase");
+const DEFAULT_CONTAINER_IMAGE = "postgres:18.3-alpine";
+const BACKUP_PATTERN = /^devnet-(local|remote)-\d{8}T\d{6}Z\.dump\.gpg$/;
+
+process.umask(0o077);
+
+interface CommandResult {
+  code: number;
+  stderr: string;
+}
+
+function run(command: string, args: string[], env?: NodeJS.ProcessEnv, output?: number): Promise<CommandResult> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      env: env ?? process.env,
+      stdio: ["ignore", output ?? "ignore", "pipe"],
+    });
+    let stderr = "";
+    child.stderr?.on("data", (chunk: Buffer) => {
+      stderr += chunk.toString("utf8");
+      if (stderr.length > 8_000) stderr = stderr.slice(-8_000);
+    });
+    child.on("error", reject);
+    child.on("close", (code) => resolve({ code: code ?? 1, stderr }));
+  });
+}
+
+async function sha256(file: string): Promise<string> {
+  const hash = createHash("sha256");
+  for await (const chunk of createReadStream(file)) hash.update(chunk as Buffer);
+  return hash.digest("hex");
+}
+
+function timestamp(): string {
+  return new Date().toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+}
+
+function sqlModeFor(target: "local" | "remote", url: URL): string | undefined {
+  const mode = url.searchParams.get("sslmode") ?? undefined;
+  if (target === "remote" && (mode === "disable" || mode === "allow" || mode === "prefer")) {
+    throw new MigrationError(`sslmode=${mode} est interdit pour une sauvegarde distante.`);
+  }
+  if (mode) return mode;
+  return target === "remote" ? "require" : undefined;
+}
+
+function caCertificate(): string | undefined {
+  const value = process.env.DATABASE_CA_CERT?.trim();
+  if (!value) return undefined;
+  if (value.includes("-----BEGIN CERTIFICATE-----")) return value;
+  try {
+    return readFileSync(value, "utf8");
+  } catch {
+    throw new MigrationError(`Certificat CA introuvable ou illisible : ${value}.`);
+  }
+}
+
+function assertPassphrase(file: string): void {
+  if (!existsSync(file)) {
+    throw new MigrationError(
+      `Clé de sauvegarde absente : ${file}. Créez-la avec umask 077 et chmod 600, sans l'afficher.`,
+    );
+  }
+  const mode = statSync(file).mode & 0o777;
+  if ((mode & 0o077) !== 0) {
+    throw new MigrationError(`La clé ${file} doit être en permissions 600 (actuel : ${mode.toString(8)}).`);
+  }
+}
+
+async function dump(url: URL, target: "local" | "remote", output: number, image: string): Promise<void> {
+  const tempDir = mkdtempSync(path.join(tmpdir(), "devnet-backup-"));
+  const envFile = path.join(tempDir, "pg.env");
+  const password = decodeURIComponent(url.password);
+  const sslmode = sqlModeFor(target, url);
+  const verify = sslmode === "verify-full" || sslmode === "verify-ca";
+  const ca = verify ? caCertificate() : undefined;
+  if (verify && !ca) {
+    throw new MigrationError(
+      `sslmode=${sslmode} exige DATABASE_CA_CERT (contenu PEM ou chemin du root.crt).`,
+    );
+  }
+  const envLines = [`PGPASSWORD=${password}`];
+  if (sslmode) envLines.push(`PGSSLMODE=${sslmode}`);
+  if (ca) envLines.push("PGSSLROOTCERT=/certs/root.crt");
+
+  try {
+    writeFileSync(envFile, `${envLines.join("\n")}\n`, { mode: 0o600 });
+    if (ca) writeFileSync(path.join(tempDir, "root.crt"), ca, { mode: 0o600 });
+    const args = ["run", "--rm", "-i", "--network", "host", "--env-file", envFile];
+    if (ca) args.push("-v", `${tempDir}:/certs:ro`);
+    args.push(
+      image,
+      "pg_dump",
+      "--format=custom",
+      "--no-owner",
+      "--no-password",
+      `--host=${url.hostname}`,
+      `--port=${url.port || "5432"}`,
+      `--username=${decodeURIComponent(url.username)}`,
+      `--dbname=${decodeURIComponent(url.pathname.replace(/^\/+/, "")) || "postgres"}`,
+    );
+    const result = await run("docker", args, process.env, output);
+    if (result.code !== 0) {
+      throw new MigrationError(`pg_dump a échoué (code ${result.code}) : ${result.stderr.trim()}`);
+    }
+  } finally {
+    rmSync(tempDir, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Copie hors site de l'archive chiffrée.
+ *
+ * Le dump ne quitte la machine que **déjà chiffré** : ce qui est déposé sur
+ * le stockage distant est l'archive GPG, jamais le dump en clair.
+ *
+ * La destination est **Cloudflare R2** (`R2_*`), dans un préfixe distinct des
+ * médias applicatifs. Vercel Blob est volontairement exclu : le magasin
+ * connecté au projet est public, et une sauvegarde de base n'a rien à faire
+ * derrière une URL publique, même chiffrée.
+ *
+ * Sans configuration R2, l'étape est ignorée : une sauvegarde locale valide
+ * ne doit pas échouer parce que la copie hors site n'est pas configurée.
+ */
+async function uploadOffsite(
+  files: { path: string; name: string }[],
+): Promise<{ uploaded: string[]; skipped: string | null }> {
+  const endpoint = (process.env.R2_ENDPOINT?.trim() ?? "").replace(/\/+$/, "");
+  const accessKeyId = process.env.R2_ACCESS_KEY_ID?.trim();
+  const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY?.trim();
+  const bucket = process.env.R2_BUCKET?.trim();
+  if (!endpoint || !accessKeyId || !secretAccessKey || !bucket) {
+    return { uploaded: [], skipped: "R2 non configuré (R2_ENDPOINT / R2_BUCKET / clés)" };
+  }
+
+  const { AwsClient } = await import("aws4fetch");
+  const client = new AwsClient({
+    accessKeyId,
+    secretAccessKey,
+    service: "s3",
+    region: process.env.R2_REGION?.trim() || "auto",
+  });
+
+  // Le domaine public du magasin sert aussi les médias applicatifs : un
+  // objet déposé dessus est lisible par quiconque connaît son nom. Le
+  // préfixe porte donc un jeton aléatoire, et l'archive reste chiffrée.
+  const token = randomBytes(12).toString("hex");
+  const uploaded: string[] = [];
+  for (const file of files) {
+    const key = `db-backups/${token}/${file.name}`;
+    const response = await client.fetch(`${endpoint}/${bucket}/${key}`, {
+      method: "PUT",
+      body: new Uint8Array(readFileSync(file.path)),
+      headers: { "content-type": "application/octet-stream" },
+    });
+    if (!response.ok) {
+      const detail = await response.text().catch(() => "");
+      throw new MigrationError(
+        `Copie hors site refusée pour ${file.name} (HTTP ${response.status}) : ${detail.slice(0, 200)}`,
+      );
+    }
+    uploaded.push(key);
+  }
+  return { uploaded, skipped: null };
+}
+
+function prune(directory: string, keep: number): string[] {
+  const files = readdirSync(directory)
+    .filter((name) => BACKUP_PATTERN.test(name))
+    .sort()
+    .reverse();
+  const removed: string[] = [];
+  for (const name of files.slice(keep)) {
+    unlinkSync(path.join(directory, name));
+    for (const suffix of [".sha256", ".remote"]) {
+      const sidecar = path.join(directory, `${name}${suffix}`);
+      if (existsSync(sidecar)) unlinkSync(sidecar);
+    }
+    removed.push(name);
+  }
+  return removed;
+}
+
+/** Sonde courte : cette base répond-elle ? Ne lève jamais. */
+async function responds(url: string): Promise<boolean> {
+  let client: Client | undefined;
+  try {
+    const connection = resolvePostgresConnection(url);
+    client = new Client({
+      connectionString: connection.connectionString,
+      ssl: connection.ssl,
+      application_name: "devnet-backup-probe",
+      connectionTimeoutMillis: 8_000,
+    });
+    await client.connect();
+    await client.query("select 1");
+    return true;
+  } catch {
+    return false;
+  } finally {
+    await client?.end().catch(() => undefined);
+  }
+}
+
+/**
+ * Choisit la base à sauvegarder : la primaire si elle répond, la secours sinon.
+ *
+ * `--active` existe pour que la sauvegarde survive à une bascule. Sans lui, la
+ * minuterie nocturne viserait toujours `DATABASE_URL` et échouerait pendant
+ * tout incident — c'est-à-dire exactement quand une sauvegarde compte.
+ */
+async function resolveActive(): Promise<{ url: string; source: "primary" | "standby" }> {
+  const candidates: Array<{ source: "primary" | "standby"; url?: string }> = [
+    { source: "primary", url: (process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL)?.trim() },
+    { source: "standby", url: (process.env.DATABASE_URL_STANDBY_UNPOOLED ?? process.env.DATABASE_URL_STANDBY)?.trim() },
+  ];
+
+  const tried: string[] = [];
+  for (const candidate of candidates) {
+    if (!candidate.url) {
+      tried.push(`${candidate.source} : non configurée`);
+      continue;
+    }
+    if (await responds(candidate.url)) {
+      return { url: candidate.url, source: candidate.source };
+    }
+    tried.push(`${candidate.source} : injoignable`);
+  }
+
+  throw new MigrationError(`aucune base joignable pour la sauvegarde (${tried.join(" ; ")}).`);
+}
+
+async function main(): Promise<void> {
+  loadEnvFileFor(parseFlag(process.argv, "env"));
+  loadEnvFiles();
+  const active = process.argv.includes("--active");
+  const chosen = active && !parseFlag(process.argv, "database-url")
+    ? await resolveActive()
+    : { url: resolveDatabaseUrl(parseFlag(process.argv, "database-url")), source: "primary" as const };
+  const databaseUrl = chosen.url;
+  const target = readTarget();
+  const description = assertSafeTarget({ databaseUrl, target, operation: "read" });
+  const endpoint = parseEndpoint(databaseUrl);
+  const url = new URL(databaseUrl);
+
+  const outDir = path.resolve(parseFlag(process.argv, "out-dir") ?? process.env.DEVNET_BACKUP_DIR ?? DEFAULT_BACKUP_DIR);
+  const passphraseFile = path.resolve(
+    parseFlag(process.argv, "passphrase-file") ?? process.env.DEVNET_BACKUP_PASSPHRASE_FILE ?? DEFAULT_PASSPHRASE_FILE,
+  );
+  const image = parseFlag(process.argv, "image") ?? DEFAULT_CONTAINER_IMAGE;
+  const keepRaw = parseFlag(process.argv, "keep") ?? "14";
+  const keep = Number(keepRaw);
+  if (!Number.isInteger(keep) || keep < 1) {
+    throw new MigrationError(`--keep doit être un entier supérieur ou égal à 1 (reçu : ${keepRaw}).`);
+  }
+
+  assertPassphrase(passphraseFile);
+  mkdirSync(outDir, { recursive: true, mode: 0o700 });
+  chmodSync(outDir, 0o700);
+
+  const base = `devnet-${target}-${timestamp()}`;
+  const dumpPath = path.join(outDir, `${base}.dump`);
+  const encryptedPath = `${dumpPath}.gpg`;
+  const sidecarPath = `${encryptedPath}.sha256`;
+  const fd = openSync(dumpPath, "w", 0o600);
+
+  console.log(`Sauvegarde — ${description}`);
+  console.log(`Hôte ${maskHost(endpoint.host)} · base ${endpoint.database} · lecture seule`);
+  if (chosen.source === "standby") {
+    /* Le 14 novembre, la base primaire a refusé toute connexion pendant que la
+       sauvegarde quotidienne était censée tourner : elle aurait échoué, et on
+       l'aurait appris trop tard. Une sauvegarde prise sur la secours vaut mieux
+       qu'aucune sauvegarde — mais elle doit le dire, parce qu'elle contient les
+       données d'avant la bascule. */
+    console.warn(
+      "⚠️  Base PRIMAIRE injoignable : cette sauvegarde est prise sur la SECOURS. "
+        + "Elle ne contient pas les écritures faites après la bascule.",
+    );
+  }
+
+  let closed = false;
+  try {
+    await dump(url, target, fd, image);
+  } catch (error) {
+    closeSync(fd);
+    closed = true;
+    if (existsSync(dumpPath)) unlinkSync(dumpPath);
+    throw error;
+  } finally {
+    if (!closed) closeSync(fd);
+  }
+
+  const plainSize = statSync(dumpPath).size;
+  if (plainSize === 0) {
+    unlinkSync(dumpPath);
+    throw new MigrationError("Le dump est vide : sauvegarde refusée.");
+  }
+
+  try {
+    const encrypted = await run("gpg", [
+      "--batch",
+      "--yes",
+      "--quiet",
+      "--pinentry-mode",
+      "loopback",
+      "--passphrase-file",
+      passphraseFile,
+      "--symmetric",
+      "--cipher-algo",
+      "AES256",
+      "--output",
+      encryptedPath,
+      dumpPath,
+    ]);
+    if (encrypted.code !== 0) {
+      throw new MigrationError(`Chiffrement GPG échoué (code ${encrypted.code}) : ${encrypted.stderr.trim()}`);
+    }
+  } finally {
+    if (existsSync(dumpPath)) unlinkSync(dumpPath);
+  }
+
+  const size = statSync(encryptedPath).size;
+  const digest = await sha256(encryptedPath);
+  writeFileSync(sidecarPath, `${digest}  ${path.basename(encryptedPath)}\n`, { mode: 0o600 });
+  const removed = prune(outDir, keep);
+
+  console.log(`Fichier : ${encryptedPath}`);
+  console.log(`Taille : ${size} octets`);
+  console.log(`SHA-256 : ${digest}`);
+  console.log(`Chiffrement : GPG AES-256 (phrase ${passphraseFile})`);
+  if (removed.length > 0) console.log(`Rotation : ${removed.length} ancienne(s) sauvegarde(s) supprimée(s).`);
+
+  // Copie hors site : chiffrée d'abord, donc l'archive — pas les données en
+  // clair — est le seul objet qui sort de la machine.
+  if (process.argv.includes("--upload")) {
+    const result = await uploadOffsite([
+      { path: encryptedPath, name: path.basename(encryptedPath) },
+      { path: sidecarPath, name: path.basename(sidecarPath) },
+    ]);
+    if (result.skipped) {
+      console.log(`Copie hors site : ignorée (${result.skipped}).`);
+    } else {
+      // La clé distante est notée à côté de l'archive : sans elle, un
+      // préfixe aléatoire rendrait la restauration impossible à retrouver.
+      writeFileSync(`${encryptedPath}.remote`, `${result.uploaded.join("\n")}\n`, { mode: 0o600 });
+      console.log(`Copie hors site : ${result.uploaded.length} objet(s) déposé(s).`);
+      for (const name of result.uploaded) console.log(`  ${name}`);
+    }
+  }
+}
+
+main().catch((error: unknown) => {
+  const message = error instanceof Error ? error.message : String(error);
+  console.error(`❌ ${message}`);
+  process.exitCode = error instanceof MigrationError ? 1 : 2;
+});

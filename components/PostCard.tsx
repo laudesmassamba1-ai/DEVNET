@@ -1,0 +1,725 @@
+"use client";
+
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Avatar } from "./Avatar";
+import { CodeBlock } from "./CodeBlock";
+import { Icon, asIconName } from "./Icon";
+import { Motion, useCount, useInView } from "./Motion";
+import { ReactionPicker } from "./ReactionPicker";
+import { ReportButton } from "./ReportButton";
+import { OfflineVideoButton } from "./OfflineVideoButton";
+import { PostShareButton } from "./PostShareButton";
+import { Sheet } from "./Sheet";
+import { VerifiedBadge } from "./VerifiedBadge";
+import { badgeFor } from "@/lib/verification";
+import { clockTime, profileMeta, timeAgo } from "@/lib/utils";
+import { splitContent } from "@/lib/text";
+import type { PostWithAuthor } from "@/lib/types";
+
+/**
+ * Barre d'actions : une seule cible, 44 px partout.
+ *
+ * Les boutons avaient chacun leur recette de classes — `px-2.5 py-2`,
+ * `px-2`, un `size-8.5` pour « Signaler » — et trois d'entre eux
+ * mesuraient 30 à 40 px de large au doigt. Une seule constante garantit
+ * que le prochain bouton ajouté hérite de la bonne cible.
+ */
+const ACTION =
+  "inline-flex min-h-(--h-tap) min-w-(--h-tap) items-center justify-center gap-1.5 " +
+  "rounded-(--radius-chip) border-(--bw-thin) px-3 font-mono text-12 font-medium " +
+  "transition-[color,border-color,background-color,transform] duration-(--d-fast) " +
+  "active:translate-y-px";
+
+/** Icône seule : même cible, sans largeur de texte. */
+const ACTION_ICON = `${ACTION} px-0`;
+
+/** Ligne de la feuille d'actions : même hauteur de cible que la barre. */
+const MENU_ROW =
+  "flex min-h-(--h-tap) items-center gap-3 rounded-(--radius-input) " +
+  "px-3 text-left text-14 text-chalk-2 hover:bg-surface-2";
+
+/**
+ * Vidéo jointe à une publication.
+ *
+ * Deux détails font la différence entre « la vidéo ne se lance pas » et une
+ * lecture immédiate : le fragment `#t=0.1` demande la première image au lieu
+ * d'un rectangle noir tant qu'on n'a pas appuyé sur play (Safari n'affiche
+ * rien sans lui), et un échec de décodage devient un message lisible — un
+ * `.mov` en HEVC, courant sur iPhone, ne se lit ni dans Chrome ni dans
+ * Firefox, et une zone noire ne dit pas pourquoi.
+ */
+function InlineVideo({ src }: { src: string }) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return (
+      <a
+        href={src}
+        target="_blank"
+        rel="noreferrer"
+        className="mb-3 flex min-h-(--h-tap) items-center justify-center
+          rounded-(--radius-input) border border-line-2 bg-surface-2 px-4
+          text-center font-mono text-12 text-chalk-3"
+      >
+        Vidéo non lisible ici (format ou codec non pris en charge) — l’ouvrir
+      </a>
+    );
+  }
+
+  return (
+    <>
+      <video
+        src={`${src}#t=0.1`}
+        controls
+        playsInline
+        preload="metadata"
+        onError={() => setFailed(true)}
+        className="mb-3 max-h-105 w-full rounded-(--radius-input)
+          border border-line-2 bg-surface-2 object-contain"
+      />
+      <OfflineVideoButton url={src} className="mb-3" />
+    </>
+  );
+}
+
+/**
+ * Carte de post.
+ *
+ * La métaphore : **une publication est un fichier**. Elle a une
+ * gouttière de lignes à gauche, un en-tête qui donne l'auteur et
+ * l'horodatage, et un corps. Le liseré d'accent remplace la barre
+ * d'outils verticale de l'éditeur.
+ *
+ * La gouttière n'est pas décorative : elle donne à la carte une colonne
+ * de repères stable. Le contenu est un flux, mais la structure doit être
+ * stable — c'est ce qui permet à l'œil de parcourir le fil sans lire.
+ *
+ * La gouttière rappelle la marge d'un éditeur. Les séparateurs du fil
+ * gardent les publications dans une seule colonne, sans empilement de cartes.
+ */
+export function PostCard({
+  post,
+  liked,
+  onToggleLike,
+  onOpenComments,
+  onOpenProfile,
+  isMine = false,
+  onEdit,
+  onDelete,
+  project = null,
+  onOpenProject,
+  meId = null,
+  reaction = null,
+  onReact,
+  reposted = false,
+  onRepost,
+  bookmarked = false,
+  onBookmark,
+}: {
+  post: PostWithAuthor;
+  liked: boolean;
+  onToggleLike?: (id: string) => void;
+  /** Ouvre le fil de commentaires du post. */
+  onOpenComments?: (id: string) => void;
+  onOpenProfile?: (pseudo: string) => void;
+  /**
+   * Le post appartient-il au lecteur ? C'est la seule condition pour
+   * proposer de le modifier ou de le supprimer — et elle est vérifiée
+   * une seconde fois par la RLS, qui refuse l'écriture à quiconque
+   * n'est pas l'auteur. L'interface ne fait qu'éviter d'afficher une
+   * action qui échouerait.
+   */
+  isMine?: boolean;
+  onEdit?: (post: PostWithAuthor) => void;
+  onDelete?: (post: PostWithAuthor) => void;
+  /**
+   * Projet auquel cette publication est rattachée.
+   *
+   * Optionnel par conception : la plupart des publications n'ont pas de
+   * dépôt derrière, et afficher un emplacement vide sur chacune
+   * à leur place serait du bruit. Le rattachement se voit **s'il
+   * existe** — et il est alors un lien, pas une étiquette.
+   */
+  project?: { id: string; name: string; emoji: string; default_branch?: string } | null;
+  onOpenProject?: (id: string) => void;
+  /**
+   * Identifiant du lecteur.
+   *
+   * Passé en prop et non lu par un `useSession` dans la carte : le fil
+   * affiche trente cartes, et trente abonnements à la même session
+   * pour savoir la même chose. La carte ne répond qu'à « à qui
+   * appartient ce post ».
+   */
+  meId?: string | null;
+  /**
+   * La réaction du lecteur sur ce post, si elle en a posé une.
+   *
+   * Passée en prop comme `liked` : les deux décrivent la même chose —
+   * « qu'est-ce que j'ai fait sur cette carte » — et les lire depuis
+   * la base à chaque rendu coûterait une requête par carte.
+   */
+  reaction?: string | null;
+  /** Pose, remplace ou retire la réaction. `null` retire. */
+  onReact?: (id: string, emoji: string | null) => void;
+  /** Le lecteur a-t-il republié ce post ? */
+  reposted?: boolean;
+  /** Republie ou retire le repost. */
+  onRepost?: (id: string) => void;
+  /** Le lecteur a-t-il enregistré ce post dans ses signets ? */
+  bookmarked?: boolean;
+  /** Enregistre ou retiré le signet. */
+  onBookmark?: (id: string) => void;
+}) {
+  const router = useRouter();
+
+  /**
+   * La feuille des gestes secondaires, sous 640 px seulement.
+   *
+   * Neuf boutons de 44 px ne tiennent pas sur une ligne de téléphone :
+   * la barre cassait en deux rangs, et « Partager » se retrouvait seul
+   * au centre du second. Les gestes rares — republier, enregistrer,
+   * signaler, modifier, supprimer — passent donc dans une feuille, et
+   * la barre tient sur un rang. Le bureau ne change pas.
+   */
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  // L'auteur vient de la jointure, jamais des colonnes recopiées sur le
+  // post : une recopie est figée à l'insertion, donc un changement de nom,
+  // de pseudo ou de filière resterait invisible sur les posts anciens.
+  // La jointure peut échouer (mode démo, réseau) — on affiche alors un
+  // repli neutre, ce qui se voit, plutôt qu'un nom périmé, qui ne se voit pas.
+  const author = post.author;
+  const name = author?.prenom ?? "?";
+  const pseudo = author?.pseudo ?? "";
+  const color = author?.avatar_color ?? "av-sage";
+  const meta = profileMeta(author?.filiere, author?.niveau);
+
+  const likes = useCount(post.likes ?? 0);
+  const comments = useCount(post.comments ?? 0);
+
+  /* L'entrée de la carte est déclenchée à l'approche du regard, pas au
+     chargement : un fil de quarante publications ne doit pas déclencher
+     quarante animations d'un coup — la page « pulse » pendant une
+     seconde, puis l'œil a déjà perdu l'effet. `useInView` anime chaque
+     carte quand elle entre réellement dans le champ ; sous
+     `prefers-reduced-motion`, le CSS neutralise l'animation et `mo-pre`
+     rend l'opacité. La carte est animée sur elle-même (pas de conteneur
+     ajouté) : la disposition flex de `feed-post` reste intacte. */
+  const { ref: cardRef, className: entranceClass } = useInView<HTMLElement>();
+
+  // L'heure absolue vit dans la marge, l'heure relative reste dans
+  // l'en-tête. Les deux ne disent pas la même chose : « il y a 8 min »
+  // situe la lecture, « 08:42 » date le contenu. La marge porte le
+  // repère fixe, l'en-tête le repère mouvant.
+  const posted = clockTime(post.created_at);
+
+  return (
+    <article
+      ref={cardRef}
+      /*
+        La carte porte une **surface** et non un simple filet : sur un écran
+        large, une suite de paragraphes séparés par des hairlines se lit
+        comme un document brut, pas comme un fil. La teinte reste très
+        basse (surface à 30 %) pour ne pas casser la métaphore du fichier
+        que la gouttière raconte ; le survol la relève d'un cran, sans
+        déplacer quoi que ce soit.
+      */
+      className={`${entranceClass} feed-post flex overflow-hidden border-b border-line-2
+        bg-surface/30 transition-[background-color,border-color,transform]
+        duration-(--d-fast) ease-(--ease-spring)
+        hover:-translate-y-px hover:border-line-3 hover:bg-surface/60`}
+    >
+      {/* Gouttière de lecture, distincte du texte et du code intégré. */}
+      <div
+        className="feed-post__gutter flex w-8 shrink-0 flex-col items-center
+          border-r border-line-2 py-4"
+      >
+        <Motion as="span" role="rotate">
+          <Icon name="file" size={12} className="text-chalk-4" />
+        </Motion>
+
+        {/* Cadran : deux lignes de deux chiffres tiennent dans les 32 px
+            de la gouttière et alignent la colonne de repères d'un post à
+            l'autre, sans élargir la marge de lecture. */}
+        <Motion as="span" role="slide" className="mt-2 block">
+          <time
+            dateTime={post.created_at}
+            title={`Publié à ${posted}`}
+            className="line-gutter tnum block text-center leading-[1.5]"
+          >
+            <span aria-hidden="true">
+              {posted.slice(0, 2)}
+              <br />
+              {posted.slice(3, 5)}
+            </span>
+            <span className="sr-only">Publié à {posted}</span>
+          </time>
+        </Motion>
+
+        {/* Le filet vertical ne s'étire qu'entre deux éléments : c'est
+            une liaison, pas un séparateur. */}
+        <Motion
+          role="slide"
+          className="mt-5 w-px flex-1"
+          style={{ transformOrigin: "top" }}
+        >
+          <span className="block h-full w-px bg-line" />
+        </Motion>
+
+        <Motion as="span" role="fade">
+          <Icon name="comment" size={11} className="text-chalk-4" />
+        </Motion>
+      </div>
+
+      <div className="feed-post__content min-w-0 flex-1 px-4 py-4">
+        {/* ── En-tête ── */}
+        <Motion
+          role="rise"
+          className="mb-2 flex items-center gap-2.5"
+        >
+          <Avatar
+            name={name}
+            color={color}
+            src={author?.avatar_url}
+            /* Un anneau, pas une lueur : le cachet se lit à son filet.
+               Une ombre colorée autour de l'avatar faisait briller la
+               personne vérifiée — le privilège devenait un reflet. */
+            className={author?.verified ? "ring-1 ring-level/50" : ""}
+          />
+          <div className="min-w-0 flex-1">
+            {pseudo ? (
+              <button
+                type="button"
+                onClick={() => onOpenProfile?.(pseudo)}
+                className="group/author -ml-0.5 flex min-h-(--h-tap) flex-col
+                  justify-center py-1 text-left"
+              >
+                <span className="inline-flex items-center gap-1.5 text-14
+                  font-semibold transition-colors group-hover/author:text-signal">
+                  {name}
+                  {author?.verified && (
+                    <VerifiedBadge
+                      tier={badgeFor(author, author?.xp ?? 0)}
+                      size="inline"
+                    />
+                  )}
+                </span>
+                <span
+                  className="ml-1.5 font-mono text-12 font-normal
+                    text-chalk-3 transition-colors group-hover/author:text-signal/70"
+                >
+                  @{pseudo}
+                </span>
+              </button>
+            ) : (
+              <div className="text-13 font-semibold">{name}</div>
+            )}
+            <div className="mt-1 font-mono text-12 text-chalk-4">
+              {meta ? `${meta} · ` : ""}
+              {timeAgo(post.created_at)}
+            </div>
+          </div>
+        </Motion>
+
+        {/* ── Corps ──
+            Le texte est rendu segment par segment, pas en HTML : un
+            hashtag devient un lien, une mention aussi, et le reste du
+            texte passe par `esc` comme avant. On ne peut donc pas
+            injecter de balise dans un post, et un `#python` écrit dans
+            le texte mène quelque part.
+
+            Écrire un hashtag sans pouvoir le suivre serait une promesse
+            non tenue : c'est pour ça que le mot existe dans le texte et
+            pas seulement dans une colonne invisible. La mention suit la
+            même règle, et pour une raison plus forte encore : on écrit
+            `@koffi` pour le citer, et un texte qui cite sans lien oblige
+            à recopier le pseudo. */}
+        <Motion
+          role="slide"
+          className="feed-post__text mb-2.5 text-15 leading-[1.6] break-words
+            whitespace-pre-wrap text-chalk-2"
+        >
+          {splitContent(post.text).map((segment, i) =>
+            segment.tag ? (
+              <button
+                key={i}
+                type="button"
+                onClick={() => router.push(`/search?tag=${encodeURIComponent(segment.tag!)}`)}
+                title={`Voir les publications #${segment.tag}`}
+                data-inline-link
+                className="font-medium text-signal underline-sweep"
+              >
+                {segment.text}
+              </button>
+            ) : segment.mention ? (
+              <button
+                key={i}
+                type="button"
+                onClick={() => router.push(`/u/${encodeURIComponent(segment.mention!)}`)}
+                title={`Ouvrir le profil de @${segment.mention}`}
+                data-inline-link
+                className="font-medium text-chalk underline-sweep hover:text-signal"
+              >
+                {segment.text}
+              </button>
+            ) : (
+              // React échappe déjà le texte : passer par `esc()` ici
+              // doublait l'échappement, et les entités s'affichaient en
+              // clair — « &#39; » au lieu d'un apostrophe, « <br/> » au lieu
+              // d'un retour à la ligne (que `whitespace-pre-wrap` rend
+              // déjà). Le HTML se protège en ne l'injectant pas, pas en
+              // rééchappant ce que React protège déjà.
+              <span key={i}>{segment.text}</span>
+            ),
+          )}
+        </Motion>
+
+        {/* ── GIF : le média est du contenu, il vient après le texte. ──
+            `loading="lazy"` évite de charger les GIF des posts qu'on n'a
+            pas encore atteints ; `object-contain` garde le cadrage du
+            fournisseur sans le rogner. L'`alt` vient de la description
+            du fournisseur : un GIF sans description reste annoncé
+            comme un GIF, jamais comme une image muette. */}
+        {post.gif_url ? (
+          <Motion role="scale">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={post.gif_url}
+              alt={post.gif_alt || "GIF joint à la publication"}
+              loading="lazy"
+              decoding="async"
+              className="mb-2.5 max-h-105 w-full rounded-(--radius-input)
+                border border-line-2 bg-surface-2 object-contain"
+            />
+          </Motion>
+        ) : null}
+
+        {/* ── Photo ou vidéo jointe (migration 056) ──
+            La vidéo se lit sur place, muette jusqu'au premier geste —
+            `playsInline` évite le plein écran automatique d'iOS, et
+            `preload="metadata"` ne télécharge que l'en-tête tant qu'on
+            n'a pas cliqué. */}
+        {post.media_url ? (
+          <Motion role="scale">
+            {post.media_type === "video" ? (
+              <InlineVideo src={post.media_url} />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={post.media_url}
+                alt="Photo jointe à la publication"
+                loading="lazy"
+                decoding="async"
+                className="mb-2.5 max-h-105 w-full rounded-(--radius-input)
+                  border border-line-2 bg-surface-2 object-contain"
+              />
+            )}
+          </Motion>
+        ) : null}
+
+        {/* ── Code : s'insère après le texte, à sa place dans la lecture. ── */}
+        {post.has_code && (
+          <Motion role="scale">
+            <CodeBlock code={post.code} lang={post.lang} variant="paper" lineNumbers />
+          </Motion>
+        )}
+
+        {/* ── Le projet d'origine ──
+            Une publication qui vient d'un dépôt le dit, et le dit
+            cliquable : c'est le chemin le plus court entre « j'ai lu
+            quelque chose d'intéressant » et « voici le code ». Sans ce
+            lien, le lien post↔projet n'existerait que dans la base. */}
+        {project && (
+          <Motion role="fade">
+            <button
+              type="button"
+              onClick={() => onOpenProject?.(project.id)}
+              className="mb-2.5 inline-flex min-h-(--h-tap) items-center gap-1.5
+                rounded-(--radius-chip) border border-line-3 px-3 font-mono
+                text-12 text-chalk-3 transition-colors duration-(--d-fast)
+                hover:border-signal hover:text-signal"
+            >
+              <span aria-hidden="true" className="shrink-0 leading-none">
+                <Icon name={asIconName(project.emoji, "layers")} size={14} strokeWidth={1.8} />
+              </span>
+              <span className="truncate">{project.name}</span>
+              {project.default_branch && (
+                <span className="label-micro flex items-center gap-0.5 text-chalk-4">
+                  <Icon name="branch" size={9} />
+                  {project.default_branch}
+                </span>
+              )}
+              <Icon name="chevron-right" size={11} />
+            </button>
+          </Motion>
+        )}
+
+        {/* ── Actions ── */}
+        <Motion
+          role="slide"
+          className="mt-1 flex flex-wrap items-center gap-1.5 border-t border-line/70 pt-3"
+        >
+          <button
+            type="button"
+            onClick={() => onToggleLike?.(post.id)}
+            aria-pressed={liked}
+            // Le nombre est visible : sous 2.5.3, le nom accessible doit le
+            // contenir. « Aimer cette publication, 12 » se lit, se cherche
+            // à la voix et garde le compte annoncé.
+            aria-label={`${liked ? "Ne plus aimer cette publication" : "Aimer cette publication"}, ${likes}`}
+            className={`${ACTION} ${
+              liked
+                ? "border-signal text-signal"
+                : "border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"
+            }`}
+          >
+            {/* Le cœur ne « remplit » pas : il se contracte puis revient.
+                Un remplissage instantané est un changement d'état ; la
+                contraction est une réaction. */}
+            <Motion key={String(liked)} role="pop" as="span" delay={0}>
+              <Icon
+                name="like"
+                size={14}
+                fill={liked ? "currentColor" : "none"}
+                strokeWidth={liked ? 1.7 : 1.9}
+              />
+            </Motion>
+            <span className="tnum">{likes}</span>
+          </button>
+
+          {/* Le nombre de commentaires est un **bouton**. Il l'était
+              pendant longtemps un `<span>` : l'icône d'une bulle de
+              conversation invite à cliquer, et un élément sur lequel on
+              ne peut pas cliquer est un mensonge de l'interface. Il est
+              donc actionnable, avec le même relief que les autres
+              actions de la barre, et il annonce son effet aux lecteurs
+              d'écran. */}
+          <button
+            type="button"
+            onClick={() => onOpenComments?.(post.id)}
+            aria-label={`Ouvrir les ${post.comments || 0} commentaires`}
+            className={`${ACTION} border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk`}
+          >
+            <Icon name="comment" size={14} />
+            <span className="tnum">{comments}</span>
+          </button>
+
+          {/* Réaction : le sélecteur s'ouvre au survol du bouton, et
+              la ligne de réactions déjà posées se lit juste au-dessus.
+              L'emoji affiché dans le bouton est celui du lecteur : un
+              bouton qui ne montre pas son propre état oblige à ouvrir
+              le sélecteur pour savoir si on a déjà réagi. */}
+          <ReactionPicker
+            mine={reaction ?? null}
+            onPick={(emoji) => onReact?.(post.id, emoji)}
+          />
+
+          {/* Le total des réactions, quand il y en a. On n'affiche pas
+              un `0` : un chiffre à zéro sur une carte vide est du bruit,
+              et il n'apprend rien. */}
+          {post.reactions ? (
+            <span className="tnum font-mono text-12 text-chalk-4">
+              {post.reactions}
+            </span>
+          ) : null}
+
+          <div className="hidden sm:contents">
+          {/* Repost : ni like, ni partage. Le like dit « j'ai vu », le
+              partage dit « envoie-le à quelqu'un », le repost dit « il
+              fait partie de mon fil ». Le confondre avec le partage
+              était le défaut d'origine : les deux sont deux gestes et
+              deux destinations différentes. */}
+          <button
+            type="button"
+            onClick={() => onRepost?.(post.id)}
+            aria-pressed={reposted}
+            aria-label={`${
+              reposted
+                ? "Retirer cette publication de ton fil"
+                : "Republier dans mon fil"
+            }${post.reposts ? `, ${post.reposts}` : ""}`}
+            className={`${ACTION} ${
+              reposted
+                ? "border-ok text-ok"
+                : "border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk"
+            }`}
+          >
+            <Motion key={String(reposted)} role="rotate" as="span" delay={0}>
+              <Icon name="repost" size={14} />
+            </Motion>
+            {post.reposts ? <span className="tnum">{post.reposts}</span> : null}
+          </button>
+
+          {/* Le signet est le seul des quatre gestes qui ne parle **pas**
+              aux autres : on garde une publication pour soi. D'où son
+              ton — l'ambre, qui est la couleur d'accent — et non le
+              rouge du like, qui signifierait « j'ai vu » et serait donc
+              faux. */}
+          <button
+            type="button"
+            onClick={() => onBookmark?.(post.id)}
+            aria-pressed={bookmarked}
+            aria-label={
+              bookmarked
+                ? "Retirer des signets"
+                : "Enregistrer dans les signets"
+            }
+            title={bookmarked ? "Retirer des signets" : "Enregistrer"}
+            className={`${ACTION_ICON} ${
+              bookmarked
+                ? "border-signal text-signal"
+                : "border-line text-chalk-4 hover:border-line-3 hover:text-chalk"
+            }`}
+          >
+            <Motion key={String(bookmarked)} role="pop" as="span" delay={0}>
+              <Icon
+                name="bookmark"
+                size={14}
+                fill={bookmarked ? "currentColor" : "none"}
+              />
+            </Motion>
+          </button>
+
+          </div>
+
+          {/* Partager reste dans la barre : c'est le geste le plus
+              courant, il ne mérite pas une feuille. */}
+          <PostShareButton title={post.text} url={`${window.location.origin}/post/${post.id}`} />
+
+          <div className="hidden sm:contents">
+
+          {/* Signaler, en icône seule et dans le ton le plus discret :
+              c'est un geste qu'on fait une fois, dans le doute, et il ne
+              doit pas peser dans la barre d'actions comme un partage. Le
+              composant ne rend rien si le post est le mien — la base
+              refuserait l'envoi. */}
+          <ReportButton
+            me={meId ?? null}
+            targetId={post.id}
+            targetType="post"
+            targetLabel="cette publication"
+            targetAuthorId={post.author_id}
+            compact
+            className={`${ACTION_ICON} ml-1 border-line text-chalk-4 hover:border-danger hover:text-danger`}
+          />
+
+          {/* Les deux actions de l'auteur. Elles ne displacement pas
+              « Partager » : c'est le geste le plus courant, il reste à
+              droite où l'œil l'attend. Elles apparaissent à leur place
+              dans la barre, pas dans un menu — un post qu'on lit est un
+              post qu'on a sous les yeux, et un menu à trois entrées
+              pour deux gestes est une étape de trop. */}
+          {isMine && (
+            <>
+              <button
+                type="button"
+                onClick={() => onEdit?.(post)}
+                aria-label="Modifier ce post"
+                title="Modifier"
+                className={`${ACTION_ICON} border-line text-chalk-3 hover:border-line-3 hover:bg-surface-2 hover:text-chalk`}
+              >
+                <Icon name="edit" size={14} />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => onDelete?.(post)}
+                aria-label="Supprimer ce post"
+                title="Supprimer"
+                className={`${ACTION_ICON} border-line text-chalk-3 hover:border-danger hover:text-danger`}
+              >
+                <Icon name="trash" size={14} />
+              </button>
+            </>
+          )}
+          </div>
+
+          {/* Sous 640 px : une seule cible de plus, qui ouvre les gestes
+              rangés dans la feuille. Elle porte le même gabarit que les
+              autres — 44 px — pour ne pas redevenir le petit bouton
+              qu'on rate au pouce. */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen(true)}
+            aria-label="Plus d'actions sur cette publication"
+            aria-haspopup="dialog"
+            className={`${ACTION_ICON} sm:hidden border-line text-chalk-4
+              hover:border-line-3 hover:text-chalk`}
+          >
+            <Icon name="dots" size={16} />
+          </button>
+        </Motion>
+
+        <Sheet open={menuOpen} onClose={() => setMenuOpen(false)} title="Actions">
+          <div className="grid gap-1 px-(--gutter) pb-2">
+            <button
+              type="button"
+              onClick={() => {
+                onRepost?.(post.id);
+                setMenuOpen(false);
+              }}
+              aria-pressed={reposted}
+              className={`${MENU_ROW} ${reposted ? "text-ok" : ""}`}
+            >
+              <Icon name="repost" size={18} />
+              {reposted ? "Retirer de mon fil" : "Republier dans mon fil"}
+              {post.reposts ? (
+                <span className="tnum ml-auto text-chalk-4">{post.reposts}</span>
+              ) : null}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                onBookmark?.(post.id);
+                setMenuOpen(false);
+              }}
+              aria-pressed={bookmarked}
+              className={`${MENU_ROW} ${bookmarked ? "text-signal" : ""}`}
+            >
+              <Icon name="bookmark" size={18} fill={bookmarked ? "currentColor" : "none"} />
+              {bookmarked ? "Retirer des signets" : "Enregistrer dans les signets"}
+            </button>
+
+            <ReportButton
+              me={meId ?? null}
+              targetId={post.id}
+              targetType="post"
+              targetLabel="cette publication"
+              targetAuthorId={post.author_id}
+              className={`${MENU_ROW} text-chalk-3 hover:text-danger`}
+            />
+
+            {isMine && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onEdit?.(post);
+                  }}
+                  className={MENU_ROW}
+                >
+                  <Icon name="edit" size={18} />
+                  Modifier
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    onDelete?.(post);
+                  }}
+                  className={`${MENU_ROW} hover:text-danger`}
+                >
+                  <Icon name="trash" size={18} />
+                  Supprimer
+                </button>
+              </>
+            )}
+          </div>
+        </Sheet>
+      </div>
+    </article>
+  );
+}

@@ -1,0 +1,216 @@
+import type { Metadata, Viewport } from "next";
+import { Manrope, Poppins, Space_Grotesk } from "next/font/google";
+import localFont from "next/font/local";
+import Script from "next/script";
+import { BackendGate } from "@/components/BackendGate";
+import { EventPump } from "@/components/EventPump";
+import { MaintenanceGate } from "@/components/MaintenanceGate";
+import { OfflineBanner } from "@/components/OfflineBanner";
+import { PwaManager } from "@/components/PwaManager";
+import { RouteWarmup } from "@/components/RouteWarmup";
+import { SessionProvider } from "@/hooks/useSession";
+import { SplashScreen } from "@/components/SplashScreen";
+import { ThemeApplier } from "@/components/ThemeApplier";
+import { ToastProvider } from "@/components/Toast";
+import { TourProvider } from "@/components/TourProvider";
+import { DEFAULT_THEME, THEME_STORAGE_KEY, THEMES } from "@/lib/theme";
+import {
+  PWA_ICONS,
+  PWA_LIGHT_THEME_COLOR,
+  PWA_SHORT_NAME,
+  PWA_SPLASHES,
+  PWA_THEME_COLOR,
+} from "@/lib/pwa";
+import { LIQUID_GLASS_KEY, MOTION_LEVEL_KEY, REDUCED_MOTION_KEY } from "@/lib/ui-preferences";
+import "./globals.css";
+
+/**
+ * Typographie DevNet — deux familles, deux rôles.
+ *
+ * - **Instrument Sans** — interface et lecture, avec une graisse variable
+ *   pour garder une hiérarchie nette sans ajouter une troisième famille.
+ * - **IBM Plex Mono** — la donnée : compteurs, pseudos, libellés de
+ *   colonne, code. Le mono n'est pas un effet « technique », c'est ce qui
+ *   fait qu'un compteur ne saute pas et qu'une colonne s'aligne.
+ */
+
+const instrumentSans = localFont({
+  src: "./fonts/InstrumentSansVariable.ttf",
+  display: "swap",
+  variable: "--font-instrument",
+  weight: "400 700",
+});
+
+/*
+ * Les familles du thème Savane.
+ *
+ * Elles sont chargées une fois et exposées en variables : le thème
+ * choisit laquelle parle (`--font-display`, `--font-sans`, `--font-mono`,
+ * `--font-label`), les deux thèmes historiques gardent Instrument Sans.
+ * next/font les auto-héberge, donc aucune requête vers Google au runtime.
+ *
+ * - **Inter** — le texte : dessin neutre, chiffres lisibles, très bon en
+ *   petite taille sur iPhone.
+ * - **Poppins** — les titres : géométrique, rond, une voix.
+ * - **Space Grotesk** — les données : compteurs, pseudos, libellés.
+ * - **Manrope** — les micro-libellés de section.
+ */
+const inter = localFont({
+  src: "./fonts/Inter[opsz,wght].ttf",
+  display: "swap",
+  variable: "--font-inter",
+  weight: "100 900",
+  // Inter n'est utilisée que par le thème Savane : la précharger sur tous
+  // les thèmes gaspille une requête et déclenche l'avertissement Next.
+  preload: false,
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+  variable: "--font-poppins",
+  preload: false,
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-grotesk",
+  preload: false,
+});
+
+const manrope = Manrope({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-manrope",
+  preload: false,
+});
+
+const plexMono = localFont({
+  src: [
+    { path: "./fonts/IBMPlexMono-Regular.ttf", weight: "400" },
+    { path: "./fonts/IBMPlexMono-Medium.ttf", weight: "500" },
+    { path: "./fonts/IBMPlexMono-SemiBold.ttf", weight: "600" },
+    { path: "./fonts/IBMPlexMono-Bold.ttf", weight: "700" },
+  ],
+  display: "swap",
+  preload: false,
+  variable: "--font-plex-mono",
+});
+
+export const metadata: Metadata = {
+  title: "DevNet — Le réseau des développeurs africains",
+  description:
+    "La plateforme d'échange entre étudiants et professionnels du numérique en Afrique.",
+  applicationName: PWA_SHORT_NAME,
+  appleWebApp: {
+    capable: true,
+    title: PWA_SHORT_NAME,
+    statusBarStyle: "black-translucent",
+    startupImage: PWA_SPLASHES.map(({ url, media }) => ({ url, media })),
+  },
+  formatDetection: { telephone: false },
+  icons: {
+    icon: [
+      { url: PWA_ICONS.icon48, sizes: "48x48", type: "image/png" },
+      { url: PWA_ICONS.icon72, sizes: "72x72", type: "image/png" },
+      { url: PWA_ICONS.icon96, sizes: "96x96", type: "image/png" },
+      { url: PWA_ICONS.icon144, sizes: "144x144", type: "image/png" },
+      { url: PWA_ICONS.icon192, sizes: "192x192", type: "image/png" },
+      { url: PWA_ICONS.icon512, sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: PWA_ICONS.appleTouch, sizes: "180x180", type: "image/png" }],
+    shortcut: "/favicon.svg",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: PWA_LIGHT_THEME_COLOR },
+    { media: "(prefers-color-scheme: dark)", color: PWA_THEME_COLOR },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  /* Le zoom reste permis : le blocage (`maximumScale`, `userScalable`)
+     empêchait d'agrandir l'interface, ce qu'une personne malvoyante ne
+     peut pas contourner. L'auto-zoom iOS au focus d'un champ vient d'un
+     champ de moins de 16 px : c'est la taille des champs qu'il faut
+     corriger, pas le droit de zoomer. */
+  viewportFit: "cover",
+};
+
+const mediaOrigin = process.env.R2_PUBLIC_URL?.trim().replace(/\/+$/, "") ?? "";
+
+export default function RootLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  // Les variables de police doivent être sur <html> : une custom property
+  // contenant var() est résolue là où elle est déclarée, donc sur :root.
+  // Si next/font les posait sur <body>, --font-sans serait invalide à
+  // la racine et le fallback système s'appliquerait partout.
+  return (
+    <html
+      lang="fr"
+      // `scroll-behavior: smooth` sert aux ancres internes ; cet attribut
+      // dit à Next de ne pas l'appliquer pendant une navigation de route,
+      // sinon la page défile visiblement vers le haut à chaque clic.
+      data-scroll-behavior="smooth"
+      className={`${instrumentSans.variable} ${plexMono.variable} ${inter.variable} ${poppins.variable} ${spaceGrotesk.variable} ${manrope.variable}`}
+      // Le thème est posé sur `<html>` avant l'hydratation (script plus
+      // bas) : le serveur ne peut pas le connaître, on autorise l'écart.
+      suppressHydrationWarning
+    >
+      <body className="antialiased">
+        {/*
+          Les médias vivent sur R2, pas sur le domaine de l'app : sans
+          indication, le navigateur ne résout ce domaine qu'au moment de la
+          première image, ce qui ajoute une poignée de main TLS au chargement
+          du fil. Deux `<link>` suffisent, sans dépendance.
+        */}
+        {mediaOrigin ? (
+          <>
+            <link rel="preconnect" href={mediaOrigin} crossOrigin="" />
+            <link rel="dns-prefetch" href={mediaOrigin} />
+          </>
+        ) : null}
+        {/*
+          Le thème doit être appliqué **avant** le premier rendu, sinon un
+          utilisateur en thème clair voit un flash ivoire. Ce script lit la
+          copie locale et pose `data-theme` sur `<html>` dès l'HTML initial ;
+          `ThemeApplier` resynchronise ensuite avec la valeur en base.
+        */}
+        <Script id="devnet-theme" strategy="beforeInteractive">
+          {`try{var t=localStorage.getItem(${JSON.stringify(THEME_STORAGE_KEY)});var k=${JSON.stringify(THEMES.map((entry) => entry.id))};document.documentElement.dataset.theme=k.indexOf(t)>-1?t:${JSON.stringify(DEFAULT_THEME)};if(localStorage.getItem(${JSON.stringify(LIQUID_GLASS_KEY)})==="true"){document.documentElement.dataset.liquid="true";}var m=localStorage.getItem(${JSON.stringify(REDUCED_MOTION_KEY)})==="true";document.documentElement.dataset.reduceMotion=m?"true":"false";if(!m){var l=localStorage.getItem(${JSON.stringify(MOTION_LEVEL_KEY)});document.documentElement.dataset.motionLevel=(l==="sobre"||l==="essentiel")?l:"standard";}}catch(e){}`}
+        </Script>
+        {/*
+          `beforeinstallprompt` part **avant** l'hydratation : le navigateur
+          décide que l'application est installable en lisant le manifeste,
+          puis émet l'événement pendant le chargement de la page. Un écouteur
+          posé dans un `useEffect` arrive après, et l'événement est perdu —
+          l'invite d'installation ne s'affichait donc jamais. On le capture
+          ici, dès l'HTML initial, et on le signale à React.
+        */}
+        <Script id="devnet-install-prompt" strategy="beforeInteractive">
+          {`window.addEventListener("beforeinstallprompt",function(e){e.preventDefault();window.__devnetInstallPrompt=e;window.dispatchEvent(new Event("devnet:install-available"));});`}
+        </Script>
+        <SplashScreen />
+        <ToastProvider>
+          <SessionProvider>
+            <ThemeApplier />
+            <PwaManager>
+              <RouteWarmup />
+              <TourProvider>
+                <OfflineBanner />
+                <MaintenanceGate>
+                  <BackendGate>{children}</BackendGate>
+                </MaintenanceGate>
+                <EventPump />
+              </TourProvider>
+            </PwaManager>
+          </SessionProvider>
+        </ToastProvider>
+      </body>
+    </html>
+  );
+}

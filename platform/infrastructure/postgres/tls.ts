@@ -1,0 +1,101 @@
+/**
+ * Transport des connexions PostgreSQL directes.
+ *
+ * Pourquoi ce fichier existe : `pg-connection-string` 2.14 traite
+ * `sslmode=require` comme `verify-full`. Avec le certificat auto-signé de
+ * Systalink, `new Pool({ connectionString })` échoue donc en
+ * `SELF_SIGNED_CERT_IN_CHAIN` — alors que `psql`, qui suit libpq, se connecte
+ * sans problème. On retire `sslmode` de l'URL et on fixe le niveau ici :
+ *
+ *  - `disable` n'est accepté que vers un hôte **local** ; vers un hôte
+ *    distant, le mot de passe circulerait en clair : on refuse, sauf
+ *    consentement explicite via `DATABASE_TLS_INSECURE=true` (cas d'un
+ *    hébergeur qui n'offre pas TLS, comme Systalink l'annonce aujourd'hui) ;
+ *  - `prefer` et `allow` sont promus en `require` : jamais de repli en clair ;
+ *  - `require` chiffre sans vérifier le certificat (état actuel de Systalink) ;
+ *  - `verify-ca` et `verify-full` vérifient la chaîne, avec le certificat
+ *    d'autorité fourni par `DATABASE_CA_CERT` (contenu PEM ou chemin d'un
+ *    fichier). Sans CA, la vérification reste stricte : la connexion échoue
+ *    plutôt que de dégrader le transport en silence ;
+ *  - `DATABASE_TLS_MODE=verify-full` force ce niveau pour tout hôte distant,
+ *    même si l'URL publiée par l'hébergeur dit `sslmode=require`. C'est le
+ *    réglage de production : il ne dépend pas d'une URL qu'on ne peut pas
+ *    toujours réécrire dans le tableau de bord.
+ */
+import { readFileSync } from "node:fs";
+
+export type PostgresTlsMode = "disable" | "require" | "verify-full";
+
+export interface PostgresConnectionConfig {
+  /** URL sans `sslmode` : le niveau TLS est porté par `ssl`. */
+  connectionString: string;
+  ssl: false | { rejectUnauthorized: boolean; ca?: string };
+  mode: PostgresTlsMode;
+  /** `false` : chiffré, mais l'identité du serveur n'est pas prouvée. */
+  verified: boolean;
+}
+
+/** Hôtes de développement où l'absence de TLS est sans conséquence. */
+const LOCAL_HOSTS = new Set(["localhost", "127.0.0.1", "::1", "[::1]", "db"]);
+
+function caCertificate(): string | undefined {
+  const value = process.env.DATABASE_CA_CERT?.trim();
+  if (!value) return undefined;
+  return value.includes("-----BEGIN CERTIFICATE-----") ? value : readFileSync(value, "utf8");
+}
+
+export function resolvePostgresConnection(databaseUrl: string): PostgresConnectionConfig {
+  const url = new URL(databaseUrl);
+  const requested = (url.searchParams.get("sslmode") ?? "").toLowerCase();
+  const local = LOCAL_HOSTS.has(url.hostname);
+  const forcedVerifyFull =
+    !local && (process.env.DATABASE_TLS_MODE ?? "").toLowerCase() === "verify-full";
+
+  url.searchParams.delete("sslmode");
+  url.searchParams.delete("uselibpqcompat");
+  const connectionString = url.toString();
+
+  let mode: PostgresTlsMode;
+  if (requested === "disable") {
+    /* Refus par défaut : un `disable` oublié dans une URL distante rendrait
+       le transport lisible sur le réseau. L'échappatoire est donc un choix
+       d'exploitation nommé, jamais une déduction du code. */
+    if (!local && process.env.DATABASE_TLS_INSECURE !== "true") {
+      throw new Error(
+        "sslmode=disable refusé vers un hôte distant : le mot de passe et les données circuleraient en clair. "
+          + "Poser DATABASE_TLS_INSECURE=true pour l'accepter explicitement.",
+      );
+    }
+    mode = "disable";
+  } else if (requested === "verify-ca" || requested === "verify-full") {
+    mode = "verify-full";
+  } else if (requested === "") {
+    /* URL sans `sslmode`, comme celle que publie Systalink : le mode par
+       défaut reste chiffré, sauf si l'exploitation a déclaré l'hôte sans
+       TLS. `prefer` et `allow`, eux, demandent explicitement un essai TLS. */
+    mode = local || process.env.DATABASE_TLS_INSECURE === "true" ? "disable" : "require";
+  } else if (requested === "prefer" || requested === "allow") {
+    mode = local ? "disable" : "require";
+  } else {
+    mode = "require";
+  }
+
+  /* Le mode forcé ne sert qu'aux hôtes distants : un PostgreSQL local de
+     développement n'a pas de certificat public à vérifier. Il gagne aussi
+     sur `sslmode=disable`, sinon une URL distante mal recopiée annulerait
+     silencieusement la garantie de production. */
+  if (forcedVerifyFull) mode = "verify-full";
+
+  if (mode === "disable") return { connectionString, ssl: false, mode, verified: false };
+  if (mode === "require") {
+    return { connectionString, ssl: { rejectUnauthorized: false }, mode, verified: false };
+  }
+
+  const ca = caCertificate();
+  return {
+    connectionString,
+    ssl: ca ? { rejectUnauthorized: true, ca } : { rejectUnauthorized: true },
+    mode,
+    verified: true,
+  };
+}

@@ -1,0 +1,14 @@
+{
+  "id": "hello-devnet",
+  "name": "Bonjour DevNet",
+  "version": "1.0.0",
+  "devnetApi": "^1.0.0",
+  "level": 2,
+  "requires": [],
+  "conflicts": [],
+  "capabilities": [],
+  "network": { "outbound": [] },
+  "entry": { "server": "server.ts" },
+  "i18n": ["fr"],
+  "dataCategories": []
+}

@@ -1,0 +1,16 @@
+{
+  "name": "sharp",
+  "version": "0.35.5",
+  "private": true,
+  "description": "DevNet MIT adapter for Next.js image optimization. Not the upstream sharp package: the pixels are decoded and encoded by @napi-rs/image (MIT) instead of libvips (LGPL-3.0). Implements only the surface Next.js 16 actually calls; anywhere else it throws instead of degrading silently. See README.md.",
+  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "@napi-rs/image": "^1.16.0"
+  }
+}

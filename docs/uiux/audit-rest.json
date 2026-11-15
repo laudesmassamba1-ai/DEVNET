@@ -1,0 +1,286 @@
+{
+  "/groups": {
+    "320": {
+      "overflow": [],
+      "tiny": [
+        {
+          "fs": 11,
+          "text": "Fil",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Explorer",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Créer",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Messages",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Profil",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Plus",
+          "tag": "span"
+        }
+      ],
+      "tinyCount": 6,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 320,
+      "vw": 320
+    },
+    "360": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 360,
+      "vw": 360
+    },
+    "390": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 390,
+      "vw": 390
+    }
+  },
+  "/communities": {
+    "320": {
+      "overflow": [],
+      "tiny": [
+        {
+          "fs": 11,
+          "text": "Fil",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Explorer",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Créer",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Messages",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Profil",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Plus",
+          "tag": "span"
+        }
+      ],
+      "tinyCount": 6,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 320,
+      "vw": 320
+    },
+    "360": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 360,
+      "vw": 360
+    },
+    "390": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 390,
+      "vw": 390
+    }
+  },
+  "/projects/p-1": {
+    "320": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 320,
+      "vw": 320
+    },
+    "360": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 360,
+      "vw": 360
+    },
+    "390": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [],
+      "smallCount": 0,
+      "scrollW": 390,
+      "vw": 390
+    }
+  },
+  "/settings": {
+    "320": {
+      "overflow": [],
+      "tiny": [
+        {
+          "fs": 11,
+          "text": "Fil",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Explorer",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Créer",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Messages",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Profil",
+          "tag": "span"
+        },
+        {
+          "fs": 11,
+          "text": "Plus",
+          "tag": "span"
+        }
+      ],
+      "tinyCount": 6,
+      "small": [
+        {
+          "tag": "input",
+          "w": 20,
+          "h": 20,
+          "text": ""
+        },
+        {
+          "tag": "input",
+          "w": 20,
+          "h": 20,
+          "text": ""
+        },
+        {
+          "tag": "a",
+          "w": 28,
+          "h": 44,
+          "text": "Aide"
+        },
+        {
+          "tag": "a",
+          "w": 29,
+          "h": 44,
+          "text": "CGU"
+        }
+      ],
+      "smallCount": 4,
+      "scrollW": 320,
+      "vw": 320
+    },
+    "360": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [
+        {
+          "tag": "input",
+          "w": 20,
+          "h": 20,
+          "text": ""
+        },
+        {
+          "tag": "input",
+          "w": 20,
+          "h": 20,
+          "text": ""
+        },
+        {
+          "tag": "a",
+          "w": 28,
+          "h": 44,
+          "text": "Aide"
+        },
+        {
+          "tag": "a",
+          "w": 29,
+          "h": 44,
+          "text": "CGU"
+        }
+      ],
+      "smallCount": 4,
+      "scrollW": 360,
+      "vw": 360
+    },
+    "390": {
+      "overflow": [],
+      "tiny": [],
+      "tinyCount": 0,
+      "small": [
+        {
+          "tag": "input",
+          "w": 20,
+          "h": 20,
+          "text": ""
+        },
+        {
+          "tag": "input",
+          "w": 20,
+          "h": 20,
+          "text": ""
+        },
+        {
+          "tag": "a",
+          "w": 28,
+          "h": 44,
+          "text": "Aide"
+        },
+        {
+          "tag": "a",
+          "w": 29,
+          "h": 44,
+          "text": "CGU"
+        }
+      ],
+      "smallCount": 4,
+      "scrollW": 390,
+      "vw": 390
+    }
+  }
+}

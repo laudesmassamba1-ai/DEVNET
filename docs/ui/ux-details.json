@@ -1,0 +1,3035 @@
+{
+  "generatedAt": "2026-11-15T12:14:45.731Z",
+  "details": [
+    {
+      "metric": "arbitraryValues",
+      "file": "app/a-propos/page.tsx",
+      "line": 52,
+      "snippet": "mx-auto flex h-(--h-topbar) max-w-[900px] items-center border-b border-line-2 safe-top"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/a-propos/page.tsx",
+      "line": 61,
+      "snippet": "mx-auto max-w-[760px] py-12 sm:py-16"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/[section]/page.tsx",
+      "line": 75,
+      "snippet": "mt-1 font-display text-[22px] font-semibold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/[section]/page.tsx",
+      "line": 75,
+      "snippet": "mt-1 font-display text-[22px] font-semibold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/page.tsx",
+      "line": 126,
+      "snippet": "font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/page.tsx",
+      "line": 126,
+      "snippet": "font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/page.tsx",
+      "line": 261,
+      "snippet": "mt-3 flex gap-2 pl-[52px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/page.tsx",
+      "line": 266,
+      "snippet": "mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center\n                    gap-1.5 rounded-(--radius-chip) border border-ok bg-ok/10\n          "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/page.tsx",
+      "line": 279,
+      "snippet": "mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center\n                    gap-1.5 rounded-(--radius-chip) border border-line-3\n               "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/page.tsx",
+      "line": 293,
+      "snippet": "mt-2 pl-[52px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/admin/page.tsx",
+      "line": 298,
+      "snippet": "mo-press inline-flex min-h-(--h-tap) items-center justify-center\n                      gap-1.5 rounded-(--radius-chip) border border-danger bg-danger/8\n        "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/aide/page.tsx",
+      "line": 105,
+      "snippet": "mx-auto flex h-(--h-topbar) max-w-[900px] items-center border-b border-line-2 safe-top"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/aide/page.tsx",
+      "line": 114,
+      "snippet": "mx-auto max-w-[760px] py-12 sm:py-16"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/auth/confirmer/page.tsx",
+      "line": 93,
+      "snippet": "mo-breathe absolute -top-[70px] -right-[70px] size-50 rounded-full bg-ok opacity-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/auth/confirmer/page.tsx",
+      "line": 93,
+      "snippet": "mo-breathe absolute -top-[70px] -right-[70px] size-50 rounded-full bg-ok opacity-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/auth/confirmer/page.tsx",
+      "line": 94,
+      "snippet": "relative z-1 w-full max-w-[400px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/cgu/page.tsx",
+      "line": 72,
+      "snippet": "mx-auto flex h-(--h-topbar) max-w-[900px] items-center border-b border-line-2 safe-top"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/cgu/page.tsx",
+      "line": 81,
+      "snippet": "mx-auto max-w-[760px] py-12 sm:py-16"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/[slug]/page.tsx",
+      "line": 215,
+      "snippet": "text-[18px] font-extrabold text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/[slug]/page.tsx",
+      "line": 216,
+      "snippet": "rounded-(--radius-chip) border border-line-3 px-2 py-0.5\n                  text-12 font-bold uppercase tracking-[0.1em] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/[slug]/page.tsx",
+      "line": 260,
+      "snippet": "mb-1.5 text-12 font-bold uppercase tracking-[0.16em] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/[slug]/page.tsx",
+      "line": 277,
+      "snippet": "mb-2 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3\n                text-14 leading-[1.6] shadow-sh-1 placeholder:text-chalk-4\n    "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/[slug]/page.tsx",
+      "line": 277,
+      "snippet": "mb-2 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3\n                text-14 leading-[1.6] shadow-sh-1 placeholder:text-chalk-4\n    "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/[slug]/page.tsx",
+      "line": 554,
+      "snippet": "text-12 font-bold uppercase tracking-[0.16em] text-danger"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/page.tsx",
+      "line": 132,
+      "snippet": "mb-4 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface\n            px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4\n            f"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/communities/page.tsx",
+      "line": 264,
+      "snippet": "shrink-0 rounded-(--radius-chip) border border-line-3 px-1.5 py-0.5\n            text-12 font-bold uppercase tracking-[0.1em] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/confidentialite/page.tsx",
+      "line": 64,
+      "snippet": "mx-auto flex h-(--h-topbar) max-w-[900px] items-center border-b border-line-2 safe-top"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/confidentialite/page.tsx",
+      "line": 73,
+      "snippet": "mx-auto max-w-[760px] py-12 sm:py-16"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 57,
+      "snippet": "mt-6 grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_286px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 84,
+      "snippet": "space-y-4 lg:sticky lg:top-[calc(var(--h-topbar)+12px)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 114,
+      "snippet": "mt-3 max-w-[20ch] font-display text-[clamp(1.75rem,4.2vw,2.7rem)] font-bold leading-[1.03] tracking-[-0.035em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 114,
+      "snippet": "mt-3 max-w-[20ch] font-display text-[clamp(1.75rem,4.2vw,2.7rem)] font-bold leading-[1.03] tracking-[-0.035em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 114,
+      "snippet": "mt-3 max-w-[20ch] font-display text-[clamp(1.75rem,4.2vw,2.7rem)] font-bold leading-[1.03] tracking-[-0.035em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 114,
+      "snippet": "mt-3 max-w-[20ch] font-display text-[clamp(1.75rem,4.2vw,2.7rem)] font-bold leading-[1.03] tracking-[-0.035em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 117,
+      "snippet": "mt-3 max-w-[48ch] text-13 leading-relaxed text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 158,
+      "snippet": "absolute inset-[15%] rounded-full border border-dashed border-line-2/70"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 159,
+      "snippet": "absolute inset-[32%] rounded-full border border-line-3/50"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 178,
+      "snippet": "absolute left-[24%] top-[62%] size-1 rounded-full bg-signal/70"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 178,
+      "snippet": "absolute left-[24%] top-[62%] size-1 rounded-full bg-signal/70"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 179,
+      "snippet": "absolute left-[68%] top-[30%] size-1 rounded-full bg-signal/50"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 179,
+      "snippet": "absolute left-[68%] top-[30%] size-1 rounded-full bg-signal/50"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 180,
+      "snippet": "absolute left-[72%] top-[70%] size-1 rounded-full bg-signal/40"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 180,
+      "snippet": "absolute left-[72%] top-[70%] size-1 rounded-full bg-signal/40"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 181,
+      "snippet": "label-micro absolute inset-x-0 bottom-[6%] text-center text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 203,
+      "snippet": "font-display text-15 font-bold tracking-[-0.01em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 244,
+      "snippet": "hidden h-[3px] w-27.5 overflow-hidden rounded-full bg-line-2 sm:block"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/decouvrir/page.tsx",
+      "line": 314,
+      "snippet": "mt-2.5 max-h-16 overflow-hidden rounded-(--radius-input) border border-line bg-void/90 px-3 py-2 font-mono text-12 leading-[1.5] text-page/85"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/error.tsx",
+      "line": 30,
+      "snippet": "w-full max-w-[460px] text-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/loading.tsx",
+      "line": 6,
+      "snippet": "mx-auto max-w-[560px] space-y-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 844,
+      "snippet": "mx-auto flex w-full min-w-0 max-w-[1000px] items-start justify-center gap-6 overflow-x-clip"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 845,
+      "snippet": "w-full min-w-0 max-w-[720px] shrink-0 sm:max-w-[620px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 845,
+      "snippet": "w-full min-w-0 max-w-[720px] shrink-0 sm:max-w-[620px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 847,
+      "snippet": "font-display text-[22px] font-semibold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 847,
+      "snippet": "font-display text-[22px] font-semibold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 915,
+      "snippet": "label-micro min-w-0 flex-1 leading-[1.5] text-chalk-4"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/feed/page.tsx",
+      "line": 976,
+      "snippet": "min-h-(--h-tap) px-3 font-bold text-signal\n                hover:underline focus-visible:outline-2\n                focus-visible:outline-offset-2 focus-visible:"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/feed/page.tsx",
+      "line": 976,
+      "snippet": "min-h-(--h-tap) px-3 font-bold text-signal\n                hover:underline focus-visible:outline-2\n                focus-visible:outline-offset-2 focus-visible:"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/feed/page.tsx",
+      "line": 976,
+      "snippet": "min-h-(--h-tap) px-3 font-bold text-signal\n                hover:underline focus-visible:outline-2\n                focus-visible:outline-offset-2 focus-visible:"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 1072,
+      "snippet": "inline-flex h-(--h-tap) items-center gap-2\n                  rounded-(--radius-input) border border-line-2\n                  px-4 font-mono text-12 font-bold up"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 1115,
+      "snippet": "mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3\n            text-14 leading-[1.6] placeholder:text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/feed/page.tsx",
+      "line": 1127,
+      "snippet": "inline-flex min-h-(--h-tap) items-center gap-1.5\n              rounded-(--radius-chip) border border-line-3 px-3 font-mono\n              text-12 font-bold upper"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 154,
+      "snippet": "h-(--h-input) rounded-(--radius-chip) border\n                  border-line-3 bg-surface px-4 font-mono text-12 font-bold\n                  tracking-[0.1em] text"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 176,
+      "snippet": "h-(--h-input) rounded-(--radius-chip) border\n            border-signal bg-signal px-3.5 font-mono text-12 font-bold\n            tracking-[0.1em] text-void upper"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 205,
+      "snippet": "mt-3 flex flex-wrap items-center gap-x-4 gap-y-2\n              font-mono text-12 tracking-[0.06em] text-chalk-4 uppercase"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 246,
+      "snippet": "h-(--h-input) w-full appearance-none rounded-(--radius-input)\n                  border border-line-3 bg-surface pr-3 pl-8 font-mono text-sm\n                  te"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 288,
+      "snippet": "grid gap-3 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 300,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input)\n                    border border-line-3 bg-surface pr-3 pl-8 font-mono text-12\n                    shadow-sh-1 pl"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 311,
+      "snippet": "max-h-[60vh] overflow-y-auto rounded-(--radius-card)\n                  border border-line-2/60 bg-surface"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 365,
+      "snippet": "max-h-[60vh] overflow-auto px-4 py-3 font-mono text-12\n                      leading-relaxed text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 393,
+      "snippet": "mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1\n                      font-mono text-12 tracking-[0.06em] text-chalk-4 uppercase"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/[owner]/[repo]/page.tsx",
+      "line": 425,
+      "snippet": "shrink-0 rounded-(--radius-chip) border\n                          border-signal/40 px-1.5 py-0.5 font-mono text-12\n                          tracking-[0.08em] t"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/page.tsx",
+      "line": 155,
+      "snippet": "h-(--h-input) rounded-(--radius-chip) border\n                      border-signal bg-signal px-4 font-mono text-12 font-bold\n                      tracking-[0.1e"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/page.tsx",
+      "line": 165,
+      "snippet": "h-(--h-input) rounded-(--radius-chip) border\n                      border-line-3 bg-surface px-4 font-mono text-12 font-bold\n                      tracking-[0.1"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/page.tsx",
+      "line": 187,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input)\n                  border border-line-3 bg-surface pr-3 pl-9 font-mono text-13\n                  shadow-sh-1 placeh"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/page.tsx",
+      "line": 195,
+      "snippet": "mb-2 font-mono text-12 tracking-[0.08em] text-chalk-4 uppercase"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/page.tsx",
+      "line": 233,
+      "snippet": "mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1\n                          font-mono text-12 tracking-[0.06em] text-chalk-4 uppercase"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/github/page.tsx",
+      "line": 243,
+      "snippet": "h-(--h-input) shrink-0 rounded-(--radius-chip)\n                          border border-signal bg-signal px-3 font-mono text-12\n                          font-bo"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/global-error.tsx",
+      "line": 30,
+      "snippet": "mx-auto flex min-h-dvh max-w-[460px] flex-col items-center justify-center px-5 text-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 581,
+      "snippet": "fixed inset-0 z-(--z-sheet) flex flex-col overlay-frost\n        shell:static shell:bg-page shell:z-auto shell:h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px)"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 606,
+      "snippet": "absolute inset-y-0 left-0 w-[3px] bg-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 788,
+      "snippet": "border-l-[5px] border-signal glass-flat font-mono text-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 855,
+      "snippet": "rounded-(--radius-chip) border border-line-3 px-2 py-1\n                            font-mono text-12 font-bold uppercase tracking-[0.12em]\n                     "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 864,
+      "snippet": "rounded-(--radius-chip) border border-danger bg-danger px-2 py-1\n                            font-mono text-12 font-bold uppercase tracking-[0.12em] text-void\n "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 933,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border\n              border-line-3 bg-surface px-3.5 text-14 shadow-sh-1\n              placeholder:text-chalk-4 fo"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 958,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border\n              border-line-3 bg-surface px-3.5 text-14 shadow-sh-1\n              placeholder:text-chalk-4 fo"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 1045,
+      "snippet": "mo-press shrink-0 rounded-(--radius-chip) border border-line-3\n                        px-2 py-1 font-mono text-12 font-bold uppercase tracking-[0.1em]\n        "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/[id]/page.tsx",
+      "line": 1077,
+      "snippet": "mt-3 text-12 leading-[1.5] text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/page.tsx",
+      "line": 193,
+      "snippet": "mb-4 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface\n            px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4\n            f"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/page.tsx",
+      "line": 206,
+      "snippet": "mb-2.5 flex items-center gap-2.5 pt-2 text-12 font-bold\n              uppercase tracking-[0.16em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/page.tsx",
+      "line": 219,
+      "snippet": "mb-2.5 flex items-center gap-2.5 pt-4 text-12 font-bold\n              uppercase tracking-[0.16em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/groups/page.tsx",
+      "line": 328,
+      "snippet": "mt-0.5 font-mono text-12 uppercase tracking-[0.08em] text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/ide/[project]/page.tsx",
+      "line": 710,
+      "snippet": "mo-press mt-3 inline-flex h-8 items-center gap-1.5 rounded-(--radius-chip) border border-signal px-3 font-mono text-12 font-bold uppercase tracking-[0.12em] tex"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/ide/[project]/page.tsx",
+      "line": 785,
+      "snippet": "mo-press inline-flex h-8 items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-c"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/ide/[project]/page.tsx",
+      "line": 794,
+      "snippet": "mo-press inline-flex h-8 items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-c"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/ide/[project]/page.tsx",
+      "line": 803,
+      "snippet": "mo-press inline-flex h-8 items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-c"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/ide/[project]/page.tsx",
+      "line": 812,
+      "snippet": "mo-press inline-flex h-8 items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-c"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/ide/[project]/page.tsx",
+      "line": 822,
+      "snippet": "mo-press inline-flex h-8 items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-c"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/ide/[project]/page.tsx",
+      "line": 831,
+      "snippet": "mo-press inline-flex h-8 items-center gap-1.5 rounded-(--radius-chip) border border-line-3 px-2.5 font-mono text-12 font-bold uppercase tracking-[0.12em] text-c"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/ide/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/login/page.tsx",
+      "line": 225,
+      "snippet": "relative z-1 w-full max-w-[440px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/login/page.tsx",
+      "line": 232,
+      "snippet": "font-display text-[1.65rem] font-bold leading-none\n              tracking-[-0.05em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/login/page.tsx",
+      "line": 232,
+      "snippet": "font-display text-[1.65rem] font-bold leading-none\n              tracking-[-0.05em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/login/page.tsx",
+      "line": 256,
+      "snippet": "font-display text-[1.5rem] font-bold tracking-[-0.035em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/login/page.tsx",
+      "line": 256,
+      "snippet": "font-display text-[1.5rem] font-bold tracking-[-0.035em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/login/page.tsx",
+      "line": 460,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5\n                  text-14\n                  transition-[transform,box-shado"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/login/page.tsx",
+      "line": 460,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5\n                  text-14\n                  transition-[transform,box-shado"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/login/page.tsx",
+      "line": 460,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5\n                  text-14\n                  transition-[transform,box-shado"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/login/page.tsx",
+      "line": 460,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5\n                  text-14\n                  transition-[transform,box-shado"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/login/page.tsx",
+      "line": 460,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5\n                  text-14\n                  transition-[transform,box-shado"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/login/page.tsx",
+      "line": 484,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface\n                    px-3.5 pr-12 text-14\n                    transition-[transform"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/login/page.tsx",
+      "line": 484,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface\n                    px-3.5 pr-12 text-14\n                    transition-[transform"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/login/page.tsx",
+      "line": 484,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface\n                    px-3.5 pr-12 text-14\n                    transition-[transform"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/login/page.tsx",
+      "line": 484,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface\n                    px-3.5 pr-12 text-14\n                    transition-[transform"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "app/login/page.tsx",
+      "line": 484,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface\n                    px-3.5 pr-12 text-14\n                    transition-[transform"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 993,
+      "snippet": "shell:grid shell:h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))]\n        shell:grid-cols-[300px_minmax(0,1fr)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 993,
+      "snippet": "shell:grid shell:h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))]\n        shell:grid-cols-[300px_minmax(0,1fr)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1014,
+      "snippet": "truncate font-display text-13 font-bold tracking-[-0.01em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1016,
+      "snippet": "ml-1.5 translate-y-[1px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1120,
+      "snippet": "border-l-[5px] border-line-2 border-l-signal glass-flat font-mono text-12 leading-[1.6] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1120,
+      "snippet": "border-l-[5px] border-line-2 border-l-signal glass-flat font-mono text-12 leading-[1.6] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1158,
+      "snippet": "mb-1 flex items-center gap-1 font-mono text-12 font-bold\n                              uppercase tracking-[0.12em] text-chalk-4 transition-colors\n              "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1262,
+      "snippet": "rounded-(--radius-chip) border border-line-3 px-2 py-1\n                              font-mono text-12 font-bold uppercase tracking-[0.12em]\n                   "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1271,
+      "snippet": "mo-press rounded-(--radius-chip) border border-danger bg-danger\n                              px-2 py-1 font-mono text-12 font-bold uppercase tracking-[0.12em]\n"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1380,
+      "snippet": "mb-3 h-(--h-input) w-full rounded-(--radius-input) border border-line-3 bg-surface\n              px-3.5 text-14 shadow-sh-1 placeholder:text-chalk-4\n           "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1443,
+      "snippet": "mb-1.5 flex w-full items-center gap-3 rounded-(--radius-card) border\n              border-line-3 bg-surface p-3 shadow-sh-1 transition-[transform,box-shadow]\n  "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1443,
+      "snippet": "mb-1.5 flex w-full items-center gap-3 rounded-(--radius-card) border\n              border-line-3 bg-surface p-3 shadow-sh-1 transition-[transform,box-shadow]\n  "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/messages/page.tsx",
+      "line": 1443,
+      "snippet": "mb-1.5 flex w-full items-center gap-3 rounded-(--radius-card) border\n              border-line-3 bg-surface p-3 shadow-sh-1 transition-[transform,box-shadow]\n  "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/moderation/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/moderation/page.tsx",
+      "line": 124,
+      "snippet": "font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/moderation/page.tsx",
+      "line": 124,
+      "snippet": "font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/moderation/page.tsx",
+      "line": 225,
+      "snippet": "mt-2.5 flex gap-2 pl-[26px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/moderation/page.tsx",
+      "line": 230,
+      "snippet": "mo-press inline-flex h-8 flex-1 items-center justify-center\n                      gap-1.5 rounded-(--radius-chip) border border-ok bg-ok/10\n                    "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/moderation/page.tsx",
+      "line": 243,
+      "snippet": "mo-press inline-flex h-8 flex-1 items-center justify-center\n                      gap-1.5 rounded-(--radius-chip) border border-line-3\n                      fon"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/mot-de-passe-oublie/page.tsx",
+      "line": 48,
+      "snippet": "mo-breathe absolute -top-[70px] -right-[70px] size-50 rounded-full bg-ok opacity-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/mot-de-passe-oublie/page.tsx",
+      "line": 48,
+      "snippet": "mo-breathe absolute -top-[70px] -right-[70px] size-50 rounded-full bg-ok opacity-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/mot-de-passe-oublie/page.tsx",
+      "line": 49,
+      "snippet": "relative z-1 w-full max-w-[400px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/not-found.tsx",
+      "line": 13,
+      "snippet": "w-full max-w-[460px] text-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/notifications/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/notifications/page.tsx",
+      "line": 395,
+      "snippet": "w-[3px] shrink-0 bg-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/notifications/page.tsx",
+      "line": 437,
+      "snippet": "translate-y-[1px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/notifications/page.tsx",
+      "line": 483,
+      "snippet": "inline-flex h-(--h-tap) items-center gap-2\n                rounded-(--radius-input) border border-line-2 px-4\n                font-mono text-12 font-bold tracki"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/post/[id]/page.tsx",
+      "line": 186,
+      "snippet": "inline-flex h-(--h-tap) items-center gap-2\n                  rounded-(--radius-input) border border-line-2 px-4\n                  font-mono text-12 font-bold tr"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/preview-code/page.tsx",
+      "line": 53,
+      "snippet": "mo-rise mx-auto max-w-[520px] px-(--gutter) py-6"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/preview-code/page.tsx",
+      "line": 55,
+      "snippet": "font-display mb-5 text-(--text-display-l) font-bold\n        tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/loading.tsx",
+      "line": 6,
+      "snippet": "mx-auto max-w-[560px] space-y-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 135,
+      "snippet": "mb-3 text-sm leading-[1.5] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 149,
+      "snippet": "h-full rounded-full bg-(--gradient-amber-fire) shadow-(--shadow-sh-1)\n            transition-[width] duration-(--d-base) ease-(--ease-continuous)"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 441,
+      "snippet": "font-display text-[1.65rem] font-bold tracking-[-0.04em] leading-tight"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 441,
+      "snippet": "font-display text-[1.65rem] font-bold tracking-[-0.04em] leading-tight"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 476,
+      "snippet": "rounded-(--radius-chip) border-(--bw-thin) border-line-2\n                      bg-surface-2 px-2 py-1 text-12 font-semibold tracking-[0.06em]\n                  "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 486,
+      "snippet": "tnum font-display text-[1.35rem] font-bold leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 492,
+      "snippet": "tnum font-display text-[1.35rem] font-bold leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 498,
+      "snippet": "tnum font-display text-[1.35rem] font-bold leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 505,
+      "snippet": "tnum font-display text-[1.35rem] font-bold leading-none text-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 516,
+      "snippet": "tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 528,
+      "snippet": "tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 541,
+      "snippet": "tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 544,
+      "snippet": "mt-0.5 text-12 uppercase tracking-[0.08em] text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 554,
+      "snippet": "tnum mt-1 font-display text-[1.2rem] font-bold leading-none text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 606,
+      "snippet": "mo-rise mb-3 rounded-(--radius-card) border\n                      border-l-[6px] border-line-3 border-l-line-3 bg-surface px-4 py-4 shadow-sh-1"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 612,
+      "snippet": "mb-2 line-clamp-3 whitespace-pre-wrap text-13 leading-[1.6]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 616,
+      "snippet": "mb-2 inline-flex items-center rounded-(--radius-chip) border\n                        border-line-3 bg-surface-3 px-2 py-0.5 font-mono text-12 font-bold\n        "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 697,
+      "snippet": "mt-2.5 text-12 leading-[1.5] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 761,
+      "snippet": "mb-3 text-sm leading-[1.5] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 766,
+      "snippet": "text-12 font-semibold uppercase tracking-[0.06em]\n                      text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 798,
+      "snippet": "rounded-(--radius-chip) border-(--bw-thin)\n                      border-line-3 px-1.5 py-0.5 font-mono text-12 font-bold\n                      uppercase trackin"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 805,
+      "snippet": "mb-3 text-sm leading-[1.5] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 895,
+      "snippet": "mb-2 font-mono text-12 font-bold uppercase\n                      tracking-[0.1em] text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 907,
+      "snippet": "mb-3 text-sm leading-[1.5] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/profile/page.tsx",
+      "line": 1015,
+      "snippet": "mb-4 font-display text-[1.3rem] font-bold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/[id]/page.tsx",
+      "line": 982,
+      "snippet": "font-display text-[1.3rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/[id]/page.tsx",
+      "line": 982,
+      "snippet": "font-display text-[1.3rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/[id]/page.tsx",
+      "line": 997,
+      "snippet": "inline-flex h-(--h-tap) min-w-0 max-w-[190px] items-center gap-1.5"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/[id]/page.tsx",
+      "line": 1254,
+      "snippet": "mb-2 h-(--h-input) w-full rounded-(--radius-input)\n            border border-line-3 bg-surface px-3.5 font-mono text-13 shadow-sh-1\n             transition-[tra"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/[id]/page.tsx",
+      "line": 1254,
+      "snippet": "mb-2 h-(--h-input) w-full rounded-(--radius-input)\n            border border-line-3 bg-surface px-3.5 font-mono text-13 shadow-sh-1\n             transition-[tra"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/[id]/page.tsx",
+      "line": 1358,
+      "snippet": "mb-2 h-(--h-input) w-full rounded-(--radius-input)\n            border border-line-3 bg-surface px-3.5 font-mono text-13 shadow-sh-1\n             transition-[tra"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/[id]/page.tsx",
+      "line": 1358,
+      "snippet": "mb-2 h-(--h-input) w-full rounded-(--radius-input)\n            border border-line-3 bg-surface px-3.5 font-mono text-13 shadow-sh-1\n             transition-[tra"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 461,
+      "snippet": "mb-4 h-(--h-input) w-full rounded-(--radius-input)\n            border border-line-3 bg-surface px-3.5 text-14 shadow-sh-1\n            transition-[transform,box-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 461,
+      "snippet": "mb-4 h-(--h-input) w-full rounded-(--radius-input)\n            border border-line-3 bg-surface px-3.5 text-14 shadow-sh-1\n            transition-[transform,box-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 477,
+      "snippet": "mb-4 w-full rounded-(--radius-input) border border-line-3\n            bg-surface px-3.5 py-3 text-14 shadow-sh-1\n            transition-[transform,box-shadow] p"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 477,
+      "snippet": "mb-4 w-full rounded-(--radius-input) border border-line-3\n            bg-surface px-3.5 py-3 text-14 shadow-sh-1\n            transition-[transform,box-shadow] p"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 493,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input)\n                border border-line-3 bg-surface px-3.5 text-14 shadow-sh-1\n                placeholder:text-chalk-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 507,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input)\n                border border-line-3 bg-surface px-3 text-14 shadow-sh-1\n                focus:-translate-x-px foc"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 539,
+      "snippet": "mb-4 h-(--h-input) w-full rounded-(--radius-input)\n                border border-line-3 bg-surface px-3.5 text-14 shadow-sh-1\n                placeholder:text-c"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 619,
+      "snippet": "mb-4 h-(--h-input) w-full rounded-(--radius-input)\n                border border-line-3 bg-surface px-3 text-14 shadow-sh-1\n                focus:-translate-x-p"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 640,
+      "snippet": "mb-5 w-full rounded-(--radius-input) border border-line-3\n                bg-surface px-3.5 py-3 text-14 shadow-sh-1\n                placeholder:text-chalk-4\n  "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 701,
+      "snippet": "inline-flex items-center gap-1.5 font-mono text-12 uppercase tracking-[0.12em] text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/projects/page.tsx",
+      "line": 794,
+      "snippet": "mt-0.5 block font-mono text-12 uppercase tracking-[0.08em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/register/page.tsx",
+      "line": 133,
+      "snippet": "relative z-1 w-full max-w-[520px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/register/page.tsx",
+      "line": 137,
+      "snippet": "font-display text-[1.65rem] font-bold leading-none\n              tracking-[-0.05em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/register/page.tsx",
+      "line": 137,
+      "snippet": "font-display text-[1.65rem] font-bold leading-none\n              tracking-[-0.05em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/register/page.tsx",
+      "line": 190,
+      "snippet": "mb-1 font-display text-[1.5rem] font-bold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/register/page.tsx",
+      "line": 190,
+      "snippet": "mb-1 font-display text-[1.5rem] font-bold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/register/page.tsx",
+      "line": 292,
+      "snippet": "mb-1 font-display text-[1.5rem] font-bold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/register/page.tsx",
+      "line": 292,
+      "snippet": "mb-1 font-display text-[1.5rem] font-bold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/reinitialiser-mot-de-passe/page.tsx",
+      "line": 152,
+      "snippet": "mo-breathe absolute -top-[70px] -right-[70px] size-50 rounded-full bg-ok opacity-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/reinitialiser-mot-de-passe/page.tsx",
+      "line": 152,
+      "snippet": "mo-breathe absolute -top-[70px] -right-[70px] size-50 rounded-full bg-ok opacity-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/reinitialiser-mot-de-passe/page.tsx",
+      "line": 153,
+      "snippet": "relative z-1 w-full max-w-[400px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/search/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/search/page.tsx",
+      "line": 239,
+      "snippet": "h-(--h-tap) w-full rounded-(--radius-input) border\n                border-line-3 bg-surface pr-10 pl-8 text-14 shadow-sh-1\n                transition-[transform"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/search/page.tsx",
+      "line": 239,
+      "snippet": "h-(--h-tap) w-full rounded-(--radius-input) border\n                border-line-3 bg-surface pr-10 pl-8 text-14 shadow-sh-1\n                transition-[transform"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/settings/page.tsx",
+      "line": 306,
+      "snippet": "mo-rise mx-auto w-full max-w-[760px] px-5 py-8 sm:py-10"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 47,
+      "snippet": "mx-auto min-h-dvh max-w-[520px] px-(--gutter) py-8"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 51,
+      "snippet": "font-display text-[1.6rem] font-bold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 51,
+      "snippet": "font-display text-[1.6rem] font-bold tracking-[-0.03em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 65,
+      "snippet": "mb-1 text-12 font-bold uppercase tracking-[0.16em] opacity-70"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 68,
+      "snippet": "font-display text-[1.35rem] font-bold tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 68,
+      "snippet": "font-display text-[1.35rem] font-bold tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 78,
+      "snippet": "mt-2 text-sm leading-[1.5] opacity-90"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 87,
+      "snippet": "text-13 leading-[1.6] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 114,
+      "snippet": "mb-3 text-12 font-bold uppercase tracking-[0.16em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 123,
+      "snippet": "text-sm leading-[1.6] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/setup/page.tsx",
+      "line": 136,
+      "snippet": "text-12 leading-[1.6] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/signets/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/signets/page.tsx",
+      "line": 93,
+      "snippet": "font-display text-[1.375rem] font-bold tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/signets/page.tsx",
+      "line": 93,
+      "snippet": "font-display text-[1.375rem] font-bold tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/signets/page.tsx",
+      "line": 96,
+      "snippet": "mt-1.5 max-w-[46ch] text-sm leading-relaxed text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/stickers/page.tsx",
+      "line": 142,
+      "snippet": "grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/stickers/page.tsx",
+      "line": 152,
+      "snippet": "flex size-20 items-center justify-center rounded-[26%] border border-line-2 bg-void"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/stickers/page.tsx",
+      "line": 155,
+      "snippet": "rounded-[26%] object-cover"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/stickers/page.tsx",
+      "line": 192,
+      "snippet": "inline-flex min-h-11 shrink-0 cursor-pointer items-center rounded-(--radius-chip)\n                border border-line-2 bg-surface-2 px-4 font-mono text-12 font-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/followers/page.tsx",
+      "line": 132,
+      "snippet": "mx-auto flex max-w-[1200px] items-center gap-3 px-5 py-4 text-chalk-3 hover:text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/followers/page.tsx",
+      "line": 135,
+      "snippet": "font-mono text-12 font-bold uppercase tracking-[0.08em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/followers/page.tsx",
+      "line": 141,
+      "snippet": "mx-auto max-w-[1200px] px-5 pb-8"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 283,
+      "snippet": "font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 283,
+      "snippet": "font-display text-[1.35rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 415,
+      "snippet": "inline-flex h-(--h-tap) items-center justify-center gap-1.5\n                rounded-(--radius-input) border border-line-3 bg-surface\n                px-3.5 font"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 415,
+      "snippet": "inline-flex h-(--h-tap) items-center justify-center gap-1.5\n                rounded-(--radius-input) border border-line-3 bg-surface\n                px-3.5 font"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 435,
+      "snippet": "inline-flex items-center gap-1.5 rounded-(--radius-chip)\n                  border-(--bw-thin) border-line px-2 py-1 font-mono text-12\n                  uppercas"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 435,
+      "snippet": "inline-flex items-center gap-1.5 rounded-(--radius-chip)\n                  border-(--bw-thin) border-line px-2 py-1 font-mono text-12\n                  uppercas"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 478,
+      "snippet": "mt-0.5 text-12 uppercase tracking-[0.08em] text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 537,
+      "snippet": "mo-press inline-flex items-baseline gap-1.5 py-[2px]\n                    font-mono text-12 uppercase tracking-[0.1em] text-chalk-4\n                    transitio"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/[pseudo]/page.tsx",
+      "line": 537,
+      "snippet": "mo-press inline-flex items-baseline gap-1.5 py-[2px]\n                    font-mono text-12 uppercase tracking-[0.1em] text-chalk-4\n                    transitio"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "app/u/loading.tsx",
+      "line": 7,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminAccounts.tsx",
+      "line": 148,
+      "snippet": "font-display text-[1.05rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminAccounts.tsx",
+      "line": 148,
+      "snippet": "font-display text-[1.05rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminAccounts.tsx",
+      "line": 216,
+      "snippet": "mo-press inline-flex h-(--h-input) shrink-0 items-center\n                  gap-1.5 rounded-(--radius-input) border border-line-3 px-3\n                  font-mon"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminAccounts.tsx",
+      "line": 274,
+      "snippet": "mo-press inline-flex min-h-(--h-tap) items-center gap-1.5\n              rounded-(--radius-chip) border border-signal bg-signal/10 px-3.5\n              font-mono"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminAccounts.tsx",
+      "line": 300,
+      "snippet": "font-display text-[1.05rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminAccounts.tsx",
+      "line": 300,
+      "snippet": "font-display text-[1.05rem] font-bold tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminAccounts.tsx",
+      "line": 327,
+      "snippet": "mo-press inline-flex h-(--h-input) items-center gap-1.5\n                rounded-(--radius-input) border border-line-3 px-3 font-mono\n                text-12 fon"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminAudit.tsx",
+      "line": 99,
+      "snippet": "font-display text-[18px] font-semibold"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "components/AdminConsoleNav.tsx",
+      "line": 44,
+      "snippet": "min-h-(--h-tap) w-full rounded-(--radius-input)\n            border border-line-2 bg-surface px-3 text-14 text-chalk\n            focus-visible:outline-2 focus-vi"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "components/AdminConsoleNav.tsx",
+      "line": 44,
+      "snippet": "min-h-(--h-tap) w-full rounded-(--radius-input)\n            border border-line-2 bg-surface px-3 text-14 text-chalk\n            focus-visible:outline-2 focus-vi"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "components/AdminConsoleNav.tsx",
+      "line": 44,
+      "snippet": "min-h-(--h-tap) w-full rounded-(--radius-input)\n            border border-line-2 bg-surface px-3 text-14 text-chalk\n            focus-visible:outline-2 focus-vi"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminOverview.tsx",
+      "line": 76,
+      "snippet": "mt-1 font-mono text-[22px] font-semibold tabular-nums text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminOverview.tsx",
+      "line": 218,
+      "snippet": "mt-1 font-display text-[22px] font-semibold tracking-[-0.03em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminOverview.tsx",
+      "line": 218,
+      "snippet": "mt-1 font-display text-[22px] font-semibold tracking-[-0.03em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminReports.tsx",
+      "line": 142,
+      "snippet": "font-display text-[18px] font-semibold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminReports.tsx",
+      "line": 242,
+      "snippet": "mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center\n                        gap-1.5 rounded-(--radius-chip) border border-ok bg-ok/10\n      "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminReports.tsx",
+      "line": 254,
+      "snippet": "mo-press inline-flex min-h-(--h-tap) flex-1 items-center justify-center\n                        gap-1.5 rounded-(--radius-chip) border border-line-3\n           "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminSecurity.tsx",
+      "line": 127,
+      "snippet": "font-display text-[18px] font-semibold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminSettingsPanel.tsx",
+      "line": 26,
+      "snippet": "font-display text-[18px] font-semibold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminSystem.tsx",
+      "line": 90,
+      "snippet": "font-display text-[18px] font-semibold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminSystem.tsx",
+      "line": 154,
+      "snippet": "mt-1 font-mono text-[20px] font-semibold tabular-nums text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminTeam.tsx",
+      "line": 69,
+      "snippet": "font-display text-[18px] font-semibold tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AdminTeam.tsx",
+      "line": 69,
+      "snippet": "font-display text-[18px] font-semibold tracking-[-0.02em]"
+    },
+    {
+      "metric": "hardcodedColors",
+      "file": "components/AnimatedLogo.tsx",
+      "line": 482,
+      "snippet": "#F3EFE4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 167,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))] items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 177,
+      "snippet": "flex min-h-[calc(100dvh-var(--h-banner,0px))]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 189,
+      "snippet": "sticky top-[var(--h-banner,0px)] z-(--z-sticky) relative flex\n              h-(--h-topbar) items-stretch justify-between\n              border-b-(--bw-heavy) bor"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 241,
+      "snippet": "flex min-w-0 flex-1 items-center gap-2 self-center\n                  border-l-[3px] border-signal bg-surface-2 px-(--gutter) text-chalk\n                  font-d"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 241,
+      "snippet": "flex min-w-0 flex-1 items-center gap-2 self-center\n                  border-l-[3px] border-signal bg-surface-2 px-(--gutter) text-chalk\n                  font-d"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 254,
+      "snippet": "font-display text-[1.15rem] font-bold\n                  tracking-[-0.02em] leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 254,
+      "snippet": "font-display text-[1.15rem] font-bold\n                  tracking-[-0.02em] leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 304,
+      "snippet": "h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] w-full max-w-none overflow-hidden"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 304,
+      "snippet": "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] max-w-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 304,
+      "snippet": "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] w-full max-w-[720px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 304,
+      "snippet": "min-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px))] w-full max-w-[720px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 304,
+      "snippet": "max-w-[560px] min-h-0"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 304,
+      "snippet": "pb-[calc(var(--h-bottomnav)+var(--h-status)+var(--space-lg))]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AppShell.tsx",
+      "line": 361,
+      "snippet": "glass-pill mo-press flex size-(--h-tap) items-center justify-center\n        rounded-full border-(--bw-thin) border-line-2/40 text-chalk\n        transition-[back"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Avatar.tsx",
+      "line": 107,
+      "snippet": "font-mono text-[1.1rem] font-bold leading-none text-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Avatar.tsx",
+      "line": 112,
+      "snippet": "font-mono text-[0.95rem] font-bold uppercase\n          tracking-[0.14em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Avatar.tsx",
+      "line": 112,
+      "snippet": "font-mono text-[0.95rem] font-bold uppercase\n          tracking-[0.14em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Avatar.tsx",
+      "line": 118,
+      "snippet": "max-w-[300px] break-words font-mono text-12\n            leading-[1.75] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Avatar.tsx",
+      "line": 118,
+      "snippet": "max-w-[300px] break-words font-mono text-12\n            leading-[1.75] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AvatarEditor.tsx",
+      "line": 164,
+      "snippet": "fixed inset-0 z-[8000] flex items-center justify-center bg-void/80 px-4 py-6"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AvatarEditor.tsx",
+      "line": 169,
+      "snippet": "max-h-full w-full max-w-[430px] overflow-y-auto rounded-(--radius-card) border border-line-3 bg-surface p-4 shadow-sh-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AvatarEditor.tsx",
+      "line": 173,
+      "snippet": "font-display text-[18px] font-bold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/AvatarEditor.tsx",
+      "line": 217,
+      "snippet": "relative mx-auto aspect-square w-full max-w-[320px] overflow-hidden rounded-(--radius-input) border border-line-2 bg-void"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 128,
+      "snippet": "fixed inset-x-0 bottom-0 z-(--z-nav) grid grid-cols-5\n        h-(--h-bottomnav) items-stretch border-t-(--bw-heavy)\n        border-edge glass-strong pb-[env(saf"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 178,
+      "snippet": "mo-press mx-0 my-1 flex min-w-0 flex-col items-center\n          justify-center gap-[4px] rounded-(--radius-chip) bg-signal\n          text-12 max-[340px]:text-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 178,
+      "snippet": "mo-press mx-0 my-1 flex min-w-0 flex-col items-center\n          justify-center gap-[4px] rounded-(--radius-chip) bg-signal\n          text-12 max-[340px]:text-12"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 329,
+      "snippet": "sticky top-[var(--h-banner,0px)] hidden h-[calc(100dvh-var(--h-banner,0px))]\n        w-59 shrink-0 flex-col rounded-(--radius-card) border-r-(--bw-heavy) border"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 329,
+      "snippet": "sticky top-[var(--h-banner,0px)] hidden h-[calc(100dvh-var(--h-banner,0px))]\n        w-59 shrink-0 flex-col rounded-(--radius-card) border-r-(--bw-heavy) border"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 334,
+      "snippet": "flex h-[calc(var(--h-topbar)-var(--h-safe-top))] shrink-0 items-center gap-2.5\n        border-b-(--bw-thin) border-line px-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 337,
+      "snippet": "font-display text-[1.15rem] font-bold\n          tracking-[-0.02em] leading-none text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 337,
+      "snippet": "font-display text-[1.15rem] font-bold\n          tracking-[-0.02em] leading-none text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 407,
+      "snippet": "absolute inset-y-0 left-0 w-[3px] origin-top border-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 442,
+      "snippet": "absolute inset-y-0 left-0 w-[3px] origin-top border-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/BottomNav.tsx",
+      "line": 497,
+      "snippet": "mode-live block size-[5px] bg-phosphor"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ChatComposer.tsx",
+      "line": 102,
+      "snippet": "max-h-33 min-h-(--h-input) flex-1 resize-none\n          rounded-(--radius-input) border border-line-3 bg-surface px-3.5\n          py-[10px] text-base leading-[1"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ChatComposer.tsx",
+      "line": 102,
+      "snippet": "max-h-33 min-h-(--h-input) flex-1 resize-none\n          rounded-(--radius-input) border border-line-3 bg-surface px-3.5\n          py-[10px] text-base leading-[1"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ChatComposer.tsx",
+      "line": 162,
+      "snippet": "relative z-10 shrink-0 border-t border-line-2/70 glass-strong px-3\n        pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CodeBlock.tsx",
+      "line": 156,
+      "snippet": "code-line-no mr-3 inline-block w-[1.6em] text-right"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CodeEditor.tsx",
+      "line": 365,
+      "snippet": "relative overflow-hidden rounded-(--radius-card) border\n        border-line-2 bg-(--color-code-bg) shadow-sh-1 transition-[border-color]\n        duration-(--d-f"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 107,
+      "snippet": "translate-y-[1px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 119,
+      "snippet": "mt-1 text-13 leading-[1.55] break-words whitespace-pre-wrap text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 148,
+      "snippet": "mt-1.5 inline-flex min-h-8 items-center gap-1.5\n            font-mono text-12 font-bold tracking-[0.08em] text-chalk-3\n            uppercase transition-colors h"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 163,
+      "snippet": "h-7 shrink-0 self-start rounded-(--radius-chip)\n            border-(--bw-thin) border-line px-1.5 text-chalk-4\n            transition-[color,border-color] durat"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 184,
+      "snippet": "h-7 shrink-0 self-start rounded-(--radius-chip)\n          border-(--bw-thin) border-line text-chalk-4\n          transition-[color,border-color] duration-(--d-fa"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 409,
+      "snippet": "max-h-[56vh] overflow-y-auto"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 440,
+      "snippet": "ml-[19px] border-l border-line-2 pl-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 532,
+      "snippet": "min-h-10.5 flex-1 resize-none rounded-(--radius-input)\n              border border-line-3 bg-surface px-3 py-2 text-13\n              leading-[1.55] text-chalk s"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 532,
+      "snippet": "min-h-10.5 flex-1 resize-none rounded-(--radius-input)\n              border border-line-3 bg-surface px-3 py-2 text-13\n              leading-[1.55] text-chalk s"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 532,
+      "snippet": "min-h-10.5 flex-1 resize-none rounded-(--radius-input)\n              border border-line-3 bg-surface px-3 py-2 text-13\n              leading-[1.55] text-chalk s"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 543,
+      "snippet": "h-10.5 shrink-0 rounded-(--radius-chip) border\n              border-signal bg-signal px-3.5 font-mono text-12 font-bold\n              tracking-[0.1em] text-void"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 543,
+      "snippet": "h-10.5 shrink-0 rounded-(--radius-chip) border\n              border-signal bg-signal px-3.5 font-mono text-12 font-bold\n              tracking-[0.1em] text-void"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 569,
+      "snippet": "sticky top-[calc(var(--h-topbar)+var(--h-banner,0px)+12px)] hidden\n          max-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px)-1.5rem)] w-80 shrink-0 flex-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 569,
+      "snippet": "sticky top-[calc(var(--h-topbar)+var(--h-banner,0px)+12px)] hidden\n          max-h-[calc(100dvh-var(--h-topbar)-var(--h-banner,0px)-1.5rem)] w-80 shrink-0 flex-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/CommentsPanel.tsx",
+      "line": 574,
+      "snippet": "font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 120,
+      "snippet": "tnum font-display text-[1.1rem] font-bold leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 126,
+      "snippet": "tnum font-display text-[1.1rem] font-bold leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 139,
+      "snippet": "relative mb-1.5 h-[13px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 145,
+      "snippet": "label-micro absolute top-0 overflow-hidden whitespace-nowrap\n                  text-12 leading-[13px] text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 154,
+      "snippet": "flex gap-[3px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 156,
+      "snippet": "mr-[6px] flex flex-col gap-[3px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 156,
+      "snippet": "mr-[6px] flex flex-col gap-[3px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 160,
+      "snippet": "label-micro flex h-[11px] w-[9px] items-center text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 160,
+      "snippet": "label-micro flex h-[11px] w-[9px] items-center text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 168,
+      "snippet": "flex flex-col gap-[3px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 204,
+      "snippet": "flex shrink-0 items-center gap-[3px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ContributionMap.tsx",
+      "line": 234,
+      "snippet": "flex gap-[3px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GifPicker.tsx",
+      "line": 87,
+      "snippet": "mb-3 h-(--h-input) w-full rounded-(--radius-input)\n          border border-line-3 bg-surface px-3.5 text-base shadow-sh-1\n          placeholder:text-chalk-4\n   "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GifPicker.tsx",
+      "line": 154,
+      "snippet": "block w-full overflow-hidden rounded-(--radius-input)\n                    border border-line-2 bg-surface-2 transition-[border-color,transform]\n                "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 334,
+      "snippet": "mb-3 max-w-[62ch] text-sm leading-relaxed text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 346,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input)\n                    border border-line-3 bg-surface px-3 font-mono text-13\n                    shadow-sh-1 placeho"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 356,
+      "snippet": "h-(--h-input) rounded-(--radius-chip) border\n                  border-signal bg-signal px-4 font-mono text-12 font-bold\n                  tracking-[0.1em] text-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 386,
+      "snippet": "font-mono text-sm font-bold tracking-[0.08em]\n                text-chalk-3 uppercase transition-colors hover:text-danger"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 404,
+      "snippet": "mb-3 max-w-[62ch] text-sm leading-relaxed text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 419,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input)\n                    border border-line-3 bg-surface px-3 font-mono text-13\n                    shadow-sh-1 placeho"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 433,
+      "snippet": "h-(--h-input) rounded-(--radius-chip) border\n                      border-signal bg-signal px-4 font-mono text-12 font-bold\n                      tracking-[0.1e"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 552,
+      "snippet": "mb-3 max-w-[62ch] text-sm leading-relaxed text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 603,
+      "snippet": "h-(--h-action) rounded-(--radius-chip) border\n                      border-line-3 px-3 font-mono text-sm font-bold tracking-[0.08em]\n                      text-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 618,
+      "snippet": "font-mono text-sm font-bold tracking-[0.08em]\n                      text-chalk-3 uppercase transition-colors hover:text-danger"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 634,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input)\n                      border border-line-3 bg-surface px-3 font-mono text-13\n                      shadow-sh-1 pla"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 647,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input)\n                        border border-line-3 bg-surface px-3 font-mono text-13\n                        shadow-sh-1"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 659,
+      "snippet": "h-(--h-input) shrink-0 rounded-(--radius-chip) border\n                        border-signal bg-signal px-4 font-mono text-sm font-bold\n                        t"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 881,
+      "snippet": "max-w-[62ch] text-sm leading-relaxed text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 892,
+      "snippet": "h-(--h-action) rounded-(--radius-chip) border\n            border-signal bg-signal px-3 font-mono text-sm font-bold\n            tracking-[0.08em] text-void upper"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 903,
+      "snippet": "h-(--h-action) rounded-(--radius-chip) border\n            border-line-2 px-3 font-mono text-sm font-bold tracking-[0.08em]\n            text-chalk-3 uppercase tr"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 914,
+      "snippet": "h-(--h-action) rounded-(--radius-chip) border\n            border-line-2 px-3 font-mono text-sm font-bold tracking-[0.08em]\n            text-chalk-4 uppercase tr"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 955,
+      "snippet": "mb-3 max-w-[62ch] text-12 leading-relaxed text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/GithubPanel.tsx",
+      "line": 1002,
+      "snippet": "h-(--h-input) w-full rounded-(--radius-input) border\n            border-line-3 bg-surface px-3 font-mono text-13 shadow-sh-1\n            placeholder:text-chalk-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 178,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center gap-1.5\n            rounded-(--radius-chip) border border-signal px-2.5\n            font-mono text-12 font-bold "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 178,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center gap-1.5\n            rounded-(--radius-chip) border border-signal px-2.5\n            font-mono text-12 font-bold "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 308,
+      "snippet": "h-(--h-input) min-w-0 flex-1\n                          rounded-(--radius-input) border border-line-3\n                          bg-surface-2 px-3 font-mono text-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 319,
+      "snippet": "mo-press h-(--h-input) shrink-0 rounded-(--radius-input)\n                          border border-line-3 px-3 font-mono text-12 font-bold\n                       "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 319,
+      "snippet": "mo-press h-(--h-input) shrink-0 rounded-(--radius-input)\n                          border border-line-3 px-3 font-mono text-12 font-bold\n                       "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 338,
+      "snippet": "mo-press inline-flex h-7.5 items-center gap-1.5\n                          rounded-(--radius-chip) border border-line-3 px-2.5\n                          font-mon"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 338,
+      "snippet": "mo-press inline-flex h-7.5 items-center gap-1.5\n                          rounded-(--radius-chip) border border-line-3 px-2.5\n                          font-mon"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 363,
+      "snippet": "mo-press inline-flex h-7.5 items-center gap-1.5\n                            rounded-(--radius-chip) border border-line-3 px-2.5\n                            font"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 363,
+      "snippet": "mo-press inline-flex h-7.5 items-center gap-1.5\n                            rounded-(--radius-chip) border border-line-3 px-2.5\n                            font"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 402,
+      "snippet": "mb-4 h-(--h-input) w-full rounded-(--radius-input)\n            border border-line-3 bg-surface px-3.5 text-13 shadow-sh-1\n            transition-[transform,box-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 402,
+      "snippet": "mb-4 h-(--h-input) w-full rounded-(--radius-input)\n            border border-line-3 bg-surface px-3.5 text-13 shadow-sh-1\n            transition-[transform,box-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 417,
+      "snippet": "mb-5 w-full resize-y rounded-(--radius-input) border\n            border-line-3 bg-surface px-3.5 py-2.5 text-13 leading-relaxed\n            shadow-sh-1 transiti"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/IssuePanel.tsx",
+      "line": 417,
+      "snippet": "mb-5 w-full resize-y rounded-(--radius-input) border\n            border-line-3 bg-surface px-3.5 py-2.5 text-13 leading-relaxed\n            shadow-sh-1 transiti"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/MessageExtras.tsx",
+      "line": 58,
+      "snippet": "mo-press flex size-7.5 items-center justify-center rounded-(--radius-chip)\n        text-[17px] leading-none transition-colors hover:bg-surface-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PostCard.tsx",
+      "line": 245,
+      "snippet": "line-gutter tnum block text-center leading-[1.5]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PostCard.tsx",
+      "line": 336,
+      "snippet": "feed-post__text mb-2.5 text-15 leading-[1.6] break-words\n            whitespace-pre-wrap text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PostOwnerTools.tsx",
+      "line": 59,
+      "snippet": "rounded-(--radius-chip) border border-line-3 px-2.5 py-1.5\n              font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk-3\n              tran"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PostOwnerTools.tsx",
+      "line": 68,
+      "snippet": "rounded-(--radius-chip) border border-danger bg-danger\n              px-2.5 py-1.5 font-mono text-12 font-bold uppercase tracking-[0.12em]\n              text-vo"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PostOwnerTools.tsx",
+      "line": 89,
+      "snippet": "mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3\n            text-14 leading-[1.6] shadow-sh-1\n            transition-[transform"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PostOwnerTools.tsx",
+      "line": 89,
+      "snippet": "mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3\n            text-14 leading-[1.6] shadow-sh-1\n            transition-[transform"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PostOwnerTools.tsx",
+      "line": 89,
+      "snippet": "mb-3 w-full rounded-(--radius-input) border border-line-3 bg-surface px-3.5 py-3\n            text-14 leading-[1.6] shadow-sh-1\n            transition-[transform"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PostShareButton.tsx",
+      "line": 33,
+      "snippet": "ml-auto inline-flex items-center gap-1.5 rounded-(--radius-chip)\n          border-(--bw-thin) border-line px-2.5 py-2 min-h-(--h-action)\n          max-sm:min-h-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProfileWorkPanel.tsx",
+      "line": 246,
+      "snippet": "mt-1 font-display text-[17px] font-bold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProfileWorkPanel.tsx",
+      "line": 257,
+      "snippet": "tnum mt-1 font-display text-[1.1rem] font-bold leading-none text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProfileWorkPanel.tsx",
+      "line": 263,
+      "snippet": "tnum mt-1 font-display text-[1.1rem] font-bold leading-none text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProfileWorkPanel.tsx",
+      "line": 266,
+      "snippet": "mt-0.5 text-12 uppercase tracking-[0.08em] text-chalk-4"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProfileWorkPanel.tsx",
+      "line": 287,
+      "snippet": "mt-1 font-display text-[17px] font-bold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProfileWorkPanel.tsx",
+      "line": 338,
+      "snippet": "mt-1 font-display text-[17px] font-bold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProfileWorkPanel.tsx",
+      "line": 388,
+      "snippet": "mt-1 font-display text-[17px] font-bold"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProfileWorkPanel.tsx",
+      "line": 391,
+      "snippet": "mt-1 text-sm leading-[1.5] text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 63,
+      "snippet": "font-display text-[1.6rem] font-bold leading-none\n            tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 63,
+      "snippet": "font-display text-[1.6rem] font-bold leading-none\n            tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 70,
+      "snippet": "tnum font-display text-[2.1rem] font-bold leading-none text-level"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 92,
+      "snippet": "mo-grow h-full bg-gradient-to-r from-level to-ok transition-[width] duration-500"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 110,
+      "snippet": "tnum font-display text-[1.15rem] font-bold leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 139,
+      "snippet": "tnum font-display text-[1.35rem] font-bold leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 148,
+      "snippet": "tnum font-display text-[1.05rem] font-bold leading-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 154,
+      "snippet": "tnum font-display text-[1.05rem] font-bold leading-none\n              text-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 163,
+      "snippet": "mb-3 text-sm leading-[1.55] text-chalk-2 outline"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 178,
+      "snippet": "flex gap-[3px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 268,
+      "snippet": "h-[3px] w-full overflow-hidden rounded-full bg-line"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProgressPanel.tsx",
+      "line": 436,
+      "snippet": "rounded-full border border-signal/40 px-2 py-0.5 text-12 font-semibold uppercase tracking-[0.18em] text-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 259,
+      "snippet": "grid-rows-[auto_minmax(0,1fr)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 259,
+      "snippet": "grid-rows-[minmax(0,1fr)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 340,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center gap-1.5\n                rounded-(--radius-chip) border border-danger px-2.5\n                font-mono text-12 fo"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 431,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center\n                      gap-1.5 rounded-(--radius-chip) border border-signal\n                      bg-signal px-2."
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 431,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center\n                      gap-1.5 rounded-(--radius-chip) border border-signal\n                      bg-signal px-2."
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 456,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center\n                      gap-1.5 rounded-(--radius-chip) border border-signal\n                      bg-transparent "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 474,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center\n                      gap-1.5 rounded-(--radius-chip) border border-danger\n                      bg-transparent "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 488,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center gap-1.5\n                    rounded-(--radius-chip) border border-line-3 px-2.5 max-[340px]:px-2\n               "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 488,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center gap-1.5\n                    rounded-(--radius-chip) border border-line-3 px-2.5 max-[340px]:px-2\n               "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 488,
+      "snippet": "mo-press inline-flex h-11 shrink-0 items-center gap-1.5\n                    rounded-(--radius-chip) border border-line-3 px-2.5 max-[340px]:px-2\n               "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 501,
+      "snippet": "h-[calc(100dvh-230px)] min-h-90 lg:h-[calc(100dvh-250px)] lg:min-h-105"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 501,
+      "snippet": "h-[calc(100dvh-230px)] min-h-90 lg:h-[calc(100dvh-250px)] lg:min-h-105"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 586,
+      "snippet": "mb-3 h-(--h-input) w-full rounded-(--radius-input)\n                  border border-line-3 bg-surface-2 px-3.5 font-mono text-13\n                  outline transi"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 586,
+      "snippet": "mb-3 h-(--h-input) w-full rounded-(--radius-input)\n                  border border-line-3 bg-surface-2 px-3.5 font-mono text-13\n                  outline transi"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectCodeView.tsx",
+      "line": 675,
+      "snippet": "overflow-x-auto font-mono text-12 leading-[1.55]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectRatingPanel.tsx",
+      "line": 156,
+      "snippet": "mo-press ml-auto inline-flex items-center gap-1.5 rounded-(--radius-chip)\n            border border-signal bg-signal/10 px-3 py-2 font-mono text-12 font-bold\n  "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectSettingsPanel.tsx",
+      "line": 212,
+      "snippet": "mb-3 flex items-center gap-2 font-display text-[1.05rem] font-bold text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectSettingsPanel.tsx",
+      "line": 324,
+      "snippet": "left-[22px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectSettingsPanel.tsx",
+      "line": 395,
+      "snippet": "mb-3 flex items-center gap-2 font-display text-[1.05rem] font-bold text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectSettingsPanel.tsx",
+      "line": 466,
+      "snippet": "mo-press rounded-(--radius-chip) border border-line-3 px-2.5 py-1\n                        font-mono text-12 font-bold uppercase tracking-[0.12em]\n              "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectSettingsPanel.tsx",
+      "line": 515,
+      "snippet": "mb-1.5 flex items-center gap-2 font-display text-[1.05rem] font-bold text-danger"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 198,
+      "snippet": "grid gap-3 lg:grid-cols-[210px_1fr]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 312,
+      "snippet": "truncate font-display text-[1.15rem] font-bold text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 410,
+      "snippet": "font-display text-[1.3rem] font-bold tracking-[-0.01em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 410,
+      "snippet": "font-display text-[1.3rem] font-bold tracking-[-0.01em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 410,
+      "snippet": "font-display text-[1.08rem] font-bold text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 410,
+      "snippet": "font-mono text-[0.9rem] font-bold tracking-[0.04em] text-chalk-2 uppercase"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 410,
+      "snippet": "font-mono text-[0.9rem] font-bold tracking-[0.04em] text-chalk-2 uppercase"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 424,
+      "snippet": "text-13 leading-[1.7] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 431,
+      "snippet": "ml-4 list-decimal space-y-1 text-13 leading-[1.6] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 437,
+      "snippet": "space-y-1 text-13 leading-[1.6] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProjectWikiPanel.tsx",
+      "line": 451,
+      "snippet": "border-l-2 border-signal bg-surface-2/60 px-3 py-2\n                  text-13 leading-[1.65] italic text-chalk-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProofPanel.tsx",
+      "line": 94,
+      "snippet": "tnum font-display text-[2.4rem] font-bold leading-none text-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProofPanel.tsx",
+      "line": 107,
+      "snippet": "tnum font-display text-[1.5rem] font-bold leading-none text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ProofPanel.tsx",
+      "line": 122,
+      "snippet": "mo-press inline-flex h-(--h-tap) items-center gap-2\n              rounded-(--radius-chip) border border-signal bg-signal px-3\n              font-mono text-12 fo"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PublicFooter.tsx",
+      "line": 5,
+      "snippet": "mx-auto flex max-w-[1200px] flex-wrap items-center justify-between gap-3 px-5 py-6"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PullRequestPanel.tsx",
+      "line": 493,
+      "snippet": "overflow-x-auto font-mono text-12 leading-[1.55]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/PwaManager.tsx",
+      "line": 414,
+      "snippet": "size-14 rounded-[14px] border border-line-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ReportButton.tsx",
+      "line": 203,
+      "snippet": "mo-press mt-4 inline-flex h-(--h-tap) w-full items-center\n              justify-center gap-2 rounded-(--radius-input) border border-signal\n              bg-sign"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/RunOutput.tsx",
+      "line": 159,
+      "snippet": "mo-breathe inline-block h-[1em] w-[0.55em] bg-signal/80"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/RunOutput.tsx",
+      "line": 159,
+      "snippet": "mo-breathe inline-block h-[1em] w-[0.55em] bg-signal/80"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/RunOutput.tsx",
+      "line": 189,
+      "snippet": "mo-scan pointer-events-none absolute inset-x-0 top-[34px] h-px bg-signal/70"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ScorePanel.tsx",
+      "line": 414,
+      "snippet": "font-mono text-12 font-bold uppercase tracking-[0.08em] text-warn"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ScorePanel.tsx",
+      "line": 533,
+      "snippet": "tnum w-[4ch] shrink-0 text-right font-mono text-12 font-bold text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/ScorePanel.tsx",
+      "line": 974,
+      "snippet": "tnum font-display text-[1rem] font-bold leading-none text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 114,
+      "snippet": "z-[calc(var(--z-modal)+10)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 121,
+      "snippet": "max-w-[760px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 121,
+      "snippet": "max-w-[520px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 137,
+      "snippet": "sheet-glass depth-panel max-h-[92vh] w-full overflow-y-auto\n            rounded-t-[calc(var(--radius-card)+8px)] border border-b-0 border-edge\n            px-[1"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 137,
+      "snippet": "sheet-glass depth-panel max-h-[92vh] w-full overflow-y-auto\n            rounded-t-[calc(var(--radius-card)+8px)] border border-b-0 border-edge\n            px-[1"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 137,
+      "snippet": "sheet-glass depth-panel max-h-[92vh] w-full overflow-y-auto\n            rounded-t-[calc(var(--radius-card)+8px)] border border-b-0 border-edge\n            px-[1"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 141,
+      "snippet": "mx-auto my-[13px] h-[5px] w-11 rounded-full bg-chalk-2 opacity-40"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 141,
+      "snippet": "mx-auto my-[13px] h-[5px] w-11 rounded-full bg-chalk-2 opacity-40"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 142,
+      "snippet": "mb-[1.15rem] font-display text-[1.3rem] font-bold tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 142,
+      "snippet": "mb-[1.15rem] font-display text-[1.3rem] font-bold tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Sheet.tsx",
+      "line": 142,
+      "snippet": "mb-[1.15rem] font-display text-[1.3rem] font-bold tracking-[-0.02em]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Skeleton.tsx",
+      "line": 73,
+      "snippet": "flex h-full min-h-[50dvh] gap-2 px-(--gutter) pt-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/SplashScreen.tsx",
+      "line": 90,
+      "snippet": "fixed inset-0 z-[9000] flex items-center justify-center"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StatusBar.tsx",
+      "line": 79,
+      "snippet": "mx-auto flex h-full max-w-[560px] items-center gap-2 px-(--gutter)"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StatusBar.tsx",
+      "line": 104,
+      "snippet": "mode-live block size-[5px] bg-phosphor"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StdinBubble.tsx",
+      "line": 59,
+      "snippet": "pointer-events-none fixed inset-x-3 z-(--z-sheet)\n        bottom-[calc(var(--h-bottomnav)+0.75rem)] flex justify-center\n        sm:inset-x-auto sm:right-5 sm:ju"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StdinBubble.tsx",
+      "line": 63,
+      "snippet": "pointer-events-auto relative w-full max-w-[360px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StdinBubble.tsx",
+      "line": 70,
+      "snippet": "mo-breathe pointer-events-none absolute -inset-1.5\n            rounded-[calc(var(--radius-card)+6px)] bg-signal/25 blur-lg"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StdinBubble.tsx",
+      "line": 83,
+      "snippet": "absolute -bottom-[7px] right-8 size-3 rotate-45\n              border-b-2 border-r-2 border-signal bg-surface sm:right-10"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StdinBubble.tsx",
+      "line": 89,
+      "snippet": "font-mono text-12 font-bold uppercase tracking-[0.12em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StdinBubble.tsx",
+      "line": 155,
+      "snippet": "ml-0.5 rounded-[4px] border border-void/25 px-1\n                  font-mono text-12 leading-[1.4] text-void/70"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StdinBubble.tsx",
+      "line": 155,
+      "snippet": "ml-0.5 rounded-[4px] border border-void/25 px-1\n                  font-mono text-12 leading-[1.4] text-void/70"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StickerFace.tsx",
+      "line": 46,
+      "snippet": "rounded-[26%] object-cover"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StickerFace.tsx",
+      "line": 55,
+      "snippet": "inline-flex items-center justify-center rounded-[26%]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StickerPicker.tsx",
+      "line": 81,
+      "snippet": "flex aspect-square w-full items-center justify-center\n                  rounded-(--radius-input) border border-line-2 bg-surface-2\n                  transition-"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryRail.tsx",
+      "line": 121,
+      "snippet": "border-[1.5px] border-dashed border-line-3 bg-surface"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryRail.tsx",
+      "line": 172,
+      "snippet": "absolute top-[25px] -right-[13px] flex size-11 items-center\n                  justify-center rounded-full"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryRail.tsx",
+      "line": 172,
+      "snippet": "absolute top-[25px] -right-[13px] flex size-11 items-center\n                  justify-center rounded-full"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryRail.tsx",
+      "line": 176,
+      "snippet": "flex size-5.5 items-center justify-center rounded-full\n                    border-[1.5px] border-void bg-signal text-void\n                    transition-transfo"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryRail.tsx",
+      "line": 205,
+      "snippet": "border-[1.5px] border-line-3"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryStickerFace.tsx",
+      "line": 29,
+      "snippet": "rounded-[26%] object-cover"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryStickerFace.tsx",
+      "line": 36,
+      "snippet": "inline-flex items-center justify-center rounded-[26%]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryStudio.tsx",
+      "line": 186,
+      "snippet": "md:grid md:grid-cols-[minmax(0,300px)_minmax(0,1fr)] md:gap-6"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryStudio.tsx",
+      "line": 189,
+      "snippet": "mx-auto w-full max-w-[280px] md:max-w-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryStudio.tsx",
+      "line": 191,
+      "snippet": "rounded-[calc(var(--radius-card)+4px)] p-[2px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryStudio.tsx",
+      "line": 191,
+      "snippet": "rounded-[calc(var(--radius-card)+4px)] p-[2px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryStudio.tsx",
+      "line": 323,
+      "snippet": "mx-auto mt-2 flex w-full max-w-[280px] items-center justify-between font-mono text-12 text-chalk-4 md:max-w-none"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryStudio.tsx",
+      "line": 468,
+      "snippet": "mo-press flex h-11 flex-[1.4] items-center justify-center gap-2\n                rounded-input border border-line-3 bg-signal text-sm font-bold text-void\n       "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 688,
+      "snippet": "h-[3px] flex-1 overflow-hidden rounded-full bg-void/25"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 690,
+      "snippet": "animate-[storyBar_linear_forwards]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 790,
+      "snippet": "h-full w-full max-w-[min(100%,540px)]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 793,
+      "snippet": "story-aperture relative h-full p-[1px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 886,
+      "snippet": "max-h-[70%] overflow-y-auto whitespace-pre-wrap text-center\n                      text-[24px] leading-[1.4] font-semibold text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 886,
+      "snippet": "max-h-[70%] overflow-y-auto whitespace-pre-wrap text-center\n                      text-[24px] leading-[1.4] font-semibold text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 886,
+      "snippet": "max-h-[70%] overflow-y-auto whitespace-pre-wrap text-center\n                      text-[24px] leading-[1.4] font-semibold text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 1007,
+      "snippet": "absolute inset-y-0 left-0 w-[18%] cursor-w-resize disabled:cursor-default"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 1014,
+      "snippet": "absolute inset-y-0 right-0 w-[18%] cursor-e-resize"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 1052,
+      "snippet": "story-tray relative mx-auto max-h-[70%] min-h-33 w-full\n              max-w-[440px] overflow-y-auto rounded-t-(--radius-card) p-3\n              pb-[max(12px,var"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 1052,
+      "snippet": "story-tray relative mx-auto max-h-[70%] min-h-33 w-full\n              max-w-[440px] overflow-y-auto rounded-t-(--radius-card) p-3\n              pb-[max(12px,var"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 1052,
+      "snippet": "story-tray relative mx-auto max-h-[70%] min-h-33 w-full\n              max-w-[440px] overflow-y-auto rounded-t-(--radius-card) p-3\n              pb-[max(12px,var"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 1183,
+      "snippet": "flex h-11 items-center justify-center rounded-(--radius-chip)\n                      text-[22px] hover:bg-surface-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/StoryViewerLive.tsx",
+      "line": 1212,
+      "snippet": "story-control flex size-11 items-center justify-center\n                      text-[20px] leading-none transition-transform active:scale-95"
+    },
+    {
+      "metric": "focusVisibleUses",
+      "file": "components/TaskBoard.tsx",
+      "line": 258,
+      "snippet": "-mr-1 -mt-1 flex size-6 shrink-0 items-center justify-center\n                            rounded-full text-chalk-4 opacity-0 transition-opacity\n                "
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TaskBoard.tsx",
+      "line": 286,
+      "snippet": "max-w-[120px] cursor-pointer bg-transparent text-chalk-3 outline"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/Toast.tsx",
+      "line": 63,
+      "snippet": "pointer-events-none fixed inset-x-0 top-4 z-[9999] flex flex-col items-center gap-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 256,
+      "snippet": "depth-panel overlay-panel w-full max-w-[460px] rounded-(--radius-card)\n            border border-edge px-6 py-7 shadow-(--shadow-drop-lg)"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 267,
+      "snippet": "font-display text-[1.4rem] font-bold leading-tight tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 267,
+      "snippet": "font-display text-[1.4rem] font-bold leading-tight tracking-[-0.02em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 270,
+      "snippet": "mt-2.5 text-13 leading-[1.65] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 276,
+      "snippet": "mt-[3px] text-signal"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 391,
+      "snippet": "font-display text-15 font-bold tracking-[-0.01em] text-chalk"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 400,
+      "snippet": "mb-3 h-[3px] overflow-hidden rounded-full bg-chalk-4/25"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 408,
+      "snippet": "h-full rounded-full bg-signal transition-[width] duration-(--d-slow) ease-out"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TourOverlay.tsx",
+      "line": 413,
+      "snippet": "text-13 leading-[1.6] text-chalk-2"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/TypingDots.tsx",
+      "line": 22,
+      "snippet": "inline-flex items-center gap-[3px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/collab/CursorLayer.tsx",
+      "line": 84,
+      "snippet": "absolute block rounded-[2px]"
+    },
+    {
+      "metric": "arbitraryValues",
+      "file": "components/collab/TeamChat.tsx",
+      "line": 106,
+      "snippet": "mt-0.5 whitespace-pre-wrap break-words text-13 leading-[1.45] text-chalk"
+    }
+  ]
+}

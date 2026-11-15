@@ -1,0 +1,1588 @@
+{
+  "base": "http://localhost:3000",
+  "routes": {
+    "/login": {
+      "mobile": {
+        "overflow": false,
+        "tinyText": 22,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Comptes disponibles",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "128 abonnés",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "842 abonnés",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "vérifié",
+            "tag": "span"
+          },
+          {
+            "size": 11,
+            "text": "341 abonnés",
+            "tag": "p"
+          }
+        ],
+        "interactiveTotal": 17,
+        "smallTargets": 2,
+        "smallTargetsSamples": [
+          {
+            "tag": "button",
+            "w": 40,
+            "h": 42,
+            "text": "Afficher"
+          },
+          {
+            "tag": "a",
+            "w": 113,
+            "h": 17,
+            "text": "Mot de passe oublié ?"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 22,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/login-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 22,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Comptes disponibles",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "128 abonnés",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "842 abonnés",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "vérifié",
+            "tag": "span"
+          },
+          {
+            "size": 11,
+            "text": "341 abonnés",
+            "tag": "p"
+          }
+        ],
+        "interactiveTotal": 17,
+        "smallTargets": 2,
+        "smallTargetsSamples": [
+          {
+            "tag": "button",
+            "w": 40,
+            "h": 42,
+            "text": "Afficher"
+          },
+          {
+            "tag": "a",
+            "w": 113,
+            "h": 17,
+            "text": "Mot de passe oublié ?"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 22,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/login-1440.png"
+      }
+    },
+    "/feed": {
+      "mobile": {
+        "overflow": false,
+        "tinyText": 53,
+        "tinyTextSamples": [
+          {
+            "size": 9.5,
+            "text": "18",
+            "tag": "span"
+          },
+          {
+            "size": 11,
+            "text": "24 h",
+            "tag": "span"
+          },
+          {
+            "size": 11,
+            "text": "Votre story",
+            "tag": "span"
+          },
+          {
+            "size": 11.5,
+            "text": "Tout",
+            "tag": "button"
+          },
+          {
+            "size": 11.5,
+            "text": "Abonnements",
+            "tag": "button"
+          }
+        ],
+        "interactiveTotal": 143,
+        "smallTargets": 83,
+        "smallTargetsSamples": [
+          {
+            "tag": "button",
+            "w": 78,
+            "h": 29,
+            "text": "Koffi@koffi"
+          },
+          {
+            "tag": "button",
+            "w": 86,
+            "h": 26,
+            "text": "#debogage"
+          },
+          {
+            "tag": "button",
+            "w": 40,
+            "h": 44,
+            "text": "Réagir à cette publication"
+          },
+          {
+            "tag": "button",
+            "w": 34,
+            "h": 44,
+            "text": "Republier dans mon fil"
+          },
+          {
+            "tag": "button",
+            "w": 30,
+            "h": 44,
+            "text": "Enregistrer dans les signets"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 170,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/feed-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 56,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Explorateur",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Activité",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Espace de travail",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Paramètres",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Aide",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 157,
+        "smallTargets": 102,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Fil"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Recherche"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Groupes"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Messages"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 182,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/feed-1440.png"
+      }
+    },
+    "/profile": {
+      "mobile": {
+        "overflow": true,
+        "tinyText": 49,
+        "tinyTextSamples": [
+          {
+            "size": 9.5,
+            "text": "18",
+            "tag": "span"
+          },
+          {
+            "size": 10,
+            "text": "Étudiant",
+            "tag": "span"
+          },
+          {
+            "size": 10,
+            "text": "Python",
+            "tag": "span"
+          },
+          {
+            "size": 10,
+            "text": "JavaScript",
+            "tag": "span"
+          },
+          {
+            "size": 10,
+            "text": "SQL",
+            "tag": "span"
+          }
+        ],
+        "interactiveTotal": 26,
+        "smallTargets": 9,
+        "smallTargetsSamples": [
+          {
+            "tag": "button",
+            "w": 61,
+            "h": 41,
+            "text": "Posts"
+          },
+          {
+            "tag": "button",
+            "w": 61,
+            "h": 41,
+            "text": "Travail"
+          },
+          {
+            "tag": "button",
+            "w": 61,
+            "h": 41,
+            "text": "Progrès"
+          },
+          {
+            "tag": "button",
+            "w": 61,
+            "h": 41,
+            "text": "Infos"
+          },
+          {
+            "tag": "button",
+            "w": 85,
+            "h": 41,
+            "text": "Paramètres"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 32,
+        "animations": {
+          "running": 1,
+          "infinite": 0,
+          "sample": [
+            "CSSTransition"
+          ]
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/profile-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 52,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Explorateur",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Activité",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Espace de travail",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Paramètres",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Aide",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 40,
+        "smallTargets": 28,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Fil"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Recherche"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Groupes"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Messages"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 44,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/profile-1440.png"
+      }
+    },
+    "/projects": {
+      "mobile": {
+        "overflow": true,
+        "tinyText": 38,
+        "tinyTextSamples": [
+          {
+            "size": 9.5,
+            "text": "18",
+            "tag": "span"
+          },
+          {
+            "size": 11.5,
+            "text": "Découvrir",
+            "tag": "button"
+          },
+          {
+            "size": 11.5,
+            "text": "Mes projets",
+            "tag": "button"
+          },
+          {
+            "size": 11,
+            "text": "filtrer",
+            "tag": "span"
+          },
+          {
+            "size": 11.5,
+            "text": "recrute",
+            "tag": "button"
+          }
+        ],
+        "interactiveTotal": 21,
+        "smallTargets": 6,
+        "smallTargetsSamples": [
+          {
+            "tag": "button",
+            "w": 87,
+            "h": 30,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "button",
+            "w": 101,
+            "h": 30,
+            "text": "Mes projets"
+          },
+          {
+            "tag": "select",
+            "w": 133,
+            "h": 34,
+            "text": "Langage"
+          },
+          {
+            "tag": "select",
+            "w": 196,
+            "h": 34,
+            "text": "Stade"
+          },
+          {
+            "tag": "select",
+            "w": 133,
+            "h": 34,
+            "text": "Rôle"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "select",
+            "fontSize": 11.5,
+            "h": 34
+          },
+          {
+            "tag": "select",
+            "fontSize": 11.5,
+            "h": 34
+          },
+          {
+            "tag": "select",
+            "fontSize": 11.5,
+            "h": 34
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 28,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/projects-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 41,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Explorateur",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Activité",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Espace de travail",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Paramètres",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Aide",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 35,
+        "smallTargets": 25,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Fil"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Recherche"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Groupes"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Messages"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "select",
+            "fontSize": 11.5,
+            "h": 34
+          },
+          {
+            "tag": "select",
+            "fontSize": 11.5,
+            "h": 34
+          },
+          {
+            "tag": "select",
+            "fontSize": 11.5,
+            "h": 34
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 40,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/projects-1440.png"
+      }
+    },
+    "/projects/p-1": {
+      "mobile": {
+        "overflow": true,
+        "tinyText": 31,
+        "tinyTextSamples": [
+          {
+            "size": 9.5,
+            "text": "18",
+            "tag": "span"
+          },
+          {
+            "size": 11.5,
+            "text": "Code",
+            "tag": "button"
+          },
+          {
+            "size": 11.5,
+            "text": "Issues 2",
+            "tag": "button"
+          },
+          {
+            "size": 11.5,
+            "text": "Demandes 1",
+            "tag": "button"
+          },
+          {
+            "size": 11.5,
+            "text": "Tâches",
+            "tag": "button"
+          }
+        ],
+        "interactiveTotal": 27,
+        "smallTargets": 5,
+        "smallTargetsSamples": [
+          {
+            "tag": "button",
+            "w": 106,
+            "h": 32,
+            "text": "exécuter"
+          },
+          {
+            "tag": "button",
+            "w": 89,
+            "h": 32,
+            "text": "projet"
+          },
+          {
+            "tag": "button",
+            "w": 89,
+            "h": 32,
+            "text": "écrire"
+          },
+          {
+            "tag": "button",
+            "w": 53,
+            "h": 23,
+            "text": "Copier le code"
+          },
+          {
+            "tag": "button",
+            "w": 49,
+            "h": 23,
+            "text": "Coller depuis le presse-papier"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "select",
+            "fontSize": 11,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 35,
+        "animations": {
+          "running": 2,
+          "infinite": 0,
+          "sample": [
+            "CSSTransition",
+            "CSSTransition"
+          ]
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/projects-p-1-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 49,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Explorateur",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Activité",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Espace de travail",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Paramètres",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Aide",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 51,
+        "smallTargets": 28,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Fil"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Recherche"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Groupes"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Messages"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "select",
+            "fontSize": 11,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 54,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/projects-p-1-1440.png"
+      }
+    },
+    "/u/aminata_dev": {
+      "mobile": {
+        "overflow": false,
+        "tinyText": 57,
+        "tinyTextSamples": [
+          {
+            "size": 9.5,
+            "text": "18",
+            "tag": "span"
+          },
+          {
+            "size": 11.5,
+            "text": "Data Science · M2",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Python",
+            "tag": "li"
+          },
+          {
+            "size": 11,
+            "text": "SQL",
+            "tag": "li"
+          },
+          {
+            "size": 11,
+            "text": "R",
+            "tag": "li"
+          }
+        ],
+        "interactiveTotal": 17,
+        "smallTargets": 6,
+        "smallTargetsSamples": [
+          {
+            "tag": "button",
+            "w": 99,
+            "h": 32,
+            "text": "Signaler ce compte"
+          },
+          {
+            "tag": "button",
+            "w": 73,
+            "h": 27,
+            "text": "2abonnés"
+          },
+          {
+            "tag": "button",
+            "w": 65,
+            "h": 27,
+            "text": "3suivis"
+          },
+          {
+            "tag": "button",
+            "w": 101,
+            "h": 34,
+            "text": "Preuves4"
+          },
+          {
+            "tag": "button",
+            "w": 143,
+            "h": 34,
+            "text": "Publications2"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 19,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/u-aminata_dev-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 60,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Explorateur",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Activité",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Espace de travail",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Paramètres",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Aide",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 31,
+        "smallTargets": 25,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Fil"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Recherche"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Groupes"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Messages"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 31,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/u-aminata_dev-1440.png"
+      }
+    },
+    "/messages": {
+      "mobile": {
+        "overflow": false,
+        "tinyText": 17,
+        "tinyTextSamples": [
+          {
+            "size": 9.5,
+            "text": "18",
+            "tag": "span"
+          },
+          {
+            "size": 11.5,
+            "text": "Super, ton projet de coopérative avance ",
+            "tag": "div"
+          },
+          {
+            "size": 10.5,
+            "text": "15:25",
+            "tag": "span"
+          },
+          {
+            "size": 10,
+            "text": "1",
+            "tag": "span"
+          },
+          {
+            "size": 11.5,
+            "text": "Je t'envoie le script du challenge dans ",
+            "tag": "div"
+          }
+        ],
+        "interactiveTotal": 13,
+        "smallTargets": 0,
+        "smallTargetsSamples": [],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 14,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/messages-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 20,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Explorateur",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Activité",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Espace de travail",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Paramètres",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Aide",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 27,
+        "smallTargets": 19,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Fil"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Recherche"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Groupes"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Messages"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 26,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/messages-1440.png"
+      }
+    },
+    "/settings": {
+      "mobile": {
+        "overflow": false,
+        "tinyText": 10,
+        "tinyTextSamples": [
+          {
+            "size": 9.5,
+            "text": "18",
+            "tag": "span"
+          },
+          {
+            "size": 10,
+            "text": "Fil",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Explorer",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Créer",
+            "tag": "button"
+          },
+          {
+            "size": 10,
+            "text": "Messages",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 25,
+        "smallTargets": 7,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 52,
+            "h": 18,
+            "text": "gérer →"
+          },
+          {
+            "tag": "input",
+            "w": 20,
+            "h": 20,
+            "text": ""
+          },
+          {
+            "tag": "a",
+            "w": 29,
+            "h": 20,
+            "text": "Aide"
+          },
+          {
+            "tag": "a",
+            "w": 93,
+            "h": 20,
+            "text": "Confidentialité"
+          },
+          {
+            "tag": "a",
+            "w": 29,
+            "h": 20,
+            "text": "CGU"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 26,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/settings-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 13,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Explorateur",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Activité",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Espace de travail",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Paramètres",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Aide",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 39,
+        "smallTargets": 26,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Fil"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Recherche"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Groupes"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Messages"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          },
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 38,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/settings-1440.png"
+      }
+    },
+    "/extensions": {
+      "mobile": {
+        "overflow": false,
+        "tinyText": 61,
+        "tinyTextSamples": [
+          {
+            "size": 9.5,
+            "text": "18",
+            "tag": "span"
+          },
+          {
+            "size": 11,
+            "text": "Extension d’exemple",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Exemple complet",
+            "tag": "span"
+          },
+          {
+            "size": 11,
+            "text": "Extraits",
+            "tag": "dt"
+          },
+          {
+            "size": 11,
+            "text": "Commandes",
+            "tag": "dt"
+          }
+        ],
+        "interactiveTotal": 40,
+        "smallTargets": 19,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 37,
+            "h": 44,
+            "text": "Ouvrir"
+          },
+          {
+            "tag": "button",
+            "w": 52,
+            "h": 32,
+            "text": "Tout"
+          },
+          {
+            "tag": "button",
+            "w": 71,
+            "h": 32,
+            "text": "Extraits"
+          },
+          {
+            "tag": "button",
+            "w": 66,
+            "h": 32,
+            "text": "Thème"
+          },
+          {
+            "tag": "button",
+            "w": 75,
+            "h": 32,
+            "text": "Langage"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 46,
+        "animations": {
+          "running": 2,
+          "infinite": 0,
+          "sample": [
+            "CSSTransition",
+            "CSSTransition"
+          ]
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/extensions-360.png"
+      },
+      "desktop": {
+        "overflow": false,
+        "tinyText": 64,
+        "tinyTextSamples": [
+          {
+            "size": 11,
+            "text": "Explorateur",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Activité",
+            "tag": "p"
+          },
+          {
+            "size": 11,
+            "text": "Espace de travail",
+            "tag": "p"
+          },
+          {
+            "size": 10,
+            "text": "Paramètres",
+            "tag": "a"
+          },
+          {
+            "size": 10,
+            "text": "Aide",
+            "tag": "a"
+          }
+        ],
+        "interactiveTotal": 54,
+        "smallTargets": 38,
+        "smallTargetsSamples": [
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Fil"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Découvrir"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Recherche"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Groupes"
+          },
+          {
+            "tag": "a",
+            "w": 220,
+            "h": 41,
+            "text": "Messages"
+          }
+        ],
+        "unnamedControls": 0,
+        "fieldsWithoutName": 0,
+        "fieldsWithoutNameSamples": [],
+        "unnamedSamples": [],
+        "fieldsUnder16": [
+          {
+            "tag": "input",
+            "fontSize": 14,
+            "h": 44
+          }
+        ],
+        "focusInvisible": 0,
+        "focusInvisibleSamples": [],
+        "transitions": 58,
+        "animations": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "animationsReduced": {
+          "running": 0,
+          "infinite": 0,
+          "sample": []
+        },
+        "screenshot": "docs/ui/audit/extensions-1440.png"
+      }
+    }
+  }
+}

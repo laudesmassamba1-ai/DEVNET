@@ -1,0 +1,19 @@
+{
+  "name": "lightningcss",
+  "version": "1.32.0",
+  "private": true,
+  "description": "DevNet MIT compatibility shim for the lightningcss surface used by @tailwindcss/node. Not the upstream MPL-2.0 package: the CSS lowering and minification are performed by PostCSS, postcss-nested, autoprefixer and csso (all MIT). See README.md.",
+  "license": "MIT",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "autoprefixer": "^10.4.21",
+    "csso": "^5.0.5",
+    "postcss": "^8.5.6",
+    "postcss-nested": "^7.0.2"
+  }
+}

@@ -1,0 +1,68 @@
+{
+  "$comment": "Élections et exceptions de licence. Chaque entrée doit porter sa justification. Une licence hors liste sans entrée ici fait échouer `npm run license:check`. Les autorisations écrites (Systalink) sont référencées par un champ `authorization` — aucune ne l'est encore : les entrées ci-dessous sont des élections SPDX ou des analyses de licences permissives, pas des dérogations à la liste stricte.",
+  "exceptions": [
+    {
+      "name": "dompurify",
+      "version": "*",
+      "license": "MPL-2.0 OR Apache-2.0",
+      "justification": "Double licence. DEVNET élit Apache-2.0 (expression SPDX « OR ») : aucune obligation MPL ne subsiste.",
+      "authorization": null
+    },
+    {
+      "name": "caniuse-lite",
+      "version": "*",
+      "license": "CC-BY-4.0",
+      "justification": "Données de compatibilité navigateurs, pas du code. Attribution « caniuse.com » portée dans THIRD_PARTY_NOTICES.md.",
+      "authorization": null
+    },
+    {
+      "name": "argparse",
+      "version": "*",
+      "license": "Python-2.0",
+      "justification": "Licence permissive OSI, compatible avec la distribution MIT de DEVNET.",
+      "authorization": null
+    },
+    {
+      "name": "minimatch",
+      "version": "*",
+      "license": "BlueOak-1.0.0",
+      "justification": "Licence permissive moderne (Blue Oak Council), équivalente à MIT pour les obligations pratiques.",
+      "authorization": null
+    },
+    {
+      "name": "language-subtag-registry",
+      "version": "*",
+      "license": "CC0-1.0",
+      "justification": "Données de registre IANA, domaine public (CC0).",
+      "authorization": null
+    },
+    {
+      "name": "mdn-data",
+      "version": "*",
+      "license": "CC0-1.0",
+      "justification": "Données MDN, domaine public (CC0).",
+      "authorization": null
+    },
+    {
+      "name": "@speed-highlight/core",
+      "version": "*",
+      "license": "CC0-1.0",
+      "justification": "Domaine public (CC0), utilisé par le rendu de code de démonstration.",
+      "authorization": null
+    },
+    {
+      "name": "tslib",
+      "version": "*",
+      "license": "0BSD",
+      "justification": "0BSD : permissive, sans obligation d'attribution.",
+      "authorization": null
+    },
+    {
+      "name": "axe-core",
+      "version": "*",
+      "license": "MPL-2.0",
+      "justification": "Dépendance de développement uniquement, imposée par eslint-plugin-jsx-a11y (lui-même requis par eslint-config-next) : c'est la règle de lint statique jsx-a11y, pas le test d'accessibilité navigateur (remplacé par lib/a11y, MIT). Non modifiée, non distribuée dans le build de production ni dans le bundle client, jamais exécutée à l'exécution. MPL-2.0 est une licence par fichier : les obligations se limitent à conserver la licence du paquet, ce que npm fait.",
+      "authorization": "EN ATTENTE — décision Systalink à obtenir (article 6). Option de repli : remplacer eslint-plugin-jsx-a11y par des règles locales écrites sur lib/a11y/audit.ts."
+    }
+  ]
+}

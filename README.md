@@ -1,0 +1,456 @@
+# DevNet
+
+**Le réseau des développeurs africains** — une plateforme d'échange entre étudiants et professionnels du numérique, par les développeurs, pour les développeurs.
+
+## Stack
+
+| Couche | Choix |
+|---|---|
+| Framework | **Next.js 16** (App Router, Turbopack) |
+| Langage | **TypeScript** strict |
+| Styles | **Tailwind CSS v4** (tokens CSS-first via `@theme`) |
+| Base | PostgreSQL en production sur **Neon** ; miroir local PostgreSQL **18.3** via `docker-compose.yml` |
+| Accès données | Gateway maison `app/api/rest` (contrat PostgREST) + adaptateurs PostgreSQL |
+| Auth | Sessions httpOnly, mots de passe scrypt, OAuth Google/GitHub, routes `/api/auth/*` |
+| Temps réel | Diffusion locale `BroadcastChannel` (le polling reste la référence serveur) |
+| Polices | `next/font` — Space Grotesk (titres Encre/Papier), Instrument Sans (texte), Inter + Poppins (Savane), IBM Plex Mono (données) |
+
+## Démarrage
+
+```bash
+npm install
+
+cp .env.local.example .env.local
+# renseignez DATABASE_URL (PostgreSQL local ou distant)
+
+# Clés GIF (optionnel — le bouton GIF apparaît mais renvoie vers une erreur)
+#   • TENOR_API_KEY  — obtained from tenor.com/developer/key-registration
+#   • GIPHY_API_KEY  — obtained from developers.giphy.com/dashboard/create-key
+#   Laisser vide : le bouton GIF affiche un message « GIF non configuré ».
+#   Renseigné : les GIFs searchables s'affichent dans le composeur.
+
+npm run dev
+```
+
+## Mode démonstration
+
+Une démo qui affiche un écran vide devant un jury est une démo ratée. `lib/backend.ts` sonde `/api/backend-check` au démarrage ; si PostgreSQL ne répond pas, l'application bascule sur un **backend local** (`lib/demo/`) au lieu de laisser `Failed to fetch` s'afficher partout.
+
+Ce backend n'est pas une maquette : c'est une implémentation du sous-ensemble de PostgREST qu'utilise DevNet — mêmes méthodes, mêmes sémantiques de retour (`{ data, error }`), mêmes cas d'erreur (`single()` sur zéro ligne échoue, `maybeSingle()` non). Le code applicatif ne peut pas distinguer le vrai backend du faux.
+
+- `lib/demo/query.ts` — requêtes chaînables, jointures `alias:table(...)`, temps réel
+- `lib/demo/store.ts` — tables en mémoire, persistées dans `localStorage`
+- `lib/demo/data.ts` — jeu de données (les écritures du présentateur survivent au rechargement)
+- `/setup` — diagnostic : état du backend, « Réessayer », réinitialisation de la démo
+
+Un bandeau l'affiche explicitement : afficher de fausses données sans le dire serait malhonnête.
+
+Limite assumée : le temps réel local est un bus en mémoire, donc **un seul onglet**. Le multi-onglets exige un vrai backend.
+
+## Connexion Google / GitHub
+
+Les boutons de `/login` passent par `/api/auth/oauth/<google|github>/start` puis
+le callback correspondant. Le compte est créé à la première connexion, ou relié
+à un compte existant lorsque le fournisseur confirme la même adresse email.
+GitHub exige une OAuth App dédiée à la connexion (scope `read:user user:email`),
+distincte de celle qui lie les dépôts. Google exige un client OAuth Web.
+
+Variables serveur : `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+`GITHUB_LOGIN_CLIENT_ID`, `GITHUB_LOGIN_CLIENT_SECRET`, `AUTH_OAUTH_SECRET`
+(32 caractères minimum). Callbacks à déclarer :
+
+- `https://<origine>/api/auth/oauth/google/callback`
+- `https://<origine>/api/auth/oauth/github/callback`
+
+`APP_PUBLIC_ORIGIN` doit être l'origine HTTPS exacte en production. Sans
+configuration, le bouton revient sur `/login` avec un message explicite.
+
+## Application installable (PWA)
+
+DevNet est installable sur Android, iOS et bureau. Le manifeste
+(`app/manifest.ts`) porte les icônes, les captures et les raccourcis Fil,
+Messages, Notifications et Recherche. Le service worker `public/sw.js`
+met en cache les ressources statiques et quelques pages publiques ; il ne
+met **jamais** en cache les réponses d'API ni les pages authentifiées.
+Une navigation sans réseau affiche `public/offline.html`.
+
+L'installation est proposée depuis les Paramètres et par un bandeau après
+quelques secondes sur mobile ou lorsque le navigateur émet
+`beforeinstallprompt`. iOS passe par Partager → « Sur l'écran d'accueil ».
+Les mises à jour attendent l'accord de l'utilisateur (`SKIP_WAITING`), puis
+rechargent l'application. Le service worker n'est enregistré qu'en
+production.
+
+Limites assumées : pas de file d'attente d'envoi hors-ligne. Les
+notifications push existent, mais dépendent de clés VAPID côté serveur ; sans
+elles, les réglages l'indiquent et seules les alertes pendant que DevNet est
+ouvert fonctionnent. Vérifications : `npm run test:pwa` et
+`npm run test:push-notify`.
+
+## Base de données
+
+La connexion applicative est PostgreSQL direct. La production tourne sur
+**Neon** (`DATABASE_URL`). Au 2026-11-15, le registre distant portait 81
+entrées, dont l'orpheline historique `029_extensions.sql` ; le dépôt contient
+80 fichiers de migration (`001` à `081`, sans `029`). La secours configurée
+est le **pooler de la même base Neon** (`DATABASE_URL_STANDBY`), pas une copie
+indépendante. **Systalink** reste injoignable et ne doit pas être présenté
+comme un secours opérationnel. La bascule et le retour sont décrits dans
+[`docs/ops/failover.md`](docs/ops/failover.md). Ne lancez aucune migration
+distante sans le runbook et sans confirmation.
+
+- [`docs/ops/db-capabilities.md`](docs/ops/db-capabilities.md) — mesures locales et distantes
+- [`docs/ops/runbook.md`](docs/ops/runbook.md) — reconstruction locale, migrations, exploitation distante
+- [`docs/ops/incidents.md`](docs/ops/incidents.md) — diagnostic, rotation et ticket Systalink
+- [`docs/ops/backups.md`](docs/ops/backups.md) — sauvegarde, restauration, dérive
+- [`docs/ops/exit-plan.md`](docs/ops/exit-plan.md) — changer de PostgreSQL en moins d'un jour
+
+Commandes locales :
+
+```bash
+npm run db:guard                 # cible masquée + garde-fous
+npm run db:migrate               # simulation par défaut
+npm run db:migrate -- --apply    # écrit réellement
+npm run db:probe:remote          # sonde distante, lecture seule
+npm run db:migrate:remote        # simulation distante
+npm run db:backup:remote         # dump chiffré GPG, lecture seule
+npm run test:db-rls              # RLS et identité, base locale requise
+```
+
+> Ne jouez pas les migrations à la main dans un éditeur SQL.
+> `scripts/db/migrate.ts` lit `db/migrations/001…081` et applique les fichiers
+> dans l'ordre, avec sommes de contrôle. Le registre `schema_migrations` fait
+> foi ; le nombre de fichiers ne prouve pas l'état d'une base.
+
+Pour une base locale neuve :
+
+```bash
+docker compose up -d db
+npm run db:migrate -- --apply
+```
+
+### Migration 025 — forks et notation par les pairs
+
+`db/migrations/025_forks.sql` crée la lignée des dépôts et le jury, et
+`db/migrations/031_project_ratings.sql` la table qui porte les votes :
+
+- **`project_forks`** — le parent (`source_id`), la racine de la lignée
+  (`root_project_id`, déduite à l'insertion), l'instantané cloné
+  (`source_branch`, `source_sha`), et l'auteur du geste. Lecture publique,
+  écriture réservée au forker (`forks_insert`).
+- **`projects.forked_from`** — une colonne dénormalisée pour afficher
+  « forké de X » sans jointure ; la source de vérité reste la table.
+- **`proofs.kind`** — la liste des kinds *s'étend* : `fork` rejoint les
+  sept existants (poids 3, entre `github` 4 et `task` la voilà du côté du
+  métier), et la preuve se dérive depuis `project_forks` au rejeu, comme
+  les autres. Côté client, `lib/proofs.ts` porte le même élargissement, et
+  le rejeu démo (`lib/demo/proofs.ts`) accorde la preuve `fork` comme les
+  autres.
+- **`project_ratings`** *(migration `031_project_ratings.sql`)* — une étoile
+  1–5 par (projet, votant), clé composée. Le côté moteur est prêt
+  (`lib/rating.ts`) : moyenne bayésienne (prior = moyenne de la plateforme,
+  cinq votes de confiance), incertitude de Wilson sur le petit échantillon,
+  entropie de Shannon sur la provenance des votants, moyenne géométrique
+  pondérée des trois facteurs — un projet mal noté par un jury homogène de
+  2 votes ne dépasse pas un projet bien noté d'un jury large et divers.
+
+La 031 existe parce que le client, lui, interrogeait déjà la table : sans
+elle, PostgREST répondait 404 à chaque ouverture de profil et un projet
+restait « pas encore noté » même après un vote. La clé primaire est la
+paire (projet, votant) — le double vote est impossible *par le schéma*, pas
+par une vérification applicative qu'un client plus ancien contournerait.
+
+Le backend de démonstration reproduit la 025 : `project_forks` et
+`project_ratings` sont dans le store local (`KEY v10`), la racine se
+déduit comme en base, la contrainte (projet, votant) refuse le double
+vote avec l'erreur Postgres, et la preuve `fork` se redérive à chaque
+rejeu. Voir `scripts/test-demo-social-plus.ts` pour ce contrat testé.
+
+## Comptes étudiant / professionnel
+
+Un seul champ `account_type` sur `users`, **pas deux tables** : un étudiant devient professionnel en cours d'année, et il doit conserver ses posts, ses groupes et sa réputation.
+
+Le type n'est pas une étiquette mais une **échelle de capacités**. Un compte étudiant se crée en 30 secondes, donc n'importe qui peut en créer 200 : on borne ce qu'il peut faire pour que le spam n'ait pas d'intérêt.
+
+| Capacité | Étudiant | Professionnel |
+|---|---|---|
+| Publier, commenter, groupes | oui | oui |
+| **Initier un MP vers un pro** | non | oui |
+| **Visible par un recruteur** | non | oui |
+| Badge vérifié | non | oui |
+
+## Direction artistique
+
+**Quatre thèmes, une seule grammaire.** Les thèmes sont des jeux de tokens
+CSS (`app/globals.css`) choisis dans Réglages et mémorisés dans
+`devnet:theme`. Encre est le thème par défaut ; aucun bloc
+`prefers-color-scheme` ne l'impose.
+
+- **Encre** — nuit chaude `#11110E`, surfaces encre, accent ambre. La
+  DA historique du produit. Instrument Sans + IBM Plex Mono.
+- **Papier** — ivoire mat `#F6F4EF`, encre graphite, même accent.
+- **Savane** — vert nuit `#0B1715`, accents turquoise `#20BFA9` et or
+  `#D6A84F`. Inter + Poppins pour les titres, IBM Plex Mono pour les données.
+- **Savane clair** — l'ivoire de Savane, mêmes accents, `color-scheme: light`.
+
+Le **verre** est réservé aux surfaces flottantes (en-tête, navigation,
+feuilles, composeur) : liseré de bord, ombre de contact, flou. Les cartes de
+contenu restent des surfaces opaques pour que le texte garde son contraste.
+
+- Navigation **basse** sur mobile (Fil, Explorer, Créer, Messages, Profil,
+  Plus), **barre latérale** à partir de 880 px.
+- **Barre de statut** terminal en bas (chemin · mode · heure) et gouttière
+  de lignes sur les publications.
+- Cible tactile minimale de **44 px**, focus en filet d'accent, mouvements
+  neutralisés sous `prefers-reduced-motion`, zones sûres iOS respectées.
+- Aucun angle droit sur les contrôles, glyphes et images.
+
+> **Note de vérité** — la direction « Liquid Ivoire » décrite dans une
+> version antérieure de ce README (ivoire unique, olive, barre d'onglets en
+> haut) **n'est pas implémentée** dans le code. Elle n'a jamais été migrée :
+> les quatre thèmes ci-dessus sont la direction réelle. Ce document décrit
+> désormais le produit, pas une intention ; toute refonte de la DA demande
+> une décision explicite.
+
+## Structure
+
+```
+app/
+  layout.tsx          polices + métadonnées
+  page.tsx            routeur (session → /feed ou /login)
+  login/ register/    auth
+  feed/               fil, compose, temps réel
+  groups/ [id]/       groupes, canaux, discussion
+  messages/           messages privés
+  profile/            profil éditable
+  setup/              diagnostic du backend
+components/           AppShell, BottomNav, StatusBar, PostCard, StoryRail,
+                      ProgressPanel, ContributionMap, CodeBlock, Icon, Logo,
+                      Avatar, Sheet, Toast, BackendGate, BackendBanner,
+                      ProjectWikiPanel, MessageExtras, GithubPanel,
+                      PresenceRail
+lib/
+  types.ts            types du domaine
+  utils.ts            helpers (temps relatif, échappement, classes)
+  highlight.ts        tokenizer de coloration syntaxique
+  doc.ts              découpage d'une page de wiki en blocs (pur)
+  pages.ts            wiki de dépôt — pages, création, modification
+  gamification.ts     moteur de progression (pur)
+  progress.ts         chargement de la progression
+  seed.ts             contenu d'exemple, généré depuis l'application
+  stories.ts          stories réelles (table `stories`, échéance 24 h)
+  messages.ts         réactions, épingles et réponses de messages
+  presence.ts         présence du dépôt : qui travaille sur quel fichier
+  git/                dépôt interne : objets, chemins, historique
+  groups/channels.ts  règles de canaux : slug, tri, sélection
+  execution/          choix du runtime d'exécution et garde-fous
+  github/             raccordement d'un projet à un dépôt GitHub (+ écran)
+  backend.ts          sonde de disponibilité du backend
+  demo/               backend local de démonstration
+  lib/api/            client REST + résolution de profil
+hooks/                session, progression, requête média
+db/migrations/       migrations SQL
+scripts/              suites de tests
+```
+
+Un document de référence : `ROADMAP.md` (état du produit et plan de fonctionnalités).
+
+## Scripts
+
+```bash
+npm run dev                # développement
+npm run build              # build de production
+npm run lint               # ESLint
+npm run test               # toutes les suites unitaires (1223 vérifications)
+npm run test:demo          # backend de démonstration
+npm run test:pages         # wiki de dépôt (découpage + données)
+npm run test:profond       # réponses, réactions/épingles, stories, GitHub
+npm run test:presence      # présence du dépôt et garde de divergence
+npm run test:highlight     # coloration syntaxique
+npm run test:gamification  # score, séries, paliers, badges, quêtes
+npm run test:foundation    # dépôt interne, chemins, exécution, GitHub
+npm run test:editor        # éditeur (complétion, indentation, paires)
+npm run test:execution     # exécution (moteur pur, TypeScript, refus)
+npm run test:scoring       # score /1000 (ligne, fichier, projet, dépôt)
+npm run test:proofs        # preuves (empreinte, rejeu, réputation) et compatibilité
+npm run test:ecran         # parcours navigateur + téléphone
+diagnostic-profond.py      # vérifie au navigateur les nouveautés 018 + GitHub
+diagnostic-presence.py     # vérifie au navigateur le rail et les deux bandeaux
+npx tsc --noEmit           # vérification de types
+```
+
+## Coloration syntaxique
+
+`lib/highlight.ts` — tokenizer maison, zéro dépendance, 13 langages. `shiki` et
+`prism-react-renderer` pèsent ~120 ko gzip pour couvrir des langages qu'on
+n'affiche jamais ; DevNet n'en montre que quelques-uns.
+
+`<CodeBlock>` a deux variantes : `paper` (code posé sur la page — la signature
+DevNet) et `terminal` (fond encre, pour isoler fortement). La variante ne
+change que des variables CSS, la coloration est calculée une seule fois.
+
+**La règle de palette :** quand du vert ou du bleu apparaît sur DevNet, c'est du
+code. Jamais un bouton.
+
+- `/preview-code` — banc d'essai, montre les deux variantes et le jeu d'icônes
+
+## Progression : score, séries, paliers
+
+Onglet **Progrès** de `/profile`, plus un rail de contributions en tête du fil.
+
+### Le parti pris : rien n'est stocké
+
+Il n'existe **pas** de colonne `users.xp`. Le score est recalculé à chaque
+ouverture de l'onglet, à partir des événements réels déjà en base — posts,
+messages de groupe, likes reçus. Trois raisons :
+
+- la progression ne peut pas mentir, elle est le résumé exact de ce qui a
+  été publié ;
+- un post supprimé ne laisse pas de score fantôme ;
+- **aucune migration n'est obligatoire** pour que la fonctionnalité existe.
+
+`lib/gamification.ts` ne dépend de rien — ni React, ni réseau. C'est ce qui
+permet de le tester à fond (`npm run test:gamification`, 159 vérifications) sur
+les cas dégénérés qu'aucun écran ne visitera : série rompue depuis un an, gel
+épuisé, palier maximum.
+
+### Barème
+
+| Action | Points | Pourquoi |
+|---|---|---|
+| Post | 10 | la contribution de base |
+| Post **avec code** | **20** | le code vaut le double : c'est la thèse du produit, et c'est ce qu'on relit dans six mois |
+| Message de groupe | 5 | aider vaut moins que publier, mais compte |
+| Message de groupe **avec code** | 10 | idem |
+| Like reçu | 2 | le score mesure aussi la valeur reçue |
+| Première action du jour | 5 | le rendez-vous quotidien |
+| Bonus de série | +2/jour, plafonné à +14 | récompense la régularité sans la rendre facile |
+
+### Paliers
+
+Dix paliers à seuils Fibonacci — 0, 60, 150, 320, 600, 1050, 1700, 2700,
+4200, 6500 — de **Nouveau** à **Légende**. Le coût d'un palier monte plus
+vite que le précédent : la courbe accélère puis se calme, au lieu d'une
+longue plate suivie d'un mur.
+
+### Séries et gels de série
+
+Un gel est gagné **tous les sept jours d'activité** et absorbe un jour
+manqué. Duolingo vend ce mécanisme en abonnement ; ici il tombe du calcul,
+sans table supplémentaire. La reconstitution est *rejouable* : les jours
+sont parcourus du plus ancien au plus récent en dépensant un budget de gels,
+donc deux appels avec le même ensemble de jours donnent le même résultat,
+dans n'importe quel ordre.
+
+### Défis du jour
+
+Trois quêtes tirées d'un réservoir de cinq, en rotation déterministe sur le
+numéro du jour. Pas de stockage : la rotation est calculée, l'accomplissement
+est lu dans les actions du jour.
+
+### Stories
+
+Rail horizontal en tête du fil, lecteur plein écran avec barres de
+progression, avance automatique, clavier (`←` `→` `Échap`) et pause au survol.
+
+L'analogie Instagram est assumée, mais une story n'est pas un post recyclé :
+c'est une ligne de la table `stories` (migration `018`), avec un texte court,
+une échéance de 24 h posée par la base et une audience
+(`public`, `followers`, `private`, migration `070`). Le média est optionnel :
+image, GIF ou vidéo via `/api/stories/media`, avec repli dans PostgreSQL ou
+stockage objet selon la configuration. Une story vide est refusée ; une
+personne qui n'a rien publié dans les dernières 24 h n'apparaît pas dans le
+rail.
+
+### Top de la semaine
+
+Classement sur une **fenêtre glissante de 7 jours**, jamais sur le score
+cumulé : au bout de six mois, le cumul ne distingue plus rien — il ne mesure
+plus que l'ancienneté d'inscription.
+
+## Fondations : groupes, dépôt interne, GitHub
+
+`db/migrations/004_foundation.sql` pose les tables des trois axes qui suivent,
+et `lib/` pose leurs moteurs. L'interface est désormais partielle mais réelle :
+`/groups/[id]` expose les canaux et les projets du groupe, `/projects/[id]`
+le dépôt et ses vues, et `/github` le raccordement externe. Tous les parcours
+de fondation ne sont pas encore complets.
+
+### Espace de groupe façon Discord
+
+Un groupe n'a plus « une conversation » mais des **canaux** (`channels`,
+`channel_members`) ; `group_messages` gagne un `channel_id`.
+
+C'est la seule partie des fondations qui soit **visible** : `/groups/[id]`
+affiche les canaux, on peut en créer, et la discussion suit le canal
+ouvert. Le rail est vertical à partir de 768 px, et devient une bande
+défilante en dessous — un rail de 164 px volerait 42 % d'un écran de 390 px
+pour rendre la discussion illisible.
+
+Trois décisions d'écran :
+
+- **l'URL suit le canal** (`?c=aide`) : le lien se partage et le
+  rechargement revient au bon endroit ; un lien vers un canal supprimé
+  ramène vers un canal réel au lieu d'afficher un écran vide ;
+- **les messages sont mémorisés par canal** (`{channelId, rows}`) au lieu
+  d'être remis à zéro au changement — sinon les messages du canal précédent
+  s'afficheraient sous l'en-tête du nouveau pendant la requête ;
+- **le canal créé est ouvert immédiatement.** L'utilisateur vient de dire
+  « ici, maintenant » ; le renvoyer ailleurs serait une faute.
+
+`004` retire explicitement les politiques RLS `gm_read` / `gm_insert` de la
+migration 001 au lieu d'en ajouter de nouvelles. Les politiques d'une même
+table s'appliquent en OU : en aurait-on laissé une, la règle large
+« lisible par tout utilisateur connecté » aurait continué de fonctionner,
+et n'importe quel membre de la plateforme lirait les canaux privés d'un
+groupe.
+
+### Dépôt interne conforme à git
+
+`lib/git/` réimplémente le **modèle d'objets** de git : l'identité d'un
+objet est le hachage de son contenu.
+
+- `objects.ts` — SHA-1, format `blob` / `tree` / `commit` ;
+- `paths.ts` — validation et canonisation des chemins, arbre de fichiers ;
+- `history.ts` — construction d'arbre, diff ligne à ligne, commits, ancêtres.
+
+Les sha produits sont **identiques à ceux de `git`**. C'est vérifié :
+`scripts/test-foundation.ts` compare à des valeurs produites par git 2.43 sur
+un vrai dépôt (blob vide, blob Python, arbre plat, arbre imbriqué, sous-
+dossier, commit initial, commit avec parent). Une régression d'un octet dans
+le format d'objet ne planterait nulle part dans l'interface — elle
+produirait simplement des sha faux, invisibles jusqu'au premier push.
+
+Pas de fusion automatique, volontairement : deux personnes qui modifient le
+même fichier doivent **le voir**. Une fusion qui choisit un camp donne
+l'illusion que tout va bien alors qu'une modification est perdue.
+
+### Exécution dans le navigateur
+
+`lib/execution/runtime.ts` déclare deux moteurs — Pyodide pour Python,
+Sandpack pour JavaScript et TypeScript — et leurs garde-fous (délai, taille
+de sortie, taille de fichier, nombre de fichiers).
+
+Le choix est structurel : un exécuteur distant impose un serveur à
+provisionner, payer et durcir. Sur l'appareil, aucun code d'un membre ne
+tourne chez nous, il n'y a aucun coût par exécution, et ça marche hors
+ligne — ce qui compte quand la connexion est le premier obstacle.
+
+### Raccordement GitHub
+
+`lib/github/link.ts` : analyse d'une référence de dépôt, validation de nom
+de branche, et **plan de synchronisation** affiché avant toute action.
+
+Trois partis pris :
+
+1. **Le projet DevNet reste la source de vérité.** Le dépôt GitHub est une
+   destination, jamais une base primaire.
+2. **La connexion est par personne.** Personne ne pousse avec le jeton de
+   quelqu'un d'autre — une seule révocation ne casse pas le groupe. Le jeton
+   n'est jamais stocké en clair : `github_connections.token_ref` ne contient
+   qu'une référence vers un coffre, et la politique RLS n'ouvre la table
+   qu'à son propriétaire.
+3. **Le mode par défaut est manuel.** Pousser rend le code public, et
+   « public » est une décision, pas un effet de bord. Quand les deux côtés
+   ont avancé depuis la dernière synchronisation, le plan renvoie
+   `divergence` et **refuse** de choisir.

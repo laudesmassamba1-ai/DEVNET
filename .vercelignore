@@ -1,0 +1,18 @@
+# Secrets locaux : jamais envoyés au build, même s'ils sont ignorés par Git.
+.env*
+!.env.example
+!.env.local.example
+
+# Artefacts locaux et dépendances
+.next
+.next-*
+node_modules
+test-results
+playwright-report
+blob-report
+
+# Sauvegardes de base et journaux
+backups
+*.dump
+*.sql.gz
+*.log

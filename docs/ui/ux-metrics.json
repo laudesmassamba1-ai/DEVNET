@@ -1,0 +1,31 @@
+{
+  "generatedAt": "2026-11-15T12:14:45.724Z",
+  "files": 269,
+  "metrics": {
+    "iconButtonsWithoutLabel": 0,
+    "fieldsWithoutLabelAssociation": 0,
+    "buttonsWithoutType": 0,
+    "nonSemanticClickHandlers": 0,
+    "blankLinksWithoutRel": 0,
+    "positiveTabIndex": 0,
+    "autoFocusUses": 0,
+    "tinyTextUses": 0,
+    "hardcodedColors": 1,
+    "arbitraryValues": 489,
+    "outlineNone": 0,
+    "focusVisibleUses": 15,
+    "errorBoundaries": 1,
+    "notFoundPages": 1,
+    "loadingBoundaries": 14,
+    "globalErrorBoundaries": 1,
+    "pagesWithMetadata": 5,
+    "totalPages": 37,
+    "filesOver800Lines": 9,
+    "fieldsTotal": 156,
+    "iconButtonsTotal": 62,
+    "ariaInvalid": 6,
+    "ariaDescribedBy": 6,
+    "dialogElements": 7,
+    "generatedFrom": 269
+  }
+}

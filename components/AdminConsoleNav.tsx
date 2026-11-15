@@ -1,0 +1,59 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Icon } from "@/components/Icon";
+import { ADMIN_MODULES, adminModuleStatus, type AdminModuleKey } from "@/lib/admin-modules";
+
+export function AdminConsoleNav({ active }: { active: AdminModuleKey }) {
+  const router = useRouter();
+  const activeHref = ADMIN_MODULES.find((module) => module.key === active)?.href;
+
+  return (
+    <div className="border-b border-line-2 px-(--gutter) py-3">
+      <nav
+        aria-label="Modules d'administration"
+        className="hidden flex-wrap gap-1 shell:flex"
+      >
+        {ADMIN_MODULES.map((module) => (
+          <Link
+            key={module.key}
+            href={module.href}
+            aria-current={active === module.key ? "page" : undefined}
+            className={`inline-flex min-h-(--h-tap) shrink-0 items-center gap-2
+              rounded-(--radius-input) px-3 text-12 transition-colors
+              duration-(--d-fast)
+              ${active === module.key
+                ? "bg-surface-2 font-semibold text-signal"
+                : "text-chalk-3 hover:bg-surface-2 hover:text-chalk"}`}
+          >
+            <Icon name={module.icon} size={14} />
+            {module.label}
+            {adminModuleStatus(module) === "partiel" && (
+              <span className="text-12 text-chalk-4">partiel</span>
+            )}
+          </Link>
+        ))}
+      </nav>
+
+      <label className="block shell:hidden">
+        <span className="sr-only">Choisir un module d&apos;administration</span>
+        <select
+          value={activeHref}
+          onChange={(event) => router.push(event.target.value)}
+          className="min-h-(--h-tap) w-full rounded-(--radius-input)
+            border border-line-2 bg-surface px-3 text-14 text-chalk
+            focus-visible:outline-2 focus-visible:outline-offset-2
+            focus-visible:outline-signal"
+        >
+          {ADMIN_MODULES.map((module) => (
+            <option key={module.key} value={module.href}>
+              {module.priority} · {module.label}
+              {adminModuleStatus(module) === "partiel" ? " · partiel" : ""}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
+}

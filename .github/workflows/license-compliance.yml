@@ -1,0 +1,64 @@
+name: Licence compliance
+
+# Article 6 du règlement CADEV 2026 : toute dépendance ajoutée est vérifiée,
+# et la CI échoue sur GPL, AGPL, LGPL, MPL-2.0, licence absente ou inconnue.
+#
+# Les exceptions ne sont pas des `license` réécrits : elles vivent dans
+# `docs/legal/EXCEPTIONS.json` avec leur justification et leur autorisation.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  licenses:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Politique de licences
+        run: npm run license:check
+      - name: Parité CSS du remplacement de lightningcss
+        run: npm run css:parity
+      - name: SBOM à jour
+        run: |
+          npm run sbom
+          if ! git diff --quiet -- sbom.cdx.json sbom.spdx.json; then
+            echo "::error::sbom.*.json ne correspond pas au package-lock.json : lancer npm run sbom"
+            git diff --stat -- sbom.cdx.json sbom.spdx.json
+            exit 1
+          fi
+      - name: Matrice et notices à jour
+        run: |
+          npm run license:matrix
+          if ! git diff --quiet -- docs/legal/DEPENDENCY_LICENSE_MATRIX.md THIRD_PARTY_NOTICES.md; then
+            echo "::error::matrice ou notices désynchronisées : lancer npm run license:matrix"
+            git diff --stat -- docs/legal/DEPENDENCY_LICENSE_MATRIX.md THIRD_PARTY_NOTICES.md
+            exit 1
+          fi
+      - name: Aucune licence modifiée dans un package.json
+        run: |
+          if git diff --name-only origin/${{ github.base_ref || 'main' }}...HEAD -- '**/package.json' | xargs -r grep -n '"license"' | grep -v 'vendor/'; then
+            echo "::error::un champ license a été modifié : interdit par la politique"
+            exit 1
+          fi
+        continue-on-error: false
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sbom
+          path: |
+            sbom.cdx.json
+            sbom.spdx.json
+            docs/legal/DEPENDENCY_LICENSE_MATRIX.md
+            THIRD_PARTY_NOTICES.md

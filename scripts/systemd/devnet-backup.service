@@ -1,0 +1,12 @@
+[Unit]
+Description=Sauvegarde chiffrée DevNet (Neon)
+Documentation=file:///home/laudes/Documents/Hackathon/devnet/docs/ops/backups.md
+
+[Service]
+Type=oneshot
+WorkingDirectory=/home/laudes/Documents/Hackathon/devnet
+Environment=PATH=/home/laudes/.nvm/versions/node/v22.23.2/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/laudes/Documents/Hackathon/devnet/scripts/db/backup-daily.sh
+Nice=10
+IOSchedulingClass=idle
+TimeoutStartSec=15min

@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+# Porte de commit — contrat d'expérience (Phase 0).
+# Ne pas contourner : `git commit --no-verify` est une violation PR-02.
+set -e
+npm run verify:ui

@@ -1,0 +1,3702 @@
+/* DevNet : trois thèmes complets — « Encre » (sombre, terre cuite),
+   « Papier » (ivoire, encre) et « Savane » (vert profond, or, turquoise).
+   Chaque thème redéfinit les mêmes jetons ; aucun composant ne connaît
+   son nom. Les filets et la typographie structurent le contenu. */
+
+@import "tailwindcss";
+
+/* Les dossiers de build ne sont pas des sources. Tailwind les scanne
+   autrement, et un ancien chunk y contenant une classe disparue réapparaît
+   alors dans la feuille — avec des caractères corrompus quand le chunk
+   contient des accents, ce qui casse le build. Ces exclusions rendent la
+   règle explicite plutôt que dépendante du `.gitignore`. */
+@source not "../.next";
+@source not "../.next-*";
+@source not "../node_modules";
+
+/* Les polices viennent de next/font : la variable est résolue à l'usage,
+   donc next/font peut la poser sur <body> sans casser le thème. */
+@theme {
+  /* ── Thème sombre par défaut ── */
+  --color-void:       #11110E;
+  --color-page:       #11110E;
+  --color-page-end:   #11110E;
+  --color-surface:    #191914;
+  --color-surface-2:  #201F19;
+  --color-surface-3:  #292A23;
+  --color-chalk:      #ECE9DF;
+  --color-chalk-2:    #C9C4B8;
+  --color-chalk-3:    #9A978B;
+  --color-chalk-4:    #9A978B;
+  --color-line:       #2A2A23;
+  --color-line-2:     #35352D;
+  --color-line-3:     #44443B;
+  --color-signal:     #FF7A45;
+  --color-signal-d:   #FF7A45;
+  --color-signal-fill:#FF7A45;
+
+  /* Distinction — anneau de vérification, palier, story. Alias de
+     l'action par défaut (l'app n'avait qu'une couleur d'accent) ; les
+     thèmes Savane le passent à l'or. */
+  --color-level:      var(--color-signal);
+
+  /* ── Vivant : la donnée qui bouge ───────────────────────────────
+      Présence, sonde en direct, ticks lus, compteurs actifs. Vert
+      franc — jamais sur un bouton, jamais en fond. */
+  --color-phosphor:   #5FBF86;
+  --color-phosphor-d: #5FBF86;
+  --color-moss:       #8FAF4E;
+
+  /* ── Sémantique, rare ── */
+  --color-ok:      #5FBF86;
+  --color-danger:  #FF6B61;
+  --color-warn:    #E6BC75;
+  --color-info:    #A6B7B0;
+
+  /* ── Avatars : pastels distincts sur les deux thèmes ── */
+  --color-av-lime-bg:   #CDE3A4;  --color-av-lime-fg:   #2E4411;
+  --color-av-sage-bg:   #CFE0CF;  --color-av-sage-fg:   #254528;
+  --color-av-pink-bg:   #F0C4C9;  --color-av-pink-fg:   #6D1B20;
+  --color-av-orange-bg: #F6D8AC;  --color-av-orange-fg: #6A430E;
+  --color-av-violet-bg: #DBC4DF;  --color-av-violet-fg: #4D2346;
+
+--gradient-amber-fire: var(--color-signal);
+--gradient-ember:      var(--color-signal);
+--gradient-phosphor:   var(--color-ok);
+--gradient-aura:       none;
+
+  --story-ring-gradient: var(--color-signal);
+
+  /* Matière : lavis d'encre chaud, très bas, jamais un halo de bouton. */
+  --page-wash:
+    radial-gradient(920px 540px at 88% -10%, rgb(255 122 69 / 8%), transparent 62%),
+    radial-gradient(720px 480px at -12% 18%, rgb(95 191 134 / 4%), transparent 60%),
+    linear-gradient(180deg, #15140F 0%, #11110E 52%, #0E0E0B 100%);
+
+  /* Space Grotesk pour les titres, Instrument Sans pour la lecture,
+     IBM Plex Mono pour les données. */
+  --font-display: var(--font-grotesk), var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-plex-mono), ui-monospace, monospace;
+
+  /* Une seule élévation, réservée aux menus et aux feuilles. */
+  --shadow-sh-1:  0 8px 24px rgba(0, 0, 0, 0.28);
+  --shadow-sh-2:  var(--shadow-sh-1);
+  --shadow-sh-3:  var(--shadow-sh-1);
+  --shadow-action: none;
+  --shadow-inset-signal: inset 0 -3px 0 var(--color-signal);
+
+  /* ── Profondeur ─────────────────────────────────────────────────
+     Une ombre « plate » (`sh-1`) pose la fiche sur la mer bleue. La
+     profondeur demande **deux couches** : une portée longue et diffuse
+     pour l'écart au fond, un contact court pour la pose.
+
+     Un seul palier : `lift-1` existait aussi, mais rien ne
+     l'utilisait — un jeton non employé est une classe morte. */
+  --shadow-lift-2: var(--shadow-sh-1);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
+  /* Ombre portée vers le haut : pour une feuille qui monte du bas,
+     l'ombre doit être au-dessus, sinon elle se colle au bord. */
+  --shadow-sh-signal-top: 0 -6px 0 var(--color-signal);
+
+  --glass-bg:        var(--color-surface);
+  --glass-bg-strong: var(--color-surface);
+  --glass-refract:        none;
+  --glass-refract-strong: none;
+  --glass-lens:           none;
+  --glass-sheen:          none;
+  --glass-rim:            none;
+  --color-edge:           var(--color-line);
+  --shadow-drop:          none;
+  --shadow-drop-lg:       var(--shadow-sh-1);
+  --overlay-veil-bg:  rgb(17 17 14 / 72%);
+  --overlay-blur:     none;
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-brut:     none;
+  --shadow-brut-lg:  var(--shadow-sh-1);
+
+  /* ================================================================
+     MOUVEMENT — grammaire par intention
+
+     Une seule courbe « ease-out » pour tout est le défaut classique des
+     interfaces génériques : l'apparition d'un panneau, le survol d'un
+     bouton et le clignotement d'un curseur n'ont pas la même physique.
+     On sépare donc cinq intention, chacune avec sa courbe.
+
+     entrance   — un contenu apparaît. Décélération longue, aucun rebond.
+     spring     — une surface est manipulée. Léger dépassement : la
+                  surface « se pose » comme une fiche posée sur un bureau.
+     continuous — mouvement de fond (respiration). Aller-retour symétrique.
+     timing     — rythme machine (curseur). En marches, jamais dégradé :
+                  un curseur qui s'estompe est un curseur de page web.
+     pop        — confirmation (compteur, badge). Dépassement franc.
+     ═══════════════════════════════════════════════════════════════ */
+  --ease-entrance:  cubic-bezier(0.16, 1, 0.30, 1);
+  --ease-spring:    cubic-bezier(0.2, 0, 0, 1);
+  --ease-continuous: cubic-bezier(0.45, 0, 0.55, 1);
+  --ease-pop:        cubic-bezier(0.2, 0, 0, 1);
+  --ease-gravity:    cubic-bezier(0.2, 0, 0, 1);
+  --ease-timing:    steps(1, end);
+
+  /* `snap` — réaction à un geste ponctuel : le cœur qui se remplit,
+     l'emoji qui éclate, le compteur qui saute. Départ quasi instantané
+     pour que le geste paraisse immédiatement acquitté, retour long
+     pour qu'il se pose. À l'inverse, un geste semble lent, et
+     l'utilisateur retape. */
+  --ease-snap:      cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* ── Durées : une échelle courte, pas une liste de valeurs arbitraires ── */
+  --d-instant:  90ms;   /* réaction immédiate (press) */
+  --d-fast:    140ms;   /* micro-feedback (survol, toggle) */
+  --d-base:    180ms;
+  --d-slow:    200ms;
+  --d-enter:   180ms;
+  --d-scene:   200ms;
+  --d-story:  6000ms;   /* durée d'une story */
+  --d-caret:  1060ms;   /* cadence du clignotement du curseur */
+  --d-orbit:  1100ms;   /* une révolution complète (attente, chargement) */
+  --d-burst:   300ms;   /* éclat d'une réaction posée */
+
+  /* ── Rythme de cascade ──
+     La cascade est calculée en JavaScript (`Stagger`), pas en CSS : les
+     tokens `--stagger-step` / `--stagger-max` qui vivaient ici ne lisaient
+     rien et valaient `0ms` — deux valeurs mortes qui laissaient croire
+     que le rythme était réglable par la feuille de style. */
+
+  /* ── Palette de code, variante « éditeur » ────────────────────────
+     Elle dérive des mêmes teintes que l'UI : un utilisateur qui passe
+     d'une card à un bloc de code ne voit pas un autre univers. Le vert
+     des chaînes est le phosphor, l'ambre reste aux mots-clés. */
+  --color-code-bg:     #191914;
+  --color-code-plain:  #ECE9DF;
+  --color-code-keyword: #FFAD7E;
+  --color-code-string:  #8FCB9E;
+  --color-code-number:  #E6BC75;
+  --color-code-function:#E4C1A9;
+  --color-code-type:    #E6BC75;
+  --color-code-comment: #9A978B;
+  --color-code-punct:   #C9C4B8;
+
+  /* ── Espacement : base 4 px ── */
+  --space-xs:  4px;
+  --space-sm:  8px;
+  --space-md:  12px;
+  --space-lg:  16px;
+  --space-xl:  24px;
+  --space-2xl: 32px;
+  --gutter:    16px;
+
+  /* ── Seuils de coque ──────────────────────────────────────────
+     Ce ne sont pas des « tailles d'écran » mais des capacités : à partir
+     de quelle largeur le panneau de gauche tient SANS rogner le contenu.
+
+     `shell` (880 px) = 236 (panneau) + 560 (la colonne que le mobile
+     affiche déjà) + 2 × 40 de gouttière. En dessous, le panneau ne ferait
+     que prendre de la place au contenu : franchir le seuil RÉTRÉCIRAIT la
+     page, ce qui est exactement l'inverse de ce qu'on attend d'un écran
+     plus grand. Le `md:` de Tailwind (768 px) donnait 532 px de contenu
+     collé aux bords — plus étroit que le mobile qu'on venait de quitter.
+
+     `wide` (1440 px) : la colonne **ne s'élargit plus**. Elle reste à
+     720 px de contenu, soit ~80 caractères par ligne — la mesure d'un texte
+     suivi. Un palier à 960 px existait ici ; il produisait des lignes de
+     ~110 caractères dans le fil, et le seuil franchi RÉTRÉCISSAIT la page
+     quand on revenait en dessous. Une colonne de lecture ne s'élargit pas
+     parce que l'écran est plus grand : au-delà de 1920, l'écran affiche
+     deux marges de respiration de chaque côté — c'est le comportement
+     normal d'une colonne centrée, celui de GitHub et de Twitter, et le
+     remplir serait de la décoration. Les surfaces qui ont besoin de largeur
+     (IDE, messagerie) passent `wide`/`immersive` dans `AppShell`.
+   */
+  --breakpoint-shell: 55rem;  /* 880 px */
+  --breakpoint-wide:  90rem;  /* 1440 px */
+
+  /* Deux rayons d'interface : petit pour les contrôles, moyen pour les panneaux. */
+  --radius-chip:  6px;
+  --radius-input: 6px;
+  --radius-card:  10px;
+
+  /* ── Lueurs et anneaux (DS-01) ──────────────────────────────────
+     Ces valeurs vivaient dans des `style` de composants. Une lueur est
+     une décision de DA : elle appartient aux tokens, pas au JSX. */
+  --glow-signal: 0 0 12px rgba(255, 138, 61, 0.5);
+  --shadow-avatar-ring: 0 0 0 2px var(--color-void), 0 0 0 4px var(--color-line-2),
+    0 0 14px 2px rgba(255, 138, 61, 0.35);
+  --color-signal-soft: #FFC68E;
+
+  /* ── Épaisseurs de bordure : des filets, pas des cadres ──
+     Le verre ne se délimite pas au trait épais : l'épaisseur est
+     portée par le reflet et l'ombre ambiante. */
+  --bw-hair:   1px;
+  --bw-thin:   1px;
+  --bw-thick:  1px;
+  --bw-heavy:  1.5px;
+  --bw-accent: 3px;
+
+  /* ── Hauteurs fixes ── */
+  --h-safe-top:    env(safe-area-inset-top, 0px);
+  --h-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --h-topbar:    calc(56px + var(--h-safe-top));
+  --h-status:    22px;
+  --h-bottomnav: calc(60px + var(--h-safe-bottom));
+  --h-input:     44px;
+  --h-tap:       44px;   /* cible tactile minimale, règle dure */
+  /* Action secondaire d'une barre d'outils : pas de la navigation, donc
+     pas 44 px — mais le plancher de 24 px du WCAG 2.2 (critère 2.5.8,
+     niveau AA), sous lequel une cible n'est plus atteignable au pouce. */
+  --h-action:    44px;
+
+  /* ── Icônes : grille 24, trait 1.6, angles coupés ── */
+  --icon-stroke: 1.6;
+
+  /* ── Hiérarchie z-index ── */
+  --z-base:   0;
+  --z-sticky: 80;   /* topbar */
+  --z-nav:    100;  /* bottom nav */
+  --z-composer: 90; /* barre de saisie au-dessus de la nav */
+  --z-sheet:  200;
+  --z-modal:  300;
+  /* Une feuille ouverte par-dessus une autre doit passer au-dessus du
+     modal : c'est le seul usage d'un cran intermédiaire, il est donc nommé
+     ici plutôt qu'écrit en `z-[calc(...)]` dans un composant. */
+  --z-modal-stacked: 310;
+  --z-toast:  400;
+
+  /* ── Échelle typographique ── */
+  --text-display-xl: 1.75rem;   --lh-display-xl: 1.05;
+  --text-display-l:  1.375rem;  --lh-display-l:  1.1;
+  --text-display-m:  1.125rem;  --lh-display-m:  1.2;
+  --text-body:       0.938rem;  --lh-body:       1.6;
+  --text-body-s:     0.8125rem;
+  --text-caption:    0.75rem;   --lh-caption:    1.45;
+  --text-label:      0.75rem;   --lh-label:      1.35;
+  --text-micro:      0.75rem;   --lh-micro:      1.35;
+  --text-code:       0.8125rem; --lh-code:       1.65;
+
+  /* ── Pas de halo ──
+     Les jetons `--glow-*` ont été retirés : un halo coloré autour
+     d'un bouton ou d'une barre se lit comme un défaut d'affichage,
+     et il coûte une ombre de plus à composer. La hiérarchie tient
+     au filet (`--color-line-*`) et à l'ombre neutre (`--shadow-sh-*`).
+     Le focus garde son anneau : `--shadow-ring-signal`. */
+}
+
+/* ── Ressorts réels ──────────────────────────────────────────────────
+   Là où le navigateur comprend `linear()`, les courbes d'intention
+   deviennent de **vrais ressorts échantillonnés** — dépassement amorti
+   puis retour au repos, la physique d'iOS. Un contenu ne se contente
+   plus de décélérer : il *se pose*. Ailleurs, les courbes cubiques de
+   `:root` restent en place ; `@supports` isole le remplacement, donc
+   aucun navigateur ne perd une animation.
+
+   `--ease-entrance` n'est **pas** remplacée : elle sert aussi aux
+   sorties, où un dépassement ferait repartir le contenu à l'envers. */
+/* Thème clair : papier et encre, sans transparence ni halo. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --page-wash:
+    radial-gradient(900px 520px at 88% -8%, rgb(255 122 69 / 8%), transparent 62%),
+    linear-gradient(180deg, #FAF8F2 0%, #F6F4EF 55%, #F1EEE6 100%);
+  --color-void: #16150F;
+  --color-page: #F6F4EF;
+  --color-page-end: #F6F4EF;
+  --color-surface: #FBFAF7;
+  --color-surface-2: #F1EEE6;
+  --color-surface-3: #EAE6DC;
+  --color-chalk: #16150F;
+  --color-chalk-2: #423F37;
+  --color-chalk-3: #58554B;
+  --color-chalk-4: #6B685E;
+  --color-line: #E3DFD3;
+  --color-line-2: #D7D2C5;
+  --color-line-3: #C6C0B2;
+  --color-signal: #C2410C;
+  --color-signal-d: #A3330B;
+  --color-signal-fill: #C2410C;
+  --color-phosphor: #2F7D4F;
+  --color-phosphor-d: #2F7D4F;
+  --color-ok: #2F7D4F;
+  --color-danger: #B3261E;
+  --color-warn: #815A18;
+  --color-info: #53645C;
+  --color-edge: #E3DFD3;
+  --glass-bg: var(--color-surface);
+  --glass-bg-strong: var(--color-surface);
+  --glass-sheen: none;
+  --glass-rim: none;
+  --overlay-veil-bg: rgb(22 21 15 / 48%);
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-sh-1: 0 8px 24px rgb(22 21 15 / 14%);
+  --shadow-sh-2: var(--shadow-sh-1);
+  --shadow-sh-3: var(--shadow-sh-1);
+  --shadow-drop: none;
+  --shadow-drop-lg: var(--shadow-sh-1);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
+  --color-code-bg: #EEEAE0;
+  --color-code-plain: #25231D;
+  --color-code-keyword: #A3330B;
+  --color-code-string: #2F704F;
+  --color-code-number: #815A18;
+  --color-code-function: #6B4E3D;
+  --color-code-type: #725619;
+  --color-code-comment: #625E54;
+  --color-code-punct: #423F37;
+}
+
+:root[data-theme="light"] body {
+  background-color: var(--color-page);
+  background-image: none;
+}
+
+:root[data-theme="light"] .bg-signal {
+  color: #FBFAF7;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THÈME SAVANE — vert profond, or, ivoire, turquoise
+
+   L'idée : un fond vert nuit qui n'est pas du noir, des surfaces qui se
+   relèvent par la valeur et non par l'ombre, un texte ivoire plutôt que
+   blanc. L'or ne décore pas — il distingue (story, niveau, badge) ; le
+   turquoise est la seule couleur d'action, donc un bouton ne se confond
+   jamais avec un ornement.
+
+   Ce thème est **compact** par construction : rayons plus courts, coque
+   plus basse, interlignage resserré, gouttière à 14 px. Une interface
+   dense se lit mieux qu'une interface aérée quand tout l'écran est déjà
+   occupé par du contenu — c'est le cas d'un fil social sur iPhone.
+   ══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="savane"] {
+  color-scheme: dark;
+  --page-wash:
+    radial-gradient(920px 540px at 84% -10%, rgb(32 191 169 / 10%), transparent 60%),
+    radial-gradient(720px 480px at 0% 100%, rgb(214 168 79 / 6%), transparent 55%),
+    linear-gradient(180deg, #0D1B17 0%, #0B1715 55%, #08120F 100%);
+
+  /* ── Fond et surfaces ── */
+  --color-void: #0B1715;
+  --color-page: #0B1715;
+  --color-page-end: #08120F;
+  --color-surface: #0F211C;
+  --color-surface-2: #142A24;
+  --color-surface-3: #1B342C;
+
+  /* ── Texte : ivoire, jamais blanc pur ── */
+  --color-chalk: #F4F1E8;
+  --color-chalk-2: #D9D5C7;
+  --color-chalk-3: #A7B6AD;
+  --color-chalk-4: #8C9E94;
+
+  /* ── Filets ── */
+  --color-line: #1E3A31;
+  --color-line-2: #27483D;
+  --color-line-3: #35604F;
+  --color-edge: #1E3A31;
+
+  /* ── Action : turquoise, la touche d'interaction ── */
+  --color-signal: #20BFA9;
+  --color-signal-d: #56D8C4;   /* survol et texte sur fond sombre */
+  --color-signal-fill: #20BFA9;
+  --color-signal-soft: #8FE6D8;
+
+  /* ── Distinction : or, et progression : vert ── */
+  --color-gold: #D6A84F;
+  --color-gold-d: #B98B33;
+  --color-forest: #087F5B;
+  --color-level: var(--color-gold);
+
+  /* ── Sémantique ── */
+  --color-phosphor: #20BFA9;
+  --color-phosphor-d: var(--color-forest);
+  --color-ok: #4FC08F;
+  --color-danger: #E8735C;
+  --color-warn: #D6A84F;
+  --color-info: #9BBFB0;
+
+  /* ── Avatars : terres et végétal ── */
+  --color-av-lime-bg:   #DDE8B4;  --color-av-lime-fg:   #33400F;
+  --color-av-sage-bg:   #CDE4D3;  --color-av-sage-fg:   #173A26;
+  --color-av-pink-bg:   #F2CDB8;  --color-av-pink-fg:   #5A2A0F;
+  --color-av-orange-bg: #F1DCA8;  --color-av-orange-fg: #4A340A;
+  --color-av-violet-bg: #DCC9E4;  --color-av-violet-fg: #3F1F4A;
+
+  /* ── Profondeur : courte, la valeur fait le travail ── */
+  --shadow-sh-1: 0 10px 26px rgb(4 12 9 / 55%);
+  --shadow-sh-2: var(--shadow-sh-1);
+  --shadow-sh-3: 0 18px 40px rgb(4 12 9 / 62%);
+  --shadow-drop: none;
+  --shadow-drop-lg: var(--shadow-sh-1);
+  --shadow-action: none;
+  --shadow-inset-signal: inset 0 -3px 0 var(--color-signal);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
+  --shadow-sh-signal-top: 0 -6px 0 var(--color-signal);
+  --glow-signal: 0 0 10px rgb(32 191 169 / 35%);
+  --shadow-avatar-ring: 0 0 0 2px var(--color-void), 0 0 0 4px var(--color-line-2),
+    0 0 12px 1px rgb(214 168 79 / 35%);
+
+  /* ── Verre : opaque, sans reflet ── */
+  --glass-bg: var(--color-surface);
+  --glass-bg-strong: var(--color-surface-2);
+  --glass-refract: none;
+  --glass-refract-strong: none;
+  --glass-lens: none;
+  --glass-sheen: none;
+  --glass-rim: none;
+  --overlay-veil-bg: rgb(4 12 9 / 78%);
+  --overlay-blur: none;
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-brut: none;
+  --shadow-brut-lg: var(--shadow-sh-1);
+
+  /* ── Dégradés : l'or pour la story, le turquoise pour la donnée ── */
+  --gradient-amber-fire: var(--color-gold);
+  --gradient-ember:      var(--color-gold);
+  --gradient-phosphor:   var(--color-signal);
+  --gradient-aura:       none;
+  --story-ring-gradient: linear-gradient(135deg, var(--color-gold), var(--color-gold-d));
+
+  /* ── Densité : coque plus basse, rayons plus courts ── */
+  --space-md: 10px;
+  --space-lg: 14px;
+  --space-xl: 20px;
+  --space-2xl: 28px;
+  --gutter:   14px;
+  --radius-chip:  4px;
+  --radius-input: 6px;
+  --radius-card:  8px;
+  --h-topbar:    calc(52px + var(--h-safe-top));
+  --h-bottomnav: calc(56px + var(--h-safe-bottom));
+  --h-action:    40px;
+
+  /* ── Typographie resserrée : Inter lit, Poppins nomme ── */
+  --text-body:    0.9375rem;  --lh-body:    1.48;
+  --text-caption: 0.75rem;    --lh-caption: 1.38;
+  --text-label:   0.75rem;    --lh-label:   1.25;
+  --text-micro:   0.75rem;    --lh-micro:   1.25;
+  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-grotesk), ui-monospace, monospace;
+  --font-label:   var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Palette de code : lisérée sur le vert, lisible ── */
+  --color-code-bg:      #0A1A15;
+  --color-code-plain:   #F0EDE3;
+  --color-code-keyword: #7FE3D3;
+  --color-code-string:  #D6A84F;
+  --color-code-number:  #6FD3A8;
+  --color-code-function:#A8DCC9;
+  --color-code-type:    #E8C97F;
+  --color-code-comment: #7E938A;
+  --color-code-punct:   #C9CFC7;
+}
+
+:root[data-theme="savane"] body {
+  background-color: var(--color-page);
+  /* Une lueur très basse en haut de page : le fond respire sans devenir
+     un dégradé décoratif. */
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, rgb(8 127 91 / 22%), transparent 70%);
+  background-repeat: no-repeat;
+}
+
+/* Le turquoise est clair : le texte posé dessus doit être le vert nuit. */
+:root[data-theme="savane"] .bg-signal {
+  color: #0B1715;
+}
+
+/* Le turquoise clair sert de couleur de texte sur le fond vert nuit ;
+   l'or, lui, ne porte jamais du texte courant. */
+:root[data-theme="savane"] .text-signal {
+  color: var(--color-signal-d);
+}
+
+/* Titres : Poppins resserré, sans effet de lettrage large. */
+:root[data-theme="savane"] h1,
+:root[data-theme="savane"] h2,
+:root[data-theme="savane"] h3,
+:root[data-theme="savane"] .font-display {
+  letter-spacing: -0.018em;
+  line-height: 1.1;
+}
+
+/* Les micro-libellés passent en Manrope ; les données restent en chiffres
+   à chasse fixe, et le code reste monospace — Space Grotesk n'en est pas
+   un, on ne lui confie pas du code. */
+:root[data-theme="savane"] .label-micro {
+  font-family: var(--font-label);
+  letter-spacing: 0.06em;
+}
+
+:root[data-theme="savane"] pre,
+:root[data-theme="savane"] code,
+:root[data-theme="savane"] kbd,
+:root[data-theme="savane"] samp {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THÈME SAVANE CLAIR — le même pays, en plein jour
+
+   Ivoire en fond, encre verte pour le texte, turquoise d'action assombri
+   jusqu'à 5,2:1 (le turquoise vif du thème nuit serait illisible sur
+   ivoire), or plus profond pour les distinctions. Même densité, mêmes
+   familles : c'est le même thème sous une autre lumière, pas une
+   quatrième direction graphique.
+   ══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="savane-clair"] {
+  color-scheme: light;
+  --page-wash:
+    radial-gradient(900px 520px at 84% -8%, rgb(32 191 169 / 7%), transparent 60%),
+    linear-gradient(180deg, #F7F4EA 0%, #F4F1E8 55%, #EEEAE0 100%);
+
+  --color-void: #0B1715;
+  --color-page: #F4F1E8;
+  --color-page-end: #EDE9DC;
+  --color-surface: #FBFAF3;
+  --color-surface-2: #F0EDE1;
+  --color-surface-3: #E7E3D5;
+
+  --color-chalk: #0B1715;
+  --color-chalk-2: #23302B;
+  --color-chalk-3: #4A5B53;
+  --color-chalk-4: #5B6B62;
+
+  --color-line: #DDD7C6;
+  --color-line-2: #CFC8B4;
+  --color-line-3: #BDB5A0;
+  --color-edge: #DDD7C6;
+
+  /* Action : turquoise assombri — 5,2:1 sur ivoire, avec l'ivoire dessus. */
+  --color-signal: #0A7263;
+  --color-signal-d: #085C50;
+  --color-signal-fill: #0A7263;
+  --color-signal-soft: #7FD3C4;
+
+  /* Distinction : or profond, 4,8:1 sur ivoire. */
+  --color-gold: #8A6218;
+  --color-gold-d: #6E4C10;
+  --color-forest: #087F5B;
+  --color-level: var(--color-gold);
+
+  --color-phosphor: #0A7263;
+  --color-phosphor-d: #087F5B;
+  --color-ok: #256E4E;
+  --color-danger: #A6351F;
+  --color-warn: #8A6218;
+  --color-info: #3E6558;
+
+  --color-av-lime-bg:   #DDE8B4;  --color-av-lime-fg:   #33400F;
+  --color-av-sage-bg:   #CDE4D3;  --color-av-sage-fg:   #173A26;
+  --color-av-pink-bg:   #F2CDB8;  --color-av-pink-fg:   #5A2A0F;
+  --color-av-orange-bg: #F1DCA8;  --color-av-orange-fg: #4A340A;
+  --color-av-violet-bg: #DCC9E4;  --color-av-violet-fg: #3F1F4A;
+
+  --shadow-sh-1: 0 8px 22px rgb(11 23 21 / 10%);
+  --shadow-sh-2: var(--shadow-sh-1);
+  --shadow-sh-3: 0 16px 34px rgb(11 23 21 / 14%);
+  --shadow-drop: none;
+  --shadow-drop-lg: var(--shadow-sh-1);
+  --shadow-action: none;
+  --shadow-inset-signal: inset 0 -3px 0 var(--color-signal);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
+  --shadow-sh-signal-top: 0 -6px 0 var(--color-signal);
+  --glow-signal: 0 0 10px rgb(10 114 99 / 22%);
+  --shadow-avatar-ring: 0 0 0 2px var(--color-page), 0 0 0 4px var(--color-line-2),
+    0 0 10px 1px rgb(138 98 24 / 28%);
+
+  --glass-bg: var(--color-surface);
+  --glass-bg-strong: var(--color-surface-2);
+  --glass-refract: none;
+  --glass-refract-strong: none;
+  --glass-lens: none;
+  --glass-sheen: none;
+  --glass-rim: none;
+  --overlay-veil-bg: rgb(11 23 21 / 42%);
+  --overlay-blur: none;
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-brut: none;
+  --shadow-brut-lg: var(--shadow-sh-1);
+
+  --gradient-amber-fire: var(--color-gold);
+  --gradient-ember:      var(--color-gold);
+  --gradient-phosphor:   var(--color-signal);
+  --gradient-aura:       none;
+  --story-ring-gradient: linear-gradient(135deg, var(--color-gold), var(--color-gold-d));
+
+  /* Même densité que le thème nuit. */
+  --space-md: 10px;
+  --space-lg: 14px;
+  --space-xl: 20px;
+  --space-2xl: 28px;
+  --gutter:   14px;
+  --radius-chip:  4px;
+  --radius-input: 6px;
+  --radius-card:  8px;
+  --h-topbar:    calc(52px + var(--h-safe-top));
+  --h-bottomnav: calc(56px + var(--h-safe-bottom));
+  --h-action:    40px;
+
+  --text-body:    0.9375rem;  --lh-body:    1.48;
+  --text-caption: 0.75rem;    --lh-caption: 1.38;
+  --text-label:   0.75rem;    --lh-label:   1.25;
+  --text-micro:   0.75rem;    --lh-micro:   1.25;
+  --font-sans:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+  --font-mono:    var(--font-grotesk), ui-monospace, monospace;
+  --font-label:   var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+
+  --color-code-bg:      #EDE9DC;
+  --color-code-plain:   #14201C;
+  --color-code-keyword: #0A7263;
+  --color-code-string:  #8A6218;
+  --color-code-number:  #256E4E;
+  --color-code-function:#3E6558;
+  --color-code-type:    #7A5A16;
+  --color-code-comment: #66756C;
+  --color-code-punct:   #23302B;
+}
+
+:root[data-theme="savane-clair"] body {
+  background-color: var(--color-page);
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, rgb(10 114 99 / 10%), transparent 70%);
+  background-repeat: no-repeat;
+}
+
+:root[data-theme="savane-clair"] .bg-signal {
+  color: #F4F1E8;
+}
+
+:root[data-theme="savane-clair"] .text-signal {
+  color: var(--color-signal-d);
+}
+
+:root[data-theme="savane-clair"] h1,
+:root[data-theme="savane-clair"] h2,
+:root[data-theme="savane-clair"] h3,
+:root[data-theme="savane-clair"] .font-display {
+  letter-spacing: -0.018em;
+  line-height: 1.1;
+}
+
+:root[data-theme="savane-clair"] .label-micro {
+  font-family: var(--font-label);
+  letter-spacing: 0.06em;
+}
+
+:root[data-theme="savane-clair"] pre,
+:root[data-theme="savane-clair"] code,
+:root[data-theme="savane-clair"] kbd,
+:root[data-theme="savane-clair"] samp {
+  font-family: var(--font-plex-mono), ui-monospace, monospace;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   THÈME BLEU NUIT — fond clair, encre bleu nuit, gris ardoise, turquoise
+
+   Les titres et le texte principal portent le bleu nuit (#14213D), les
+   paragraphes et informations secondaires le gris ardoise (#475569). Le
+   turquoise (#20BFA9) sert aux liens et aux mises en évidence ; le blanc
+   reste la surface de lecture.
+   ══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="bleu-nuit"] {
+  color-scheme: light;
+  --page-wash:
+    radial-gradient(900px 520px at 88% -8%, rgb(32 191 169 / 10%), transparent 62%),
+    linear-gradient(180deg, #FFFFFF 0%, #F8FAFC 55%, #F1F5F9 100%);
+
+  --color-void: #14213D;
+  --color-page: #FFFFFF;
+  --color-page-end: #F8FAFC;
+  --color-surface: #FFFFFF;
+  --color-surface-2: #F1F5F9;
+  --color-surface-3: #E2E8F0;
+
+  --color-chalk: #14213D;
+  --color-chalk-2: #334155;
+  --color-chalk-3: #475569;
+  /*
+   * `#64748B` donnait 4,34:1 sur `--color-surface-2` (#F1F5F9) — sous le
+   * seuil AA de 4,5 pour du texte fin. `#5A6B80` reste dans la famille
+   * ardoise et monte à 4,98:1 sur cette surface, 5,46:1 sur blanc.
+   */
+  --color-chalk-4: #5A6B80;
+
+  --color-line: #E2E8F0;
+  --color-line-2: #CBD5E1;
+  --color-line-3: #94A3B8;
+  --color-edge: #E2E8F0;
+
+  --color-signal: #20BFA9;
+  --color-signal-d: #0F766E;
+  --color-signal-fill: #20BFA9;
+  --color-signal-soft: #99F6E4;
+  --color-level: #14213D;
+
+  --color-phosphor: #0F766E;
+  --color-phosphor-d: #0F766E;
+  --color-ok: #15803D;
+  --color-danger: #B91C1C;
+  --color-warn: #B45309;
+  --color-info: #475569;
+
+  --color-av-lime-bg: #D9F99D;  --color-av-lime-fg: #365314;
+  --color-av-sage-bg: #CCFBF1;  --color-av-sage-fg: #134E4A;
+  --color-av-pink-bg: #FBCFE8;  --color-av-pink-fg: #831843;
+  --color-av-orange-bg: #FED7AA; --color-av-orange-fg: #7C2D12;
+  --color-av-violet-bg: #DDD6FE; --color-av-violet-fg: #4C1D95;
+
+  --shadow-sh-1: 0 8px 24px rgb(20 33 61 / 10%);
+  --shadow-sh-2: var(--shadow-sh-1);
+  --shadow-sh-3: var(--shadow-sh-1);
+  --shadow-drop: none;
+  --shadow-drop-lg: var(--shadow-sh-1);
+  --shadow-ring-signal: 0 0 0 2px var(--color-signal);
+
+  --glass-bg: var(--color-surface);
+  --glass-bg-strong: var(--color-surface);
+  --glass-sheen: none;
+  --glass-rim: none;
+  --overlay-veil-bg: rgb(20 33 61 / 45%);
+  --overlay-frost-bg: var(--color-surface);
+  --overlay-panel-bg: var(--color-surface);
+  --shadow-brut: none;
+  --shadow-brut-lg: var(--shadow-sh-1);
+
+  --gradient-amber-fire: var(--color-signal);
+  --gradient-ember: var(--color-signal);
+  --gradient-phosphor: var(--color-phosphor);
+  --gradient-aura: none;
+  --story-ring-gradient: linear-gradient(135deg, var(--color-signal), #14213D);
+
+  --color-code-bg: #F1F5F9;
+  --color-code-plain: #14213D;
+  --color-code-keyword: #0F766E;
+  --color-code-string: #334155;
+  --color-code-number: #B45309;
+  --color-code-function: #1D4ED8;
+  --color-code-type: #475569;
+  --color-code-comment: #64748B;
+  --color-code-punct: #334155;
+}
+
+:root[data-theme="bleu-nuit"] body {
+  background-color: var(--color-page);
+  background-image: var(--page-wash, none);
+}
+
+:root[data-theme="bleu-nuit"] .bg-signal {
+  color: #14213D;
+}
+
+:root[data-theme="bleu-nuit"] .text-signal {
+  color: var(--color-signal-d);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   L'OR COMME MARQUE DE DISTINCTION — sur les deux thèmes Savane
+
+   Le palier d'un cachet reste sa **forme** (rond, losange, sceau…),
+   mais la teinte devient une famille d'or au lieu de onze teintes
+   disparates : la Savane signe ses distinctions. L'encre reste sombre
+   sur l'or (8,3:1), et l'anneau d'administration se lisait déjà en or.
+   ══════════════════════════════════════════════════════════════════════ */
+:root[data-theme="savane"] .verify-badge,
+:root[data-theme="savane-clair"] .verify-badge {
+  background: linear-gradient(135deg, #F0DBA6 0%, #D6A84F 52%, #A87C2B 100%);
+  color: #20160A;
+  box-shadow: inset 0 0 0 1px rgb(255 246 220 / 55%);
+  filter:
+    drop-shadow(0 0 0.7px rgb(214 168 79 / 70%))
+    drop-shadow(0 1px 1.5px rgb(16 24 20 / 32%));
+}
+
+:root[data-theme="savane-clair"] .verify-badge {
+  background: linear-gradient(135deg, #E8CD8C 0%, #C0912F 52%, #8A6218 100%);
+}
+
+[data-code-variant="paper"] {
+  --color-code-bg: #191914;
+  --color-code-plain: #ECE9DF;
+  --color-code-keyword: #FFAD7E;
+  --color-code-string: #8FCB9E;
+  --color-code-number: #E6BC75;
+  --color-code-function: #E4C1A9;
+  --color-code-type: #E6BC75;
+  --color-code-comment: #AAA699;
+  --color-code-punct: #C9C4B8;
+}
+
+:root[data-theme="light"] [data-code-variant="paper"] {
+  --color-code-bg: #EEEAE0;
+  --color-code-plain: #25231D;
+  --color-code-keyword: #A3330B;
+  --color-code-string: #2F704F;
+  --color-code-number: #815A18;
+  --color-code-function: #6B4E3D;
+  --color-code-type: #725619;
+  --color-code-comment: #625E54;
+  --color-code-punct: #423F37;
+}
+
+@supports (animation-timing-function: linear(0, 1)) {
+  :root {
+    --ease-spring:  cubic-bezier(0.2, 0, 0, 1);
+    --ease-pop:     cubic-bezier(0.2, 0, 0, 1);
+    --ease-gravity: cubic-bezier(0.2, 0, 0, 1);
+    --ease-snap:    cubic-bezier(0.2, 0, 0, 1);
+  }
+}
+
+/* ── Palette de code, variante « terminal » ──────────────────────
+   Contexte d'isolation forte : lecture longue, fond plus profond que
+   la surface, contraste poussé d'un cran.                          */
+[data-code-variant="terminal"] {
+  --color-code-bg:      #11110E;
+  --color-code-plain:   #ECE9DF;
+  --color-code-keyword: #FFAD7E;
+  --color-code-string:  #8FCB9E;
+  --color-code-number:  #E6BC75;
+  --color-code-function:#E4C1A9;
+  --color-code-type:    #E6BC75;
+  --color-code-comment: #AAA699;
+  --color-code-punct:   #C9C4B8;
+}
+
+/* ================================================================
+   KEYFRAMES
+
+   Deux principes :
+   1. Une entrée part d'un état **légèrement** décalé. Trop loin, le
+      mouvement se voit comme un glissement ; trop peu, il n'y a pas de
+      mouvement. 14 px est la distance où l'œil perçoit une intention
+      sans percevoir un trajet.
+   2. Une entrée finit exactement à l'état repos (0, 1, none) — sinon
+      le contenu laisse un résidu de transformation et les cartes
+      « collent » au curseur quand on passe dessus.
+   ================================================================ */
+
+/* ── Entrées ── */
+@keyframes enterFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes enterSlide {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* `enterRise` porte la géométrie de l'entrée de panneau : le léger
+   `scale(0.985)` donne la impression qu'une surface se rapproche de
+   l'observateur, pas qu'elle glisse. */
+@keyframes enterRise {
+  from { opacity: 0; transform: translateY(16px) scale(0.985); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes enterScale {
+  from { opacity: 0; transform: scale(0.985) translateY(6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* `enterSoft` : le fondu « matière » d'iOS. Rien ne glisse, rien ne
+   grandit de façon perceptible — la surface émerge du flou et se
+   dépose. Réservé aux plans rapprochés (héros, en-têtes, cartes uniques)
+   où le coût d'un filtre est payé une fois, jamais par une liste. */
+@keyframes enterSoft {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Entrée de bulle, directionnelle. Un message écrit par soi entre par la
+   droite, celui de l'autre par la gauche : le mouvement indique l'origine
+   de la parole avant même qu'on lise l'alignement. Une entrée neutre
+   (fondu + translation verticale) ferait popping sur toutes les bulles et
+   ferait perdre ce repère. */
+@keyframes msgInRight {
+  from { opacity: 0; transform: translateX(16px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes msgInLeft {
+  from { opacity: 0; transform: translateX(-16px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* Croissance depuis la gauche : réservée aux jauges et aux traits de
+   progression. `scaleX` plutôt qu'une largeur animée — la largeur
+  provoke un reflow, l'échelle non. */
+@keyframes growX {
+  from { opacity: 0.4; transform: scaleX(0); }
+  to   { opacity: 1;   transform: scaleX(1); }
+}
+
+/* Rotation d'entrée : réservée aux marques et aux prompts. Le 4° de
+   départ est exactement ce qu'on voit dans un terminal qui « résout »
+   une commande — un quart de tour suffit à le faire lire comme machine
+   sans tourner en rond. */
+@keyframes rotateIn {
+  from { opacity: 0; transform: rotate(-4deg) scale(0.96); }
+  to   { opacity: 1; transform: rotate(0) scale(1); }
+}
+
+/* Sorties */
+@keyframes exitFade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+@keyframes exitSlide {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(10px); }
+}
+
+/* Compression d'un bouton pressé. Le mouvement est un *enfoncement* : il
+   suit la direction de l'ombre dure, donc les deux axes. */
+@keyframes pressDown {
+  from { transform: translate(0, 0); }
+  to   { transform: translate(1px, 1px); }
+}
+
+/* ── Interactions ── */
+
+/* Rebond de compteur : dépassement à 1.18 puis retour. Le dépassement
+   est ce qui fait lire le mouvement comme une « réponse » et non comme
+   une interpolation. */
+@keyframes hoverPop {
+  0%   { transform: scale(1); }
+  38%  { transform: scale(1.18); }
+  70%  { transform: scale(0.96); }
+  100% { transform: scale(1); }
+}
+
+/* ── Continus ── */
+@keyframes rotateLoop { to { transform: rotate(360deg); } }
+
+/* Battement de la pastille « en ligne ». L'amplitude est faible et la
+   période longue (2,6 s) : à la fréquence d'un clignement de substitution
+   plutôt que d'un voyant de contrôleur. Une pastille qui bat vite fatigue ;
+   une pastille qui ne bat pas n'est qu'un carré. */
+@keyframes liveBeat {
+  0%, 100% { opacity: 1;   transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.82); }
+}
+
+/* Pulsation d'opacité : le battement le plus neutre, pour un état
+   d'attente ou un point d'activité qui ne doit pas attacher l'œil. */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+/* Respiration : échelle ET opacité, symétrique. Utilisée là où un
+   clignotement serait une alarme (pastille de mode, badge de présence)
+   mais où l'absence de mouvement serait trompeur (inactif). */
+@keyframes breathe {
+  0%, 100% { transform: scale(1);    opacity: 0.55; }
+  50%      { transform: scale(1.08); opacity: 1; }
+}
+
+/* Balayage : une ligne qui descend lentement, pour les fonds de
+   surfaces qui doivent « travailler » sans attirer l'œil. */
+@keyframes scan {
+  from { transform: translateY(-100%); }
+  to   { transform: translateY(400%); }
+}
+
+/* Balayage horizontal du shimmer : le reflet traverse le bloc puis
+   repart — un seul axe, donc aucun reflow, et la durée (1,6 s) est
+   assez longue pour se lire comme un passage, pas comme un clignotement. */
+@keyframes shimmerSweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+/* ── Badge vérifié ─────────────────────────────────────────────────
+     Onze cachets : une **silhouette** par palier, et la couleur suit la
+     silhouette. Aucun mot n'est peint dessus — le titre vit dans le
+     `title` et l'`aria-label`, et la page qui l'affiche annonce déjà le
+     palier à côté.
+
+     Pourquoi la forme avant la couleur : en 13 px, deux pastilles de
+     teintes voisines se confondent dans un fil, deux découpes jamais.
+     L'anneau clair intérieur et l'ombre portée détachent la découpe du
+     fond sans l'épaissir. */
+.verify-badge {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  color: #201105;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.38);
+  filter: drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+}
+.verify-badge-sm { width: 13px; height: 13px; }
+.verify-badge-inline { width: 15px; height: 15px; }
+.verify-badge-lg { width: 20px; height: 20px; }
+
+/* Les silhouettes arrondies (rond, carré, arche) gardent un
+   `border-radius` ; les huit autres se découpent au `clip-path` (un
+   `clip-path` ne se combine pas avec un `border-radius` : d'où les deux
+   familles). L'encre claire va aux teintes profondes, la sombre aux
+   teintes pâles. */
+.verify-shape-round {
+  border-radius: 9999px;
+  background: var(--gradient-ember);
+}
+.verify-shape-square {
+  border-radius: 30%;
+  background: linear-gradient(135deg, #8FB4CE 0%, #4A7A99 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-diamond {
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  background: linear-gradient(135deg, #B7BFC9 0%, #7C8794 100%);
+  color: #141A20;
+}
+.verify-shape-triangle {
+  clip-path: polygon(50% 4%, 100% 96%, 0% 96%);
+  background: linear-gradient(135deg, #CFA98C 0%, #9C6E4E 100%);
+  color: #22130A;
+}
+.verify-shape-pentagon {
+  clip-path: polygon(50% 0%, 100% 39%, 81% 100%, 19% 100%, 0% 39%);
+  background: linear-gradient(135deg, #B6C878 0%, #7C9A45 100%);
+  color: #1B2408;
+}
+.verify-shape-hexagon {
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: linear-gradient(135deg, #8FCB9E 0%, #4C8B65 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-octagon {
+  clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+  background: linear-gradient(135deg, #87C8C2 0%, #3F8C86 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+/* La clé de voûte : un trapèze posé sur sa base large. L'architecte ne
+   porte plus une étoile — une pierre taillée dit le métier. */
+.verify-shape-keystone {
+  clip-path: polygon(16% 6%, 84% 6%, 100% 94%, 0% 94%);
+  background: linear-gradient(135deg, #9BA6CE 0%, #5A6699 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-shield {
+  clip-path: polygon(50% 0%, 100% 13%, 100% 58%, 50% 100%, 0% 58%, 0% 13%);
+  background: linear-gradient(135deg, #D59A92 0%, #A64F45 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+/* L'arche : une porte ouverte, arrondie en haut. L'ambassadeur relie deux
+   rives ; il porte un passage, pas une étoile à six branches. */
+.verify-shape-arch {
+  border-radius: 9999px 9999px 16% 16%;
+  background: linear-gradient(135deg, #5FB07F 0%, #2A6B4A 100%);
+  color: rgba(255, 255, 255, 0.96);
+}
+.verify-shape-seal {
+  clip-path: polygon(50% 0%, 70% 14%, 93% 25%, 91% 50%, 93% 75%, 70% 86%, 50% 100%, 30% 86%, 7% 75%, 9% 50%, 7% 25%, 30% 14%);
+  background: linear-gradient(135deg, #E7CE84 0%, #C99443 52%, #A6752F 100%);
+  color: #1E1405;
+  /* Le seul cachet qui déborde de sa découpe : la Légende se voit de
+     loin, et c'est le seul or franc de la série. */
+  filter:
+    drop-shadow(0 0 0.75px rgba(201, 148, 67, 0.85))
+    drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+}
+
+/* L'anneau de l'équipe — la marque d'un compte d'administration.
+   Posé *par-dessus* la silhouette : le palier reste lisible, l'anneau
+   s'ajoute. `filter` et non `box-shadow`, parce qu'une découpe au
+   `clip-path` rogne tout ce qui dépasse : l'anneau doit épouser la
+   forme. Deux ombres nettes empilées font un liseré d'un peu plus d'un
+   pixel, quelle que soit la découpe. */
+.verify-badge-admin {
+  filter:
+    drop-shadow(0 0 0.6px rgba(201, 148, 67, 0.95))
+    drop-shadow(0 0 0.6px rgba(201, 148, 67, 0.95))
+    drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+}
+
+
+/* Un gain marqué (quête achevée, badge obtenu) : le dégradé et le halo
+   remplacent le contour vert — l'obtention se voit, elle ne s'annonce
+   pas comme un simple encadré. */
+.earn-box {
+  color: var(--color-void);
+  background: var(--gradient-amber-fire);
+  box-shadow: var(--shadow-sh-1);
+}
+
+/* ── Badge vérifié 3D cel-shading HD ──
+   Onze cachets avec ombrage cel-shading, lumières directionnelles
+   et textures qui donnent profondeur et caractère. Les bords nets
+   garantissent la lisibilité même à petit format. */
+/* La teinte vient de `.verify-shape-*` et de là seulement : cette règle
+   avait un `background: var(--gradient-ember)` qui, plus bas dans la
+   feuille, écrasait les onze couleurs par forme — toutes les pastilles
+   sortaient orange. Les ombres internes survivent à un `clip-path` ;
+   la profondeur externe passe par un `filter`, jamais par une ombre
+   portée, qu'une découpe rognerait. */
+.verify-badge-3d {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.14);
+  filter: drop-shadow(0 1px 1.5px rgba(35, 42, 29, 0.3));
+  transition: transform var(--d-fast) var(--ease-spring);
+}
+
+.verify-badge-3d:hover {
+  filter: drop-shadow(0 2px 3px rgba(35, 42, 29, 0.42));
+}
+
+/* Plus de bloc par forme ici : les teintes vivent dans `.verify-shape-*`,
+   chacune avec son ombre interne. Les `--ce-shadow` d'autrefois n'étaient
+   lus par personne — et leur valeur contenait un `\\n` littéral. */
+
+/* Tilt 3D pour les badges au survol */
+.verify-badge-3d:hover {
+  transform: perspective(800px) rotateY(8deg) rotateX(-4deg);
+  transition: transform var(--d-slow) var(--ease-spring);
+}
+
+/* Texture discrète de conversation, presque imperceptible. */
+.chat-wall {
+  background-color: var(--color-page);
+}
+
+/* Le curseur bloc : en marches, jamais en dégradé. Un curseur de
+   terminal ne s'estompe pas — il est allumé ou éteint. */
+@keyframes caretBlink {
+  0%, 48%   { opacity: 1; }
+  50%, 98%  { opacity: 0; }
+  100%      { opacity: 1; }
+}
+
+/* Barre de progression d'une story : avance linéaire, se met en pause
+   quand l'élément perd la classe (survol / lecture clavier). */
+@keyframes storyBar { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+/* ── Réactions aux gestes ── */
+
+/* L'éclat d'une réaction posée.
+   Le dépassement est franc (1,32) et accompagné d'une légère
+   rotation : c'est ce qui distingue un **éclat** d'un simple
+   agrandissement. Un emoji qui grossit et revient se lit comme un zoom
+   ; un emoji qui grossit, pivote et retombe se lit comme un tampon
+   qu'on appose. La rotation est minuscule — 8° — parce qu'au-delà,
+   l'emoji semble tomber. */
+@keyframes burstPop {
+  0%   { opacity: 0;   transform: scale(0.4) rotate(-14deg); }
+  38%  { opacity: 1;   transform: scale(1.32) rotate(5deg); }
+  70%  { opacity: 1;   transform: scale(0.94) rotate(-2deg); }
+  100% { opacity: 1;   transform: scale(1) rotate(0deg); }
+}
+
+/* La « secousse » d'un refus.
+   Deux oscillations très courtes, jamais plus : au-delà, un mouvement
+   qui refuse devient une punition visuelle. La destination est nulle
+   — le bouton ne bouge pas, il **résiste**. */
+@keyframes shakeDeny {
+  0%, 100% { transform: translateX(0); }
+  25%      { transform: translateX(-3px); }
+  75%      { transform: translateX(3px); }
+}
+
+/* Montée d'une feuille depuis le bas du plan de travail. */
+@keyframes sheetRise {
+  from { opacity: 0; transform: translateY(24px) scale(0.985); filter: blur(10px); }
+  70%  { opacity: 1; filter: blur(0); }
+  to   { opacity: 1; transform: none; filter: blur(0); }
+}
+
+/* Le voile qui assombrit derrière une feuille. */
+@keyframes veilIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Le balayage d'un « lien copié » (`sheenPass`) a été retiré : aucune
+   surface ne l'utilisait. Une confirmation qui balaie n'ajoute rien
+   quand le bouton ne fait, de toute façon, que changer de couleur — et
+   une animation qui n'est attachée à aucune interaction n'est qu'une
+   grammaire de plus à maintenir. On ne garde pas de mouvement orphelin. */
+
+/* ── Animations décoratives retirées ──
+
+   Une vague d'animations « After Effects » (entrée élastique, flip 3D,
+   glitch, flottement organique, pulsation magnétique, squish au survol,
+   skeleton, toast, reveal au défilement, heartbeat, count pop, flou
+   directionnel) a été supprimée : aucune n'était attachée à un écran.
+
+   Deux raisons, pas une. D'abord la direction artistique : « le mouvement vient des transitions
+   de surface et de l'élévation, pas d'une animation lumineuse permanente »
+   — un glitch et une pulsation infinie la contredisaient. Ensuite `prefers-reduced-motion` : ces classes
+   portaient des durées écrites en dur (`3s`, `2s`, `4s`, `0.6s`, `1.5s`)
+   au lieu des jetons `--d-*`, donc le réglage d'accessibilité ne pouvait
+   pas les atteindre.
+
+   Le vocabulaire de mouvement reste celui des utilitaires `mo-*`
+   documentés plus haut — chacun attaché à une interaction réelle.
+   `scripts/test-motion.ts` empêche la réintroduction d'une classe
+   définie sans être employée. */
+
+/* ── Base ── */
+@layer base {
+  html {
+    /* Hauteur du bandeau de démonstration, publiée par `BackendBanner`.
+       La coque retranche cette valeur de ses `100dvh` : sans elle, la
+       bande du bandeau s'ajoutait au document et le faisait déborder de
+       sa propre hauteur. Vaut 0 en production, où le bandeau n'existe
+       pas. */
+    --h-banner: 0px;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-page);
+    background-image: var(--page-wash, none);
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    color: var(--color-chalk);
+    font-size: 15px;
+    line-height: 1.55;
+    min-height: 100dvh;
+    /* `hidden` faisait de `body` un conteneur de défilement : tout élément
+       `sticky` de la page (panneau de commentaires, barres latérales) s'y
+       accrochait et défilait avec le contenu au lieu de rester visible.
+       `clip` coupe le débordement horizontal *sans* créer de conteneur de
+       défilement — d'où l'ordre : `hidden` reste le repli des navigateurs
+       qui ignorent `clip`. */
+    overflow-x: hidden;
+    overflow-x: clip;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection { background: var(--color-signal); color: var(--color-void); }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--color-page); }
+  ::-webkit-scrollbar-thumb { background: var(--color-line-3); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-signal); }
+  * { scrollbar-width: thin; scrollbar-color: var(--color-line-3) var(--color-page); }
+
+  img, video, canvas {
+    image-rendering: auto;
+  }
+
+  button { font-family: inherit; cursor: pointer; }
+
+  /* ── Micro-interactions par défaut ──
+     Tout ce qui s'actionne répond au doigt : une transition courte sur les
+     propriétés de surface, et un enfoncement franc au clic. C'est la
+     grammaire tactile d'iOS — la surface *cède* sous le doigt — et elle
+     s'applique sans qu'aucun composant ait à l'écrire. Les utilitaires
+     Tailwind (`transition-*`, `active:*`, `translate-*`) vivent dans une
+     couche supérieure : un composant qui veut autre chose garde la main. */
+  :where(a, button, summary, [role="button"], [role="tab"]) {
+    transition:
+      color            var(--d-fast) var(--ease-continuous),
+      background-color var(--d-fast) var(--ease-continuous),
+      border-color     var(--d-fast) var(--ease-continuous),
+      box-shadow       var(--d-base) var(--ease-spring),
+      opacity          var(--d-fast) var(--ease-continuous),
+      transform        var(--d-fast) var(--ease-spring);
+  }
+
+  :where(button, [role="button"], [role="tab"]):active:not(:disabled),
+  :where(summary):active { transform: scale(0.97); }
+
+  :where(a):active { transform: scale(0.985); }
+
+  /* Aucun angle droit. Tout contrôle de formulaire, tout glyphe clavier,
+     toute image naît arrondi — les utilitaires (`rounded-full`,
+     `rounded-[var(--radius-chip)]`) vivent dans la couche `utilities`,
+     qui bat `base` : une exception reste toujours possible. */
+  button, input, textarea, select, kbd, code { border-radius: var(--radius-input); }
+  img, video, canvas { border-radius: var(--radius-card); }
+  svg { display: block; }
+
+/* Une seule définition du focus sur toute l'application : le focus est
+   une sélection de texte, donc un filet d'accent, pas un halo bleu
+   système. */
+  :focus-visible {
+    outline: 2px solid var(--color-signal);
+    outline-offset: 2px;
+  }
+
+  /* Verrou de défilement quand un dialogue est ouvert : le fond ne doit
+     pas bouger sous la modale. `:has` évite un second état à propager
+     depuis chaque composant qui ouvre une sheet. */
+  html:has([aria-modal="true"]) { overflow: hidden; }
+}
+
+/* ── Écritures d'accent : les valeurs lisibles priment sur la teinte ── */
+.text-signal,
+.hover\:text-signal:hover,
+.group:hover .group-hover\:text-signal,
+[class~="text-signal/70"] { color: var(--color-signal-d); }
+.text-danger, .hover\:text-danger:hover { color: var(--color-danger); }
+.text-ok     { color: var(--color-ok); }
+.text-warn   { color: var(--color-warn); }
+.text-info   { color: var(--color-info); }
+.text-phosphor { color: var(--color-phosphor-d); }
+
+/* ── Utilitaires ── */
+
+@utility pwa-toast {
+  bottom: calc(var(--h-bottomnav) + var(--h-status) + var(--space-md));
+  /* Sous les feuilles et les modales : une invitation ne doit jamais
+     flotter au-dessus d'un éditeur plein écran. */
+  z-index: var(--z-nav);
+}
+
+@utility safe-top {
+  padding-top: var(--h-safe-top);
+}
+
+@utility label {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-s);
+  font-weight: 600;
+  line-height: var(--lh-label);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Douze pixels, sans imposer de line-height : le texte de 12 px doit
+   garder l'interligne de son contexte, pas celui d'une classe Tailwind. */
+@utility text-12 {
+  font-size: 0.75rem;
+}
+
+/* Échelle fine du produit, exposée en jetons pour ne pas semer des
+   valeurs arbitraires dans chaque écran. */
+@utility text-13 {
+  font-size: 0.8125rem;
+}
+
+@utility text-14 {
+  font-size: 0.875rem;
+}
+
+@utility text-15 {
+  font-size: 0.9375rem;
+}
+
+@utility text-26 {
+  font-size: 1.625rem;
+  line-height: 1;
+}
+
+@utility label-micro {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  font-weight: 500;
+  line-height: var(--lh-micro);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Les compteurs ne doivent pas sauter quand le nombre change. */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility prompt-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-s);
+  font-weight: 600;
+  line-height: var(--lh-label);
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+/* Le prompt se « résout » : au survol, le chevron se décale d'un cran
+   comme un curseur qui avance d'une colonne. L reminding est discret
+   mais c'est le genre de détail qu'on remarque quand on le cherche. */
+@utility prompt-hover {
+  transition: transform var(--d-fast) var(--ease-spring);
+  &::before { display: inline-block; }
+  &:hover::before { transform: translateX(3px); }
+}
+
+/* Curseur bloc clignotant, à poser après un texte. */
+@utility caret {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 0.35em;
+  vertical-align: -0.14em;
+  background: var(--color-signal);
+  animation: caretBlink var(--d-caret) steps(1, end) infinite;
+}
+
+/* Panneau : le verre posé — fond (token), bord, liseré, ombre ambiante. */
+@utility panel {
+  border: var(--bw-thick) solid var(--color-edge);
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim), var(--shadow-brut);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   VERRE — PLAQUES DE CRISTAL
+
+   Une plaque de verre est un blanc buée : assez opaque pour que le texte
+   posé dessus reste net, assez flou pour qu'on sente la matière quand
+   elle recouvre du contenu. Ce qui la dessine, c'est la lumière retenue
+   sur son bord — le liseré (`--glass-rim`) et le filet de contour
+   (`--color-edge`) — soutenu par une buée (`--glass-refract`).
+   Toutes les surfaces ci-dessous puisent aux mêmes tokens, réglés dans
+   `:root`. Ce sont ces tokens qui font foi : on adoucit ou on renforce
+   tout le verre d'un seul endroit, jamais ici.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Notes :
+   - Aucune règle ici ne pose `position` : forcer `position: relative` sur
+     `.glass-strong` écraserait le `sticky`/`fixed` des barres (en-tête,
+     nav basse, composer) — elles quitteraient l'écran au défilement.
+   - Un `backdrop-filter` crée un bloc conteneur pour les descendants
+     `fixed`/`absolute`. On ne l'applique donc jamais en masse : chaque
+     surface qui veut du verre le demande par sa classe. */
+
+/* ── Superposition ──
+   Le voile : ce qui passe **dessous** s'assombrit et se floute, pour que
+   la couche du dessus soit lisible. Le panneau : un verre bleu fumé,
+   suffisamment opaque pour que le texte clair garde un contraste franc. */
+@utility overlay-veil {
+  background-color: var(--overlay-veil-bg);
+  backdrop-filter: var(--overlay-blur);
+  animation: veilIn var(--d-fast) var(--ease-entrance) both;
+}
+
+@utility overlay-frost {
+  background-color: var(--overlay-frost-bg);
+  backdrop-filter: var(--overlay-blur);
+}
+
+@utility overlay-panel {
+  background-color: var(--overlay-panel-bg);
+  backdrop-filter: var(--overlay-blur);
+}
+
+@utility sheet-glass {
+  background-color: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  backdrop-filter: blur(14px) saturate(1.12);
+  border-top-color: color-mix(in srgb, var(--color-chalk) 18%, var(--color-line));
+  box-shadow: inset 0 1px 0 color-mix(in srgb, var(--color-chalk) 12%, transparent);
+}
+
+/* Verre simple — transparent ; ne reste que le liseré de bord. */
+@utility glass {
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim);
+}
+
+/* La surface d'une barre fixe : plus de voile appuyé, seulement le
+   liseré. La barre se lit à son bord quand le contenu défile dessous. */
+@utility glass-strong {
+  background-color: var(--glass-bg-strong);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract-strong);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+}
+
+/* Le verre des **rangées** : bulles, lignes de navigation, entrées de
+   liste. Même dalle de cristal que les cartes, le liseré en moins lourd. */
+@utility glass-flat {
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+}
+
+/* La carte : dalle de cristal posée sur le fond bleu, qui se soulève au
+   survol et dont le bord s'éclaircit. */
+@utility glass-card {
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  border: var(--bw-thick) solid var(--color-edge);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+  transition: border-color var(--d-fast) var(--ease-continuous);
+
+  &:hover {
+    border-color: var(--color-line-3);
+  }
+}
+
+/* La surface fixe : filet + liseré, jamais de déplacement (une barre ne
+   bouge pas au survol). */
+@utility glass-edge {
+  background-color: var(--glass-bg-strong);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract-strong);
+  border: var(--bw-thick) solid var(--color-edge);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+}
+
+/* Le verre flottant reçoit le flou et un filet plus marqué que les cartes. */
+@utility glass-lens {
+  background-color: var(--glass-bg-strong);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-lens);
+  border: var(--bw-thick) solid var(--color-edge);
+  box-shadow: var(--glass-rim), var(--shadow-drop);
+}
+
+/* Gouttière de lignes : la colonne de numéros à gauche d'un bloc de
+   code, comme dans un vrai éditeur. */
+@utility line-gutter {
+  font-family: var(--font-mono);
+  font-size: var(--text-micro);
+  color: var(--color-chalk-4);
+  user-select: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Le champ de recherche a déjà son bouton d'effacement : la croix native
+   de WebKit ferait deux « x » côte à côte, dont un seul réagit. */
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Scanlines : très faible opacité, à poser sur une surface pleine. */
+@utility scanlines {
+  background-image: repeating-linear-gradient(
+    0deg, rgba(0, 0, 0, 0.22) 0 1px, transparent 1px 3px
+  );
+}
+
+/* Scanlines animées : une barre qui descend très lentement, comme le
+   balayage d'un tube cathodique. À poser sur un fond, jamais sur du texte. */
+@utility scanlines-live {
+  position: relative;
+  overflow: hidden;
+  background-image: repeating-linear-gradient(
+    0deg, rgba(0, 0, 0, 0.20) 0 1px, transparent 1px 3px
+  );
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 22%;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(231, 235, 243, 0.035),
+      transparent
+    );
+    animation: scan 9s linear infinite;
+    pointer-events: none;
+  }
+}
+
+/* Trame diagonale : le « hachurage » des plans techniques. */
+@utility hatch {
+  background-image: repeating-linear-gradient(
+    115deg, var(--color-surface-3) 0 6px, var(--color-surface-2) 6px 12px
+  );
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   MOUVEMENT — classes par intention
+
+   Aucune de ces classes n'ajoute d'élément. Elles s'appliquent sur
+   l'élément rendu par `<Motion as="…">`, et les retards viennent
+   d'un `animation-delay` inline. Deuxkeyframes ne touchent que
+   `transform` et `opacity` : le mouvement ne provoque aucun reflow.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Pré-entrée : invisible, mais sa place est réservée. Utilisé par
+   `useInView` pour qu'un contenu animé au scroll ne « saute » pas. */
+@utility mo-pre { opacity: 0; }
+
+/* Entrées */
+/* Fill-mode **`backwards`**, jamais `both`.
+
+   Une animation d'entrée se termine à l'état de repos de l'élément
+   (`transform: none`). Avec `both`, elle **conserve** sa valeur finale
+   une fois finie — et Chrome la matérialise en `matrix(1,0,0,1,0,0)`.
+   Or un ancêtre porteur d'un `transform`, même identité, devient le
+   **bloc conteneur de ses descendants `position: fixed`** : une coque de
+   tchat en `fixed inset-0` se retrouvait alors encastrée dans la colonne
+   et réduite à la hauteur de son contenu — le composeur remontait au
+   milieu de l'écran. `backwards` n'applique l'état de départ que pendant
+   le retard, puis rend la main : après l'animation, il n'y a plus de
+   `transform`, donc plus de piège. Même raison que `mo-sheet`. */
+@utility mo-fade   { animation: enterFade  var(--d-enter) var(--ease-entrance) backwards; }
+@utility mo-slide  { animation: enterSlide var(--d-enter) var(--ease-entrance) backwards; }
+@utility mo-rise   { animation: enterRise  var(--d-enter) var(--ease-spring)   backwards; }
+@utility mo-scale  { animation: enterScale var(--d-enter) var(--ease-spring)   backwards; }
+@utility mo-rotate { animation: rotateIn   var(--d-enter) var(--ease-spring)   backwards; }
+@utility mo-grow   { animation: growX      var(--d-enter) var(--ease-entrance) backwards; }
+
+/* Le shimmer : un reflet qui balaie un squelette de gauche à droite.
+   La pulsation (`mo-pulse`) dit « attends » sans dire où regarder ; le
+   balayage, lui, a une direction — l'œil suit la lumière et lit la
+   structure du bloc qui arrive, pas seulement son absence. Réserve :
+   indicateurs de chargement uniquement, jamais du contenu réel. */
+@utility mo-shimmer {
+  position: relative;
+  overflow: hidden;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--color-surface-3),
+      transparent
+    );
+    animation: shimmerSweep 1.6s var(--ease-continuous) infinite;
+    pointer-events: none;
+  }
+}
+
+/* Le fondu-matière : la surface émerge du flou au lieu de glisser. Pour
+   les plans rapprochés, pas les listes. */
+@utility mo-soft   { animation: enterSoft  var(--d-enter) var(--ease-entrance) backwards; }
+
+/* Bulles : l'origine du mouvement est le côté de l'auteur. */
+@utility mo-msg-in     { animation: msgInRight var(--d-enter) var(--ease-spring) backwards; }
+@utility mo-msg-in-alt { animation: msgInLeft  var(--d-enter) var(--ease-spring) backwards; }
+
+/* Sortie */
+@utility mo-exit { animation: exitSlide var(--d-fast) var(--ease-entrance) both; }
+
+/* Interactions — en transition, pas en keyframe : une réponse au survol
+   doit pouvoir être interrompue sans état intermédiaire figé. */
+@utility mo-pop {
+  animation: hoverPop var(--d-slow) var(--ease-pop) backwards;
+}
+
+/* L'éclat d'une réaction. Utilise la clé `react` du composant : changer
+   la clé rejoue l'animation, c'est le mécanisme le plus simple pour un
+   « rejouer une animation une seule fois » — il n'y a pas de
+   Web Animations API à ranger, ni de minuterie à nettoyer. */
+@utility mo-burst {
+  animation: burstPop var(--d-burst) var(--ease-snap) backwards;
+}
+
+/* Le refus : deux secousses, destination nulle. */
+@utility mo-deny {
+  animation: shakeDeny var(--d-base) var(--ease-gravity) backwards;
+}
+
+/* Le voile et la feuille qui monte. */
+@utility mo-veil  { animation: veilIn   var(--d-fast)   var(--ease-entrance) both; }
+
+/* `sheetRise` en `backwards`, **jamais** en `both`.
+   Une animation d'entrée avec `fill-mode: both` conserve sa valeur
+   finale après avoir fini — et une règle d'animation l'emporte
+   toujours sur un `transform` écrit en ligne. La feuille est
+   précisément l'élément dont le `transform` est piloté en JavaScript
+   (le glissement vers le bas) : avec `both`, le doigt tirerait dans le
+   vide, sans aucune erreur pour l'expliquer. `backwards` n'applique
+   l'état de départ que pendant le retard, puis rend la main à la
+   ligne. */
+@utility mo-sheet { animation: sheetRise var(--d-slow)   var(--ease-spring)   backwards; }
+
+/* ── Profondeur ──
+   Deux couches d'ombre, pas une : l'ombre longue donne l'écart au plan
+   de travail, l'ombre courte donne le contact. Une seule des deux fait
+   flotter la carte au lieu de la soulever — c'est la différence entre
+   du verre posé et du verre collé, et ça se voit immédiatement.
+
+   Le déplacement au survol est minuscule (-2 px) et l'ombre change
+   **beaucoup** : c'est l'ombre qui porte la profondeur, le mouvement ne
+   fait que l'accompagner. Un grand déplacement avec une petite ombre
+   donne une carte qui glisse. */
+@utility depth-card {
+  background-color: transparent;
+  background-image: none;
+  border-color: var(--color-edge);
+  box-shadow: none;
+  transition: border-color var(--d-fast) var(--ease-continuous);
+}
+
+/* La profondeur d'un panneau **fixe** (feuille, dialogue).
+   Le voile fait aussi partie de la profondeur : sans lui, la feuille
+   semble posée sur le même plan que le fond — et le fond n'est pas un
+   fond, il est derrière. */
+@utility depth-panel {
+  box-shadow: var(--glass-rim), var(--shadow-drop-lg);
+}
+
+@utility mo-lift {
+  transition:
+    transform var(--d-base) var(--ease-spring),
+    box-shadow var(--d-base) var(--ease-spring);
+  &:hover { transform: translate(-2px, -2px); }
+}
+
+/*
+  Inclinaison 3D pilotée par le pointeur (composant `Tilt`).
+
+  La profondeur n'est pas un décor : elle donne à une carte plate un
+  volume qu'on sent **au mouvement de la souris**, sans dégradé ni verre
+  dépoli — ce que la DA refuse. Les angles vivent dans les variables
+  `--tilt-x` / `--tilt-y`, posées par le JavaScript ; le CSS ne fait que
+  les interpoler, donc `prefers-reduced-motion` peut tout arrêter d'un
+  seul endroit. La transition porte **uniquement** `transform` : l'élément
+  est dédié, il n'a donc aucune autre transition à voler.
+
+  La durée de poursuite vit dans `--tilt-d`, posée par le même
+  JavaScript à partir de la **vitesse lissée du pointeur** : un geste
+  lent suit de près (`--d-fast`), un geste rapide traîne (`--d-slow`)
+  — c'est l'inertie de la carte, et elle reste dans les jetons. Le
+  repli est `--d-base` : tant que le JavaScript n'a rien posé, la
+  carte se comporte comme avant.
+*/
+@utility tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform var(--tilt-d, var(--d-base)) var(--ease-spring);
+  will-change: transform;
+}
+
+@utility mo-press {
+  /* En **animation**, pas en transition.
+
+     Une transition s'écrit nécessairement avec `transition: …` ou avec
+     `transition-property`, et les deux réinitialisent la liste de
+     propriétés de l'élément. Or les boutons du projet déclarent déjà leur
+     propre liste (`transition-[background-color,color,border-color]`) :
+     l'utilitaire leur volait leurs transitions de couleur — vérifié dans
+     un navigateur, un bouton sur quatre les perdait, et l'ordre de la
+     cascade de Tailwind décide lequel gagne, donc c'était imprévisible.
+
+     Une animation ne touche à aucune propriété `transition-*` : elle ne
+     peut donc rien voler, quelle que soit la liste déclarée à côté. Le
+     prix est un retour instantané au relâchement, ce qui sur 90 ms ne se
+     voit pas. */
+  &:active { animation: pressDown var(--d-instant) var(--ease-gravity) both; }
+}
+
+/* Continus */
+/* `mo-spin` est une révolution, pas une transition : elle a sa propre
+   durée. Réutiliser `--d-slow` donnerait un tour en 380 ms, qui se lit
+   comme une agitation et non comme une attente. */
+@utility mo-spin    { animation: rotateLoop var(--d-orbit) linear infinite; }
+@utility mo-pulse   { animation: pulse      var(--d-slow) var(--ease-continuous) infinite; }
+@utility mo-breathe { animation: breathe    var(--d-slow) var(--ease-continuous) infinite; }
+@utility mo-scan    { animation: scan       var(--d-slow) var(--ease-continuous) infinite; }
+
+/* La pastille d'état. `currentColor` permet de la poser dans n'importe
+   quelle couleur de statut sans redéfinir la couleur dans l'utilitaire —
+   l'utilitaire décrit le *mouvement*, pas l'*information*. */
+/* Trois battements, puis la pastille reste allumée : une boucle infinie
+   attire l'œil en permanence pour une information qui, elle, est stable
+   (le canal est en direct). */
+@utility mode-live {
+  animation: liveBeat 2.6s var(--ease-continuous) 3;
+}
+
+/* ── Mouvement surfacique ──
+   La carte du fil, la ligne de groupe, la conversation : toutes se
+   soulèvent de 2 px au survol, le filet s'éclaircit, l'ombre grandit.
+   Déplacement (-2, -2) et non (-2, +2) : sur fond encre, l'ombre est
+   déjà en bas à droite — soulever vers le haut-gauche est ce qui donne
+   l'impression que la fiche quitte la surface.
+   ─────────────────────────────────────────────────────────────────── */
+@utility lift-card {
+  transition:
+    transform  var(--d-base) var(--ease-spring),
+    box-shadow var(--d-base) var(--ease-spring),
+    border-color var(--d-fast) var(--ease-continuous),
+    background-color var(--d-fast) var(--ease-continuous);
+
+  &:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-sh-2);
+    border-color: var(--color-line-3);
+  }
+}
+
+/* Variante pressable : enfoncé au clic. */
+@utility lift-press {
+  transition:
+    transform  var(--d-instant) var(--ease-gravity),
+    box-shadow var(--d-fast) var(--ease-spring),
+    border-color var(--d-fast) var(--ease-continuous);
+
+  &:hover {
+    transform: translate(-1px, -1px);
+    box-shadow: var(--shadow-sh-1);
+    border-color: var(--color-line-3);
+  }
+  &:active {
+    transform: translate(1px, 1px);
+    box-shadow: none;
+  }
+}
+
+/* ── Outil d'onglet ──
+   Le filet d'accent grandit depuis le centre plutôt que depuis la
+   gauche : c'est ce que fait un soulignement qu'on « trace ». Sur
+   mobile l'onglet est un onglet d'éditeur ; sur grand écran c'est un
+   bouton — même géométrie, deux échelles.
+   ─────────────────────────────────────────────────────────────────── */
+@utility tab-underline {
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 4px;
+    background: var(--color-signal);
+    border-radius: 999px;
+    transform: scaleX(0);
+    transform-origin: center;
+    transition: transform var(--d-base) var(--ease-spring);
+  }
+
+  &[aria-selected="true"]::after,
+  &[data-active="true"]::after {
+    transform: scaleX(1);
+  }
+}
+
+/* ── Puce de mode ──
+   En mode démonstration, la pastille respire : le mode est temporaire
+   mais stable. Un clignotement serait une alarme ; une respiration dit
+   « ça fonctionne, pas encore en ligne ».
+   ─────────────────────────────────────────────────────────────────── */
+@utility mode-live {
+  animation: breathe 2.6s var(--ease-continuous) infinite;
+}
+
+/* ── Accessibilité ──
+   On ne se contente pas d'accélérer : les mouvements continus sont
+   coupés. Une pastille qui respire en boucle reste une animation pour
+   quelqu'un qui a demandé l'arrêt du mouvement.
+   ─────────────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .mo-spin, .mo-pulse, .mo-breathe, .mo-scan, .mode-live,
+  .caret, .mo-shimmer::after, .scanlines-live::after {
+    animation: none !important;
+  }
+
+  .mo-pre { opacity: 1; }
+  .lift-card:hover, .lift-press:hover, .lift-press:active { transform: none; }
+
+  /* Verre liquide : la dalle ne se soulève plus au survol — le liseré
+     allumé reste, sans transition. */
+  :root[data-liquid="true"] .glass-card:hover,
+  :root[data-liquid="true"] .depth-card:hover { transform: none; }
+
+  /* Illustration Dev : l'affiche du dénouement (fix vert, signature). */
+  .devscene [class^="ds2-"], .devscene [class*=" ds2-"] {
+    animation: none !important;
+  }
+
+  .devscene .ds2-bug,
+  .devscene .ds2-flash,
+  .devscene .ds2-jail {
+    opacity: 0 !important;
+  }
+
+  .devscene .ds2-fix,
+  .devscene .ds2-signature {
+    opacity: 1 !important;
+  }
+
+  /* Stop motion : l'affiche est l'écran final de l'app. */
+  .devscene [class^="dsm-"], .devscene [class*=" dsm-"] {
+    animation: none !important;
+  }
+
+  .devscene .dsm-card-new,
+  .devscene .dsm-comment,
+  .devscene .dsm-bell-badge,
+  .devscene .dsm-heart-filled,
+  .devscene .dsm-chip-ok {
+    opacity: 1 !important;
+  }
+
+  .devscene .dsm-composer,
+  .devscene .dsm-toast,
+  .devscene .dsm-viewfinder,
+  .devscene .dsm-stamp-wrap {
+    opacity: 0 !important;
+    /*
+     * `opacity: 0` ne retire pas l'élément de l'arbre d'accessibilité : un
+     * lecteur d'écran le lit, et axe le mesure. Il mesurait donc un texte
+     * à opacité nulle et signalait 3,05:1 — un vrai défaut, mais pas celui
+     * qu'on croyait : le contraste d'un texte qu'on ne voit pas.
+     *
+     * `visibility: hidden` le retire des deux arbres. C'est ce que veut dire
+     * « masqué » : ni vu, ni lu, ni mesuré.
+     */
+    visibility: hidden !important;
+  }
+
+  .devscene .dsm-cam {
+    animation: none !important;
+  }
+
+  .devscene .dsm-replies,
+  .devscene .dsm-count-pop {
+    opacity: 1 !important;
+  }
+}
+
+
+/* ── Fondu de thème ──────────────────────────────────────────────────
+   Posé pendant un changement de thème seulement (attribut retiré par
+   `ThemeApplier` après la durée du jeton) : les couleurs traversent, la
+   page ne saute pas. Les propriétés de *disposition* ne sont jamais
+   touches : un clic pendant le fondu garde ses transitions de transform.
+   Sous mouvement réduit, l'attribut n'est pas posé — le basculement
+   reste immédiat, ce qui est exactement la demande. */
+:root[data-theme-fade="true"] body,
+:root[data-theme-fade="true"] body * {
+  transition:
+    background-color var(--d-scene) var(--ease-continuous),
+    color var(--d-scene) var(--ease-continuous),
+    border-color var(--d-scene) var(--ease-continuous) !important;
+}
+
+/* ── Niveau de mouvement ────────────────────────────────────────────
+   Trois niveaux posés par les réglages (`data-motion-level`) :
+
+   `sobre`    — tout est coupé (c'est `data-reduce-motion="true"`, déjà
+                géré plus haut) ;
+   `essentiel`— les entrées et les retours d'action restent, mais
+                l'**ambiance continue** disparaît : respiration d'état,
+                pastille de mode, balayages d'ambiance. Une interface
+                calme sans être figée ;
+   `standard` — la grammaire complète (défaut).
+
+   Les indicateurs de chargement (`mo-spin`, `mo-pulse`, `mo-scan`, le
+   shimmer) ne sont jamais coupés par un niveau : « ça travaille » est
+   une information, pas de la décoration. */
+:root[data-motion-level="essentiel"] .mo-breathe,
+:root[data-motion-level="essentiel"] .mode-live,
+:root[data-motion-level="essentiel"] .scanlines-live::after,
+:root[data-motion-level="essentiel"] .sonar-sweep,
+:root[data-motion-level="essentiel"] .al-boil,
+:root[data-motion-level="essentiel"] .al-blink {
+  animation: none !important;
+}
+
+/* ── Célébration : pluie de glyphes de code ──
+   Un palier franchi est un moment de compilation réussie : ce qui tombe
+   n'est pas des confettis, ce sont les caractères du métier. One-shot
+   (jamais de boucle), transform et opacity uniquement, couleurs par
+   jetons. Sous mouvement réduit, la durée tombe à ~0 : les glyphes
+   finissent invisibles — la feuille reste, la pluie non. */
+.devscene {
+  /* L'illustration à identité fixe : ses couleurs ne suivent pas les
+     thèmes (comme le logo) — elles vivent ici, documentées une fois. */
+  --dsc-bg: #DFE9FA;
+  --dsc-white: #FFFFFF;
+  --dsc-hairline: #B9CBE8;
+  --dsc-bush: #7FC79A;
+  --dsc-bush-d: #5FAF82;
+  --dsc-signal: #FF7A45;
+  --dsc-skin: #C49065;
+  --dsc-skin-d: #A87A50;
+  --dsc-skin-s: #B07B52;
+  --dsc-hair: #2A2119;
+  --dsc-ink: #2B2B33;
+  --dsc-tee: #2F7D4F;
+  --dsc-tee-d: #276A43;
+  --dsc-jean: #4A7CE8;
+  --dsc-jean-d: #3D69C4;
+  --dsc-sneaker: #F2F1EC;
+  --dsc-paper: #F4F3EE;
+  --dsc-paper-line: #C9D4E8;
+  --dsc-ok: #5FBF86;
+  --dsc-danger: #FF6B61;
+  --dsc-gold: #E6BC75;
+  --dsc-av-lime: #CDE3A4;
+  --dsc-av-pink: #F0C4C9;
+  --dsc-av-violet: #DBC4DF;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   DEV SCENE — l'illustration animée de la page de connexion (style
+   flat Google). Une prise de douze secondes, rejouable par clé, jamais
+   une boucle. Tout ne touche que transform et opacity ; les poses de
+   repos sont les poses finales : sous mouvement réduit, l'affiche.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Les tuiles du réseau respirent (deux ondulations, pas une boucle). */
+@keyframes ds2Float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+.devscene .ds2-float { animation: ds2Float 1.6s var(--ease-continuous) 2 backwards; animation-delay: 0.4s; }
+
+/* Le personnage : deux bonds de joie à la célébration. */
+@keyframes ds2Hop {
+  0%, 100% { transform: translateY(0); }
+  40%      { transform: translateY(-14px); }
+}
+.devscene .ds2-hop { animation: ds2Hop 620ms var(--ease-spring) 2 backwards; animation-delay: 10.3s; }
+
+/* Les yeux clignent trois fois pendant la frappe. */
+@keyframes ds2Blink {
+  0%, 46%, 100% { transform: scaleY(1); }
+  50%, 96%      { transform: scaleY(0.1); }
+}
+.devscene .ds2-eyes { animation: ds2Blink 420ms steps(1, end) 3 backwards; animation-delay: 1s; transform-box: fill-box; transform-origin: center; }
+
+/* Le badge rouge du bug surgit ; la coche verte le remplace au fix. */
+.devscene .ds2-bug { opacity: 0; animation: ds2Pop var(--d-burst) var(--ease-snap) 2.6s forwards; }
+.devscene .ds2-fix { opacity: 0; animation: ds2Pop var(--d-burst) var(--ease-snap) 10.1s forwards; }
+@keyframes ds2Pop {
+  0% { opacity: 0; transform: scale(0.5); }
+  55% { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.devscene .ds2-fix, .devscene .ds2-bug { transform-box: fill-box; transform-origin: center; }
+
+/* Le flash du cliché. */
+.devscene .ds2-flash { opacity: 0; animation: ds2Flash 280ms var(--ease-continuous) backwards; animation-delay: 4.9s; }
+@keyframes ds2Flash {
+  0% { opacity: 0; transform: scale(0.4); }
+  30% { opacity: 0.9; transform: scale(1.3); }
+  100% { opacity: 0; transform: scale(1.7); }
+}
+
+/* Les bulles d'aide montent une à une depuis le bas. */
+@keyframes ds2Rise {
+  0% { opacity: 0; transform: translateY(22px) scale(0.85); }
+  60% { opacity: 1; transform: translateY(-3px) scale(1.05); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+.devscene .ds2-rise { opacity: 0; animation: ds2Rise var(--d-burst) var(--ease-spring) backwards; }
+.devscene .ds2-rise-1 { animation-delay: 6.4s; }
+.devscene .ds2-rise-2 { animation-delay: 7.3s; }
+.devscene .ds2-rise-3 { animation-delay: 8.2s; }
+
+/* Les confettis pleuvent une fois. */
+.devscene .ds2-jail { animation: confettiFall var(--d-orbit) var(--ease-entrance) backwards; }
+.devscene .ds2-jail-1 { animation-delay: 10.6s; }
+.devscene .ds2-jail-2 { animation-delay: 10.75s; }
+.devscene .ds2-jail-3 { animation-delay: 10.9s; }
+.devscene .ds2-jail-4 { animation-delay: 11.05s; }
+
+/* La signature se pose. */
+.devscene .ds2-signature { opacity: 0; animation: ds2In var(--d-slow) var(--ease-entrance) 11.3s forwards; }
+@keyframes ds2In {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   DEV STOP MOTION — l'interface est la vedette, tournée sur un plateau.
+   Chaque geste passe par steps() : 2-3 images par mouvement. La caméra
+   zoome et recadre en marches. Une prise de 16,5 s (générique
+   d'ouverture), rejouable par session, jamais une boucle. Sous
+   mouvement réduit : l'écran final complet.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Le voile du générique : plein écran, il couvre la page de
+   connexion pendant la prise, puis se dissout (`dsm-exit` posé par la
+   page à la fin — l'unmount suit à 260 ms). ── */
+.dsm-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: grid;
+  place-items: center;
+  background: var(--color-page);
+  animation: dsmVeilIn 400ms steps(2, end) backwards;
+}
+.dsm-exit {
+  animation: dsmVeilOut 260ms var(--ease-continuous) forwards;
+}
+@keyframes dsmVeilIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes dsmVeilOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Grand écran : la prise gagne en envergure. */
+@media (min-width: 900px) and (min-height: 760px) {
+  .dsm-intro .dsm-stage { transform: scale(1.22); }
+}
+/* Petits écrans : la prise se rétrécit, elle ne déborde jamais. */
+@media (max-width: 380px) {
+  .dsm-intro .dsm-stage { transform: scale(0.84); }
+}
+@media (max-height: 640px) {
+  .dsm-intro .dsm-stage { transform: scale(0.86); }
+}
+
+/* ── Le plateau : mur chaud, bureau, accessoires ── */
+.dsm-stage {
+  position: relative;
+  width: 340px;
+  height: 560px;
+  overflow: hidden;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--color-line-2);
+  background:
+    radial-gradient(120% 70% at 50% 0%, var(--color-surface-2), var(--color-page) 70%);
+  animation: dsmSettle 500ms steps(3, end) backwards;
+}
+
+/* le mur : éclairage de scène chaud, jamais un fond plat */
+.dsm-wall {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 42% at 30% 8%,
+      color-mix(in srgb, var(--color-signal) 16%, transparent), transparent 70%),
+    radial-gradient(50% 40% at 78% 10%,
+      color-mix(in srgb, var(--color-phosphor) 9%, transparent), transparent 70%);
+}
+
+/* le bureau : un plan en travers du bas du plateau */
+.dsm-desk {
+  position: absolute;
+  inset-inline: -8%;
+  bottom: 0;
+  height: 34%;
+  border-radius: var(--radius-card);
+  background: var(--color-surface-3);
+  border-top: 3px solid var(--color-line-3);
+  box-shadow:
+    0 -4px 0 color-mix(in srgb, var(--color-void) 55%, transparent),
+    inset 0 14px 0 color-mix(in srgb, var(--color-chalk) 4%, transparent);
+}
+
+.dsm-mug {
+  position: absolute;
+  left: 12%;
+  bottom: 62%;
+  width: 26px;
+  height: 24px;
+  border-radius: 4px 4px 6px 6px;
+  background: var(--color-chalk-2);
+  box-shadow: inset -3px 0 0 var(--color-chalk-3);
+}
+.dsm-mug::after {
+  content: "";
+  position: absolute;
+  right: -8px;
+  top: 4px;
+  width: 8px;
+  height: 12px;
+  border: 3px solid var(--color-chalk-3);
+  border-left: none;
+  border-radius: 0 6px 6px 0;
+}
+.dsm-pad {
+  position: absolute;
+  right: 10%;
+  bottom: 70%;
+  width: 30px;
+  height: 40px;
+  border-radius: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line-2);
+  rotate: -8deg;
+}
+.dsm-lamp { position: absolute; left: 6%; bottom: 88%; }
+.dsm-lamp-arm {
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  width: 4px;
+  height: 34px;
+  background: var(--color-chalk-3);
+  rotate: 14deg;
+}
+.dsm-lamp-head {
+  position: absolute;
+  top: -12px;
+  left: 0;
+  width: 20px;
+  height: 12px;
+  border-radius: 10px 10px 2px 2px;
+  background: var(--color-signal);
+  box-shadow: var(--glow-signal);
+}
+
+/* ── La caméra : elle zoome/recadre en marches ── */
+.dsm-cam {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  animation:
+    dsmCamA 4.5s steps(4, end) 0.3s forwards,
+    dsmCamB 3.2s steps(3, end) 4.9s forwards,
+    dsmCamC 3.4s steps(4, end) 8.2s forwards,
+    dsmCamD 3.0s steps(4, end) 11.7s forwards;
+}
+@keyframes dsmCamA { 0% { transform: scale(1) translate(0, 6px); } 100% { transform: scale(1.06) translate(0, 2px); } }
+@keyframes dsmCamB { from { transform: scale(1.06) translate(0, 2px); } to { transform: scale(1.14) translate(-4px, 0); } }
+@keyframes dsmCamC { from { transform: scale(1.14) translate(-4px, 0); } to { transform: scale(1.05) translate(0, 3px); } }
+@keyframes dsmCamD { from { transform: scale(1.05) translate(0, 3px); } to { transform: scale(1) translate(0, 0); } }
+
+/* ── Le téléphone ── */
+.dsm-phone {
+  position: relative;
+  width: 250px;
+  height: 460px;
+  overflow: hidden;
+  border-radius: 26px;
+  border: 2px solid var(--color-line-3);
+  background: var(--color-page);
+  box-shadow: 6px 6px 0 color-mix(in srgb, var(--color-void) 55%, transparent);
+}
+
+/* le reflet de la lampe sur la vitre : une trace oblique fixe */
+.dsm-glow {
+  position: absolute;
+  top: -30px;
+  left: -40px;
+  width: 90px;
+  height: 200px;
+  rotate: 18deg;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-chalk) 7%, transparent), transparent);
+  pointer-events: none;
+}
+
+/* ── Barre de statut : l'horloge avance en marches ── */
+.dsm-status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 20px;
+  padding-inline: 14px;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--color-chalk-4);
+}
+.dsm-clock { animation: dsmClockTick 480ms steps(1, end) 6.9s 1 forwards; }
+@keyframes dsmClockTick { to { color: var(--color-signal); } }
+.dsm-demo-pill {
+  border: 1px solid var(--color-line-2);
+  border-radius: 999px;
+  padding-inline: 5px;
+  font-size: 8px;
+  /*
+   * `--color-signal` (#20BFA9) donne 2,31:1 sur blanc : c'est une couleur
+   * d'accent et de lien, pas de texte fin. Le thème Bleu nuit redéfinit
+   * `--color-signal-d` (#0F766E, 5,47:1) pour exactement ce cas : un texte
+   * turquoise qui doit rester lisible. On l'utilise ici, avec repli sur
+   * `--color-signal` pour les thèmes sombres où `-d` n'existe pas.
+   */
+  color: var(--color-signal-d, var(--color-signal));
+}
+
+/* ── Barre de titre ── */
+.dsm-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 28px;
+  padding-inline: 12px;
+  border-bottom: 1px solid var(--color-line);
+  background: var(--color-surface);
+  font-family: var(--font-display);
+  color: var(--color-chalk);
+}
+.dsm-signal-text { color: var(--color-signal); }
+.dsm-bell { position: relative; display: inline-flex; color: var(--color-chalk-3); }
+.dsm-bell-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  min-width: 13px;
+  padding-inline: 3px;
+  border-radius: 999px;
+  background: var(--color-signal);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 13px;
+  text-align: center;
+  color: var(--color-void);
+  opacity: 0;
+}
+.dsm-pop-late { animation: dsmPopStepped 240ms steps(2, end) 10.2s forwards; }
+
+/* ── Le fil ── */
+.dsm-feed { position: absolute; inset: 48px 0 0 0; padding: 8px 8px 12px; }
+
+.dsm-card {
+  position: relative;
+  border: 1px solid var(--color-line-2);
+  border-radius: var(--radius-card);
+  background: var(--color-surface);
+  padding: 9px 10px;
+  box-shadow: 3px 3px 0 color-mix(in srgb, var(--color-void) 45%, transparent);
+}
+.dsm-card-new {
+  opacity: 0;
+  animation: dsmRiseStepped 480ms steps(4, end) 3.15s forwards;
+}
+@keyframes dsmRiseStepped {
+  0% { opacity: 0; transform: translateY(-16px) rotate(-1.2deg); }
+  50% { opacity: 1; transform: translateY(2px) rotate(0.5deg); }
+  100% { opacity: 1; transform: none; }
+}
+/*
+ * Le « papier vieilli » de la carte démo se faisait par `opacity: 0.55` sur
+ * tout le bloc. Ça marchait sur fond sombre, mais sur fond clair l'opacité
+ * mélange le texte au blanc : `--color-chalk` tombait à 3,7:1 et
+ * `--color-chalk-4` à 2,11:1. L'effet est conservé par une teinte de surface
+ * et un liseré, pas par une transparence qui détruit le contraste.
+ */
+.dsm-card-old { margin-top: 8px; background: var(--color-surface-2); border-radius: 8px; padding: 6px; }
+
+.dsm-row { display: flex; align-items: center; gap: 6px; }
+.dsm-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-void);
+  background: var(--color-av-orange-bg);
+}
+.dsm-avatar-me { background: var(--color-av-lime-bg); }
+.dsm-av-lime { background: var(--color-av-lime-bg); }
+.dsm-av-pink { background: var(--color-av-pink-bg); }
+.dsm-av-violet { background: var(--color-av-violet-bg); }
+.dsm-name { font-size: 11px; font-weight: 700; color: var(--color-chalk); display: inline-flex; align-items: center; gap: 4px; }
+.dsm-pseudo { font-family: var(--font-mono); font-size: 9px; font-weight: 400; color: var(--color-chalk-4); }
+.dsm-verified { display: inline-flex; color: var(--color-signal); }
+.dsm-meta { margin-left: auto; font-family: var(--font-mono); font-size: 9px; color: var(--color-chalk-4); }
+
+.dsm-text {
+  margin-top: 6px;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--color-chalk);
+}
+.dsm-tags { display: block; color: var(--color-signal); }
+.dsm-text-old { font-size: 10.5px; color: var(--color-chalk-2); }
+
+.dsm-code {
+  position: relative;
+  margin-top: 6px;
+  border: 1px solid var(--color-line-2);
+  border-radius: var(--radius-chip);
+  background: var(--color-code-bg);
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.dsm-code-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--color-chalk-4);
+}
+.dsm-code-line { display: block; width: 70%; height: 4px; border-radius: 2px; background: var(--color-code-string); }
+.dsm-code-line-s { width: 40%; background: var(--color-code-keyword); }
+.dsm-code-cursor {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  width: 6px;
+  height: 8px;
+  background: var(--color-chalk);
+  opacity: 0;
+  animation: dsmBlinkStepped 400ms steps(1, end) 3 2.9s;
+}
+@keyframes dsmBlinkStepped {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.dsm-actions { display: flex; align-items: center; gap: 8px; margin-top: 7px; color: var(--color-chalk-3); }
+.dsm-like { position: relative; display: inline-flex; color: var(--color-chalk-3); }
+.dsm-heart-filled {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  color: var(--color-signal);
+  opacity: 0;
+  animation: dsmHeart 300ms steps(2, end) 13.4s forwards;
+}
+@keyframes dsmHeart {
+  0% { opacity: 0; transform: scale(0.6); }
+  50% { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+.dsm-count { font-family: var(--font-mono); font-size: 10px; color: var(--color-chalk-2); }
+.dsm-count-pop { animation: dsmPopStepped 240ms steps(2, end) 13.55s forwards; opacity: 0; }
+.dsm-replies {
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  color: var(--color-phosphor);
+  opacity: 0;
+  animation: dsmPopStepped 240ms steps(2, end) 12.2s forwards;
+}
+.dsm-chip-ok {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+  border: 1px solid var(--color-ok);
+  border-radius: 999px;
+  padding-inline: 6px;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--color-ok);
+  opacity: 0;
+  animation: dsmPopStepped 240ms steps(2, end) 14.0s forwards;
+}
+@keyframes dsmPopStepped {
+  0% { opacity: 0; transform: scale(0.5) rotate(-4deg); }
+  50% { opacity: 1; transform: scale(1.15) rotate(2deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ── Les commentaires : trois papiers posés un à un ── */
+.dsm-comment {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-line-2);
+  border-radius: var(--radius-card);
+  background: var(--color-surface-2);
+  padding: 6px 8px;
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--color-void) 45%, transparent);
+  opacity: 0;
+}
+.dsm-bubble-text { font-size: 10px; color: var(--color-chalk-2); }
+.dsm-comment-1 { bottom: 118px; animation: dsmComment 360ms steps(3, end) 8.4s forwards; }
+.dsm-comment-2 { bottom: 78px; animation: dsmComment 360ms steps(3, end) 9.3s forwards; }
+.dsm-comment-3 { bottom: 38px; animation: dsmComment 360ms steps(3, end) 10.2s forwards; }
+@keyframes dsmComment {
+  0% { opacity: 0; transform: translateY(8px) rotate(1.4deg); }
+  50% { opacity: 1; transform: translateY(-1px) rotate(-0.6deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* ── La feuille de composition : monte en 3 images, tombe en 2 ── */
+.dsm-composer {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  border-top: 1px solid var(--color-line-2);
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+  background: var(--color-surface);
+  padding: 10px 12px 14px;
+  box-shadow: 0 -3px 0 color-mix(in srgb, var(--color-void) 45%, transparent);
+  animation:
+    dsmSheetUp 420ms steps(3, end) 0.45s forwards,
+    dsmSheetDown 320ms steps(2, end) 3.0s forwards;
+  /*
+   * Plus d'`opacity: 0` ici : la feuille glisse hors cadre au lieu de
+   * s'effacer. Une feuille translucide laissait son texte à 3,05:1, ce qui
+   * est un vrai défaut de lisibilité et pas seulement un chiffre d'audit.
+   */
+}
+/*
+ * La feuille montait puis redescendait en fondu. Pendant ces fondus, le
+ * texte du composer passait par des opacités où son contraste tombait sous
+ * 4,5:1 — axe le mesurait, à juste titre : un texte à moitié transparent
+ * sur fond clair n'est pas lisible.
+ *
+ * L'effet est conservé par le **déplacement** seul, qui est ce que le stop
+ * motion raconte de toute façon : une feuille qui glisse. Elle ne devient
+ * jamais translucide ; quand elle sort, elle sort du cadre et cesse d'être
+ * mesurable.
+ */
+@keyframes dsmSheetUp {
+  0% { transform: translateY(100%); }
+  50% { transform: translateY(24px); }
+  100% { transform: none; }
+}
+@keyframes dsmSheetDown {
+  from { transform: none; }
+  to { transform: translateY(100%); }
+}
+.dsm-typeline {
+  min-height: 30px;
+  border: 1px solid var(--color-line-2);
+  border-radius: var(--radius-chip);
+  background: var(--color-surface-2);
+  padding: 7px 8px;
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--color-chalk);
+  /*
+   * Le texte de la feuille reste **pleinement opaque**, même quand la feuille
+   * glisse hors cadre. L'opacité du parent s'applique à tout son contenu :
+   * à 0,5, ce texte tombait à 3,05:1 sur fond clair et 4,31:1 sur fond
+   * sombre. Un texte à moitié transparent n'est pas lisible, et c'est
+   * exactement ce qu'axe reprochait — pas un faux positif.
+   *
+   * `opacity` sur l'enfant ne s'additionne pas à celle du parent, donc ce
+   * n'est pas la solution. On retire l'animation de la feuille elle-même
+   * (voir `.dsm-composer`) et on garde ici le seul effet de frappe.
+   */
+  animation: dsmType 1.6s steps(20, end) 0.7s forwards;
+  clip-path: inset(0 100% 0 0);
+}
+@keyframes dsmType { to { clip-path: inset(0 0 0 0); } }
+.dsm-publish {
+  display: inline-flex;
+  margin-top: 7px;
+  border-radius: var(--radius-input);
+  background: var(--color-signal);
+  padding: 5px 16px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--color-void);
+  animation: dsmPress 300ms steps(2, end) 2.65s forwards;
+}
+@keyframes dsmPress {
+  0% { transform: none; }
+  40% { transform: translate(1px, 1px) scale(0.97); }
+  100% { transform: none; }
+}
+
+/* ── Le viseur : photographier le bug, temps 3 ── */
+.dsm-viewfinder {
+  position: absolute;
+  inset: 0;
+  background: var(--color-void);
+  opacity: 0;
+  animation:
+    dsmViewIn 360ms steps(3, end) 5.3s forwards,
+    dsmViewOut 320ms steps(2, end) 7.3s forwards;
+}
+@keyframes dsmViewIn {
+  0% { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes dsmViewOut {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(10px); }
+}
+.dsm-vf-corner {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid var(--color-chalk);
+}
+.dsm-vf-tl { top: 46px; left: 22px; border-right: none; border-bottom: none; }
+.dsm-vf-br { right: 22px; bottom: 130px; border-left: none; border-top: none; }
+.dsm-vf-code {
+  position: absolute;
+  inset: 70px 40px auto 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px dashed var(--color-line-2);
+  border-radius: var(--radius-chip);
+  padding: 14px 12px 18px;
+  background: var(--color-code-bg);
+}
+.dsm-vf-label {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  margin-left: -50px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-signal);
+}
+.dsm-vf-flash {
+  position: absolute;
+  inset: 0;
+  background: var(--color-chalk);
+  opacity: 0;
+  animation: dsmFlash 280ms steps(2, end) 6.55s forwards;
+}
+@keyframes dsmFlash {
+  0% { opacity: 0; }
+  45% { opacity: 0.95; }
+  100% { opacity: 0; }
+}
+
+/* ── Le tampon « résolu » : claque de haut, la scène tremble ── */
+.dsm-stamp-wrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  animation:
+    dsmStamp 420ms steps(3, end) 14.35s forwards,
+    dsmShake 260ms steps(3, end) 14.75s forwards;
+}
+@keyframes dsmStamp {
+  0% { opacity: 0; transform: scale(2.4) rotate(-9deg); }
+  55% { opacity: 1; transform: scale(0.94) rotate(3deg); }
+  100% { opacity: 1; transform: scale(1) rotate(-3deg); }
+}
+@keyframes dsmShake {
+  0% { transform: translate(0, 0); }
+  30% { transform: translate(2px, -2px); }
+  60% { transform: translate(-2px, 1px); }
+  100% { transform: none; }
+}
+.dsm-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 3px double var(--color-ok);
+  border-radius: var(--radius-chip);
+  padding: 7px 14px;
+  rotate: -3deg;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-ok);
+  background: color-mix(in srgb, var(--color-ok) 10%, transparent);
+}
+
+/* ── Le toast ── */
+.dsm-toast {
+  position: absolute;
+  top: 62px;
+  left: 50%;
+  margin-left: -46px;
+  border: 1px solid var(--color-line-2);
+  border-radius: 999px;
+  background: var(--color-surface);
+  padding: 5px 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-chalk);
+  box-shadow: 2px 2px 0 color-mix(in srgb, var(--color-void) 45%, transparent);
+  opacity: 0;
+  animation:
+    dsmToast 300ms steps(2, end) 3.35s forwards,
+    dsmToastOut 260ms steps(2, end) 5.45s forwards;
+}
+@keyframes dsmToast {
+  0% { opacity: 0; transform: translateY(-8px) rotate(-1deg); }
+  50% { opacity: 1; transform: translateY(1px) rotate(0.5deg); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes dsmToastOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateY(-6px); }
+}
+
+@keyframes confettiFall {
+  from { opacity: 0; transform: translateY(-20px) rotate(0deg) scale(0.85); }
+  18%  { opacity: 1; }
+  to   { opacity: 0; transform: translateY(130px) rotate(var(--confetti-spin, 160deg)) scale(1); }
+}
+
+.confetti-glyph {
+  position: absolute;
+  top: -8px;
+  font-family: var(--font-mono);
+  animation: confettiFall var(--d-orbit) var(--ease-entrance) backwards;
+  pointer-events: none;
+}
+
+.admin-activity-chart__bar {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: adminBarIn 180ms ease-out both;
+}
+
+@keyframes adminBarIn {
+  from { opacity: 0.45; transform: scaleY(0.55); }
+  to { opacity: 1; transform: scaleY(1); }
+}
+
+:root[data-reduce-motion="true"] *,
+:root[data-reduce-motion="true"] *::before,
+:root[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0s !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ── Coloration syntaxique ──
+   Les couleurs sont résolues par variable CSS : un bloc passe de la
+   variante éditeur à la variante terminal en changeant un attribut,
+   sans recalculer la coloration.                                   */
+@layer components {
+  .tok-keyword  { color: var(--color-code-keyword); }
+  .tok-string   { color: var(--color-code-string); }
+  .tok-number   { color: var(--color-code-number); }
+  .tok-function { color: var(--color-code-function); }
+  .tok-type     { color: var(--color-code-type); font-weight: 700; }
+  .tok-comment  { color: var(--color-code-comment); font-style: italic; }
+  .tok-punct    { color: var(--color-code-punct); }
+
+  /* Numéros de ligne : jamais sélectionnés, ils ne sont pas du texte */
+  .code-line-no {
+    color: var(--color-chalk-4);
+    user-select: none;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Soulignement au survol d'un lien ──
+     Le trait se dessine de gauche à droite (`clip-path`), pas en
+     apparaissant d'un coup : c'est le geste d'un surligneur, et il
+     rejoue le vocabulaire du terminal plutôt que du web.
+     ─────────────────────────────────────────────────────────────── */
+  .underline-sweep {
+    position: relative;
+    text-decoration: none;
+
+    &::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      background: currentColor;
+      clip-path: inset(0 100% 0 0);
+      transition: clip-path var(--d-base) var(--ease-spring);
+    }
+
+    &:hover::after,
+    &:focus-visible::after { clip-path: inset(0 0 0 0); }
+  }
+}
+
+/* ── Filet de bord général ──
+   Toute surface arrondie peinte sur un jeton `surface` prend le fin filet
+   noir de `--color-edge`, pour que les cartes flottent au lieu de baver.
+   On ne pose **que** la couleur : aucune largeur de bord n'est inventée
+   (un élément sans bord reste sans bord) et, surtout, aucun
+   `backdrop-filter` n'est appliqué en masse — il créerait un bloc
+   conteneur qui casserait les barres `sticky`/`fixed` et laperait le
+   contenu. Le verre se demande classe par classe. */
+:where(
+  [class~="bg-surface"],
+  [class~="bg-surface-2"],
+  [class~="bg-surface-3"]
+):not([class*="glass"])[class*="rounded"] {
+  border-color: var(--color-edge);
+}
+/* ── Badge premium : relief, halo, brillance ─────────────────────────── */
+.verify-badge {
+  isolation: isolate;
+  overflow: visible;
+}
+
+.verify-badge::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  clip-path: inherit;
+  background: radial-gradient(circle at 50% 35%, rgba(255,255,255,0.22) 0%, transparent 55%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.verify-badge::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  clip-path: inherit;
+  background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.16) 0%, transparent 50%);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.verify-badge > svg,
+.verify-badge > i,
+.verify-badge > * {
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 0.5px 0.5px rgba(255,255,255,0.25));
+}
+
+.verify-badge-lg {
+  filter:
+    drop-shadow(0 0 6px rgba(201,148,67,0.18))
+    drop-shadow(0 2px 4px rgba(35,42,29,0.32));
+}
+
+.verify-badge-inline {
+  filter:
+    drop-shadow(0 0 4px rgba(201,148,67,0.12))
+    drop-shadow(0 1px 2px rgba(35,42,29,0.28));
+}
+
+.verify-badge-sm {
+  filter: drop-shadow(0 1px 1.5px rgba(35,42,29,0.26));
+}
+
+.verify-shape-seal {
+  box-shadow:
+    0 0 0 1px rgba(255,220,140,0.4),
+    inset 0 0 0 1px rgba(255,240,200,0.28);
+}
+
+.verify-shape-arch {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.32),
+    0 0 6px rgba(95,176,127,0.16);
+}
+
+.verify-shape-keystone {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.3),
+    0 0 5px rgba(155,166,206,0.14);
+}
+
+.verify-shape-shield {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.28),
+    0 0 4px rgba(213,154,146,0.12);
+}
+
+.verify-shape-octagon {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26);
+}
+
+.verify-shape-hexagon {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26);
+}
+
+.verify-shape-pentagon {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.22);
+}
+
+.verify-shape-square {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.26);
+}
+
+.verify-shape-diamond,
+.verify-shape-triangle {
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.24);
+}
+
+.verify-shape-round {
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,0.42),
+    0 0 4px rgba(224,162,90,0.14);
+}
+
+:root[data-theme="light"] .text-signal,
+:root[data-theme="light"] .hover\:text-signal:hover {
+  color: var(--color-signal-d);
+}
+
+.bg-signal {
+  background-color: var(--color-signal-fill);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+}
+
+/* ============================================================
+   Deux densités, deux directions artistiques — pas deux réglages
+   de la même mise en page.
+
+   · Confortable : le fil comme une page. Grands blancs, coins larges,
+     ombre douce, texte de lecture.
+   · Compacte : le fil comme un terminal. Hauteur au trait, angles
+     quasi vifs, aucune ombre, métadonnées en monospace, texte dense.
+
+   Les deux partagent les couleurs et la typographie ; ce qui change
+   est le rythme et la matière — c'est ce qui les rend reconnaissables
+   sans étiquette.
+   ============================================================ */
+
+[data-feed-density="comfortable"] .feed-post {
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-sh-1);
+  margin-bottom: 1rem;
+}
+
+[data-feed-density="comfortable"] .feed-post__content {
+  padding-block: 1.5rem;
+  padding-inline: 1.25rem;
+}
+
+[data-feed-density="comfortable"] .feed-post__text {
+  font-size: 15.5px;
+  line-height: 1.65;
+  margin-bottom: 1.25rem;
+}
+
+[data-feed-density="compact"] .feed-post {
+  border-radius: 2px;
+  box-shadow: none;
+  margin-bottom: 0;
+  border-bottom-width: 1px;
+}
+
+[data-feed-density="compact"] .feed-post__content {
+  padding-block: 0.6rem;
+  padding-inline: 0.75rem;
+}
+
+[data-feed-density="compact"] .feed-post__gutter {
+  padding-block: 0.6rem;
+  padding-inline: 0.5rem;
+}
+
+[data-feed-density="compact"] .feed-post__text {
+  margin-bottom: 0.45rem;
+  font-size: 13.5px;
+  line-height: 1.42;
+  letter-spacing: -0.005em;
+}
+
+[data-feed-density="compact"] .feed-post__meta,
+[data-feed-density="compact"] .label-micro {
+  font-family: var(--font-mono, ui-monospace, monospace);
+}
+
+[data-feed-density="compact"] .feed-post__actions {
+  gap: 0.25rem;
+}
+
+[data-feed-density="compact"] .feed-post__actions button {
+  min-height: 32px;
+  border-radius: 2px;
+}
+
+/* ── La coque sur téléphone ────────────────────────────────────────────
+
+   La barre de titre et la barre d'onglets gardent leur dessin, mais
+   perdent les quelques pixels de bord qui ne servaient à rien : 4 px en
+   haut, 4 px en bas. Ce n'est pas une économie de cible — les boutons
+   restent à 44 px — c'est de la hauteur rendue au contenu, sur les deux
+   thèmes Savane comme sur les thèmes sombre et clair.
+
+   Le sélecteur `:root[data-theme]` a la même spécificité que les blocs de
+   thème ci-dessus et vient après : il l'emporte sans `!important`. */
+@media (max-width: 640px) {
+  :root,
+  :root[data-theme] {
+    --h-topbar:    calc(48px + var(--h-safe-top));
+    --h-bottomnav: calc(52px + var(--h-safe-bottom));
+  }
+}
+
+/* ── Densité mobile du fil ─────────────────────────────────────────────
+
+   Sur un iPhone, une carte confortable réservait 24 px de rembourrage
+   vertical pour un texte qui en mérite 16 : trois cartes tenaient à
+   peine dans un écran, et le fil se lisait comme une suite de fiches.
+   On resserre uniquement sous 640 px — le bureau garde son air, le
+   téléphone gagne deux cartes visibles. La cible tactile des actions
+   ne bouge pas (44 px, règle dure) : c'est l'espace autour qui se
+   resserre, pas les boutons. */
+@media (max-width: 640px) {
+  [data-feed-density="comfortable"] .feed-post {
+    margin-bottom: 0.6rem;
+  }
+
+  [data-feed-density="comfortable"] .feed-post__content {
+    padding-block: 0.95rem;
+    padding-inline: 0.85rem;
+  }
+
+  [data-feed-density="comfortable"] .feed-post__text {
+    font-size: 15px;
+    line-height: 1.54;
+    margin-bottom: 0.75rem;
+  }
+
+  [data-feed-density="compact"] .feed-post__content {
+    padding-block: 0.5rem;
+    padding-inline: 0.65rem;
+  }
+
+  [data-feed-density="compact"] .feed-post__text {
+    margin-bottom: 0.35rem;
+  }
+}
+
+/* ============================================================
+   Le lecteur de statuts — direction propre : **la projection**.
+
+   Le reste de l'application est une table de travail : coins doux,
+   surfaces pleines, ombres. Un statut est autre chose — une image
+   qu'on projette, le temps d'un plan. D'où :
+
+   · un fond de salle (dégradé sombre, grain, vignette) qui isole
+     complètement du fil ;
+   · des angles vifs, une ouverture fine autour du contenu ;
+   · des contrôles sans fond, qui n'apparaissent qu'au survol ;
+   · une pellicule de stickers, pas une grille de boutons.
+
+   Rien ici ne fuit hors du lecteur : tout est porté par
+   `.story-stage`.
+   ============================================================ */
+
+.story-stage {
+  --story-stage-bg: #0b0b0c;
+  background: var(--story-stage-bg);
+}
+
+.story-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.18), transparent 18%, transparent 82%, rgba(0, 0, 0, 0.28));
+}
+
+.story-stage::after {
+  content: none;
+}
+
+.story-stage > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Appui maintenu sur la story : ni menu d'enregistrement de l'image, ni
+   sélection de texte qui casse la lecture. Le champ de réponse garde la
+   sienne. Hors mode PWA, donc non couvert par la règle générique. */
+.story-stage,
+.story-stage * {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.story-stage :where(input, textarea) {
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.story-aperture {
+  border-radius: var(--radius-card);
+}
+
+.story-frame {
+  border-radius: calc(var(--radius-card) - 2px);
+  border: 1px solid var(--color-line-2);
+  background: var(--color-void);
+}
+
+.story-credit {
+  padding-bottom: 0.5rem;
+  background: linear-gradient(to bottom, rgba(11, 11, 12, 0.92), rgba(11, 11, 12, 0));
+}
+
+.story-control {
+  border: 1px solid var(--color-line-2);
+  border-radius: var(--radius-chip);
+  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
+  transition: border-color var(--d-fast), color var(--d-fast), background-color var(--d-fast), transform var(--d-fast);
+}
+
+.story-control:hover {
+  border-color: rgba(236, 233, 223, 0.38);
+}
+
+.story-film span[class*="bg-signal"] {
+  box-shadow: 0 0 8px rgba(255, 92, 53, 0.55);
+}
+
+.story-ticks {
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--color-signal);
+  border-radius: 1px;
+  background: var(--color-signal);
+  box-shadow: 0 0 10px rgba(255, 92, 53, 0.5);
+}
+
+.story-caption {
+  background: linear-gradient(to top, rgba(7, 8, 10, 0.55), transparent 70%);
+  font-size: clamp(16px, 2.4vw, 19px) !important;
+  line-height: 1.5 !important;
+  letter-spacing: -0.01em;
+}
+
+.story-tray {
+  border: 1px solid rgba(236, 233, 223, 0.14);
+  border-radius: 2px;
+  background: rgba(7, 8, 10, 0.82);
+  backdrop-filter: blur(10px);
+}
+
+.story-tray button[aria-label^="Poser"] {
+  border-radius: 2px;
+  border: 1px solid transparent;
+}
+
+.story-tray button[aria-label^="Poser"]:hover {
+  border-color: var(--color-signal);
+  background: rgba(255, 92, 53, 0.08);
+}
+
+:where(input, textarea, select):focus {
+  border-color: var(--color-signal) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+:where(input, textarea, select):focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 2px;
+}
+
+/* ── Finitions « application installée » ────────────────────────────────
+ *
+ * Dans un navigateur, certains gestes signalent une page web : le surlignage
+ * bleu d'un appui, le délai de 300 ms qui attend un double-tap, le
+ * rebondissement élastique en haut de page, le menu contextuel d'iOS sur un
+ * appui long. Une fois installée, l'application n'a plus à les subir.
+ *
+ * La sélection de texte reste possible là où elle a un sens — champs de
+ * saisie et blocs explicitement marqués — parce qu'on copie du code et des
+ * extraits.
+ */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Sur iOS (Safari ancien, iPhone X), le pan horizontal passe quand c'est
+   <html> qui défile : le clip doit aussi être posé ici, pas seulement sur body. */
+html {
+  overflow-x: clip;
+}
+
+body {
+  overscroll-behavior-y: none;
+  /* Empêche le rebond horizontal qui donne une impression de page web
+     sur certains navigateurs mobiles, sans bloquer le défilement vertical. */
+  overscroll-behavior-x: none;
+  /* Un double-appui sur un texte ou une carte déclenchait le zoom de
+     Safari, qui décalait la page entière. `manipulation` retire le
+     double-tap tout en gardant le pincement à deux doigts : on ne
+     supprime pas l'accessibilité, on retire l'accident. */
+  touch-action: manipulation;
+}
+
+button,
+a,
+[role="button"],
+[role="tab"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* iOS zoome sur un champ dont la police fait moins de 16 px : en forçant
+   cette taille sur mobile, la mise au point reste stable et native. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em);
+  }
+}
+
+@media (display-mode: standalone) {
+  body {
+    overscroll-behavior: none;
+  }
+
+  /* Évite la sélection accidentelle sur les contrôles en PWA, sans
+     bloquer la copie du contenu (posts, messages, code). */
+  :where(button, a, nav, header, [role="button"], [data-no-select]) {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+  }
+}
+
+/* Fonds et encres de l'éditeur de statut. Ils vivent ici, pas dans le
+ * composant : une couleur en dur dans le JS échappe au thème et au
+ * contrôle DS-01. Le canvas relit ces variables à l'export, donc l'image
+ * publiée porte exactement la couleur de l'aperçu. */
+:root {
+  --story-bg-1-a: #0b0b0f;
+  --story-bg-1-b: #1b1b24;
+  --story-bg-2-a: #ff5f6d;
+  --story-bg-2-b: #ffc371;
+  --story-bg-3-a: #4776e6;
+  --story-bg-3-b: #8e54e9;
+  --story-bg-4-a: #11998e;
+  --story-bg-4-b: #38ef7d;
+  --story-bg-5-a: #fc466b;
+  --story-bg-5-b: #3f5efb;
+  --story-bg-6-a: #f7971e;
+  --story-bg-6-b: #ffd200;
+  --story-bg-7-a: #000000;
+  --story-bg-7-b: #434343;
+  --story-bg-8-a: #e0eafc;
+  --story-bg-8-b: #cfdef3;
+  --story-ink-1: #ffffff;
+  --story-ink-2: #0b0b0f;
+  --story-ink-3: #ffd166;
+  --story-ink-4: #7cf5c0;
+}
+
+/* Ombre portée du texte de statut : la même dans l'aperçu et dans l'export,
+ * et hors du composant pour rester une décision de design. */
+:root {
+  --story-text-shadow: 0 2px 14px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Le champ de texte d'un statut ──────────────────────────────────────
+ *
+ * Ici le champ **est** le texte : un cadre autour d'un mot posé sur une
+ * photo dirait « formulaire » là où l'écran doit dire « ta story ». Le
+ * repère de focus reste, parce qu'il faut savoir où l'on écrit — un
+ * liseré pointillé, pas un halo plein.
+ */
+.status-text-field:focus,
+.status-text-field:focus-visible {
+  outline: 1px dashed color-mix(in srgb, var(--color-signal) 50%, transparent) !important;
+  outline-offset: 8px !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   THÈME LIQUID GLASS — activable, par-dessus n'importe quel thème
+
+   Activé par `data-liquid="true"` sur <html> (réglage « Verre liquide »
+   dans Paramètres). Ce bloc ne change ni la mise en page ni la couleur
+   de base : il ne redéfinit que les jetons de verre, les filets, les
+   ombres et un fond à reflets, que les classes `glass-*` lisent déjà.
+   Il vient en fin de fichier pour l'emporter à spécificité égale sur
+   les blocs de thème. Désactivé = retour exact au rendu plat.
+   ══════════════════════════════════════════════════════════════════ */
+:root[data-liquid="true"] {
+  /* Transparence franche : la matière vient du flou et des bords,
+     jamais d'un voile blanc. Le remplissage ne fait que créditer
+     suffisamment la dalle pour la lisibilité du texte. */
+  --glass-bg:        color-mix(in srgb, var(--color-surface) 36%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--color-surface) 60%, transparent);
+  --glass-refract:        blur(20px) saturate(1.9);
+  --glass-refract-strong: blur(26px) saturate(1.9);
+  --glass-lens:           blur(34px) saturate(2);
+  --glass-sheen: none;
+  --glass-rim:
+    inset 0 1px 0 rgb(255 255 255 / 0.5),
+    inset 0 -1px 0 rgb(0 0 0 / 0.28);
+
+  /* ── Réfraction sur les bordures ──
+     La lumière qui traverse le bord se dédouble : une frange chaude
+     (couleur d'action) côté lumière, une frange froide (phosphor) côté
+     ombre. Posées en inset, elles suivent le rayon de la bordure et ne
+     débordent jamais — aucune découpe, donc aucun menu rogné. */
+  --glass-chroma:
+    inset  1px  1px 0 color-mix(in srgb, var(--color-signal) 20%, transparent),
+    inset -1px -1px 0 color-mix(in srgb, var(--color-phosphor) 16%, transparent);
+
+  /* Le liseré allumé du survol : la dalle se tourne vers la lumière.
+     Deux composantes — un filet clair qui se tend, un halo qui s'ouvre —
+     crossfader par opacity seulement (interruptible). */
+  --glass-rim-lit:
+    inset 0 1.5px 0 color-mix(in srgb, #fff 55%, transparent),
+    inset 0 0 22px color-mix(in srgb, var(--color-signal) 13%, transparent);
+
+  --color-edge:   color-mix(in srgb, #fff 22%, var(--color-line));
+  --shadow-drop:  0 18px 44px -18px rgb(0 0 0 / 0.55), 0 3px 8px rgb(0 0 0 / 0.14);
+  --shadow-drop-lg: 0 26px 60px -20px rgb(0 0 0 / 0.6), 0 4px 12px rgb(0 0 0 / 0.16);
+  --overlay-blur: blur(24px) saturate(1.6);
+  /* Les feuilles flottent : voile plus profond, panneau givré. */
+  --overlay-veil-bg: color-mix(in srgb, var(--color-void) 62%, transparent);
+  --overlay-frost-bg: color-mix(in srgb, var(--color-surface) 55%, transparent);
+  --overlay-panel-bg: color-mix(in srgb, var(--color-surface) 70%, transparent);
+
+  /* ── La pilule de verre (iOS) ──
+     Les contrôles ronds — icône seule, onglet de navigation — deviennent
+     des pastilles de verre poli : flou saturé, reflet vertical, liseré
+     haut lumineux, ombre interne basse (la pilule est **convexe**).
+     La matière vit dans des jetons dédiés : hors mode liquide ils sont
+     absents, la pilule reste plate — aucun composant ne change. */
+  --pill-sheen: none;
+  --pill-refract: blur(16px) saturate(1.8);
+  --pill-rim:
+    inset 0 1px 0 rgb(255 255 255 / 0.55),
+    inset 0 -1px 0 rgb(0 0 0 / 0.30);
+  --pill-drop: 0 8px 20px -10px rgb(0 0 0 / 0.45);
+  --page-wash:
+    /* ── Le canvas liquide ──
+       Le verre ne se réfracte que sur ce qui est vivant derrière lui :
+       un champ de couleurs franches posées en larges taches fixes. Sans
+       canvas coloré, le liquide n'est qu'un gris flou. */
+    radial-gradient(52% 40% at 10% 4%, color-mix(in srgb, var(--color-signal) 30%, transparent), transparent 70%),
+    radial-gradient(46% 42% at 92% 12%, color-mix(in srgb, var(--color-moss, #8FAF4E) 24%, transparent), transparent 70%),
+    radial-gradient(40% 36% at 78% 46%, color-mix(in srgb, var(--color-av-violet-bg, #DBC4DF) 14%, transparent), transparent 70%),
+    radial-gradient(44% 40% at 12% 68%, color-mix(in srgb, var(--color-warn) 16%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 55% 112%, color-mix(in srgb, var(--color-signal) 20%, transparent), transparent 72%),
+    linear-gradient(175deg, #16130E 0%, #101008 58%, #0B0A07 100%);
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   MODE DESIGN LIQUIDE — la philosophie change avec la matière
+
+   Poser du verre sur l'interface plate ne suffit pas : une interface
+   en verre liquide a ses propres lois, et elles ne sont pas celles de
+   l'encre sur papier.
+
+   1. **Le contenu flotte sur un canvas vivant.** Les surfaces ne sont
+      plus des boîtes bordées empilées sur un fond : ce sont des dalles
+      de verre posées sur un champ de couleurs. La hiérarchie vient de
+      la profondeur (flou, ombre, liseré), pas du trait.
+   2. **Zéro bordure sec sur les contenants.** Un bord dessiné au trait
+      dit « boîte » ; le bord du verre est une *arête lumineuse*. Les
+      filets entre lignes restent — ils séparent, ils n'enferment pas.
+   3. **Rayons généreux.** Le verre poli casse mal : les angles vifs
+      sont des défauts de matière. Cartes 18 px, champs 12 px, puces
+      10 px, boutons d'action en pilule.
+   4. **Les barres détachées.** La barre de titre, la barre basse et le
+      panneau latéral ne sont plus des bandes plein-bord : ce sont des
+      îles flottantes, détachées du cadre par une marge de respiration.
+   5. **L'action reste pleine.** Le bouton d'action ne devient pas de
+      verre : sur un fond de verre, une cible pleine et franche reste le
+      seul repère non-ambigu.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── Rayons de verre ── */
+:root[data-liquid="true"] {
+  --radius-card:  18px;
+  --radius-input: 12px;
+  --radius-chip:  10px;
+}
+
+/* ── Les dalles : bord transparent, la matière porte l'arête ──
+   Le trait de bordure disparaît ; ce qui reste est fonctionnel (le
+   1 px de layout) et invisible. L'arête est dessinée par le rim, la
+   réfraction chromatique et l'ombre. */
+:root[data-liquid="true"] .depth-card,
+:root[data-liquid="true"] .glass-card,
+:root[data-liquid="true"] .glass-flat,
+:root[data-liquid="true"] .feed-post {
+  border-color: transparent;
+  background-color: var(--glass-bg);
+  background-image: none;
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+}
+
+/* La carte de fil a sa propre surface (bg-surface/30) : même matière,
+   même arête, même survol que depth-card. */
+:root[data-liquid="true"] .feed-post {
+  position: relative;
+  transition:
+    transform var(--d-base) var(--ease-spring),
+    background-color var(--d-fast) var(--ease-continuous);
+}
+
+:root[data-liquid="true"] .feed-post::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--bw-thick));
+  border-radius: inherit;
+  box-shadow: var(--glass-rim-lit);
+  opacity: 0;
+  transition: opacity var(--d-slow) var(--ease-continuous);
+  pointer-events: none;
+}
+
+:root[data-liquid="true"] .feed-post:hover {
+  transform: translateY(-2px);
+}
+
+:root[data-liquid="true"] .feed-post:hover::after {
+  opacity: 1;
+}
+
+/* Les boîtes `bg-surface` courantes (panneaux internes, champs de
+   panneaux) gagnent la matière sans changer leur role. */
+:root[data-liquid="true"] .glass-flat {
+  backdrop-filter: var(--glass-refract);
+}
+
+/* ── Les barres détachées : îles flottantes ── */
+
+/* Barre de titre : une île posée sous la zone sûre, détachée du cadre. */
+:root[data-liquid="true"] [data-shell="topbar"] {
+  top: calc(var(--h-banner, 0px) + 8px);
+  margin-inline: 10px;
+  border: none;
+  border-radius: 20px;
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+}
+
+/* Barre basse : un dock flottant, détaché du bord et du bas sûr. */
+:root[data-liquid="true"] [data-shell="dock"] {
+  left: 14px;
+  right: 14px;
+  bottom: calc(var(--h-safe-bottom) + 12px);
+  border: none;
+  border-radius: 24px;
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop-lg);
+}
+
+/* Barre d'état : une capsule de verre flottant au-dessus du dock —
+   elle masque le contenu qui arrive derrière elle et s'aligne sur le
+   retrait du dock. */
+:root[data-liquid="true"] [data-shell="statusbar"] {
+  left: 14px;
+  right: 14px;
+  bottom: calc(var(--h-safe-bottom) + var(--h-bottomnav) + 16px);
+  border: none;
+  border-radius: 999px;
+  background-color: var(--overlay-frost-bg);
+  background-image: none;
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim);
+}
+
+/* Panneau latéral (bureau) : une île verticale. */
+:root[data-liquid="true"] [data-shell="side"] {
+  margin: 10px 0 10px 10px;
+  height: calc(100dvh - var(--h-banner, 0px) - 20px);
+  border-right: none;
+  border-radius: 20px;
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+}
+
+/* Le contenu ne colle plus aux barres flottantes : une marge de
+   respiration sous la barre de titre et au-dessus du dock. */
+:root[data-liquid="true"] [data-shell="topbar"] + * {
+  scroll-margin-top: 8px;
+}
+
+/* ── L'action reste pleine, en pilule ── */
+:root[data-liquid="true"] button.bg-signal {
+  border-radius: 999px;
+}
+
+/* ── Les feuilles : dalles flottantes, pas des tiroirs collés ── */
+:root[data-liquid="true"] .sheet-glass {
+  background-color: var(--overlay-frost-bg);
+  backdrop-filter: var(--overlay-blur);
+  border: none;
+  margin-inline: 8px;
+  border-radius: 24px;
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop-lg);
+}
+
+/* Le voile derrière une feuille : plus léger, le canvas doit rester
+   lisible derrière le verre. */
+:root[data-liquid="true"] .overlay-veil {
+  background-color: color-mix(in srgb, var(--color-void) 40%, transparent);
+}
+
+/* ── Thème clair : même philosophie, lumière pastel ──
+   Le canvas ivoire reçoit des taches pastel ; le verre reste lisible
+   grâce à son remplissage plus élevé (déjà posé plus haut). */
+:root[data-theme="light"][data-liquid="true"],
+:root[data-theme="savane-clair"][data-liquid="true"] {
+  --page-wash:
+    radial-gradient(50% 38% at 10% 4%, color-mix(in srgb, var(--color-signal) 16%, transparent), transparent 70%),
+    radial-gradient(44% 40% at 92% 12%, color-mix(in srgb, var(--color-phosphor) 13%, transparent), transparent 70%),
+    radial-gradient(40% 36% at 78% 46%, color-mix(in srgb, var(--color-av-violet-bg, #DBC4DF) 26%, transparent), transparent 70%),
+    radial-gradient(42% 38% at 12% 66%, color-mix(in srgb, var(--color-warn) 12%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 55% 112%, color-mix(in srgb, var(--color-signal) 10%, transparent), transparent 72%),
+    linear-gradient(175deg, #FAF8F2 0%, #F5F2EA 60%, #EFECE2 100%);
+}
+
+/* ── 3D : la dalle se soulève et son bord accroche la lumière ──
+   Deux phénomènes, une seule transition (interruptible) : la carte
+   monte d'un cran-et-demi (transform), le liseré allumé crossfade par
+   opacity. Le pseudo porte la lumière ; la carte garde son overflow
+   intact — un picker posé dans une carte n'est jamais rogné. */
+:root[data-liquid="true"] .glass-card,
+:root[data-liquid="true"] .glass-edge,
+:root[data-liquid="true"] .glass-lens {
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+}
+
+/* ── Les cartes réelles : `depth-card` ──
+   Conversations, groupes, communautés, tableau de tâches : c'est la
+   classe que les écrans posent vraiment. Même traitement que la dalle
+   de cristal — fond translucide, flou, réfraction chromatique, et au
+   survol la carte se soulève et son bord accroche la lumière. */
+:root[data-liquid="true"] .depth-card {
+  position: relative;
+  background-color: var(--glass-bg);
+  background-image: var(--glass-sheen);
+  backdrop-filter: var(--glass-refract);
+  box-shadow: var(--glass-rim), var(--glass-chroma), var(--shadow-drop);
+  transition:
+    transform var(--d-base) var(--ease-spring),
+    border-color var(--d-fast) var(--ease-continuous),
+    background-color var(--d-fast) var(--ease-continuous);
+}
+
+:root[data-liquid="true"] .depth-card::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--bw-thick));
+  border-radius: inherit;
+  box-shadow: var(--glass-rim-lit);
+  opacity: 0;
+  transition: opacity var(--d-slow) var(--ease-continuous);
+  pointer-events: none;
+}
+
+:root[data-liquid="true"] .depth-card:hover {
+  transform: translateY(-2px);
+}
+
+:root[data-liquid="true"] .depth-card:hover::after {
+  opacity: 1;
+}
+
+/* ── La pilule : matière des contrôles ──
+   L'utilitaire ne touche ni background-color ni box-shadow de l'élément :
+   les composants gardent leurs états (actif, hover, focus) — la pilule
+   n'ajoute que la matière (reflet, flou) et son liseré sur un pseudo,
+   qui ne peut donc pas entrer en conflit de cascade avec les ombres
+   existantes. Hors mode liquide, les jetons sont absents : rien ne se
+   dessine, la pilule est plate. */
+@utility glass-pill {
+  position: relative;
+  background-image: var(--pill-sheen, none);
+  backdrop-filter: var(--pill-refract, none);
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: var(--pill-rim, none), var(--pill-drop, none);
+    transition: box-shadow var(--d-base) var(--ease-spring);
+    pointer-events: none;
+  }
+}
+
+:root[data-liquid="true"] .glass-card {
+  position: relative;
+  transition:
+    transform var(--d-base) var(--ease-spring),
+    border-color var(--d-fast) var(--ease-continuous),
+    background-color var(--d-fast) var(--ease-continuous);
+}
+
+:root[data-liquid="true"] .glass-card::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * var(--bw-thick));
+  border-radius: inherit;
+  box-shadow: var(--glass-rim-lit);
+  opacity: 0;
+  transition: opacity var(--d-slow) var(--ease-continuous);
+  pointer-events: none;
+}
+
+:root[data-liquid="true"] .glass-card:hover {
+  transform: translateY(-2px);
+}
+
+:root[data-liquid="true"] .glass-card:hover::after {
+  opacity: 1;
+}
+
+/* Thème clair : le poli se resserre — la lumière blanche est moins
+   visible sur ivoire, la frange chaude s'atténue pour rester un reflet,
+   jamais une couleur. */
+:root[data-theme="light"][data-liquid="true"],
+:root[data-theme="savane-clair"][data-liquid="true"] {
+  --glass-sheen: none;
+  /* Sur ivoire, le verre clair ne peut pas être aussi transparent que
+     sur encre : le remplissage remonte un peu, reste loin d'un voile. */
+  --glass-bg:        color-mix(in srgb, var(--color-surface) 52%, transparent);
+  --glass-bg-strong: color-mix(in srgb, var(--color-surface) 68%, transparent);
+  --glass-chroma:
+    inset  1px  1px 0 color-mix(in srgb, var(--color-signal) 26%, transparent),
+    inset -1px -1px 0 color-mix(in srgb, var(--color-phosphor) 20%, transparent);
+  --glass-rim-lit:
+    inset 0 1.5px 0 rgb(255 255 255 / 0.9),
+    inset 0 0 18px color-mix(in srgb, var(--color-signal) 16%, transparent);
+  /* Pilule en thème clair : le reflet s'appuie sur le blanc, l'ombre
+     interne basse porte la convexité (le fond sombre ne peut pas). */
+  --pill-rim:
+    inset 0 1px 0 rgb(255 255 255 / 0.8),
+    inset 0 -1.5px 0 rgb(0 0 0 / 0.10),
+    inset 0 0 8px rgb(255 255 255 / 0.35);
+  --pill-drop: 0 8px 18px -10px rgb(0 0 0 / 0.18);
+}
+
+/* Le fond à reflets doit aussi couvrir le body, pas seulement le root. */
+:root[data-liquid="true"] body {
+  background-attachment: fixed;
+}
+
+/* Verre réduit : sans transparence, le texte reste net sur tout fond. */
+@media (prefers-reduced-transparency: reduce) {
+  :root[data-liquid="true"] {
+    --glass-bg:        var(--color-surface);
+    --glass-bg-strong: var(--color-surface);
+    --glass-refract:        none;
+    --glass-refract-strong: none;
+    --glass-lens:           none;
+    --overlay-blur:         none;
+    /* La réfraction chromatique reste : elle vit sur la bordure, pas
+       dans la transparence — le bord continue d'accrocher la lumière. */
+  }
+}
+
+/* Mouvement réduit : la carte ne se soulève plus ; le liseré allumé
+   s'affiche sans transition — l'état reste lisible, sans le mouvement.
+   La neutralisation vit dans le bloc d'accessibilité du mouvement, plus
+   haut dans ce fichier, qui coupe aussi les classes .mo-. */

@@ -1,0 +1,124 @@
+name: Sauvegarde de la base
+
+# Sauvegarde quotidienne chiffrée de la base qui sert la production.
+#
+# Pourquoi ce workflow existe : `docs/ops/backups.md` décrivait une procédure
+# manuelle, et rien ne tournait. Une base sans sauvegarde planifiée n'est pas
+# protégée — le dump du 14/11 était ponctuel.
+#
+# Ce qui sort de la machine est l'archive GPG, jamais le dump en clair :
+# `scripts/db/backup.ts` chiffre avant de déposer sur R2.
+#
+# Secrets à créer dans le dépôt (Settings → Secrets and variables → Actions) :
+#   DATABASE_URL            URL Systalink (rôle en lecture)
+#   DATABASE_PASSPHRASE     phrase de passe GPG, la même que la copie locale
+#   R2_ENDPOINT             endpoint S3 de Cloudflare R2
+#   R2_ACCESS_KEY_ID        clé R2
+#   R2_SECRET_ACCESS_KEY    secret R2
+#   R2_BUCKET               compartiment de sauvegarde
+#
+# Sans les secrets R2, la sauvegarde locale reste valide et l'étape hors site
+# est ignorée : le job n'échoue pas pour autant.
+
+on:
+  schedule:
+    # 03:20 UTC — après la purge des stories (03:00), pour sauvegarder un état
+    # déjà nettoyé. Décalé de 20 minutes pour ne pas courir en même temps.
+    - cron: "20 3 * * *"
+  workflow_dispatch:
+    inputs:
+      keep:
+        description: "Nombre de sauvegardes conservées localement"
+        required: false
+        default: "7"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: db-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Vérifier la présence des secrets
+        id: secrets
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_PASSPHRASE: ${{ secrets.DATABASE_PASSPHRASE }}
+        run: |
+          missing=""
+          [ -z "$DATABASE_URL" ] && missing="$missing DATABASE_URL"
+          [ -z "$DATABASE_PASSPHRASE" ] && missing="$missing DATABASE_PASSPHRASE"
+          if [ -n "$missing" ]; then
+            # Pas d'échec : la sauvegarde locale (systemd, cette machine) couvre
+            # déjà le quotidien. Ce workflow est la couche hors machine, et un
+            # job rouge chaque nuit pour une couche volontairement non
+            # configurée finit par être ignoré. L'avertissement reste visible.
+            echo "::warning::Sauvegarde hors machine inactive — secrets manquants :$missing. Voir docs/ops/backups.md §3.4."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Préparer la phrase de passe
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          DATABASE_PASSPHRASE: ${{ secrets.DATABASE_PASSPHRASE }}
+        run: |
+          # Écrite sans jamais l'afficher, en 600, hors du dépôt.
+          umask 077
+          mkdir -p "$HOME/.config/devnet"
+          printf '%s' "$DATABASE_PASSPHRASE" > "$HOME/.config/devnet/backup-passphrase"
+          chmod 600 "$HOME/.config/devnet/backup-passphrase"
+
+      - name: Sauvegarde chiffrée et dépôt hors site
+        if: steps.secrets.outputs.ready == 'true'
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DB_TARGET: remote
+          R2_ENDPOINT: ${{ secrets.R2_ENDPOINT }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET: ${{ secrets.R2_BUCKET }}
+        run: |
+          # `parseFlag` n'accepte que la forme `--clé=valeur` : avec un espace,
+          # l'option est ignorée en silence et la sauvegarde part dans le
+          # dossier par défaut.
+          npm run db:backup:remote -- \
+            --out-dir="$RUNNER_TEMP/backups" \
+            --keep="${{ github.event.inputs.keep || '7' }}" \
+            --upload
+
+      - name: Vérifier que l'archive existe et n'est pas vide
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          set -euo pipefail
+          count=$(find "$RUNNER_TEMP/backups" -name '*.dump.gpg' -size +1k | wc -l)
+          echo "Archives produites : $count"
+          if [ "$count" -lt 1 ]; then
+            echo "::error::Aucune archive valide produite."
+            exit 1
+          fi
+          ls -lh "$RUNNER_TEMP/backups"
+
+      - name: Conserver l'archive du run
+        if: steps.secrets.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: db-backup-${{ github.run_id }}
+          path: ${{ runner.temp }}/backups/*.dump.gpg*
+          retention-days: 7
+          if-no-files-found: error
